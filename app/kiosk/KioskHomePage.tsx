@@ -32,11 +32,17 @@ interface Category {
 interface KioskHomePageProps {
   experiences: Experience[]
   categories: Category[]
+  featuredAttractions: Experience[]
 }
 
-export default function KioskHomePage({ experiences, categories }: KioskHomePageProps) {
+export default function KioskHomePage({ experiences, categories, featuredAttractions }: KioskHomePageProps) {
   const [mode, setMode] = useState<'attraction' | 'categories'>('attraction')
   const router = useRouter()
+
+  // Prioritize featured attractions in the loop - show featured first, then other experiences
+  const prioritizedExperiences = featuredAttractions && featuredAttractions.length > 0
+    ? [...featuredAttractions, ...experiences.filter(exp => !featuredAttractions.find(f => f.id === exp.id))]
+    : experiences
 
   // Auto-return to attraction loop after 60 seconds of inactivity
   const { resetTimer } = useIdleTimer(() => {
@@ -47,6 +53,11 @@ export default function KioskHomePage({ experiences, categories }: KioskHomePage
 
   const handleTapToExplore = () => {
     setMode('categories')
+    resetTimer()
+  }
+
+  const handleBackToAttractionLoop = () => {
+    setMode('attraction')
     resetTimer()
   }
 
@@ -63,11 +74,15 @@ export default function KioskHomePage({ experiences, categories }: KioskHomePage
     <div className="w-full h-screen overflow-hidden">
       {mode === 'attraction' ? (
         <KioskAttractionLoop
-          experiences={experiences}
+          experiences={prioritizedExperiences}
           onTapToExplore={handleTapToExplore}
         />
       ) : (
-        <KioskCategoryGrid categories={categories} />
+        <KioskCategoryGrid
+          categories={categories}
+          featuredAttractions={featuredAttractions}
+          onBack={handleBackToAttractionLoop}
+        />
       )}
     </div>
   )

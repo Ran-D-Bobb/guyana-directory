@@ -19,68 +19,45 @@ export default function KioskNavBar() {
 
   return (
     <>
-      {/* Fixed Corner Navigation Buttons - Kiosk Optimized */}
-      {/* Home Button - Top Left (200x80px MEGA button) */}
-      <Link
-        href="/kiosk"
-        className="fixed z-50 flex items-center bg-black/60 hover:bg-black/80 backdrop-blur-xl rounded-full transition-all hover:scale-105 group kiosk-shadow-xl border-2 border-white/20 kiosk-touch-lg"
-        style={{
-          top: 'var(--kiosk-space-2xl)',
-          left: 'var(--kiosk-space-2xl)',
-          gap: 'var(--kiosk-space-md)',
-          padding: `var(--kiosk-space-lg) var(--kiosk-space-2xl)`,
-          minWidth: '200px',
-          minHeight: '80px'
-        }}
-      >
-        <Home className="text-white group-hover:scale-110 transition-transform" size={48} strokeWidth={2.5} />
-        <span className="font-bold text-white" style={{ fontSize: 'var(--kiosk-text-lg)' }}>
-          Home
-        </span>
-      </Link>
+      {/* Static Header - matching reference design */}
+      <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-6 md:p-10">
+        <div className="flex items-center gap-4 text-white">
+          {/* Logo SVG */}
+          <div className="h-8 w-8">
+            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path d="M42.4379 44C42.4379 44 36.0744 33.9038 41.1692 24C46.8624 12.9336 42.2078 4 42.2078 4L7.01134 4C7.01134 4 11.6577 12.932 5.96912 23.9969C0.876273 33.9029 7.27094 44 7.27094 44L42.4379 44Z"></path>
+            </svg>
+          </div>
+        </div>
+      </header>
 
-      {/* Language Button - Top Right (200x80px MEGA button) */}
-      <button
-        onClick={() => setShowLanguages(!showLanguages)}
-        className="fixed z-50 flex items-center bg-black/60 hover:bg-black/80 backdrop-blur-xl rounded-full transition-all hover:scale-105 group kiosk-shadow-xl border-2 border-white/20 kiosk-touch-lg"
-        style={{
-          top: 'var(--kiosk-space-2xl)',
-          right: 'var(--kiosk-space-2xl)',
-          gap: 'var(--kiosk-space-md)',
-          padding: `var(--kiosk-space-lg) var(--kiosk-space-2xl)`,
-          minWidth: '220px',
-          minHeight: '80px'
-        }}
-      >
-        <Globe className="text-white group-hover:rotate-12 transition-transform" size={48} strokeWidth={2.5} />
-        <span className="font-bold text-white" style={{ fontSize: 'var(--kiosk-text-lg)' }}>
-          Language
-        </span>
-      </button>
-
-      {/* Language Selection Modal - Kiosk Optimized */}
+      {/* Language Selection Modal */}
       {showLanguages && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-lg kiosk-p-4xl"
+          className="fixed inset-0 z-[100] flex items-center justify-center backdrop-blur-lg"
+          style={{ background: 'rgba(16, 34, 16, 0.95)' }}
           onClick={() => setShowLanguages(false)}
         >
           <div
-            className="bg-white/10 backdrop-blur-xl rounded-3xl border-2 border-white/20 kiosk-shadow-xl"
+            className="rounded-3xl kiosk-shadow-xl"
             onClick={(e) => e.stopPropagation()}
             style={{
               padding: 'var(--kiosk-space-5xl)',
               maxWidth: '1000px',
-              width: '90%'
+              width: '90%',
+              background: 'var(--kiosk-bg-overlay)',
+              border: '2px solid rgba(59, 84, 59, 1)'
             }}
           >
             <h2
-              className="font-black text-white text-center"
+              className="font-black text-center"
               style={{
                 fontSize: 'var(--kiosk-text-4xl)',
-                marginBottom: 'var(--kiosk-space-4xl)'
+                marginBottom: 'var(--kiosk-space-4xl)',
+                color: 'var(--kiosk-text-primary)'
               }}
             >
-              Select Language / Seleccionar idioma
+              Select Language
             </h2>
 
             <div
@@ -91,42 +68,39 @@ export default function KioskNavBar() {
                 <button
                   key={lang.code}
                   onClick={() => {
-                    // TODO: Implement language switching
                     console.log('Selected language:', lang.code)
                     setShowLanguages(false)
                   }}
-                  className="flex items-center bg-white/20 hover:bg-white/35 backdrop-blur-md rounded-2xl transition-all hover:scale-105 group kiosk-touch-lg kiosk-shadow-md"
+                  className="flex items-center backdrop-blur-md rounded-2xl transition-all hover:scale-105 group kiosk-touch-lg kiosk-shadow-md"
                   style={{
                     gap: 'var(--kiosk-space-lg)',
-                    padding: 'var(--kiosk-space-2xl)'
+                    padding: 'var(--kiosk-space-2xl)',
+                    background: 'var(--kiosk-bg-elevated)',
+                    border: '2px solid rgba(59, 84, 59, 1)'
                   }}
                 >
                   <span style={{ fontSize: '72px' }}>{lang.flag}</span>
                   <div className="text-left">
                     <p
-                      className="font-bold text-white group-hover:translate-x-2 transition-transform"
-                      style={{ fontSize: 'var(--kiosk-text-xl)' }}
+                      className="font-bold group-hover:translate-x-2 transition-transform"
+                      style={{
+                        fontSize: 'var(--kiosk-text-xl)',
+                        color: 'var(--kiosk-text-primary)'
+                      }}
                     >
                       {lang.name}
                     </p>
                     <p
-                      className="text-white/70"
-                      style={{ fontSize: 'var(--kiosk-text-base)' }}
+                      style={{
+                        fontSize: 'var(--kiosk-text-base)',
+                        color: 'var(--kiosk-text-tertiary)'
+                      }}
                     >
                       {lang.code.toUpperCase()}
                     </p>
                   </div>
                 </button>
               ))}
-            </div>
-
-            <div className="text-center" style={{ marginTop: 'var(--kiosk-space-4xl)' }}>
-              <p
-                className="text-white/60"
-                style={{ fontSize: 'var(--kiosk-text-base)' }}
-              >
-                Multi-language support coming soon
-              </p>
             </div>
           </div>
         </div>

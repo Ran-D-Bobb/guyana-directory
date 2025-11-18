@@ -107,10 +107,49 @@ export default async function Page({ params }: PageProps) {
     }
   })
 
+  // Fetch featured experiences (excluding current category to show variety)
+  const { data: featuredExps } = await supabase
+    .from('tourism_experiences')
+    .select(`
+      id,
+      slug,
+      name,
+      description,
+      price_from,
+      rating,
+      review_count,
+      duration,
+      tourism_categories(name),
+      tourism_photos(image_url, is_primary)
+    `)
+    .eq('is_approved', true)
+    .eq('is_featured', true)
+    .order('rating', { ascending: false })
+    .limit(6)
+
+  const featuredExperiences = (featuredExps || []).map((exp: any) => {
+    const primaryPhoto = exp.tourism_photos?.find((p: any) => p.is_primary)
+    const anyPhoto = exp.tourism_photos?.[0]
+
+    return {
+      id: exp.id,
+      slug: exp.slug,
+      name: exp.name,
+      description: exp.description,
+      image_url: primaryPhoto?.image_url || anyPhoto?.image_url || null,
+      rating: exp.rating,
+      review_count: exp.review_count,
+      duration: exp.duration,
+      price_from: exp.price_from,
+      category_name: exp.tourism_categories?.name || 'Experience'
+    }
+  })
+
   return (
     <KioskCategoryPage
       experiences={transformedExperiences}
       categoryName={category.name}
+      featuredExperiences={featuredExperiences}
     />
   )
 }

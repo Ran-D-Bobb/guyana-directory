@@ -34,6 +34,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_emails: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
       business_event_types: {
         Row: {
           created_at: string | null
@@ -562,7 +583,7 @@ export type Database = {
           best_season: string | null
           booking_inquiry_count: number | null
           booking_required: boolean | null
-          coordinates: unknown | null
+          coordinates: unknown
           created_at: string | null
           description: string
           difficulty_level: string | null
@@ -612,7 +633,7 @@ export type Database = {
           best_season?: string | null
           booking_inquiry_count?: number | null
           booking_required?: boolean | null
-          coordinates?: unknown | null
+          coordinates?: unknown
           created_at?: string | null
           description: string
           difficulty_level?: string | null
@@ -662,7 +683,7 @@ export type Database = {
           best_season?: string | null
           booking_inquiry_count?: number | null
           booking_required?: boolean | null
-          coordinates?: unknown | null
+          coordinates?: unknown
           created_at?: string | null
           description?: string
           difficulty_level?: string | null
@@ -1028,10 +1049,7 @@ export type Database = {
         Args: { business_event_id: string }
         Returns: undefined
       }
-      increment_event_views: {
-        Args: { event_id: string }
-        Returns: undefined
-      }
+      increment_event_views: { Args: { event_id: string }; Returns: undefined }
       increment_event_whatsapp_clicks: {
         Args: { event_id: string }
         Returns: undefined
@@ -1048,10 +1066,7 @@ export type Database = {
         Args: { business_id: string }
         Returns: undefined
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

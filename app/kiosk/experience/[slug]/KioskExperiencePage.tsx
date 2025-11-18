@@ -48,11 +48,25 @@ interface Experience {
   tourism_reviews: ExperienceReview[]
 }
 
-interface KioskExperiencePageProps {
-  experience: Experience
+interface FeaturedExperience {
+  id: string
+  slug: string
+  name: string
+  description: string
+  image_url: string | null
+  rating: number
+  review_count: number
+  duration: string | null
+  price_from: number
+  category_name: string
 }
 
-export default function KioskExperiencePage({ experience }: KioskExperiencePageProps) {
+interface KioskExperiencePageProps {
+  experience: Experience
+  featuredExperiences: FeaturedExperience[]
+}
+
+export default function KioskExperiencePage({ experience, featuredExperiences }: KioskExperiencePageProps) {
   const router = useRouter()
 
   // Auto-return to home after 2 minutes of inactivity
@@ -76,6 +90,7 @@ export default function KioskExperiencePage({ experience }: KioskExperiencePageP
   return (
     <KioskExperienceShowcase
       experience={experience}
+      featuredExperiences={featuredExperiences}
       onBack={handleBack}
     />
   )

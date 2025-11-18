@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Star, Clock, Users, ChevronLeft, ChevronRight, QrCode, ArrowLeft, MapPin } from 'lucide-react'
+import { Star, Clock, Users, ChevronLeft, ChevronRight, QrCode, ArrowLeft, MapPin, Eye, Sparkles, DollarSign } from 'lucide-react'
 import KioskQRCode from './KioskQRCode'
+import KioskFeaturedExperiencesSlideshow from './KioskFeaturedExperiencesSlideshow'
 
 interface Experience {
   id: string
@@ -22,13 +23,27 @@ interface Experience {
   region_name: string | null
 }
 
+interface FeaturedExperience {
+  id: string
+  slug: string
+  name: string
+  description: string
+  image_url: string | null
+  rating: number
+  review_count: number
+  duration: string | null
+  price_from: number
+  category_name: string
+}
+
 interface KioskCategorySlideshowProps {
   experiences: Experience[]
   categoryName: string
+  featuredExperiences?: FeaturedExperience[]
   onBack: () => void
 }
 
-export default function KioskCategorySlideshow({ experiences, categoryName, onBack }: KioskCategorySlideshowProps) {
+export default function KioskCategorySlideshow({ experiences, categoryName, featuredExperiences, onBack }: KioskCategorySlideshowProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showQR, setShowQR] = useState(false)
   const [qrExperience, setQrExperience] = useState<Experience | null>(null)
@@ -73,47 +88,86 @@ export default function KioskCategorySlideshow({ experiences, categoryName, onBa
   }
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900">
-      {/* Background Image with Blur */}
-      <div className="absolute inset-0">
+    <div className="relative w-full h-screen overflow-hidden" style={{ background: 'var(--kiosk-bg-base)' }}>
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
         {currentExperience.image_url ? (
-          <Image
-            src={currentExperience.image_url}
-            alt={currentExperience.name}
-            fill
-            className="object-cover blur-2xl scale-110 opacity-30"
-            priority
-          />
+          <>
+            <Image
+              src={currentExperience.image_url}
+              alt={currentExperience.name}
+              fill
+              className="object-cover opacity-20 blur-sm"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#102210]/90 via-[#102210]/80 to-[#102210]/95" />
+          </>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 opacity-50" />
+          <div className="absolute inset-0" style={{ background: 'var(--kiosk-bg-base)' }} />
         )}
       </div>
 
-      {/* Header - positioned to avoid navbar overlap - Responsive */}
-      <div className="absolute top-20 sm:top-24 lg:top-28 left-0 right-0 z-20 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between flex-wrap gap-3 sm:gap-4">
+      {/* Header */}
+      <div className="relative z-20 px-16 pt-8 pb-6">
+        <div className="flex items-center justify-between">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 sm:gap-3 lg:gap-4 bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all px-4 py-2 sm:px-6 sm:py-3 lg:px-8 lg:py-4 rounded-full group shadow-xl border border-white/10"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              borderRadius: '9999px',
+              border: '1px solid rgba(19, 236, 19, 0.5)',
+              background: 'rgba(16, 34, 16, 0.8)',
+              padding: '16px 32px',
+              color: 'white',
+              fontSize: '24px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(19, 236, 19, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(16, 34, 16, 0.8)'
+            }}
           >
-            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-white group-hover:-translate-x-1 transition-transform" />
-            <span className="text-base sm:text-xl lg:text-2xl font-bold text-white">Back</span>
+            <ArrowLeft size={28} />
+            <span>Back to Categories</span>
           </button>
 
-          <div className="bg-white/20 backdrop-blur-md px-4 py-2 sm:px-6 sm:py-3 lg:px-8 lg:py-4 rounded-full shadow-xl border border-white/10">
-            <h2 className="text-lg sm:text-2xl lg:text-3xl font-black text-white">{categoryName}</h2>
+          <div
+            style={{
+              background: 'rgba(28, 39, 28, 0.8)',
+              backdropFilter: 'blur(8px)',
+              padding: '16px 48px',
+              borderRadius: '9999px',
+              border: '2px solid rgba(59, 84, 59, 1)'
+            }}
+          >
+            <h2 style={{ fontSize: '36px', fontWeight: 'bold', color: 'white' }}>{categoryName}</h2>
           </div>
+
+          <div style={{ width: '250px' }} />
         </div>
       </div>
 
-      {/* Main Content - Responsive padding and grid */}
-      <div className="absolute inset-0 z-10 flex items-center justify-center p-4 sm:p-8 lg:p-16 pt-36 sm:pt-40 lg:pt-44">
-        <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
-          {/* Left Side - Image Gallery Card - Responsive */}
-          <div className="relative order-2 lg:order-1">
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl border border-white/20">
-              {/* Main Image - Responsive height */}
-              <div className="relative h-[250px] sm:h-[400px] lg:h-[600px] rounded-xl sm:rounded-2xl overflow-hidden mb-4 sm:mb-6 group">
+      {/* Main Content */}
+      <div className="relative z-10 flex items-center justify-center px-16 pb-32" style={{ height: 'calc(100vh - 180px)' }}>
+        <div className="max-w-7xl w-full grid grid-cols-2 gap-12 items-center">
+          {/* Left Side - Image */}
+          <div className="relative">
+            <div
+              style={{
+                borderRadius: '24px',
+                overflow: 'hidden',
+                border: '2px solid rgba(59, 84, 59, 1)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4)'
+              }}
+            >
+              {/* Main Image */}
+              <div className="relative h-[650px] group">
                 {currentExperience.image_url ? (
                   <Image
                     src={currentExperience.image_url}
@@ -123,159 +177,317 @@ export default function KioskCategorySlideshow({ experiences, categoryName, onBa
                     priority
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center">
-                    <span className="text-white text-4xl font-bold opacity-50">
-                      {currentExperience.name.substring(0, 2).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-
-                {/* Difficulty Badge - Responsive */}
-                {currentExperience.difficulty_level && (
-                  <div className="absolute top-2 left-2 sm:top-4 sm:left-4 lg:top-6 lg:left-6">
-                    <div className={`bg-gradient-to-r ${getDifficultyColor(currentExperience.difficulty_level)} px-3 py-1.5 sm:px-4 sm:py-2 lg:px-6 lg:py-3 rounded-full shadow-lg`}>
-                      <span className="text-white font-bold text-xs sm:text-base lg:text-xl capitalize">{currentExperience.difficulty_level}</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Price Badge - Responsive */}
-                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 lg:top-6 lg:right-6 bg-black/60 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 lg:px-6 lg:py-3 rounded-full">
-                  <span className="text-white font-bold text-xs sm:text-base lg:text-2xl">From GYD {currentExperience.price_from.toLocaleString()}</span>
-                </div>
-              </div>
-
-              {/* Thumbnail Navigation - Responsive sizing and visibility */}
-              <div className="hidden sm:flex items-center justify-center gap-2 lg:gap-3">
-                {experiences.slice(0, 5).map((exp, idx) => (
-                  <button
-                    key={exp.id}
-                    onClick={() => setCurrentIndex(idx)}
-                    className={`
-                      transition-all duration-300 rounded-lg sm:rounded-xl overflow-hidden
-                      ${idx === currentIndex
-                        ? 'ring-2 sm:ring-4 ring-yellow-400 scale-110'
-                        : 'opacity-60 hover:opacity-100'
-                      }
-                    `}
+                  <div
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ background: 'var(--kiosk-gradient-tropical)' }}
                   >
-                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24">
-                      {exp.image_url ? (
-                        <Image
-                          src={exp.image_url}
-                          alt={exp.name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600" />
-                      )}
+                    <Sparkles size={120} style={{ color: 'var(--kiosk-primary-500)', opacity: 0.5 }} />
+                  </div>
+                )}
+
+                {/* Gradient Overlay at Bottom */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '50%',
+                    background: 'linear-gradient(to top, rgba(16, 34, 16, 0.9) 0%, transparent 100%)'
+                  }}
+                />
+
+                {/* Difficulty Badge */}
+                {currentExperience.difficulty_level && (
+                  <div style={{ position: 'absolute', top: '24px', left: '24px' }}>
+                    <div
+                      style={{
+                        background: `linear-gradient(135deg, ${
+                          currentExperience.difficulty_level.toLowerCase() === 'easy' ? '#22c55e, #16a34a' :
+                          currentExperience.difficulty_level.toLowerCase() === 'moderate' ? '#eab308, #f97316' :
+                          '#ef4444, #dc2626'
+                        })`,
+                        padding: '12px 24px',
+                        borderRadius: '9999px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)'
+                      }}
+                    >
+                      <span style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', textTransform: 'capitalize' }}>
+                        {currentExperience.difficulty_level}
+                      </span>
                     </div>
-                  </button>
-                ))}
+                  </div>
+                )}
+
+                {/* Price Badge */}
+                <div style={{ position: 'absolute', bottom: '24px', left: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div
+                    style={{
+                      background: 'rgba(19, 236, 19, 0.95)',
+                      padding: '16px 32px',
+                      borderRadius: '16px',
+                      boxShadow: '0 4px 16px rgba(19, 236, 19, 0.4)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <DollarSign size={28} style={{ color: '#102210' }} />
+                      <span style={{ color: '#102210', fontWeight: 'bold', fontSize: '28px' }}>
+                        ${currentExperience.price_from.toLocaleString()}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#102210', opacity: 0.8 }}>Starting Price</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Info Card - Responsive */}
-          <div className="space-y-4 sm:space-y-6 lg:space-y-8 order-1 lg:order-2">
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 shadow-2xl border border-white/20 space-y-4 sm:space-y-6 lg:space-y-8">
-              {/* Title - Responsive */}
-              <h3 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white leading-tight">
-                {currentExperience.name}
-              </h3>
+          {/* Right Side - Info */}
+          <div className="flex flex-col gap-8">
+            {/* Title */}
+            <h3 style={{ fontSize: '56px', fontWeight: '800', color: 'white', lineHeight: '1.1' }}>
+              {currentExperience.name}
+            </h3>
 
-              {/* Location - Responsive */}
-              {(currentExperience.location || currentExperience.region_name) && (
-                <div className="flex items-center gap-2 sm:gap-3 text-white/90">
-                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-emerald-400 flex-shrink-0" />
-                  <span className="text-sm sm:text-lg lg:text-2xl">
-                    {currentExperience.location}
-                    {currentExperience.location && currentExperience.region_name && ', '}
-                    {currentExperience.region_name}
-                  </span>
+            {/* Location */}
+            {(currentExperience.location_details || currentExperience.region_name) && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <MapPin size={28} style={{ color: 'var(--kiosk-primary-500)' }} />
+                <span style={{ fontSize: '24px', color: 'rgba(255, 255, 255, 0.9)' }}>
+                  {currentExperience.location_details}
+                  {currentExperience.location_details && currentExperience.region_name && ', '}
+                  {currentExperience.region_name}
+                </span>
+              </div>
+            )}
+
+            {/* Description */}
+            <p style={{ fontSize: '20px', color: 'rgba(255, 255, 255, 0.85)', lineHeight: '1.6', maxHeight: '140px', overflow: 'hidden' }}>
+              {currentExperience.description}
+            </p>
+
+            {/* Stats Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+              {/* Rating */}
+              <div
+                style={{
+                  background: 'rgba(28, 39, 28, 0.8)',
+                  backdropFilter: 'blur(8px)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  textAlign: 'center',
+                  border: '1px solid rgba(59, 84, 59, 1)'
+                }}
+              >
+                <Star size={40} style={{ color: '#facc15', fill: '#facc15', margin: '0 auto 12px' }} />
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'white' }}>{currentExperience.rating.toFixed(1)}</div>
+                <div style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.7)', marginTop: '4px' }}>
+                  {currentExperience.review_count} reviews
+                </div>
+              </div>
+
+              {/* Duration */}
+              {currentExperience.duration && (
+                <div
+                  style={{
+                    background: 'rgba(28, 39, 28, 0.8)',
+                    backdropFilter: 'blur(8px)',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    textAlign: 'center',
+                    border: '1px solid rgba(59, 84, 59, 1)'
+                  }}
+                >
+                  <Clock size={40} style={{ color: '#60a5fa', margin: '0 auto 12px' }} />
+                  <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'white' }}>{currentExperience.duration}</div>
+                  <div style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.7)', marginTop: '4px' }}>Duration</div>
                 </div>
               )}
 
-              {/* Description - Responsive */}
-              <p className="text-sm sm:text-base lg:text-2xl text-white/90 leading-relaxed line-clamp-3 sm:line-clamp-4 lg:line-clamp-6">
-                {currentExperience.description}
-              </p>
-
-              {/* Stats Grid - Responsive cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
-                {/* Rating */}
-                <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 text-center">
-                  <Star className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-yellow-400 fill-yellow-400 mx-auto mb-1 sm:mb-2" />
-                  <div className="text-lg sm:text-2xl lg:text-3xl font-bold text-white">{currentExperience.rating.toFixed(1)}</div>
-                  <div className="text-xs sm:text-sm text-white/70 mt-0.5 sm:mt-1">{currentExperience.review_count} reviews</div>
+              {/* Group Size */}
+              {currentExperience.group_size_max && (
+                <div
+                  style={{
+                    background: 'rgba(28, 39, 28, 0.8)',
+                    backdropFilter: 'blur(8px)',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    textAlign: 'center',
+                    border: '1px solid rgba(59, 84, 59, 1)'
+                  }}
+                >
+                  <Users size={40} style={{ color: '#c084fc', margin: '0 auto 12px' }} />
+                  <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'white' }}>{currentExperience.group_size_max}</div>
+                  <div style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.7)', marginTop: '4px' }}>Max Group</div>
                 </div>
+              )}
+            </div>
 
-                {/* Duration */}
-                {currentExperience.duration && (
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 text-center">
-                    <Clock className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-blue-400 mx-auto mb-1 sm:mb-2" />
-                    <div className="text-lg sm:text-2xl lg:text-3xl font-bold text-white">{currentExperience.duration}</div>
-                    <div className="text-xs sm:text-sm text-white/70 mt-0.5 sm:mt-1">Duration</div>
-                  </div>
-                )}
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
+              <Link
+                href={`/kiosk/experience/${currentExperience.slug}`}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  background: 'linear-gradient(135deg, #13ec13 0%, #22c55e 50%, #10c010 100%)',
+                  color: '#102210',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  padding: '24px',
+                  borderRadius: '16px',
+                  textDecoration: 'none',
+                  boxShadow: '0 0 40px rgba(19, 236, 19, 0.6), 0 8px 24px rgba(0, 0, 0, 0.4)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+              >
+                <Eye size={28} />
+                <span>View Full Details</span>
+              </Link>
 
-                {/* Group Size */}
-                {currentExperience.max_group_size && (
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 text-center col-span-2 sm:col-span-1">
-                    <Users className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-purple-400 mx-auto mb-1 sm:mb-2" />
-                    <div className="text-lg sm:text-2xl lg:text-3xl font-bold text-white">{currentExperience.max_group_size}</div>
-                    <div className="text-xs sm:text-sm text-white/70 mt-0.5 sm:mt-1">Max Group</div>
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons - Responsive */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <Link
-                  href={`/kiosk/experience/${currentExperience.slug}`}
-                  className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-black text-base sm:text-lg lg:text-2xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-6 rounded-xl sm:rounded-2xl text-center shadow-xl hover:shadow-2xl transition-all hover:scale-105"
-                >
-                  View Details
-                </Link>
-
-                <button
-                  onClick={() => handleShowQR(currentExperience)}
-                  className="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white font-bold text-base sm:text-lg lg:text-2xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-6 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 sm:gap-3 transition-all hover:scale-105 border border-white/30"
-                >
-                  <QrCode className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
-                  <span className="hidden sm:inline">Save to Phone</span>
-                  <span className="sm:hidden">Save</span>
-                </button>
-              </div>
+              <button
+                onClick={() => handleShowQR(currentExperience)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  background: 'rgba(28, 39, 28, 0.8)',
+                  backdropFilter: 'blur(8px)',
+                  color: 'white',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  padding: '24px 32px',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(59, 84, 59, 1)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(19, 236, 19, 0.2)'
+                  e.currentTarget.style.borderColor = 'var(--kiosk-primary-500)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(28, 39, 28, 0.8)'
+                  e.currentTarget.style.borderColor = 'rgba(59, 84, 59, 1)'
+                }}
+              >
+                <QrCode size={28} />
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Arrows - Responsive */}
+      {/* Navigation Arrows */}
       <button
         onClick={goToPrevious}
-        className="absolute left-2 sm:left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all p-3 sm:p-4 lg:p-6 rounded-full group"
+        style={{
+          position: 'absolute',
+          left: '32px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 20,
+          background: 'rgba(28, 39, 28, 0.8)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(59, 84, 59, 1)',
+          padding: '24px',
+          borderRadius: '50%',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(19, 236, 19, 0.2)'
+          e.currentTarget.style.borderColor = 'var(--kiosk-primary-500)'
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(28, 39, 28, 0.8)'
+          e.currentTarget.style.borderColor = 'rgba(59, 84, 59, 1)'
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1)'
+        }}
       >
-        <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8 lg:w-12 lg:h-12 text-white group-hover:scale-110 transition-transform" />
-      </button>
-      <button
-        onClick={goToNext}
-        className="absolute right-2 sm:right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all p-3 sm:p-4 lg:p-6 rounded-full group"
-      >
-        <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8 lg:w-12 lg:h-12 text-white group-hover:scale-110 transition-transform" />
+        <ChevronLeft size={48} style={{ color: 'white' }} />
       </button>
 
-      {/* Progress Bar - Responsive */}
-      <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 sm:gap-3 lg:gap-4 bg-white/20 backdrop-blur-md px-4 py-2 sm:px-6 sm:py-3 lg:px-8 lg:py-4 rounded-full">
-        <span className="text-white font-bold text-sm sm:text-base lg:text-xl">
+      <button
+        onClick={goToNext}
+        style={{
+          position: 'absolute',
+          right: '32px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 20,
+          background: 'rgba(28, 39, 28, 0.8)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(59, 84, 59, 1)',
+          padding: '24px',
+          borderRadius: '50%',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(19, 236, 19, 0.2)'
+          e.currentTarget.style.borderColor = 'var(--kiosk-primary-500)'
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(28, 39, 28, 0.8)'
+          e.currentTarget.style.borderColor = 'rgba(59, 84, 59, 1)'
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1)'
+        }}
+      >
+        <ChevronRight size={48} style={{ color: 'white' }} />
+      </button>
+
+      {/* Progress Bar */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '32px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '24px',
+          background: 'rgba(28, 39, 28, 0.9)',
+          backdropFilter: 'blur(8px)',
+          padding: '20px 40px',
+          borderRadius: '9999px',
+          border: '2px solid rgba(59, 84, 59, 1)'
+        }}
+      >
+        <span style={{ color: 'white', fontWeight: 'bold', fontSize: '24px' }}>
           {currentIndex + 1} / {experiences.length}
         </span>
-        <div className="w-32 sm:w-48 lg:w-64 h-1.5 sm:h-2 bg-white/30 rounded-full overflow-hidden">
+        <div
+          style={{
+            width: '320px',
+            height: '8px',
+            background: 'rgba(59, 84, 59, 1)',
+            borderRadius: '9999px',
+            overflow: 'hidden'
+          }}
+        >
           <div
-            className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-300"
-            style={{ width: `${((currentIndex + 1) / experiences.length) * 100}%` }}
+            style={{
+              height: '100%',
+              background: 'linear-gradient(90deg, #13ec13 0%, #22c55e 100%)',
+              width: `${((currentIndex + 1) / experiences.length) * 100}%`,
+              transition: 'width 0.3s ease',
+              boxShadow: '0 0 12px rgba(19, 236, 19, 0.6)'
+            }}
           />
         </div>
       </div>
@@ -286,6 +498,16 @@ export default function KioskCategorySlideshow({ experiences, categoryName, onBa
           url={`${window.location.origin}/tourism/${qrExperience.slug}`}
           title={qrExperience.name}
           onClose={() => setShowQR(false)}
+        />
+      )}
+
+      {/* Featured Experiences Slideshow - Fixed to right side */}
+      {featuredExperiences && featuredExperiences.length > 0 && (
+        <KioskFeaturedExperiencesSlideshow
+          experiences={featuredExperiences}
+          title="Featured"
+          autoAdvance={true}
+          autoAdvanceInterval={10000}
         />
       )}
     </div>

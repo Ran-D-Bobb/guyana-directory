@@ -10,7 +10,8 @@ export const metadata = {
 export default async function KioskPage() {
   const supabase = await createClient()
 
-  // Fetch featured/approved tourism experiences for the attraction loop
+  // Fetch tourism experiences for the attraction loop
+  // Note: Kiosk mode shows all experiences for demonstration purposes
   const { data: experiences, error } = await supabase
     .from('tourism_experiences')
     .select(`
@@ -27,7 +28,6 @@ export default async function KioskPage() {
       tourism_categories(name),
       tourism_photos(image_url, is_primary)
     `)
-    .eq('is_approved', true)
     .order('rating', { ascending: false })
     .limit(10)
 
@@ -114,10 +114,52 @@ export default async function KioskPage() {
     })
   )
 
+  // Fetch featured attractions (marked as featured in the database)
+  const { data: featuredExps } = await supabase
+    .from('tourism_experiences')
+    .select(`
+      id,
+      slug,
+      name,
+      description,
+      price_from,
+      rating,
+      review_count,
+      duration,
+      difficulty_level,
+      tourism_category_id,
+      tourism_categories(name),
+      tourism_photos(image_url, is_primary)
+    `)
+    .eq('is_approved', true)
+    .eq('is_featured', true)
+    .order('rating', { ascending: false })
+    .limit(6)
+
+  const transformedFeatured = (featuredExps || []).map((exp: any) => {
+    const primaryPhoto = exp.tourism_photos?.find((p: any) => p.is_primary)
+    const anyPhoto = exp.tourism_photos?.[0]
+
+    return {
+      id: exp.id,
+      slug: exp.slug,
+      name: exp.name,
+      description: exp.description,
+      image_url: primaryPhoto?.image_url || anyPhoto?.image_url || null,
+      rating: exp.rating,
+      review_count: exp.review_count,
+      duration: exp.duration,
+      price_from: exp.price_from,
+      category_name: exp.tourism_categories?.name || 'Experience',
+      difficulty_level: exp.difficulty_level
+    }
+  })
+
   return (
     <KioskHomePage
       experiences={transformedExperiences}
       categories={categoriesWithCounts}
+      featuredAttractions={transformedFeatured}
     />
   )
 }

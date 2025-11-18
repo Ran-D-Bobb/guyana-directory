@@ -92,17 +92,17 @@
   /* Caribbean-Inspired Tourism Color Palette */
   /* High-contrast, vibrant, energetic colors */
 
-  /* Primary: Tropical Turquoise */
-  --kiosk-primary-50: #f0fdfa;
-  --kiosk-primary-100: #ccfbf1;
-  --kiosk-primary-200: #99f6e4;
-  --kiosk-primary-300: #5eead4;
-  --kiosk-primary-400: #2dd4bf;
-  --kiosk-primary-500: #14b8a6;
-  --kiosk-primary-600: #0d9488;
-  --kiosk-primary-700: #0f766e;
-  --kiosk-primary-800: #115e59;
-  --kiosk-primary-900: #134e4a;
+  /* Primary: Bright Neon Green (matching example #13ec13) */
+  --kiosk-primary-50: #f0fdf4;
+  --kiosk-primary-100: #dcfce7;
+  --kiosk-primary-200: #bbf7d0;
+  --kiosk-primary-300: #86efac;
+  --kiosk-primary-400: #4ade80;
+  --kiosk-primary-500: #13ec13;
+  --kiosk-primary-600: #10c010;
+  --kiosk-primary-700: #0d9e0d;
+  --kiosk-primary-800: #0a7c0a;
+  --kiosk-primary-900: #075a07;
 
   /* Secondary: Sunset Orange */
   --kiosk-secondary-50: #fff7ed;
@@ -132,21 +132,24 @@
   --kiosk-warning-500: #eab308;
 
   /* Dark Mode (Default for kiosks - reduces glare, extends screen life) */
-  --kiosk-bg-base: #0f172a;        /* Slate 900 */
-  --kiosk-bg-elevated: #1e293b;    /* Slate 800 */
-  --kiosk-bg-overlay: #334155;     /* Slate 700 */
+  --kiosk-bg-base: #102210;        /* Very dark green (matching example) */
+  --kiosk-bg-elevated: #203120;    /* Dark green elevated */
+  --kiosk-bg-overlay: #1c271c;     /* Dark green overlay */
 
   --kiosk-text-primary: #ffffff;
-  --kiosk-text-secondary: rgba(255, 255, 255, 0.8);
-  --kiosk-text-tertiary: rgba(255, 255, 255, 0.6);
-  --kiosk-text-muted: rgba(255, 255, 255, 0.4);
+  --kiosk-text-secondary: rgba(255, 255, 255, 0.9);
+  --kiosk-text-tertiary: rgba(255, 255, 255, 0.7);
+  --kiosk-text-muted: rgba(255, 255, 255, 0.5);
 
   /* Gradient Backgrounds (Eye-catching hero sections) */
   --kiosk-gradient-ocean: linear-gradient(135deg, #0f766e 0%, #14b8a6 50%, #2dd4bf 100%);
   --kiosk-gradient-sunset: linear-gradient(135deg, #c2410c 0%, #f97316 50%, #fb923c 100%);
-  --kiosk-gradient-tropical: linear-gradient(135deg, #0f172a 0%, #115e59 50%, #0d9488 100%);
+  --kiosk-gradient-tropical: linear-gradient(135deg, #102210 0%, #115e59 50%, #0d9488 100%);
   --kiosk-gradient-paradise: linear-gradient(135deg, #7c2d12 0%, #ea580c 50%, #fb923c 75%, #ec4899 100%);
   --kiosk-gradient-vibrant: linear-gradient(135deg, #facc15 0%, #f97316 50%, #ec4899 100%);
+
+  /* Hero overlay gradient (dark to transparent) */
+  --kiosk-gradient-hero-overlay: linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 40%);
 }
 
 /* ============================================
@@ -246,21 +249,21 @@
    COMPONENT-SPECIFIC CLASSES
    ============================================ */
 
-/* Primary CTA Button - Vibrant 5-Color Gradient with Shimmer */
+/* Primary CTA Button - Bright Green Gradient with Glow */
 .kiosk-btn-primary {
   width: var(--kiosk-button-primary-width);
   height: var(--kiosk-button-primary-height);
   font-size: var(--kiosk-text-2xl);
   font-weight: 900;
-  letter-spacing: 0.1em;
-  border-radius: 20px;
+  letter-spacing: 0.05em;
+  border-radius: var(--kiosk-radius-lg);
 
-  /* Vibrant 5-color gradient: green → teal → cyan → blue → purple */
-  background: linear-gradient(135deg, #22c55e 0%, #14b8a6 25%, #06b6d4 50%, #3b82f6 75%, #8b5cf6 100%);
+  /* Bright neon green gradient */
+  background: linear-gradient(135deg, #13ec13 0%, #22c55e 50%, #10c010 100%);
   background-size: 200% 100%;
 
-  color: var(--kiosk-text-primary);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: var(--kiosk-bg-base);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -271,23 +274,17 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 
-  /* Enhanced multi-layer shadows with glow */
+  /* Bright green glow effect */
   box-shadow:
-    0 0 30px rgba(34, 197, 94, 0.4),
-    0 0 60px rgba(59, 130, 246, 0.3),
-    0 4px 0 #15803d,
-    0 6px 0 #166534,
-    0 8px 0 #14532d,
-    0 12px 20px rgba(0, 0, 0, 0.5),
-    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(19, 236, 19, 0.6),
+    0 0 80px rgba(19, 236, 19, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.4),
     inset 0 2px 4px rgba(255, 255, 255, 0.3);
 
-  /* 3D Lift effect */
-  transform: translateY(-8px);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 
-  /* Shimmer animation */
-  animation: kiosk-gradient-shift 3s ease infinite;
+  /* Gentle hover animation */
+  animation: kiosk-glow-pulse 3s ease-in-out infinite;
 }
 
 /* Shimmer effect overlay */
@@ -324,33 +321,22 @@
   pointer-events: none;
 }
 
-/* Hover state - lift higher with enhanced glow */
+/* Hover state - enhanced glow */
 .kiosk-btn-primary:hover {
-  transform: translateY(-12px) scale(1.02);
+  transform: scale(1.05);
   background-position: 100% 0;
   box-shadow:
-    0 0 40px rgba(34, 197, 94, 0.6),
-    0 0 80px rgba(59, 130, 246, 0.5),
-    0 0 100px rgba(139, 92, 246, 0.4),
-    0 4px 0 #15803d,
-    0 6px 0 #166534,
-    0 8px 0 #14532d,
-    0 10px 0 #052e16,
-    0 16px 30px rgba(0, 0, 0, 0.5),
-    0 28px 60px rgba(0, 0, 0, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    0 0 60px rgba(19, 236, 19, 0.8),
+    0 0 120px rgba(19, 236, 19, 0.6),
+    0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
-/* Active state - press down */
+/* Active state - subtle press */
 .kiosk-btn-primary:active {
-  transform: translateY(-2px) scale(0.98);
+  transform: scale(0.98);
   box-shadow:
-    0 0 20px rgba(34, 197, 94, 0.4),
-    0 2px 0 #15803d,
-    0 3px 0 #166534,
-    0 4px 0 #14532d,
-    0 6px 12px rgba(0, 0, 0, 0.4),
-    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    0 0 30px rgba(19, 236, 19, 0.6),
+    0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 /* Focus state for keyboard accessibility */
@@ -359,12 +345,54 @@
   outline-offset: 8px;
 }
 
+/* Search Bar */
+.kiosk-search-bar {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1200px;
+  height: 88px;
+  border-radius: var(--kiosk-radius-xl);
+  overflow: hidden;
+  box-shadow: var(--kiosk-shadow-lg);
+}
+
+.kiosk-search-icon {
+  background: var(--kiosk-bg-elevated);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--kiosk-space-xl);
+  color: var(--kiosk-primary-500);
+}
+
+.kiosk-search-input {
+  flex: 1;
+  background: var(--kiosk-bg-elevated);
+  border: none;
+  color: var(--kiosk-text-primary);
+  font-size: var(--kiosk-text-lg);
+  padding: 0 var(--kiosk-space-xl);
+  outline: none;
+}
+
+.kiosk-search-input::placeholder {
+  color: var(--kiosk-text-muted);
+}
+
+.kiosk-search-input:focus {
+  outline: 2px solid var(--kiosk-primary-500);
+  outline-offset: -2px;
+}
+
 /* Category Card */
 .kiosk-card-category {
   width: var(--kiosk-card-width);
   height: var(--kiosk-card-height);
   border-radius: var(--kiosk-radius-xl);
-  background: var(--kiosk-bg-elevated);
+  background: var(--kiosk-bg-overlay);
+  border: 2px solid rgba(59, 84, 59, 1);
   box-shadow: var(--kiosk-shadow-md);
   transition: all var(--kiosk-duration-normal) ease-out;
   cursor: pointer;
@@ -374,7 +402,10 @@
 
 .kiosk-card-category:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: var(--kiosk-shadow-xl);
+  border-color: var(--kiosk-primary-500);
+  box-shadow:
+    var(--kiosk-shadow-xl),
+    0 0 40px rgba(19, 236, 19, 0.3);
 }
 
 .kiosk-card-category:active {
@@ -439,10 +470,18 @@
 
 @keyframes kiosk-glow-pulse {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(253, 224, 71, 0.3);
+    box-shadow:
+      0 0 40px rgba(19, 236, 19, 0.6),
+      0 0 80px rgba(19, 236, 19, 0.4),
+      0 8px 24px rgba(0, 0, 0, 0.4),
+      inset 0 2px 4px rgba(255, 255, 255, 0.3);
   }
   50% {
-    box-shadow: 0 0 60px rgba(253, 224, 71, 0.8);
+    box-shadow:
+      0 0 60px rgba(19, 236, 19, 0.8),
+      0 0 120px rgba(19, 236, 19, 0.6),
+      0 8px 24px rgba(0, 0, 0, 0.4),
+      inset 0 2px 4px rgba(255, 255, 255, 0.3);
   }
 }
 
@@ -499,6 +538,35 @@
 
 .kiosk-animate-fade-in {
   animation: kiosk-fade-in var(--kiosk-duration-slow) ease-out;
+}
+
+/* Slideshow-specific animations */
+@keyframes slideshow-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.slideshow-transition {
+  animation: slideshow-fade-in 1s ease-out;
+}
+
+/* Ken Burns effect - slow zoom and pan */
+@keyframes kenBurns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.1) translate(-2%, -2%);
+  }
+  100% {
+    transform: scale(1.15) translate(2%, 2%);
+  }
 }
 
 /* ============================================

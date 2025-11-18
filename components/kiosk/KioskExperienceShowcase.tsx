@@ -2,22 +2,9 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import {
-  Star,
-  Clock,
-  Users,
-  MapPin,
-  Calendar,
-  Shield,
-  Languages,
-  Heart,
-  QrCode,
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  Phone
-} from 'lucide-react'
+import { Star, Clock, Users, MapPin, Calendar, Shield, Languages, QrCode, ArrowLeft, DollarSign, Sparkles } from 'lucide-react'
 import KioskQRCode from './KioskQRCode'
+import KioskFeaturedExperiencesSlideshow from './KioskFeaturedExperiencesSlideshow'
 
 interface ExperiencePhoto {
   id: string
@@ -27,7 +14,7 @@ interface ExperiencePhoto {
 
 interface ExperienceReview {
   id: string
-  rating: number
+  overall_rating: number
   comment: string | null
   created_at: string
   profiles: {
@@ -62,33 +49,32 @@ interface Experience {
   tourism_reviews: ExperienceReview[]
 }
 
+interface FeaturedExperience {
+  id: string
+  slug: string
+  name: string
+  description: string
+  image_url: string | null
+  rating: number
+  review_count: number
+  duration: string | null
+  price_from: number
+  category_name: string
+}
+
 interface KioskExperienceShowcaseProps {
   experience: Experience
+  featuredExperiences?: FeaturedExperience[]
   onBack: () => void
 }
 
-export default function KioskExperienceShowcase({ experience, onBack }: KioskExperienceShowcaseProps) {
+export default function KioskExperienceShowcase({ experience, featuredExperiences, onBack }: KioskExperienceShowcaseProps) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [showQR, setShowQR] = useState(false)
   const [qrType, setQrType] = useState<'page' | 'whatsapp'>('page')
 
   const photos = experience.tourism_photos || []
   const reviews = experience.tourism_reviews || []
-
-  const getDifficultyColor = (difficulty: string | null) => {
-    switch (difficulty?.toLowerCase()) {
-      case 'easy':
-        return 'from-green-500 to-emerald-600'
-      case 'moderate':
-        return 'from-yellow-500 to-orange-500'
-      case 'challenging':
-        return 'from-orange-500 to-red-500'
-      case 'difficult':
-        return 'from-red-600 to-rose-700'
-      default:
-        return 'from-gray-500 to-gray-600'
-    }
-  }
 
   const handleShowPageQR = () => {
     setQrType('page')
@@ -110,348 +96,368 @@ export default function KioskExperienceShowcase({ experience, onBack }: KioskExp
     return `${window.location.origin}/tourism/${experience.slug}`
   }
 
+  const primaryPhoto = photos[currentPhotoIndex]
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 p-8 pt-32">
-      {/* Header - Back Button positioned to avoid navbar overlap */}
-      <div className="max-w-[1920px] mx-auto mb-8">
+    <div className="relative w-full h-screen overflow-hidden" style={{ background: 'var(--kiosk-bg-base)' }}>
+      {/* Background with blur */}
+      <div className="absolute inset-0 z-0">
+        {primaryPhoto?.image_url ? (
+          <>
+            <Image
+              src={primaryPhoto.image_url}
+              alt={experience.name}
+              fill
+              className="object-cover opacity-15 blur-2xl"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#102210]/95 via-[#102210]/90 to-[#102210]/95" />
+          </>
+        ) : (
+          <div className="absolute inset-0" style={{ background: 'var(--kiosk-bg-base)' }} />
+        )}
+      </div>
+
+      {/* Header */}
+      <div className="relative z-20 px-16 pt-8 pb-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-4 bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all px-8 py-4 rounded-full group shadow-xl border border-white/10"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            borderRadius: '9999px',
+            border: '1px solid rgba(19, 236, 19, 0.5)',
+            background: 'rgba(16, 34, 16, 0.8)',
+            padding: '16px 32px',
+            color: 'white',
+            fontSize: '24px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(19, 236, 19, 0.2)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(16, 34, 16, 0.8)'
+          }}
         >
-          <ArrowLeft className="w-8 h-8 text-white group-hover:-translate-x-1 transition-transform" />
-          <span className="text-2xl font-bold text-white">Back</span>
+          <ArrowLeft size={28} />
+          <span>Back</span>
         </button>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[1920px] mx-auto grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {/* Left Column - Photos & Gallery */}
-        <div className="xl:col-span-2 space-y-6">
-          {/* Main Photo Gallery */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20">
-            <div className="relative h-[700px] rounded-2xl overflow-hidden group mb-6">
-              {photos.length > 0 ? (
-                <Image
-                  src={photos[currentPhotoIndex].image_url}
-                  alt={experience.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  priority
-                />
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center">
-                  <span className="text-white text-6xl font-bold opacity-50">
-                    {experience.name.substring(0, 2).toUpperCase()}
-                  </span>
+      <div className="relative z-10 px-16 pb-16" style={{ height: 'calc(100vh - 160px)' }}>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12 h-full">
+          {/* Left Column - Images */}
+          <div className="lg:col-span-3 flex flex-col gap-4" style={{ height: '100%' }}>
+            {/* Hero Image */}
+            <div
+              style={{
+                borderRadius: '24px',
+                overflow: 'hidden',
+                border: '2px solid rgba(59, 84, 59, 1)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5)',
+                position: 'relative',
+                height: 'calc(100% - 120px)'
+              }}
+            >
+              {primaryPhoto?.image_url ? (
+                <div
+                  className="absolute inset-0 bg-cover bg-center flex flex-col justify-end"
+                  style={{
+                    backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url("${primaryPhoto.image_url}")`
+                  }}
+                >
+                  {/* Photo Indicators */}
+                  {photos.length > 1 && (
+                    <div className="flex justify-center gap-2 p-5">
+                      {photos.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setCurrentPhotoIndex(idx)}
+                          style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            background: idx === currentPhotoIndex ? 'white' : 'rgba(255, 255, 255, 0.5)',
+                            border: 'none',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease'
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-
-              {/* Photo Navigation */}
-              {photos.length > 1 && (
-                <>
-                  <button
-                    onClick={() => setCurrentPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length)}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-md hover:bg-black/70 p-4 rounded-full transition-all"
-                  >
-                    <ChevronLeft className="w-8 h-8 text-white" />
-                  </button>
-                  <button
-                    onClick={() => setCurrentPhotoIndex((prev) => (prev + 1) % photos.length)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-md hover:bg-black/70 p-4 rounded-full transition-all"
-                  >
-                    <ChevronRight className="w-8 h-8 text-white" />
-                  </button>
-                </>
-              )}
-
-              {/* Photo Counter */}
-              {photos.length > 0 && (
-                <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full">
-                  <span className="text-white font-bold">
-                    {currentPhotoIndex + 1} / {photos.length}
-                  </span>
+              ) : (
+                <div
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, rgba(19, 236, 19, 0.2), rgba(19, 236, 19, 0.05))' }}
+                >
+                  <Sparkles size={120} style={{ color: 'var(--kiosk-primary-500)', opacity: 0.3 }} />
                 </div>
               )}
             </div>
 
-            {/* Thumbnail Strip */}
+            {/* Thumbnail Grid */}
             {photos.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {photos.map((photo, idx) => (
+              <div className="grid grid-cols-5 gap-4" style={{ height: '100px' }}>
+                {photos.slice(0, 5).map((photo, idx) => (
                   <button
                     key={photo.id}
                     onClick={() => setCurrentPhotoIndex(idx)}
-                    className={`
-                      flex-shrink-0 relative w-32 h-32 rounded-xl overflow-hidden
-                      transition-all duration-300
-                      ${idx === currentPhotoIndex
-                        ? 'ring-4 ring-yellow-400 scale-105'
-                        : 'opacity-60 hover:opacity-100'
-                      }
-                    `}
+                    style={{
+                      position: 'relative',
+                      height: '100%',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      border: idx === currentPhotoIndex ? '2px solid var(--kiosk-primary-500)' : '1px solid rgba(59, 84, 59, 1)',
+                      opacity: idx === currentPhotoIndex ? 1 : 0.6,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (idx !== currentPhotoIndex) e.currentTarget.style.opacity = '1'
+                    }}
+                    onMouseLeave={(e) => {
+                      if (idx !== currentPhotoIndex) e.currentTarget.style.opacity = '0.6'
+                    }}
                   >
-                    <Image
-                      src={photo.image_url}
-                      alt={`Photo ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src={photo.image_url} alt={`Photo ${idx + 1}`} fill className="object-cover" />
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Description */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20">
-            <h3 className="text-3xl font-black text-white mb-4">About This Experience</h3>
-            <p className="text-xl text-white/90 leading-relaxed whitespace-pre-line">
+          {/* Right Column - Details */}
+          <div className="lg:col-span-2 flex flex-col gap-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 160px)' }}>
+            {/* Title & Category */}
+            <div className="flex flex-col gap-3">
+              <h1 style={{ fontSize: '56px', fontWeight: '800', color: 'white', lineHeight: '1.1' }}>
+                {experience.name}
+              </h1>
+              <p style={{ fontSize: '20px', color: 'rgba(157, 185, 157, 1)' }}>
+                {experience.category_name}
+              </p>
+            </div>
+
+            {/* Description */}
+            <p style={{ fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)', lineHeight: '1.6' }}>
               {experience.description}
             </p>
-          </div>
 
-          {/* What's Included / Excluded */}
-          {(experience.included_items || experience.excluded_items) && (
-            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {experience.included_items && experience.included_items.length > 0 && (
-                  <div>
-                    <h4 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                      <Heart className="w-6 h-6 text-green-400 fill-green-400" />
-                      What's Included
-                    </h4>
-                    <ul className="space-y-2">
-                      {experience.included_items.map((item, idx) => (
-                        <li key={idx} className="text-lg text-white/80 flex items-start gap-2">
-                          <span className="text-green-400 mt-1">✓</span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {experience.excluded_items && experience.excluded_items.length > 0 && (
-                  <div>
-                    <h4 className="text-2xl font-bold text-white mb-4">What's Not Included</h4>
-                    <ul className="space-y-2">
-                      {experience.excluded_items.map((item, idx) => (
-                        <li key={idx} className="text-lg text-white/80 flex items-start gap-2">
-                          <span className="text-red-400 mt-1">✗</span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Reviews Section */}
-          {reviews.length > 0 && (
-            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20">
-              <h3 className="text-3xl font-black text-white mb-6">Recent Reviews</h3>
-              <div className="space-y-4">
-                {reviews.slice(0, 3).map((review) => (
-                  <div key={review.id} className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-5 h-5 ${
-                              i < review.rating
-                                ? 'text-yellow-400 fill-yellow-400'
-                                : 'text-gray-400'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-white font-semibold">
-                        {review.profiles?.name || 'Anonymous'}
-                      </span>
-                    </div>
-                    {review.comment && (
-                      <p className="text-white/80 text-lg">{review.comment}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column - Details & Booking */}
-        <div className="space-y-6">
-          {/* Title & Category */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 space-y-4">
-            <div className="inline-block bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2 rounded-full">
-              <span className="text-white font-bold text-lg">{experience.category_name}</span>
-            </div>
-
-            <h1 className="text-5xl font-black text-white leading-tight">
-              {experience.name}
-            </h1>
-
-            {/* Rating */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                <Star className="w-8 h-8 text-yellow-400 fill-yellow-400" />
-                <span className="text-3xl font-bold text-white">{experience.rating.toFixed(1)}</span>
-              </div>
-              <span className="text-xl text-white/70">({experience.review_count} reviews)</span>
-            </div>
-
-            {/* Price */}
-            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-6 text-center">
-              <p className="text-white text-xl font-semibold mb-1">From</p>
-              <p className="text-white text-5xl font-black">GYD {experience.price_from.toLocaleString()}</p>
-              <p className="text-white/90 text-lg mt-1">per person</p>
-            </div>
-          </div>
-
-          {/* Key Details */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 space-y-4">
-            <h3 className="text-2xl font-black text-white mb-4">Details</h3>
-
-            <div className="grid grid-cols-2 gap-4">
+            {/* Details Grid */}
+            <div className="grid grid-cols-1">
               {/* Duration */}
               {experience.duration && (
-                <div className="bg-white/5 rounded-xl p-4">
-                  <Clock className="w-6 h-6 text-blue-400 mb-2" />
-                  <p className="text-2xl font-bold text-white">{experience.duration}</p>
-                  <p className="text-sm text-white/70">Duration</p>
-                </div>
-              )}
-
-              {/* Group Size */}
-              {experience.max_group_size && (
-                <div className="bg-white/5 rounded-xl p-4">
-                  <Users className="w-6 h-6 text-purple-400 mb-2" />
-                  <p className="text-2xl font-bold text-white">{experience.max_group_size}</p>
-                  <p className="text-sm text-white/70">Max Group</p>
-                </div>
-              )}
-
-              {/* Difficulty */}
-              {experience.difficulty_level && (
-                <div className="bg-white/5 rounded-xl p-4 col-span-2">
-                  <div className={`inline-block bg-gradient-to-r ${getDifficultyColor(experience.difficulty_level)} px-4 py-2 rounded-full`}>
-                    <span className="text-white font-bold capitalize">{experience.difficulty_level}</span>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr',
+                    alignItems: 'center',
+                    gap: '16px',
+                    borderTop: '1px solid rgba(19, 236, 19, 0.2)',
+                    padding: '20px 0'
+                  }}
+                >
+                  <Clock size={24} style={{ color: 'var(--kiosk-primary-500)' }} />
+                  <div>
+                    <p style={{ fontSize: '14px', color: 'rgba(157, 185, 157, 1)', marginBottom: '4px' }}>Duration</p>
+                    <p style={{ fontSize: '18px', color: 'white', fontWeight: '600' }}>{experience.duration}</p>
                   </div>
-                  <p className="text-sm text-white/70 mt-2">Difficulty Level</p>
-                </div>
-              )}
-            </div>
-
-            {/* Location */}
-            {(experience.location || experience.region_name) && (
-              <div className="bg-white/5 rounded-xl p-4 flex items-start gap-3">
-                <MapPin className="w-6 h-6 text-emerald-400 flex-shrink-0 mt-1" />
-                <div>
-                  <p className="text-lg font-semibold text-white">
-                    {experience.location}
-                  </p>
-                  {experience.region_name && (
-                    <p className="text-white/70">{experience.region_name}</p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Min Age */}
-            {experience.min_age && (
-              <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3">
-                <Calendar className="w-6 h-6 text-pink-400" />
-                <div>
-                  <p className="text-lg font-semibold text-white">Minimum Age: {experience.min_age}+</p>
-                </div>
-              </div>
-            )}
-
-            {/* Languages */}
-            {experience.languages_offered && experience.languages_offered.length > 0 && (
-              <div className="bg-white/5 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Languages className="w-6 h-6 text-cyan-400" />
-                  <p className="text-lg font-semibold text-white">Languages Offered</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {experience.languages_offered.map((lang, idx) => (
-                    <span key={idx} className="bg-white/10 px-3 py-1 rounded-full text-white text-sm">
-                      {lang}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* What to Bring */}
-          {experience.what_to_bring && experience.what_to_bring.length > 0 && (
-            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20">
-              <h3 className="text-2xl font-black text-white mb-4">What to Bring</h3>
-              <ul className="space-y-2">
-                {experience.what_to_bring.map((item, idx) => (
-                  <li key={idx} className="text-lg text-white/80 flex items-center gap-2">
-                    <span className="text-emerald-400">•</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Safety & Accessibility */}
-          {(experience.safety_information || experience.accessibility_info) && (
-            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 space-y-4">
-              {experience.safety_information && (
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Shield className="w-6 h-6 text-green-400" />
-                    <h4 className="text-xl font-bold text-white">Safety Information</h4>
-                  </div>
-                  <p className="text-white/80">{experience.safety_information}</p>
                 </div>
               )}
 
-              {experience.accessibility_info && (
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-2">Accessibility</h4>
-                  <p className="text-white/80">{experience.accessibility_info}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 space-y-4">
-            <h3 className="text-2xl font-black text-white mb-4">Book This Experience</h3>
-
-            <button
-              onClick={handleShowPageQR}
-              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-black text-2xl px-8 py-6 rounded-2xl flex items-center justify-center gap-3 shadow-xl hover:shadow-2xl transition-all hover:scale-105"
-            >
-              <QrCode className="w-8 h-8" />
-              Save to Phone
-            </button>
-
-            {experience.whatsapp_number && (
-              <button
-                onClick={handleShowWhatsAppQR}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-black text-2xl px-8 py-6 rounded-2xl flex items-center justify-center gap-3 shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+              {/* Pricing */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'auto 1fr',
+                  alignItems: 'center',
+                  gap: '16px',
+                  borderTop: '1px solid rgba(19, 236, 19, 0.2)',
+                  padding: '20px 0'
+                }}
               >
-                <Phone className="w-8 h-8" />
-                Contact via WhatsApp
-              </button>
-            )}
+                <DollarSign size={24} style={{ color: 'var(--kiosk-primary-500)' }} />
+                <div>
+                  <p style={{ fontSize: '14px', color: 'rgba(157, 185, 157, 1)', marginBottom: '4px' }}>Pricing</p>
+                  <p style={{ fontSize: '18px', color: 'white', fontWeight: '600' }}>
+                    From ${experience.price_from.toLocaleString()}
+                  </p>
+                </div>
+              </div>
 
-            <p className="text-center text-white/60 text-lg">
-              Scan the QR code to continue booking on your phone
-            </p>
+              {/* Location */}
+              {(experience.location || experience.region_name) && (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr',
+                    alignItems: 'center',
+                    gap: '16px',
+                    borderTop: '1px solid rgba(19, 236, 19, 0.2)',
+                    borderBottom: '1px solid rgba(19, 236, 19, 0.2)',
+                    padding: '20px 0'
+                  }}
+                >
+                  <MapPin size={24} style={{ color: 'var(--kiosk-primary-500)' }} />
+                  <div>
+                    <p style={{ fontSize: '14px', color: 'rgba(157, 185, 157, 1)', marginBottom: '4px' }}>Location</p>
+                    <p style={{ fontSize: '18px', color: 'white', fontWeight: '600' }}>
+                      {experience.location}
+                      {experience.region_name && `, ${experience.region_name}`}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Additional details... */}
+              {experience.max_group_size && (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr',
+                    alignItems: 'center',
+                    gap: '16px',
+                    borderBottom: '1px solid rgba(19, 236, 19, 0.2)',
+                    padding: '20px 0'
+                  }}
+                >
+                  <Users size={24} style={{ color: 'var(--kiosk-primary-500)' }} />
+                  <div>
+                    <p style={{ fontSize: '14px', color: 'rgba(157, 185, 157, 1)', marginBottom: '4px' }}>Max Group Size</p>
+                    <p style={{ fontSize: '18px', color: 'white', fontWeight: '600' }}>{experience.max_group_size} people</p>
+                  </div>
+                </div>
+              )}
+
+              {experience.min_age && (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr',
+                    alignItems: 'center',
+                    gap: '16px',
+                    borderBottom: '1px solid rgba(19, 236, 19, 0.2)',
+                    padding: '20px 0'
+                  }}
+                >
+                  <Calendar size={24} style={{ color: 'var(--kiosk-primary-500)' }} />
+                  <div>
+                    <p style={{ fontSize: '14px', color: 'rgba(157, 185, 157, 1)', marginBottom: '4px' }}>Minimum Age</p>
+                    <p style={{ fontSize: '18px', color: 'white', fontWeight: '600' }}>{experience.min_age}+ years</p>
+                  </div>
+                </div>
+              )}
+
+              {experience.difficulty_level && (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr',
+                    alignItems: 'center',
+                    gap: '16px',
+                    borderBottom: '1px solid rgba(19, 236, 19, 0.2)',
+                    padding: '20px 0'
+                  }}
+                >
+                  <Shield size={24} style={{ color: 'var(--kiosk-primary-500)' }} />
+                  <div>
+                    <p style={{ fontSize: '14px', color: 'rgba(157, 185, 157, 1)', marginBottom: '4px' }}>Difficulty Level</p>
+                    <p style={{ fontSize: '18px', color: 'white', fontWeight: '600', textTransform: 'capitalize' }}>
+                      {experience.difficulty_level}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '16px', marginTop: '24px', paddingBottom: '32px' }}>
+              <button
+                onClick={handleShowPageQR}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  background: 'rgba(28, 39, 28, 0.8)',
+                  backdropFilter: 'blur(8px)',
+                  color: 'white',
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  padding: '24px 32px',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(59, 84, 59, 1)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(19, 236, 19, 0.2)'
+                  e.currentTarget.style.borderColor = 'var(--kiosk-primary-500)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(28, 39, 28, 0.8)'
+                  e.currentTarget.style.borderColor = 'rgba(59, 84, 59, 1)'
+                }}
+              >
+                <QrCode size={24} />
+                <span>Save to Phone</span>
+              </button>
+
+              {experience.whatsapp_number && (
+                <button
+                  onClick={handleShowWhatsAppQR}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    background: 'rgba(34, 197, 94, 0.2)',
+                    backdropFilter: 'blur(8px)',
+                    color: 'white',
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    padding: '24px 32px',
+                    borderRadius: '16px',
+                    border: '1px solid rgba(34, 197, 94, 0.5)',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(34, 197, 94, 0.3)'
+                    e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.8)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(34, 197, 94, 0.2)'
+                    e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.5)'
+                  }}
+                >
+                  <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  <span>WhatsApp</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Featured Experiences Slideshow - Fixed to right side */}
+        {featuredExperiences && featuredExperiences.length > 0 && (
+          <KioskFeaturedExperiencesSlideshow
+            experiences={featuredExperiences}
+            title="Featured"
+            autoAdvance={true}
+            autoAdvanceInterval={10000}
+          />
+        )}
       </div>
 
       {/* QR Code Modal */}
