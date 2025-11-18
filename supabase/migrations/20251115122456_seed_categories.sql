@@ -1,0 +1,22 @@
+-- Insert business categories for Guyana Directory
+INSERT INTO categories (name, slug, icon, description) VALUES
+  ('Restaurants & Dining', 'restaurants-dining', 'UtensilsCrossed', 'Restaurants, cafes, fast food, and dining establishments'),
+  ('Grocery & Supermarkets', 'grocery-supermarkets', 'ShoppingCart', 'Supermarkets, grocery stores, and food markets'),
+  ('Beauty & Personal Care', 'beauty-personal-care', 'Scissors', 'Salons, barbershops, spas, and beauty services'),
+  ('Health & Medical', 'health-medical', 'Stethoscope', 'Doctors, clinics, pharmacies, and medical services'),
+  ('Automotive Services', 'automotive-services', 'Car', 'Auto repair, car wash, mechanics, and vehicle services'),
+  ('Home & Garden', 'home-garden', 'Home', 'Hardware stores, furniture, home improvement, and gardening'),
+  ('Construction & Trades', 'construction-trades', 'Hammer', 'Contractors, electricians, plumbers, and construction services'),
+  ('Technology & Electronics', 'technology-electronics', 'Laptop', 'Computer repair, phone shops, IT services, and electronics'),
+  ('Fashion & Clothing', 'fashion-clothing', 'Shirt', 'Clothing stores, boutiques, and fashion retailers'),
+  ('Education & Training', 'education-training', 'GraduationCap', 'Schools, tutoring, training centers, and educational services'),
+  ('Professional Services', 'professional-services', 'Briefcase', 'Lawyers, accountants, consultants, and business services'),
+  ('Entertainment & Events', 'entertainment-events', 'PartyPopper', 'Event planning, DJ services, entertainment venues'),
+  ('Fitness & Sports', 'fitness-sports', 'Dumbbell', 'Gyms, fitness centers, sports facilities, and training'),
+  ('Pet Services', 'pet-services', 'PawPrint', 'Veterinarians, pet stores, grooming, and pet care'),
+  ('Real Estate', 'real-estate', 'Building2', 'Real estate agents, property rentals, and housing services'),
+  ('Financial Services', 'financial-services', 'Banknote', 'Banks, insurance, cambios, and financial advisors'),
+  ('Hospitality & Lodging', 'hospitality-lodging', 'Hotel', 'Hotels, guesthouses, and accommodation services'),
+  ('Transportation & Logistics', 'transportation-logistics', 'Truck', 'Courier services, moving companies, and delivery services'),
+  ('Photography & Media', 'photography-media', 'Camera', 'Photographers, videographers, and media production'),
+  ('Other Services', 'other-services', 'MoreHorizontal', 'Miscellaneous services and businesses');
