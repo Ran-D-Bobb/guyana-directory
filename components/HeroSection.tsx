@@ -1,0 +1,161 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Sparkles, TrendingUp, MapPin, Calendar, Home as HomeIcon } from 'lucide-react'
+import Link from 'next/link'
+import Image from 'next/image'
+
+export function HeroSection() {
+  const [currentWord, setCurrentWord] = useState(0)
+  const [currentImage, setCurrentImage] = useState(0)
+
+  const rotatingWords = ['Businesses', 'Experiences', 'Rentals', 'Events']
+
+  // Curated Guyana images from Unsplash
+  const backgroundImages = [
+    
+    {
+      url: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1920&q=80',
+      alt: 'Guyana Rainforest',
+      credit: 'Guyanese Rainforest'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&q=80',
+      alt: 'Tropical Paradise',
+      credit: 'Tropical Landscape'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&q=80',
+      alt: 'Tropical Waterfall',
+      credit: 'Tropical Waterfall'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1920&q=80',
+      alt: 'Tropical Beach Paradise',
+      credit: 'Caribbean Beach'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80',
+      alt: 'Mountain Landscape',
+      credit: 'Natural Beauty'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1502472584811-0a2f2feb8968?w=1920&q=80',
+      alt: 'River Through Rainforest',
+      credit: 'River Landscape'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=1920&q=80',
+      alt: 'Tropical Sunset',
+      credit: 'Golden Hour'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80',
+      alt: 'Lakeside Serenity',
+      credit: 'Peaceful Waters'
+    },
+  ]
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentWord((prev) => (prev + 1) % rotatingWords.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % backgroundImages.length)
+    }, 8000) // Change image every 8 seconds
+    return () => clearInterval(interval)
+  }, [])
+
+  const quickLinks = [
+    { icon: TrendingUp, label: 'Businesses', href: '/businesses', color: 'from-amber-500 to-orange-500' },
+    { icon: MapPin, label: 'Tourism', href: '/tourism', color: 'from-emerald-500 to-teal-500' },
+    { icon: HomeIcon, label: 'Rentals', href: '/rentals', color: 'from-blue-500 to-indigo-500' },
+    { icon: Calendar, label: 'Events', href: '/events', color: 'from-purple-500 to-pink-500' },
+  ]
+
+  return (
+    <section className="relative min-h-[60vh] md:min-h-[70vh] flex items-center justify-center overflow-hidden">
+      {/* Rotating Background Images */}
+      <div className="absolute inset-0">
+        {backgroundImages.map((image, index) => (
+          <div
+            key={image.url}
+            className={`absolute inset-0 transition-opacity duration-2000 ${
+              index === currentImage ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <Image
+              src={image.url}
+              alt={image.alt}
+              fill
+              className="object-cover"
+              priority={index === 0}
+              quality={80}
+              sizes="100vw"
+            />
+          </div>
+        ))}
+
+        {/* Light overlay for text readability - minimal to show image colors */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/40 via-slate-900/30 to-slate-950/40" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white text-sm font-medium animate-fade-in">
+          <Sparkles className="w-4 h-4 text-amber-300" />
+          <span>Discover Guyana&apos;s Best</span>
+        </div>
+
+        {/* Main headline */}
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 animate-fade-in leading-none">
+          Discover Guyana's
+          <br />
+          <span className="relative inline-block mt-2">
+            <span className="bg-gradient-to-r from-green-600 via-amber-400 via-yellow-300 via-gray-900 via-white to-red-600 bg-clip-text text-transparent animate-scale-in" style={{ backgroundSize: '200% 100%' }}>
+              {rotatingWords[currentWord]}
+            </span>
+            <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-green-600 via-amber-400 via-yellow-300 via-gray-900 via-white to-red-600 rounded-full animate-pulse" style={{ backgroundSize: '200% 100%' }} />
+          </span>
+        </h1>
+
+        {/* Subheading */}
+        <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto animate-fade-in font-light">
+          Connect instantly via WhatsApp
+        </p>
+
+        {/* Quick links */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto animate-fade-in">
+          {quickLinks.map((link, index) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              className="group relative overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/20 transition-all hover:scale-105 hover:shadow-2xl"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${link.color} opacity-0 group-hover:opacity-20 transition-opacity`} />
+              <div className="relative">
+                <div className={`w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${link.color} flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all group-hover:scale-110`}>
+                  <link.icon className="w-8 h-8 md:w-10 md:h-10 text-white" strokeWidth={2.5} />
+                </div>
+                <p className="text-white font-bold text-lg md:text-xl">{link.label}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="mt-12 md:mt-16 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white/30 rounded-full mx-auto flex items-start justify-center pt-2">
+            <div className="w-1.5 h-3 bg-white/60 rounded-full animate-pulse" />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

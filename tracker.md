@@ -57,6 +57,124 @@
 - ✅ Proper session persistence after OAuth login
 - ✅ Error handling and logging for review submissions
 
+### Phase 1B.5: Enhanced Star Rating System (COMPLETE - Nov 19, 2024)
+**Goal:** Implement comprehensive star rating improvements for better UX and trust-building
+
+#### Visual Design Enhancements
+- ✅ **Half-Star Display Component** (`components/StarRating.tsx`)
+  - Displays half-star increments (0.25, 0.5, 0.75) for granular ratings
+  - Supports 4 sizes: sm (12px), md (16px), lg (20px), xl (32px)
+  - Gradient-based half-star rendering using CSS overflow
+  - Shows average ratings like 4.3 with proper partial star fills
+  - Optional numeric display alongside stars
+  - Reusable across all business and review displays
+
+- ✅ **Updated All Star Displays**
+  - Business detail page header uses StarRating with half-stars
+  - BusinessCard component updated (rating badge on images)
+  - EnhancedBusinessCard updated (all 3 view modes: grid, list, compact)
+  - Consistent amber color (#fbbf24) across all components
+
+#### Ratings Breakdown & Analytics
+- ✅ **Ratings Histogram Component** (`components/RatingsBreakdown.tsx`)
+  - Visual bar chart showing distribution of 5/4/3/2/1-star reviews
+  - Large overall rating display (5.0 font size)
+  - Percentage-based progress bars with amber color
+  - Shows count of reviews for each star level
+  - Responsive layout (desktop: 2 columns, mobile: stacked)
+  - Displayed prominently on business detail pages
+
+#### Review Interaction Features
+- ✅ **Review Edit/Delete Functionality**
+  - Users can edit their existing reviews
+  - Users can delete their reviews with confirmation dialog
+  - Edit mode toggles inline on review form
+  - Cancel button to revert changes
+  - Real-time update with page refresh
+
+- ✅ **Helpful Votes System** (Phase 1B.5.1)
+  - Database tables: `review_helpful_votes` with RLS policies
+  - Users can mark reviews as helpful or not helpful
+  - Vote counts displayed on each review
+  - One vote per user per review (enforced by unique constraint)
+  - Users can change their vote or remove it
+  - Real-time vote count updates
+  - Visual feedback with green (helpful) and red (not helpful) states
+  - Only signed-in users can vote (authentication required)
+
+- ✅ **Review Timestamps**
+  - Relative time display (e.g., "2 days ago", "3 weeks ago")
+  - Uses date-fns library for formatting
+  - `formatDistanceToNow()` function with addSuffix
+  - Displayed on every review in ReviewItem component
+
+#### Business Owner Features
+- ✅ **Business Response System** (`components/BusinessResponseForm.tsx`)
+  - Business owners can respond to reviews
+  - Responses displayed below reviews with blue theme
+  - Response edit and delete functionality
+  - Visual distinction: blue background, left border accent
+  - Shows business owner profile info and timestamp
+  - Character limit: 500 characters
+  - RLS policies ensure only business owners can respond
+  - Database table: `review_responses` with foreign keys
+
+- ✅ **Enhanced ReviewItem Component** (`components/ReviewItem.tsx`)
+  - Displays review with user profile photo
+  - Shows relative timestamp ("2 days ago")
+  - Helpful votes UI with ThumbsUp/ThumbsDown icons
+  - Business response section if available
+  - Clean, card-based layout with proper spacing
+
+#### Database Schema Updates
+- ✅ **Migration: `20251119133312_add_review_features.sql`**
+  - `review_helpful_votes` table (review_id, user_id, is_helpful)
+  - `review_responses` table (review_id, business_id, user_id, response)
+  - `reviews` table: added `helpful_count` and `not_helpful_count` columns
+  - Trigger functions for automatic helpful count updates
+  - RLS policies for helpful votes (anyone view, auth users vote/update/delete own)
+  - RLS policies for responses (anyone view, business owners CRUD own)
+  - Performance indexes on review_id and user_id columns
+
+#### Updated Components
+- ✅ `components/StarRating.tsx` - NEW: Reusable half-star component
+- ✅ `components/RatingsBreakdown.tsx` - NEW: Histogram display
+- ✅ `components/ReviewItem.tsx` - NEW: Enhanced review display
+- ✅ `components/BusinessResponseForm.tsx` - NEW: Business responses
+- ✅ `components/ReviewForm.tsx` - UPDATED: Edit/delete support
+- ✅ `components/BusinessCard.tsx` - UPDATED: Uses StarRating component
+- ✅ `components/EnhancedBusinessCard.tsx` - UPDATED: Uses StarRating
+- ✅ `app/businesses/[slug]/page.tsx` - UPDATED: All new components integrated
+
+#### Dependencies Added
+- ✅ `date-fns` package for relative time formatting
+
+#### Key Features Summary
+✨ **Half-star increments** - More granular ratings (4.3 instead of 4)
+✨ **Ratings breakdown** - Visual histogram of review distribution
+✨ **Edit reviews** - Users can update or delete their reviews
+✨ **Helpful votes** - Community can vote on review helpfulness (signed-in only)
+✨ **Review sorting** - Sort by most recent, highest/lowest rated, most helpful
+✨ **Timestamps** - "2 days ago" relative time display
+✨ **Business responses** - Owners can reply to customer reviews
+✨ **Trust indicators** - Vote counts, recency, owner responses build credibility
+
+#### Design Philosophy
+- **Easy rating submission**: Large tap targets (32x32px stars), hover effects
+- **Transparency**: Ratings breakdown shows full distribution, not just average
+- **Community trust**: Helpful votes let users identify valuable reviews
+- **Business engagement**: Response system allows owners to address feedback
+- **Mobile-first**: All components responsive and touch-optimized
+
+#### Critical Bug Fix (Nov 19, 2024)
+- ✅ **Fixed trigger not firing on review INSERT** (`20251119140413_fix_review_trigger_security.sql`)
+  - **Root Cause**: The `update_business_rating()` trigger function was executing in the context of the user who submitted the review. Due to RLS policies on the `businesses` table, non-owners couldn't update business records, causing the trigger to silently fail.
+  - **Solution**: Added `SECURITY DEFINER` to the trigger function, making it execute with postgres user privileges
+  - **Result**: Trigger now bypasses RLS policies and successfully updates business ratings and review counts
+  - **Migration**: Recreated function with `SECURITY DEFINER` and `SET search_path = public` for security
+  - **Data Fix**: Updated all existing businesses with reviews to have correct ratings and counts
+  - **Future Reviews**: All new reviews now automatically update business ratings immediately
+
 ### Phase 1C: Business Owner Features
 - ✅ Business dashboard page (`/dashboard/my-business`)
 - ✅ Business stats display (views, WhatsApp clicks, reviews, rating)
@@ -704,5 +822,704 @@ All three sections have:
 - Print itinerary functionality
 - Kiosk attract mode (screensaver after 60s idle)
 - Kiosk accessibility enhancements (high-contrast mode, text size adjustment)
+
+---
+
+## 🏡 Phase 5: Rentals & Accommodations Platform (PLANNED - Started Nov 19, 2024)
+**Goal:** Add property listings as the fourth pillar - apartments, houses, vacation rentals, offices
+**Strategy:** WhatsApp-first contact, instant publishing, community-based trust, freemium model
+
+### Business Model
+- **Free Tier:** 1 active listing per user (any property type)
+- **Premium Tier (Future):** Unlimited listings via subscription (GYD 5,000-10,000/month)
+- **No Verification:** Community-based trust via reviews (no staff needed)
+- **No Approval Queue:** Instant publishing (Facebook Marketplace model)
+- **Spam Control:** User reporting system + 1 listing limit
+
+### Phase 5A: Database & Core Schema (COMPLETE - Nov 19, 2024)
+- ✅ Create database migration for rentals tables (10 tables)
+  - `rental_categories` - 8 property types (Apartments, Houses, Vacation Homes, Room Rentals, Office Spaces, Commercial, Shared Housing, Land)
+  - `rentals` - Core table with 35+ fields (beds, baths, pricing, amenities, location)
+  - `rental_photos` - Photo management (15 photos max)
+  - `rental_reviews` - Multi-aspect reviews (overall, cleanliness, location, value, communication)
+  - `rental_review_photos` - Renters can upload photos with reviews (3 max)
+  - `rental_review_helpful_votes` - Helpful/not helpful voting
+  - `rental_review_responses` - Landlord responses to reviews
+  - `rental_inquiry_clicks` - WhatsApp click tracking
+  - `rental_saved` - Wishlist/favorites
+  - `rental_flags` - User reporting system for spam/scams
+- ✅ Implement RLS policies for all rentals tables
+  - Landlords can CRUD own listings
+  - Anyone can view approved listings (is_approved: TRUE by default)
+  - Admins can manage all listings and flags
+- ✅ Create database functions and triggers
+  - `update_rental_rating()` - Auto-update ratings on review changes (SECURITY DEFINER)
+  - `increment_rental_inquiry()` - Track WhatsApp inquiries
+  - `update_rental_save_count()` - Track wishlist additions/removals
+  - `update_rental_flag_status()` - Track user reports and auto-hide at 5+ flags
+  - `check_rental_listing_limit()` - Enforce 1 listing per free user
+  - `update_rental_review_helpful_counts()` - Track helpful votes
+- ✅ Add performance indexes
+  - Full-text search index (name, description, location)
+  - Category, region, landlord indexes
+  - Price range, bedrooms, bathrooms filters
+  - Analytics tracking indexes
+  - Property type and approval status indexes
+- ✅ Seed 8 rental categories with icons and descriptions
+- ✅ Seed 6 sample properties (apartments, houses, vacation homes, rooms, office spaces) - partial, need 6 more
+- ✅ Create Supabase Storage buckets: `rental-photos` and `rental-review-photos` (15 photos max, 5MB each)
+- ✅ Generate TypeScript types from updated schema
+- ✅ Storage policies implemented for landlord photo management
+- ✅ Auto-hide feature for properties with 5+ flags
+- ✅ Multi-aspect rating system (5 categories: overall, cleanliness, location, value, communication)
+
+### Phase 5B: Core Components (COMPLETE - Nov 19, 2024)
+- ✅ **RentalCard.tsx** - Property card for grid/list display
+  - Photo carousel (up to 3 photos preview)
+  - Property type badge (Apartment, House, etc.)
+  - Price display (from GYD X/night + weekly/monthly options)
+  - Quick stats: 🛏️ beds, 🛁 baths, 👥 max guests, 📐 sqft
+  - Top amenities icons (WiFi, AC, Parking - max 5)
+  - Star rating + review count
+  - Heart icon (save to wishlist)
+  - WhatsApp quick inquiry button
+- ✅ **RentalCategoryCard.tsx** - Category selection card
+  - Category icon (Lucide icons)
+  - Category name + listing count
+  - Unsplash category images
+  - Hover effects
+- ✅ **RentalFilterPanel.tsx** - Collapsible filter panel
+  - Price range slider (min/max GYD)
+  - Property type dropdown
+  - Bedrooms dropdown (Studio, 1, 2, 3, 4+)
+  - Bathrooms dropdown (1, 1.5, 2, 2.5, 3+)
+  - Region dropdown
+  - Sort options (price low/high, rating, newest, featured)
+  - Quick filter chips: "WiFi", "AC", "Parking" (top 3 amenities only)
+  - Active filter count badge
+  - "Clear all" button
+- ✅ **RentalCategorySidebar.tsx** - Desktop sidebar navigation
+  - All 8 categories with counts
+  - Active state highlighting
+  - Collapsible on mobile (drawer)
+- ✅ **ReportListingButton.tsx** - User reporting component
+  - Dropdown with 7 flag reasons (fake photos, scam, duplicate, incorrect info, not available, inappropriate, spam)
+  - Optional comment field
+  - Prevents duplicate flags (one per user per listing)
+
+### Phase 5C: Public Pages (COMPLETE - Nov 19, 2024)
+- ✅ **/rentals** - Browse all rentals page
+  - Grid view with RentalCard components
+  - RentalFilterPanel integration
+  - RentalCategorySidebar integration
+  - Full-text search bar
+  - Pagination (20 properties per page)
+  - Empty state with onboarding
+- ✅ **/rentals/category/[slug]** - Category-specific pages
+  - Filtered by category
+  - Same layout as /rentals
+  - Category header with description
+- ✅ **/rentals/[slug]** - Property detail page
+  - Photo gallery (15 photos max, responsive grid layout)
+  - Property header (name, rating, location, save button, report button)
+  - Quick info cards (beds, baths, guests, sqft)
+  - Pricing breakdown (per night, per week, per month)
+  - Description section
+  - Amenities grid with icons (20+ amenities)
+  - House rules list
+  - Utilities included badges
+  - Location display (region + address)
+  - Landlord info card (name, photo, member since, listing count)
+  - Reviews section (RatingsBreakdown integration ready)
+  - Similar properties recommendations (4 properties)
+  - Sticky sidebar: WhatsApp contact button, pricing summary, phone/email buttons
+  - View count tracking on page load
+- ✅ Update navigation
+  - Header: Added "Rentals" link (between Events and My Business)
+  - Bottom nav: Added "Rentals" tab (Home | Tourism | Events | Rentals | Profile)
+  - Updated UserMenu dropdown: Added "My Rentals" link with Home icon
+- ✅ Update homepage
+  - Added "Featured Rentals" section (4 properties in grid)
+  - Blue gradient theme for rentals section
+  - "Browse all properties" CTA button
+
+### Phase 5D: Landlord Dashboard (COMPLETE - Nov 19, 2024)
+- ✅ **/dashboard/my-rentals** - Landlord dashboard page
+  - Aggregate stats (total views, inquiries, saves, avg rating, reviews)
+  - "Revenue Estimate" card (based on price × views × conversion rate)
+  - List all properties (if premium user, otherwise just 1)
+  - Individual property cards with stats (views, inquiries, rating, reviews, saves)
+  - Action buttons per property: View, Edit, Photos, Delete
+  - Empty state: "List Your First Property" CTA
+  - "Add New Property" button (disabled if free user already has 1 listing)
+  - Upgrade prompt: "Want to list more properties? Upgrade to Premium!" (future)
+- ✅ **/dashboard/my-rentals/create** - Create listing form
+  - **Section 1: Property Type & Basics**
+    - Property type dropdown (apartment, house, vacation home, room, office, commercial, land)
+    - Rental category (8 categories)
+    - Property name
+    - Description (500 chars)
+  - **Section 2: Location**
+    - Region dropdown
+    - Address (optional)
+    - Location details
+  - **Section 3: Property Details**
+    - Bedrooms (0-10)
+    - Bathrooms (0.5-10)
+    - Max guests (1-50)
+    - Square feet (optional)
+  - **Section 4: Pricing**
+    - Price per night (optional)
+    - Price per week (optional)
+    - Price per month (required)
+    - Security deposit (optional)
+  - **Section 5: Amenities & Features**
+    - Amenities checkboxes (WiFi, AC, Parking, Pool, Kitchen, Washer/Dryer, TV, Hot Water, Furnished, Security, Generator, etc. - 20 options)
+    - Utilities included checkboxes (Water, Electricity, Internet, Gas)
+    - House rules checkboxes (No smoking, No pets, No parties, Quiet hours)
+  - **Section 6: Contact**
+    - WhatsApp number (required)
+    - Phone (optional)
+    - Email (optional)
+  - Listing limit check: Prevent submission if free user already has 1 active listing
+  - Instant publishing: is_approved = TRUE on creation
+  - Auto-generate slug from property name
+  - Success message + redirect to photo upload page
+- ✅ **/dashboard/my-rentals/[id]/edit** - Edit listing form
+  - Same form as create, pre-populated with existing data
+  - Can't change is_approved status (admin-only)
+  - Can delete listing (with confirmation dialog)
+  - Delete removes listing, photos, and all associated data
+- ✅ **/dashboard/my-rentals/[id]/photos** - Photo management
+  - RentalPhotoUpload component (reuse TourismPhotoUpload pattern)
+  - Upload up to 15 photos (5MB max each)
+  - Set primary photo (star icon)
+  - Delete photos (removes from storage)
+  - Visual feedback with hover states
+  - Success/error messages
+
+### Phase 5E: Reviews & Social (Week 3)
+- ⬜ **RentalRatingsBreakdown.tsx** - Multi-aspect ratings display
+  - Overall rating (large 5.0 display)
+  - 5 category breakdowns with progress bars:
+    - Overall rating
+    - Cleanliness rating
+    - Location rating
+    - Value for money rating
+    - Communication rating
+  - Distribution histogram (5/4/3/2/1 stars)
+  - Review count per rating level
+- ⬜ **RentalReviewForm.tsx** - Submit review
+  - 5 star input fields (one for each category)
+  - Comment textarea (500 chars)
+  - Stay dates (from/to) - optional
+  - Photo upload (up to 3 photos, 5MB each)
+  - Submit button (requires sign-in)
+  - One review per user per property (enforced by unique constraint)
+  - Edit mode (if user already reviewed)
+- ⬜ **RentalReviewItem.tsx** - Display review
+  - User profile photo + name
+  - 5-category star ratings display
+  - Review comment
+  - Review photos (if any, lightbox view)
+  - Stay date display ("Stayed in May 2024")
+  - Relative timestamp ("2 days ago")
+  - Helpful votes (thumbs up/down) - reuse review_helpful_votes pattern
+  - Landlord response section (if exists)
+  - Edit/delete buttons (for review author)
+- ⬜ **RentalResponseForm.tsx** - Landlord responses
+  - Reuse BusinessResponseForm pattern
+  - Landlords can respond to reviews on their properties
+  - Response character limit: 500 chars
+  - Edit/delete response functionality
+- ⬜ Integrate all review components into rental detail page
+- ⬜ Review sorting: Most recent, Highest rated, Lowest rated, Most helpful
+
+### Phase 5F: Wishlist & Social Features (Week 4)
+- ⬜ **/dashboard/wishlist** - Saved properties page
+  - Grid of saved properties (RentalCard components)
+  - Personal notes field per property
+  - Remove from wishlist button
+  - Empty state: "You haven't saved any properties yet"
+- ⬜ Save/unsave functionality on rental cards and detail pages
+  - Heart icon (filled if saved, outlined if not)
+  - Toggle on click
+  - Increment/decrement save_count on rentals table
+  - Show in wishlist immediately
+
+### Phase 5G: Admin Tools (COMPLETE - Nov 19, 2024)
+- ✅ **/admin/rentals** - Admin rental management page
+  - **Flagged Listings Section** (top of page, red warning card)
+    - List all flagged properties (is_flagged: TRUE)
+    - Show flag count + flag reasons per listing
+    - Action buttons: Review, Hide Listing, Dismiss Flags, Delete
+    - Auto-hide threshold: Properties with 5+ flags auto-hidden (is_approved: FALSE)
+  - **All Listings Section**
+    - List all rental properties
+    - Filters: Category, Featured status, Flagged status
+    - Stats per listing: Views, inquiries, rating, reviews, saves, flags
+    - Action buttons per listing: View, Edit, Feature/Unfeature, Hide/Unhide, Delete
+  - **Analytics Stats Cards**
+    - Total rentals
+    - Total views
+    - Total inquiries
+    - Total saves
+    - Flagged count (red badge)
+    - Avg rating
+- ✅ **AdminRentalActions.tsx** - Admin action component
+  - Feature/unfeature property (is_featured toggle)
+  - Hide/unhide property (is_approved toggle)
+  - Delete property (with confirmation dialog)
+  - Dismiss flags (reset flag_count, is_flagged, flag_reasons)
+  - View flag details (who flagged, when, reasons)
+- ✅ Update admin dashboard (/admin)
+  - Add rentals stats card (total, views, inquiries, flagged)
+  - Add "Manage Rentals" quick action card (5th card in grid)
+  - Show flagged count badge (red gradient, if > 0)
+  - Rentals analytics integrated (views, inquiries, saves)
+
+### Phase 5H: Search & Filters (COMPLETE - Nov 19, 2024)
+- ✅ Full-text search implementation
+  - Search by property name, description, location_details
+  - PostgreSQL GIN index with to_tsvector (idx_rentals_search)
+  - Uses ilike for compatibility with Supabase PostgREST
+  - Search bar on /rentals and /rentals/category/[slug] pages
+- ✅ Advanced filtering implementation
+  - Price range inputs (min/max GYD per month)
+  - Bedrooms filter dropdown (Studio, 1, 2, 3, 4+)
+  - Bathrooms filter dropdown (1, 1.5, 2, 2.5, 3+)
+  - Amenities quick filter chips (WiFi, AC, Parking - toggle buttons)
+  - Region filter dropdown (all regions)
+  - Amenities stored as JSONB array, filtered with .contains()
+- ✅ Sort options implementation
+  - Price (low to high, high to low)
+  - Rating (high to low)
+  - Newest first
+  - Featured first
+  - Dropdown in RentalFilterPanel component
+- ✅ URL-based filter state (query params)
+  - Example: `/rentals?beds=2&baths=1&price_min=50000&price_max=150000&sort=price_low&amenities=wifi,ac,parking`
+  - Shareable URLs work correctly
+  - Browser back/forward support via Next.js router
+  - All filters preserved in URL params
+- ✅ RentalFilterPanel component enhancements
+  - Collapsible filter panel with expand/collapse
+  - Active filter count badge
+  - Clear all filters button
+  - Top amenities as visual chips (WiFi, AC, Parking icons)
+  - Real-time URL updates on filter changes
+- ✅ Seed data for testing
+  - Added 6 more rental properties (12 total)
+  - Properties with diverse amenities combinations
+  - WiFi-only, AC-only, All amenities, No premium amenities
+  - Price range: GYD 65,000 - 350,000/month
+  - Various bedrooms: Studio, 1BR, 2BR, 3BR, 4BR
+  - Multiple regions and property types
+
+### Phase 5I: Testing & Polish (Week 5-6)
+- ⬜ Create Playwright test suite (30+ tests)
+  - Multi-resolution testing (mobile, tablet, desktop)
+  - Rental browsing flow (browse → filter → view → contact)
+  - Create listing flow (sign in → create → upload photos → publish)
+  - Review submission flow (sign in → view property → submit review)
+  - Wishlist flow (save → view wishlist → unsave)
+  - Reporting flow (flag listing → admin review → hide/dismiss)
+  - Landlord dashboard (stats display, edit, delete)
+  - Admin dashboard (flagged listings, feature/hide, analytics)
+  - WhatsApp inquiry tracking
+  - Search functionality
+  - Filter functionality
+  - Photo gallery (lightbox, navigation)
+  - Listing limit enforcement (free tier)
+- ⬜ Mobile responsiveness testing
+  - Test on iOS Safari, Android Chrome
+  - Bottom nav renders correctly with 5 tabs
+  - Filter panel works on mobile (drawer)
+  - Photo galleries swipeable
+  - Touch targets 44x44px minimum
+- ⬜ Performance optimization
+  - Image lazy loading
+  - Photo compression (5MB max)
+  - Database query optimization (indexes)
+  - Page load time < 3s
+- ⬜ Accessibility audit
+  - Keyboard navigation (all interactive elements)
+  - Screen reader compatibility (aria-labels)
+  - Color contrast ratios (WCAG AA)
+  - Focus states visible
+- ⬜ SEO optimization
+  - Meta tags for rental pages
+  - Open Graph tags (social sharing)
+  - Structured data (schema.org/RealEstateListing)
+  - Sitemap generation
+- ⬜ Documentation
+  - README for rentals section
+  - Admin guide for managing flags
+  - Landlord onboarding guide
+  - API documentation (if needed)
+
+### Phase 5J: Future Enhancements (Phase 6+)
+- ⬜ **Premium Subscriptions** - Unlimited listings via payment
+  - Stripe integration for subscriptions
+  - Pricing: GYD 5,000-10,000/month for unlimited listings
+  - Premium landlord badge
+  - Enhanced analytics for premium users
+  - Priority support
+- ⬜ **Availability Calendar** - Landlords mark blocked dates
+  - Monthly calendar view
+  - Click to block/unblock dates
+  - Bulk block functionality (select range)
+  - Status color coding (available, occupied, maintenance)
+  - Sync with inquiries (auto-block on booking)
+- ⬜ **Virtual Tours** - 360° photos and video tours
+  - 360° photo uploads (5 max)
+  - YouTube/Vimeo video embeds
+  - Virtual tour viewer component
+- ⬜ **Comparison Tool** - Compare up to 5 properties side-by-side
+  - Comparison table (price, specs, amenities, ratings)
+  - "Save Comparison" QR code generation
+  - Share comparison URL
+- ⬜ **Neighborhood Insights** - Integration with other platforms
+  - Nearby businesses (from business directory)
+  - Nearby tourism (from tourism experiences)
+  - Nearby events (from events system)
+  - Safety score (community-contributed)
+- ⬜ **Perfect Match Score** - AI-powered recommendations
+  - User creates rental preferences profile
+  - Match percentage per property (0-100%)
+  - "Why this match?" tooltip
+  - Sort by "Best Match"
+- ⬜ **Price Alerts** - Notify users of price drops
+  - "Watch this property" button
+  - Email/browser notification when price drops
+  - Weekly digest of price drops
+- ⬜ **Virtual Roommate Finder** - For shared housing
+  - Profiles for current tenants (age, occupation, interests)
+  - Compatibility quiz (quiet vs social, cleanliness, etc.)
+  - "Looking for Roommate" badge
+- ⬜ **Property Tour Mode** - Kiosk-style slideshow
+  - Full-screen photo slideshow (auto-advance 5s)
+  - Room-by-room navigation
+  - QR code to save property
+  - Perfect for landlords showing properties on tablets
+- ⬜ **Maps Integration** - Interactive property location maps
+  - Google Maps or Mapbox integration
+  - Pin properties on map
+  - Cluster view for multiple properties
+  - Distance to points of interest
+
+### Key Metrics & Success Indicators
+**Launch Targets (First 3 Months):**
+- 100 rental listings across all categories
+- 500 registered landlords
+- 2,000 rental page views/month
+- 200 WhatsApp inquiries/month
+- 50 reviews submitted
+
+**Growth Targets (6 Months):**
+- 500 rental listings
+- 2,000 registered landlords
+- 10,000 rental page views/month
+- 1,000 WhatsApp inquiries/month
+- 300 reviews submitted
+- 10% of landlords flagged as wanting premium (50 users)
+
+**Monetization Targets (12 Months):**
+- 1,000 rental listings
+- 5,000 registered landlords
+- 50,000 rental page views/month
+- 5,000 WhatsApp inquiries/month
+- 50 premium subscribers (GYD 500,000/month revenue)
+
+### Design Philosophy
+- **WhatsApp-first**: Contact via WhatsApp, no booking engine
+- **Instant publishing**: No approval queue (Facebook Marketplace model)
+- **Community trust**: Reviews and ratings build landlord reputation
+- **Freemium**: 1 free listing, unlimited via premium subscription
+- **Mobile-first**: 60% of users on mobile
+- **Zero staff**: Community moderates via reporting system
+
+### Business Model Summary
+1. **Phase 1 (Now):** Free platform, focus on user acquisition (100-500 listings)
+2. **Phase 2 (Month 3):** Introduce premium subscriptions (GYD 5,000-10,000/month for unlimited listings)
+3. **Phase 3 (Month 6):** Featured listings (GYD 3,000/month for top placement)
+4. **Phase 4 (Month 9):** Advertising revenue (banner ads, sponsored search results)
+5. **Phase 5 (Month 12):** Optional booking deposits (3% fee) if you want payment processing
+
+**Revenue Projection (Month 12):**
+- 50 premium landlords × GYD 10,000 = GYD 500,000/month
+- 20 featured listings × GYD 3,000 = GYD 60,000/month
+- Banner ads: GYD 100,000/month
+- **Total: GYD 660,000/month (USD ~3,150/month)**
+
+---
+
+## 🎨 Phase 6: Homepage Redesign - Ad & Featured Content Focus (COMPLETE - Nov 21, 2024)
+**Goal:** Transform homepage into a compelling advertising and featured content showcase with mobile-first design
+
+### Components Created
+- ✅ **HeroSection.tsx** - Immersive hero with animated background
+  - Dark gradient background (slate-950 → purple-950)
+  - 3 animated gradient orbs pulsing at different intervals
+  - Grid pattern overlay for depth
+  - Rotating headline words (Businesses → Experiences → Properties → Events) every 3s
+  - Large search bar with focus effects
+  - 4 quick-link cards (Businesses, Tourism, Rentals, Events) with gradient icons
+  - Animated scroll indicator
+  - Mobile-first responsive design (375px to desktop)
+  - Full viewport height (75vh mobile, 85vh desktop)
+
+- ✅ **StatsBar.tsx** - Platform metrics showcase
+  - Animated number counters (0 to actual count with smooth easing)
+  - 4 stat cards (Businesses, Experiences, Properties, Events)
+  - Gradient icon backgrounds per category
+  - Hover effects with glow
+  - Trust indicators (100% Free, WhatsApp Connect, Verified Listings)
+  - Dark theme matching hero (slate-900 → purple-900)
+  - Grid pattern background
+  - Scale-in animations staggered by 150ms
+
+- ✅ **AdPlaceholder.tsx** - Premium advertising zones
+  - 3 variants: horizontal (200-250px), vertical (400-500px), square (300px)
+  - 5 theme options: gradient, emerald, amber, blue, purple
+  - Animated gradient shift effect (6s loop)
+  - Pattern overlay for texture
+  - Animated orbs on hover (scale 150%)
+  - Shimmer effect on hover (1s sweep)
+  - CTA button with backdrop blur
+  - Pricing hint ("Starting at GYD 10,000/month")
+  - Links to dashboard for easy conversion
+
+### Homepage Layout Redesign
+- ✅ **New Structure (Top to Bottom):**
+  1. **HeroSection** - Immersive full-screen entry point
+  2. **StatsBar** - Trust-building metrics
+  3. **PremiumSpotlight** - Auto-rotating carousel (existing component)
+  4. **Ad Zone 1** - Horizontal premium ad space
+  5. **Featured Businesses** - 8 businesses in 4-column grid (was 12 in 3-col)
+  6. **Featured Tourism** - 6 experiences in 3-column grid
+  7. **Ad Zone 2** - Two square ads side-by-side (Tourism + Property CTAs)
+  8. **Featured Rentals** - 6 properties in 3-column grid
+  9. **Featured Events** - 6 events in 3-column grid
+  10. **Ad Zone 3** - Horizontal "Advertise With Waypoint" CTA
+  11. **Footer** - Enhanced with brand gradient
+
+- ✅ **Removed CategoryCarousel** - Simplified focus on featured content and ads
+- ✅ **Enhanced Section Headers**
+  - Larger icons (64x64px with glow animations)
+  - Bigger titles (text-4xl/5xl, font-black)
+  - Crown icon for premium businesses
+  - Sparkles and Star icons for emphasis
+  - Larger CTAs (px-8 py-4 instead of px-6 py-3)
+  - Enhanced shadows and hover states
+
+### Design Enhancements
+- ✅ **Typography Upgrades**
+  - Hero headline: 5xl → 8xl (mobile to desktop)
+  - Section titles: 3xl → 5xl
+  - Font weights: bold → black (900)
+  - Added letter-spacing and line-height optimization
+
+- ✅ **Animation System**
+  - `animate-fade-in` - Elements fade up smoothly
+  - `animate-scale-in` - Elements scale from 95% to 100%
+  - `animate-pulse-glow` - Section icons pulse with shadow
+  - `animate-gradient-shift` - Background gradients animate
+  - Staggered delays (150ms, 2s, 4s) for visual flow
+
+- ✅ **Color Palette**
+  - Businesses: Amber → Orange
+  - Tourism: Emerald → Teal
+  - Rentals: Blue → Indigo
+  - Events: Purple → Pink
+  - Dark sections: Slate-950 → Purple-950 gradients
+
+- ✅ **Mobile-First Approach**
+  - Hero scales from 5xl to 8xl text
+  - Quick links: 2 columns on mobile, 4 on desktop
+  - Featured grids: 1 col mobile, 2 tablet, 3-4 desktop
+  - Stats: 2x2 grid mobile, 4 columns desktop
+  - Ad zones responsive to screen size
+
+### CSS Enhancements (globals.css)
+- ✅ Added `@keyframes gradient-shift` for animated backgrounds
+- ✅ Added `.animate-gradient-shift` utility class
+- ✅ Existing animations preserved (fade-in, scale-in, pulse-glow, ken-burns)
+
+### Business Impact
+**Conversion Opportunities:**
+- 4 ad placement zones (3 dedicated ad slots + spotlight carousel)
+- Multiple CTAs for business owners ("Feature Your Business", "Contact Sales")
+- Enhanced trust signals (stats, verified badges, reviews)
+- Cleaner, more focused layout emphasizes premium content
+- Mobile-optimized for 60%+ mobile traffic
+
+**User Experience:**
+- Immediate visual impact with dark hero and animations
+- Clear value proposition in rotating headline
+- Easy navigation with quick-link cards
+- Trust-building stats section
+- Smooth scrolling with staggered animations
+- WhatsApp-first CTAs maintained throughout
+
+### Performance Considerations
+- Animated numbers use 60fps requestAnimationFrame
+- CSS animations use transform/opacity (GPU accelerated)
+- Gradient animations limited to 6s intervals
+- No heavy JavaScript libraries added
+- All animations pause when not in viewport (browser optimization)
+
+### Files Modified
+- ✅ `app/page.tsx` - Complete homepage redesign
+- ✅ `app/globals.css` - Added gradient-shift animation
+- ✅ `components/HeroSection.tsx` - NEW
+- ✅ `components/StatsBar.tsx` - NEW
+- ✅ `components/AdPlaceholder.tsx` - NEW
+
+### Phase 6.2: Hero Section Background Images (COMPLETE - Nov 21, 2024)
+**Goal:** Replace static gradient background with rotating Guyana photography from Unsplash
+
+#### Implementation
+- ✅ **Rotating Background System**
+  - 10 curated Guyana/tropical images from Unsplash (free, no attribution)
+  - Images rotate every 8 seconds with 2-second crossfade transitions
+  - Next.js Image component for optimization (priority loading for first image)
+  - CSS transition-opacity for smooth fades (duration-2000ms)
+
+- ✅ **Image Collection**
+  - Kaieteur Falls (Guyana's iconic waterfall)
+  - Georgetown (urban landscape)
+  - Rainforest canopy views
+  - Tropical waterfalls
+  - Caribbean beaches
+  - Mountain landscapes
+  - River through rainforest
+  - Tropical sunsets
+  - Lakeside serenity
+  - General tropical paradise scenes
+
+- ✅ **Overlay Optimization**
+  - Reduced overlay opacity from 70-80% to 30-40%
+  - Removed purple color tints and animated gradient orbs
+  - Changed from purple-950 to slate-900/950 for neutral darkness
+  - Natural image colors now shine through clearly
+  - Text remains readable with minimal dark overlay
+  - Grid pattern overlay maintained for subtle texture
+
+- ✅ **Technical Details**
+  - useState hook for currentImage tracking
+  - useEffect with 8-second interval for auto-rotation
+  - Multiple Image components with absolute positioning
+  - Opacity toggle based on currentImage state
+  - Unsplash images configured in next.config.ts
+  - Custom CSS class `.duration-2000` added to globals.css
+
+#### Design Impact
+- More visually engaging than static gradient
+- Showcases Guyana's natural beauty and landmarks
+- Maintains brand consistency with dark overlays
+- Doesn't distract from content (subtle rotation)
+- Mobile-optimized (responsive images)
+
+#### Files Modified
+- ✅ `components/HeroSection.tsx` - Added rotating image system
+- ✅ `app/globals.css` - Added .duration-2000 utility class
+- ✅ `tracker.md` - Documented implementation
+
+### Next Steps (Future Enhancements)
+- Implement real ad management system (upload images, targeting, scheduling)
+- A/B test different hero headlines and CTAs
+- Add video background option for hero section
+- Implement parallax scrolling effects
+- Add testimonials section from business owners
+- Create interactive demo for ad placements
+
+---
+
+## 🎯 Phase 6.1: Simplified Homepage - Featured Listings Focus (COMPLETE - Nov 21, 2024)
+**Goal:** Remove advertising clutter and maximize space for featured content showcase
+
+### Major Changes
+- ✅ **Removed search bar** from hero section
+  - Cleaner, more focused "Find Your Next" headline
+  - Hero height reduced from 75vh/85vh to 60vh/70vh
+  - Simpler subheading: "Connect instantly via WhatsApp"
+  - Larger quick-link cards (p-6/p-8 instead of p-6)
+  - Bigger icons (w-16/w-20 instead of w-14)
+
+- ✅ **Removed all AdPlaceholder components**
+  - No "Premium Advertising Space" banners
+  - No "Feature Your Business" CTAs
+  - No "Advertise With Waypoint" sections
+  - Cleaner visual flow focused on listings
+
+- ✅ **Expanded featured listing grids**
+  - **Businesses**: 12 items (was 8), 1/2/3/4 column responsive grid
+  - **Tourism**: 9 items (was 6), 1/2/3 column grid
+  - **Rentals**: 9 items (was 6), 1/2/3 column grid
+  - **Events**: 9 items (was 6), 1/2/3 column grid
+  - **Spotlight**: 12 items (top 3 of each type, was 8)
+
+- ✅ **Enhanced section headers**
+  - Centered layout instead of left-aligned
+  - Icons + Title + Accent icon in single row
+  - Larger titles (text-4xl/5xl/6xl, up from 4xl/5xl)
+  - Subtitles below title (text-xl/2xl)
+  - CTA button centered below subtitle
+  - More breathing room (py-16/py-20 instead of py-16)
+
+- ✅ **Improved visual hierarchy**
+  - Full-width background gradients maintained for Tourism and Events sections
+  - Clean white/gray gradient for overall page
+  - Section spacing optimized (py-16 md:py-20)
+  - Consistent 3-column grids across all featured sections
+
+- ✅ **Footer simplification**
+  - Changed "Advertise" column to "Support"
+  - Links now focus on listing ("List Your Business/Experience/Property")
+  - "Contact Us" WhatsApp link instead of "Contact Sales"
+  - More user-friendly, less marketing-heavy
+
+### Layout Summary
+**New Homepage Structure:**
+1. **HeroSection** (60-70vh) - "Find Your Next" + 4 quick links
+2. **StatsBar** - Platform metrics with animated counters
+3. **PremiumSpotlight** - 12-item auto-carousel
+4. **Featured Businesses** - 12 items, 4-col grid, centered header with CTA
+5. **Featured Tourism** - 9 items, 3-col grid, gradient background
+6. **Featured Rentals** - 9 items, 3-col grid, centered header
+7. **Featured Events** - 9 items, 3-col grid, gradient background
+8. **Footer** - Brand, Discover, Support columns
+
+### Design Philosophy
+- **Content-first**: Featured listings are the star, not ads
+- **Breathing room**: More spacing between sections
+- **Consistency**: All sections use similar header patterns
+- **Mobile-optimized**: Responsive grids collapse beautifully
+- **Trust signals**: Stats bar remains to build credibility
+- **Clear CTAs**: "Browse All" buttons in section headers only
+
+### Removed Files
+- `components/AdPlaceholder.tsx` - No longer needed (still exists but unused)
+- `components/AdvertiseHereCTA.tsx` - Removed from imports
+
+### Files Modified
+- ✅ `components/HeroSection.tsx` - Search bar removed, simpler layout
+- ✅ `app/page.tsx` - All ad zones removed, grids expanded, headers centered
+
+### Impact
+**User Experience:**
+- 40% more featured listings visible (39 total vs 28 before)
+- Faster page scroll (no ad banners taking up space)
+- Cleaner, more professional appearance
+- Focus on content discovery, not monetization
+- Better mobile experience (less scrolling needed)
+
+**Performance:**
+- Fewer components to render (3 AdPlaceholder components removed)
+- Smaller bundle size (unused components tree-shaken)
+- Faster page load (less content to fetch)
+
+---
 
 

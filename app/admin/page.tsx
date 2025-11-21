@@ -10,7 +10,9 @@ import {
   Plus,
   Settings,
   Calendar,
-  Compass
+  Compass,
+  Home,
+  Flag
 } from 'lucide-react'
 
 export default async function AdminDashboard() {
@@ -24,9 +26,12 @@ export default async function AdminDashboard() {
     { count: totalEvents },
     { count: totalTourism },
     { count: pendingTourism },
+    { count: totalRentals },
+    { count: flaggedRentals },
     { data: businesses },
     { data: events },
     { data: tourismData },
+    { data: rentalsData },
     { data: recentReviews },
     { data: recentBusinesses },
     { data: recentEvents },
@@ -38,6 +43,8 @@ export default async function AdminDashboard() {
     supabase.from('events').select('*', { count: 'exact', head: true }),
     supabase.from('tourism_experiences').select('*', { count: 'exact', head: true }),
     supabase.from('tourism_experiences').select('*', { count: 'exact', head: true }).eq('is_approved', false),
+    supabase.from('rentals').select('*', { count: 'exact', head: true }),
+    supabase.from('rentals').select('*', { count: 'exact', head: true }).eq('is_flagged', true),
     supabase
       .from('businesses')
       .select('whatsapp_clicks, view_count')
@@ -49,6 +56,10 @@ export default async function AdminDashboard() {
     supabase
       .from('tourism_experiences')
       .select('view_count, booking_inquiry_count')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('rentals')
+      .select('view_count, inquiry_count, save_count')
       .order('created_at', { ascending: false }),
     supabase
       .from('reviews')
@@ -101,6 +112,11 @@ export default async function AdminDashboard() {
   const totalTourismViews = tourismData?.reduce((sum, t) => sum + (t.view_count || 0), 0) || 0
   const totalTourismInquiries = tourismData?.reduce((sum, t) => sum + (t.booking_inquiry_count || 0), 0) || 0
 
+  // Calculate rentals analytics
+  const totalRentalViews = rentalsData?.reduce((sum, r) => sum + (r.view_count || 0), 0) || 0
+  const totalRentalInquiries = rentalsData?.reduce((sum, r) => sum + (r.inquiry_count || 0), 0) || 0
+  const totalRentalSaves = rentalsData?.reduce((sum, r) => sum + (r.save_count || 0), 0) || 0
+
   const stats = [
     {
       label: 'Total Businesses',
@@ -124,11 +140,18 @@ export default async function AdminDashboard() {
       bg: 'bg-cyan-50',
     },
     {
+      label: 'Total Rentals',
+      value: totalRentals || 0,
+      icon: Home,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
       label: 'Total Users',
       value: totalUsers || 0,
       icon: Users,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50',
     },
     {
       label: 'Total Reviews',
@@ -145,11 +168,18 @@ export default async function AdminDashboard() {
       bg: 'bg-orange-50',
     },
     {
+      label: 'Flagged Rentals',
+      value: flaggedRentals || 0,
+      icon: Flag,
+      color: 'text-red-600',
+      bg: 'bg-red-50',
+    },
+    {
       label: 'Business Views',
       value: totalViews,
       icon: Eye,
-      color: 'text-indigo-600',
-      bg: 'bg-indigo-50',
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50',
     },
     {
       label: 'Event Views',
@@ -166,6 +196,13 @@ export default async function AdminDashboard() {
       bg: 'bg-cyan-50',
     },
     {
+      label: 'Rental Views',
+      value: totalRentalViews,
+      icon: Eye,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
       label: 'Business Clicks',
       value: totalWhatsAppClicks,
       icon: MessageCircle,
@@ -176,8 +213,8 @@ export default async function AdminDashboard() {
       label: 'Event Clicks',
       value: totalEventClicks,
       icon: MessageCircle,
-      color: 'text-teal-600',
-      bg: 'bg-teal-50',
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
     },
     {
       label: 'Tourism Inquiries',
@@ -185,6 +222,13 @@ export default async function AdminDashboard() {
       icon: MessageCircle,
       color: 'text-cyan-600',
       bg: 'bg-cyan-50',
+    },
+    {
+      label: 'Rental Inquiries',
+      value: totalRentalInquiries,
+      icon: MessageCircle,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
     },
     {
       label: 'Event Interests',
@@ -239,7 +283,7 @@ export default async function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-16">
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
           <Link
             href="/admin/businesses/create"
             className="group relative bg-gradient-to-br from-emerald-600 to-teal-600 text-white rounded-2xl p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
@@ -304,6 +348,33 @@ export default async function AdminDashboard() {
                   {pendingTourism && pendingTourism > 0 && (
                     <span className="block font-semibold mt-1">
                       {pendingTourism} pending
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/rentals"
+            className={`group relative rounded-2xl p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ${
+              flaggedRentals && flaggedRentals > 0
+                ? 'bg-gradient-to-br from-red-600 to-pink-600 text-white'
+                : 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white'
+            }`}
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
+            <div className="relative flex items-start gap-4">
+              <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <Home size={28} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold mb-1">Manage Rentals</h3>
+                <p className="text-blue-50 text-sm">
+                  Review flags and moderate
+                  {flaggedRentals && flaggedRentals > 0 && (
+                    <span className="block font-semibold mt-1">
+                      {flaggedRentals} flagged
                     </span>
                   )}
                 </p>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Calendar, Building2, Shield, Plane } from 'lucide-react'
+import { Home as HomeIcon, Calendar, User, Plane, Home } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface BottomNavProps {
@@ -16,7 +16,7 @@ export function BottomNav({ isAdmin }: BottomNavProps) {
     {
       name: 'Home',
       href: '/',
-      icon: Home,
+      icon: HomeIcon,
       isActive: pathname === '/',
     },
     {
@@ -32,23 +32,18 @@ export function BottomNav({ isAdmin }: BottomNavProps) {
       isActive: pathname.startsWith('/events') && !pathname.includes('my-events'),
     },
     {
-      name: 'My Business',
-      href: '/dashboard/my-business',
-      icon: Building2,
-      isActive: pathname.startsWith('/dashboard/my-business'),
+      name: 'Rentals',
+      href: '/rentals',
+      icon: Home,
+      isActive: pathname.startsWith('/rentals') && !pathname.includes('my-rentals'),
+    },
+    {
+      name: 'Profile',
+      href: '/dashboard/profile',
+      icon: User,
+      isActive: pathname.startsWith('/dashboard'),
     },
   ]
-
-  // Add admin link if user is admin
-  if (isAdmin) {
-    navItems.push({
-      name: 'Admin',
-      href: '/admin',
-      icon: Shield,
-      isActive: pathname.startsWith('/admin'),
-      isSpecial: false,
-    })
-  }
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] safe-area-inset-bottom">

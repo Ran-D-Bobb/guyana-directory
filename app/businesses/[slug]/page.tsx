@@ -2,6 +2,10 @@ import { createClient } from '@/lib/supabase/server'
 import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { PageViewTracker } from '@/components/PageViewTracker'
 import { ReviewForm } from '@/components/ReviewForm'
+import { StarRating } from '@/components/StarRating'
+import { RatingsBreakdown } from '@/components/RatingsBreakdown'
+import { ReviewItem } from '@/components/ReviewItem'
+import { BusinessResponseForm } from '@/components/BusinessResponseForm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -56,7 +60,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
     .order('is_primary', { ascending: false })
     .order('display_order', { ascending: true })
 
-  // Fetch reviews for this business
+  // Fetch reviews for this business with helpful votes and responses
   const { data: reviews } = await supabase
     .from('reviews')
     .select(`
@@ -66,8 +70,42 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
     .eq('business_id', business.id)
     .order('created_at', { ascending: false })
 
-  // Check if current user has already reviewed this business
-  const userHasReviewed = user && reviews?.some(review => review.user_id === user.id)
+  // Fetch user's own review if logged in
+  const userReview = user && reviews?.find(review => review.user_id === user.id)
+
+  // Fetch helpful votes for current user
+  const { data: userVotes } = user ? await supabase
+    .from('review_helpful_votes')
+    .select('review_id, is_helpful')
+    .eq('user_id', user.id)
+    .in('review_id', reviews?.map(r => r.id) || [])
+    : { data: null }
+
+  // Create a map of user votes for easy lookup
+  const userVotesMap = new Map(userVotes?.map(v => [v.review_id, v]) || [])
+
+  // Fetch business responses
+  const { data: responses } = await supabase
+    .from('review_responses')
+    .select(`
+      *,
+      profiles:user_id (name, photo)
+    `)
+    .in('review_id', reviews?.map(r => r.id) || [])
+
+  // Create a map of responses for easy lookup
+  const responsesMap = new Map(responses?.map(r => [r.review_id, r]) || [])
+
+  // Calculate rating breakdown
+  const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  reviews?.forEach(review => {
+    if (review.rating >= 1 && review.rating <= 5) {
+      ratingCounts[review.rating as 1 | 2 | 3 | 4 | 5]++
+    }
+  })
+
+  // Check if current user is the business owner
+  const isBusinessOwner = user && business.owner_id === user.id
 
   // Fetch upcoming business events
   const now = new Date().toISOString()
@@ -208,23 +246,12 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 
                 {/* Rating */}
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`w-5 h-5 ${
-                          star <= Math.round(business.rating ?? 0)
-                            ? 'fill-amber-400 text-amber-400'
-                            : 'text-gray-300'
-                        }`}
-                      />
-                    ))}
-                  </div>
+                  <StarRating rating={business.rating ?? 0} size="lg" />
                   <span className="text-lg font-medium text-gray-900">
                     {(business.rating ?? 0) > 0 ? (business.rating ?? 0).toFixed(1) : 'No ratings yet'}
                   </span>
                   {(business.review_count ?? 0) > 0 && (
-                    <span className="text-gray-600">({business.review_count} reviews)</span>
+                    <span className="text-gray-600">({business.review_count} {business.review_count === 1 ? 'review' : 'reviews'})</span>
                   )}
                 </div>
 
@@ -340,61 +367,60 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                   Reviews ({business.review_count})
                 </h2>
 
+                {/* Ratings Breakdown */}
+                {reviews && reviews.length > 0 && (
+                  <RatingsBreakdown
+                    ratingCounts={ratingCounts}
+                    totalReviews={business.review_count || 0}
+                    averageRating={business.rating || 0}
+                  />
+                )}
+
                 {/* Review Form */}
                 <div className="mb-6">
                   <ReviewForm
                     businessId={business.id}
                     businessName={business.name}
                     user={user}
-                    userHasReviewed={userHasReviewed ?? undefined}
+                    existingReview={userReview ? {
+                      id: userReview.id,
+                      rating: userReview.rating,
+                      comment: userReview.comment
+                    } : null}
                   />
                 </div>
 
                 {/* Existing Reviews */}
                 {reviews && reviews.length > 0 ? (
-                  <div className="space-y-4 pt-6 border-t border-gray-200">
+                  <div className="space-y-6 pt-6 border-t border-gray-200">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">
                       Customer Reviews
                     </h3>
-                    {reviews.map((review) => (
-                      <div key={review.id} className="border-b border-gray-200 pb-4 last:border-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          {review.profiles?.photo ? (
-                            <img
-                              src={review.profiles.photo}
-                              alt={review.profiles.name || 'User'}
-                              className="w-10 h-10 rounded-full"
+                    {reviews
+                      .filter(review => review.user_id !== user?.id) // Don't show user's own review in the list
+                      .map((review) => (
+                        <div key={review.id}>
+                          <ReviewItem
+                            review={review}
+                            user={user}
+                            userVote={userVotesMap.get(review.id)}
+                            businessResponse={responsesMap.get(review.id)}
+                          />
+                          {/* Business Response Form (only for business owner) */}
+                          {isBusinessOwner && (
+                            <BusinessResponseForm
+                              reviewId={review.id}
+                              businessId={business.id}
+                              user={user}
+                              isBusinessOwner={isBusinessOwner}
+                              existingResponse={responsesMap.get(review.id) ? {
+                                id: responsesMap.get(review.id)!.id,
+                                response: responsesMap.get(review.id)!.response
+                              } : null}
                             />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                              <span className="text-gray-600 font-medium">
-                                {review.profiles?.name?.charAt(0) || 'U'}
-                              </span>
-                            </div>
                           )}
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {review.profiles?.name || 'Anonymous'}
-                            </p>
-                            <div className="flex items-center gap-1">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Star
-                                  key={star}
-                                  className={`w-4 h-4 ${
-                                    star <= review.rating
-                                      ? 'fill-amber-400 text-amber-400'
-                                      : 'text-gray-300'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                          </div>
                         </div>
-                        {review.comment && (
-                          <p className="text-gray-700 ml-13">{review.comment}</p>
-                        )}
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 ) : (
                   <p className="text-gray-600 text-center py-6 border-t border-gray-200">

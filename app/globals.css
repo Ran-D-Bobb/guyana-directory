@@ -109,6 +109,27 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes ken-burns {
+  0% {
+    transform: scale(1) translateX(0) translateY(0);
+  }
+  50% {
+    transform: scale(1.1) translateX(-2%) translateY(-2%);
+  }
+  100% {
+    transform: scale(1) translateX(0) translateY(0);
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 .animate-fade-in {
   animation: fade-in 0.5s ease-out;
 }
@@ -125,12 +146,25 @@ h1, h2, h3, h4, h5, h6 {
   animation: pulse-glow 2s infinite;
 }
 
+.animate-ken-burns {
+  animation: ken-burns 20s ease-in-out infinite;
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
 .animation-delay-2000 {
   animation-delay: 2s;
 }
 
 .animation-delay-4000 {
   animation-delay: 4s;
+}
+
+.duration-2000 {
+  transition-duration: 2000ms;
 }
 
 /* Custom Scrollbar Styling */

@@ -496,12 +496,602 @@ export type Database = {
         }
         Relationships: []
       }
+      rental_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          icon: string
+          id: string
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon: string
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      rental_flags: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          reason: string
+          rental_id: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          reason: string
+          rental_id: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          reason?: string
+          rental_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_flags_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_inquiry_clicks: {
+        Row: {
+          clicked_at: string | null
+          device_type: string | null
+          id: string
+          rental_id: string
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          clicked_at?: string | null
+          device_type?: string | null
+          id?: string
+          rental_id: string
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          clicked_at?: string | null
+          device_type?: string | null
+          id?: string
+          rental_id?: string
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_inquiry_clicks_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_photos: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+          is_primary: boolean | null
+          rental_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+          is_primary?: boolean | null
+          rental_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          is_primary?: boolean | null
+          rental_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_photos_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_review_helpful_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_helpful: boolean
+          review_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_helpful: boolean
+          review_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_helpful?: boolean
+          review_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_review_helpful_votes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "rental_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_review_photos: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+          review_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+          review_id: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          review_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_review_photos_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "rental_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_review_responses: {
+        Row: {
+          created_at: string | null
+          id: string
+          rental_id: string
+          response: string
+          review_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          rental_id: string
+          response: string
+          review_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          rental_id?: string
+          response?: string
+          review_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_review_responses_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rental_review_responses_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: true
+            referencedRelation: "rental_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_reviews: {
+        Row: {
+          comment: string
+          created_at: string | null
+          helpful_count: number | null
+          id: string
+          not_helpful_count: number | null
+          rating_cleanliness: number
+          rating_communication: number
+          rating_location: number
+          rating_overall: number
+          rating_value: number
+          rental_id: string
+          stay_from: string | null
+          stay_to: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          not_helpful_count?: number | null
+          rating_cleanliness: number
+          rating_communication: number
+          rating_location: number
+          rating_overall: number
+          rating_value: number
+          rental_id: string
+          stay_from?: string | null
+          stay_to?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          not_helpful_count?: number | null
+          rating_cleanliness?: number
+          rating_communication?: number
+          rating_location?: number
+          rating_overall?: number
+          rating_value?: number
+          rental_id?: string
+          stay_from?: string | null
+          stay_to?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_reviews_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_saved: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          rental_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          rental_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          rental_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_saved_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rentals: {
+        Row: {
+          address: string | null
+          amenities: Json | null
+          bathrooms: number | null
+          bedrooms: number | null
+          category_id: string
+          created_at: string | null
+          description: string
+          email: string | null
+          flag_count: number | null
+          flag_reasons: Json | null
+          house_rules: Json | null
+          id: string
+          inquiry_count: number | null
+          is_approved: boolean | null
+          is_best_value: boolean | null
+          is_featured: boolean | null
+          is_flagged: boolean | null
+          landlord_id: string
+          location_details: string | null
+          max_guests: number | null
+          name: string
+          phone: string | null
+          price_per_month: number
+          price_per_night: number | null
+          price_per_week: number | null
+          property_type: string
+          rating: number | null
+          rating_cleanliness: number | null
+          rating_communication: number | null
+          rating_location: number | null
+          rating_value: number | null
+          region_id: string | null
+          review_count: number | null
+          save_count: number | null
+          security_deposit: number | null
+          slug: string
+          square_feet: number | null
+          updated_at: string | null
+          utilities_included: Json | null
+          view_count: number | null
+          whatsapp_number: string
+        }
+        Insert: {
+          address?: string | null
+          amenities?: Json | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          category_id: string
+          created_at?: string | null
+          description: string
+          email?: string | null
+          flag_count?: number | null
+          flag_reasons?: Json | null
+          house_rules?: Json | null
+          id?: string
+          inquiry_count?: number | null
+          is_approved?: boolean | null
+          is_best_value?: boolean | null
+          is_featured?: boolean | null
+          is_flagged?: boolean | null
+          landlord_id: string
+          location_details?: string | null
+          max_guests?: number | null
+          name: string
+          phone?: string | null
+          price_per_month: number
+          price_per_night?: number | null
+          price_per_week?: number | null
+          property_type: string
+          rating?: number | null
+          rating_cleanliness?: number | null
+          rating_communication?: number | null
+          rating_location?: number | null
+          rating_value?: number | null
+          region_id?: string | null
+          review_count?: number | null
+          save_count?: number | null
+          security_deposit?: number | null
+          slug: string
+          square_feet?: number | null
+          updated_at?: string | null
+          utilities_included?: Json | null
+          view_count?: number | null
+          whatsapp_number: string
+        }
+        Update: {
+          address?: string | null
+          amenities?: Json | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          category_id?: string
+          created_at?: string | null
+          description?: string
+          email?: string | null
+          flag_count?: number | null
+          flag_reasons?: Json | null
+          house_rules?: Json | null
+          id?: string
+          inquiry_count?: number | null
+          is_approved?: boolean | null
+          is_best_value?: boolean | null
+          is_featured?: boolean | null
+          is_flagged?: boolean | null
+          landlord_id?: string
+          location_details?: string | null
+          max_guests?: number | null
+          name?: string
+          phone?: string | null
+          price_per_month?: number
+          price_per_night?: number | null
+          price_per_week?: number | null
+          property_type?: string
+          rating?: number | null
+          rating_cleanliness?: number | null
+          rating_communication?: number | null
+          rating_location?: number | null
+          rating_value?: number | null
+          region_id?: string | null
+          review_count?: number | null
+          save_count?: number | null
+          security_deposit?: number | null
+          slug?: string
+          square_feet?: number | null
+          updated_at?: string | null
+          utilities_included?: Json | null
+          view_count?: number | null
+          whatsapp_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rentals_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "rental_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rentals_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_helpful_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_helpful: boolean
+          review_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_helpful: boolean
+          review_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_helpful?: boolean
+          review_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_helpful_votes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_helpful_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_responses: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          id: string
+          response: string
+          review_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          id?: string
+          response: string
+          review_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          id?: string
+          response?: string
+          review_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_responses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_responses_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: true
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_responses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           business_id: string
           comment: string | null
           created_at: string | null
+          helpful_count: number | null
           id: string
+          not_helpful_count: number | null
           rating: number
           updated_at: string | null
           user_id: string
@@ -510,7 +1100,9 @@ export type Database = {
           business_id: string
           comment?: string | null
           created_at?: string | null
+          helpful_count?: number | null
           id?: string
+          not_helpful_count?: number | null
           rating: number
           updated_at?: string | null
           user_id: string
@@ -519,7 +1111,9 @@ export type Database = {
           business_id?: string
           comment?: string | null
           created_at?: string | null
+          helpful_count?: number | null
           id?: string
+          not_helpful_count?: number | null
           rating?: number
           updated_at?: string | null
           user_id?: string

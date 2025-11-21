@@ -24,7 +24,13 @@ const nextConfig: NextConfig = {
         hostname: 'as2.ftcdn.net',
         pathname: '/**',
       },
-      // Add Supabase storage domain later
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '55321',
+        pathname: '/storage/v1/object/public/**',
+      },
+      // Add Supabase production storage domain when deploying
     ],
   },
 };

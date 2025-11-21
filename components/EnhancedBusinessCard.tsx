@@ -5,6 +5,7 @@ import { MapPin, Star, BadgeCheck, Sparkles, Share2, Heart, MessageCircle } from
 import { Database } from '@/types/supabase'
 import { useState } from 'react'
 import { ViewMode } from './ViewModeToggle'
+import { StarRating } from './StarRating'
 
 type Business = Database['public']['Tables']['businesses']['Row'] & {
   categories: { name: string } | null
@@ -92,8 +93,8 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
 
           {/* Rating */}
           {business.rating > 0 && (
-            <div className="absolute bottom-3 right-3 flex items-center gap-1 px-2.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
-              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
+              <StarRating rating={business.rating} size="md" />
               <span className="text-sm font-bold text-gray-900">{business.rating.toFixed(1)}</span>
               {business.review_count > 0 && (
                 <span className="text-xs text-gray-600">({business.review_count})</span>
@@ -168,7 +169,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
           />
           {business.rating > 0 && (
             <div className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-1 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
-              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+              <StarRating rating={business.rating} size="sm" />
               <span className="text-xs font-bold text-gray-900">{business.rating.toFixed(1)}</span>
             </div>
           )}
@@ -284,7 +285,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
       <div className="flex items-center gap-3">
         {business.rating > 0 && (
           <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-lg">
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            <StarRating rating={business.rating} size="sm" />
             <span className="text-sm font-bold text-gray-900">{business.rating.toFixed(1)}</span>
           </div>
         )}

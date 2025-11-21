@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { MapPin, Star, BadgeCheck, Sparkles, ArrowRight } from 'lucide-react'
 import { Database } from '@/types/supabase'
+import { StarRating } from './StarRating'
 
 type Business = Database['public']['Tables']['businesses']['Row'] & {
   categories: { name: string } | null
@@ -52,8 +53,8 @@ export function BusinessCard({ business, primaryPhoto }: BusinessCardProps) {
 
         {/* Rating Badge - Floating on Image */}
         {business.rating > 0 && (
-          <div className="absolute bottom-3 right-3 flex items-center gap-1 px-2.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
-            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+          <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
+            <StarRating rating={business.rating} size="md" />
             <span className="text-sm font-bold text-gray-900">
               {business.rating.toFixed(1)}
             </span>
