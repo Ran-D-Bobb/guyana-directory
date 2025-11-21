@@ -174,7 +174,7 @@ export default async function Home() {
   const { count: eventCount } = await supabase.from('events').select('*', { count: 'exact', head: true })
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-20 lg:pb-0">
       {/* Immersive Hero Section */}
       <HeroSection />
 
@@ -194,27 +194,27 @@ export default async function Home() {
       {/* Featured Tourism Experiences - EXPANDED */}
       <div className="bg-gradient-to-b from-white via-gray-50 to-white">
       {featuredExperiences && featuredExperiences.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 bg-gradient-to-br from-emerald-50/50 to-teal-50/30 rounded-3xl mt-0 mb-8">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center gap-3 mb-4">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-2xl shadow-emerald-500/30 animate-pulse-glow">
-                <Plane className="h-8 w-8 text-white" strokeWidth={2.5} />
+        <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 md:py-20 bg-gradient-to-br from-emerald-50/50 to-teal-50/30 rounded-2xl md:rounded-3xl mt-0 mb-6 md:mb-8">
+          <div className="text-center mb-8 md:mb-12">
+            <div className="inline-flex items-center justify-center gap-2 md:gap-3 mb-3 md:mb-4 flex-wrap px-2">
+              <div className="h-12 w-12 md:h-16 md:w-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg md:shadow-2xl shadow-emerald-500/30 animate-pulse-glow">
+                <Plane className="h-6 w-6 md:h-8 md:w-8 text-white" strokeWidth={2.5} />
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-gray-900">
                 Featured Experiences
               </h2>
-              <Star className="h-8 w-8 text-emerald-500 fill-emerald-500" />
+              <Star className="h-6 w-6 md:h-8 md:w-8 text-emerald-500 fill-emerald-500" />
             </div>
-            <p className="text-xl md:text-2xl text-gray-600 mb-8">Discover the beauty of Guyana • Sponsored tours</p>
+            <p className="text-base md:text-xl lg:text-2xl text-gray-600 mb-6 md:mb-8 px-4">Discover the beauty of Guyana • Sponsored tours</p>
             <Link
               href="/tourism"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl hover:from-emerald-700 hover:to-teal-700 shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 transition-all font-bold text-lg"
+              className="inline-flex items-center gap-2 md:gap-3 px-5 py-3 md:px-8 md:py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl md:rounded-2xl hover:from-emerald-700 hover:to-teal-700 shadow-xl md:shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 active:scale-95 transition-all font-bold text-sm md:text-lg touch-manipulation"
             >
               Explore All Experiences
-              <ArrowRight className="w-6 h-6" />
+              <ArrowRight className="w-4 h-4 md:w-6 md:h-6" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {featuredExperiences.map((experience) => (
               <ExperienceCard key={experience.id} experience={experience} />
             ))}
@@ -224,27 +224,27 @@ export default async function Home() {
 
       {/* Featured Properties - EXPANDED */}
       {featuredRentals && featuredRentals.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center gap-3 mb-4">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-2xl shadow-blue-500/30 animate-pulse-glow">
-                <Home className="h-8 w-8 text-white" strokeWidth={2.5} />
+        <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 md:py-20">
+          <div className="text-center mb-8 md:mb-12">
+            <div className="inline-flex items-center justify-center gap-2 md:gap-3 mb-3 md:mb-4 flex-wrap px-2">
+              <div className="h-12 w-12 md:h-16 md:w-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg md:shadow-2xl shadow-blue-500/30 animate-pulse-glow">
+                <Home className="h-6 w-6 md:h-8 md:w-8 text-white" strokeWidth={2.5} />
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-gray-900">
                 Premium Properties
               </h2>
-              <Star className="h-8 w-8 text-blue-500 fill-blue-500" />
+              <Star className="h-6 w-6 md:h-8 md:w-8 text-blue-500 fill-blue-500" />
             </div>
-            <p className="text-xl md:text-2xl text-gray-600 mb-8">Featured rentals • Find your perfect home</p>
+            <p className="text-base md:text-xl lg:text-2xl text-gray-600 mb-6 md:mb-8 px-4">Featured rentals • Find your perfect home</p>
             <Link
               href="/rentals"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl hover:from-blue-700 hover:to-indigo-700 shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 transition-all font-bold text-lg"
+              className="inline-flex items-center gap-2 md:gap-3 px-5 py-3 md:px-8 md:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl md:rounded-2xl hover:from-blue-700 hover:to-indigo-700 shadow-xl md:shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 active:scale-95 transition-all font-bold text-sm md:text-lg touch-manipulation"
             >
               Browse All Properties
-              <ArrowRight className="w-6 h-6" />
+              <ArrowRight className="w-4 h-4 md:w-6 md:h-6" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {featuredRentals.map((rental) => (
               <RentalCard key={rental.id} rental={rental} />
             ))}
@@ -254,27 +254,27 @@ export default async function Home() {
 
       {/* Featured Events - EXPANDED */}
       {featuredEvents && featuredEvents.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 bg-gradient-to-br from-purple-50/50 to-pink-50/30 rounded-3xl my-8">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center gap-3 mb-4">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-2xl shadow-purple-500/30 animate-pulse-glow">
-                <Calendar className="h-8 w-8 text-white" strokeWidth={2.5} />
+        <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 md:py-20 bg-gradient-to-br from-purple-50/50 to-pink-50/30 rounded-2xl md:rounded-3xl my-6 md:my-8">
+          <div className="text-center mb-8 md:mb-12">
+            <div className="inline-flex items-center justify-center gap-2 md:gap-3 mb-3 md:mb-4 flex-wrap px-2">
+              <div className="h-12 w-12 md:h-16 md:w-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg md:shadow-2xl shadow-purple-500/30 animate-pulse-glow">
+                <Calendar className="h-6 w-6 md:h-8 md:w-8 text-white" strokeWidth={2.5} />
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-gray-900">
                 Upcoming Events
               </h2>
-              <Star className="h-8 w-8 text-purple-500 fill-purple-500" />
+              <Star className="h-6 w-6 md:h-8 md:w-8 text-purple-500 fill-purple-500" />
             </div>
-            <p className="text-xl md:text-2xl text-gray-600 mb-8">Don&apos;t miss out • Featured happenings</p>
+            <p className="text-base md:text-xl lg:text-2xl text-gray-600 mb-6 md:mb-8 px-4">Don&apos;t miss out • Featured happenings</p>
             <Link
               href="/events"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl hover:from-purple-700 hover:to-pink-700 shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105 transition-all font-bold text-lg"
+              className="inline-flex items-center gap-2 md:gap-3 px-5 py-3 md:px-8 md:py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl md:rounded-2xl hover:from-purple-700 hover:to-pink-700 shadow-xl md:shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105 active:scale-95 transition-all font-bold text-sm md:text-lg touch-manipulation"
             >
               View All Events
-              <ArrowRight className="w-6 h-6" />
+              <ArrowRight className="w-4 h-4 md:w-6 md:h-6" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {featuredEvents.map((event) => (
               <EventCard key={event.id} event={event} />
             ))}
@@ -284,9 +284,9 @@ export default async function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-16 px-4 mt-0">
+      <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-12 md:py-16 px-3 sm:px-4 mt-0">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 mb-6 md:mb-8">
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-4">

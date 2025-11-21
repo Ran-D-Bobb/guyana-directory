@@ -78,7 +78,7 @@ export function HeroSection() {
   ]
 
   return (
-    <section className="relative min-h-[60vh] md:min-h-[70vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[65vh] md:min-h-[70vh] flex items-center justify-center overflow-hidden">
       {/* Rotating Background Images */}
       <div className="absolute inset-0">
         {backgroundImages.map((image, index) => (
@@ -100,57 +100,57 @@ export function HeroSection() {
           </div>
         ))}
 
-        {/* Light overlay for text readability - minimal to show image colors */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/40 via-slate-900/30 to-slate-950/40" />
+        {/* Enhanced overlay for better text readability on mobile */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/50 via-slate-900/40 to-slate-950/50" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 text-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 text-center">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white text-sm font-medium animate-fade-in">
-          <Sparkles className="w-4 h-4 text-amber-300" />
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 mb-4 md:mb-6 bg-white/15 backdrop-blur-md border border-white/30 rounded-full text-white text-xs md:text-sm font-medium animate-fade-in shadow-lg">
+          <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-amber-300" />
           <span>Discover Guyana&apos;s Best</span>
         </div>
 
-        {/* Main headline */}
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 animate-fade-in leading-none">
+        {/* Main headline - optimized for mobile */}
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black text-white mb-4 md:mb-8 animate-fade-in leading-tight px-2">
           Discover Guyana's
           <br />
-          <span className="relative inline-block mt-2">
-            <span className="bg-gradient-to-r from-green-600 via-amber-400 via-yellow-300 via-gray-900 via-white to-red-600 bg-clip-text text-transparent animate-scale-in" style={{ backgroundSize: '200% 100%' }}>
+          <span className="relative inline-block mt-1 md:mt-2">
+            <span className="bg-gradient-to-r from-green-600 via-amber-400 via-yellow-300 via-gray-900 via-white to-red-600 bg-clip-text text-transparent animate-scale-in drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]" style={{ backgroundSize: '200% 100%' }}>
               {rotatingWords[currentWord]}
             </span>
-            <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-green-600 via-amber-400 via-yellow-300 via-gray-900 via-white to-red-600 rounded-full animate-pulse" style={{ backgroundSize: '200% 100%' }} />
+            <div className="absolute -bottom-1 md:-bottom-2 left-0 right-0 h-0.5 md:h-1 bg-gradient-to-r from-green-600 via-amber-400 via-yellow-300 via-gray-900 via-white to-red-600 rounded-full animate-pulse" style={{ backgroundSize: '200% 100%' }} />
           </span>
         </h1>
 
         {/* Subheading */}
-        <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto animate-fade-in font-light">
+        <p className="text-base sm:text-lg md:text-2xl text-gray-200 mb-8 md:mb-12 max-w-3xl mx-auto animate-fade-in font-light drop-shadow-lg px-4">
           Connect instantly via WhatsApp
         </p>
 
-        {/* Quick links */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto animate-fade-in">
+        {/* Quick links - optimized spacing for mobile */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 max-w-4xl mx-auto animate-fade-in px-2">
           {quickLinks.map((link, index) => (
             <Link
               key={link.label}
               href={link.href}
-              className="group relative overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/20 transition-all hover:scale-105 hover:shadow-2xl"
+              className="group relative overflow-hidden bg-white/10 backdrop-blur-md border border-white/25 rounded-xl md:rounded-2xl p-4 md:p-8 hover:bg-white/20 transition-all hover:scale-105 active:scale-95 hover:shadow-2xl touch-manipulation"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${link.color} opacity-0 group-hover:opacity-20 transition-opacity`} />
               <div className="relative">
-                <div className={`w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${link.color} flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all group-hover:scale-110`}>
-                  <link.icon className="w-8 h-8 md:w-10 md:h-10 text-white" strokeWidth={2.5} />
+                <div className={`w-12 h-12 md:w-20 md:h-20 mx-auto mb-2 md:mb-4 rounded-xl md:rounded-2xl bg-gradient-to-br ${link.color} flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all group-hover:scale-110`}>
+                  <link.icon className="w-6 h-6 md:w-10 md:h-10 text-white" strokeWidth={2.5} />
                 </div>
-                <p className="text-white font-bold text-lg md:text-xl">{link.label}</p>
+                <p className="text-white font-bold text-sm md:text-xl">{link.label}</p>
               </div>
             </Link>
           ))}
         </div>
 
-        {/* Scroll indicator */}
-        <div className="mt-12 md:mt-16 animate-bounce">
+        {/* Scroll indicator - hidden on small mobile */}
+        <div className="mt-8 md:mt-16 animate-bounce hidden sm:block">
           <div className="w-6 h-10 border-2 border-white/30 rounded-full mx-auto flex items-start justify-center pt-2">
             <div className="w-1.5 h-3 bg-white/60 rounded-full animate-pulse" />
           </div>

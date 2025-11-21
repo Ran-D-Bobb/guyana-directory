@@ -33,12 +33,12 @@ export function AuthButton({ user }: AuthButtonProps) {
   return (
     <Button
       onClick={handleSignIn}
-      className="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all active:scale-95"
+      className="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all active:scale-95 text-sm md:text-base px-3 py-2 md:px-4 md:py-2 h-9 md:h-10"
     >
-      <span className="relative flex items-center gap-2">
-        <LogIn className="h-4 w-4 transition-transform group-hover:scale-110" />
-        <span className="hidden sm:inline">Sign In with Google</span>
-        <span className="sm:hidden">Sign In</span>
+      <span className="relative flex items-center gap-1.5 md:gap-2">
+        <LogIn className="h-4 w-4 md:h-4 md:w-4 transition-transform group-hover:scale-110" />
+        <span className="hidden sm:inline font-medium">Sign In</span>
+        <span className="sm:hidden font-medium">Sign In</span>
       </span>
     </Button>
   )

@@ -91,26 +91,8 @@ export async function Header() {
             {/* Right Side */}
             <div className="flex items-center gap-3">
               {!user ? (
-                // Guest User - Simple Nav Links on Mobile
+                // Guest User - Just Auth Button on Mobile
                 <>
-                  <Link
-                    href="/tourism"
-                    className="sm:hidden p-2 text-gray-600 hover:text-emerald-600 transition-colors"
-                  >
-                    <Plane className="h-5 w-5" />
-                  </Link>
-                  <Link
-                    href="/events"
-                    className="sm:hidden p-2 text-gray-600 hover:text-purple-600 transition-colors"
-                  >
-                    <Calendar className="h-5 w-5" />
-                  </Link>
-                  <Link
-                    href="/rentals"
-                    className="sm:hidden p-2 text-gray-600 hover:text-blue-600 transition-colors"
-                  >
-                    <HomeIcon className="h-5 w-5" />
-                  </Link>
                   <AuthButton user={user} />
                 </>
               ) : (
@@ -134,8 +116,8 @@ export async function Header() {
         <div className="hidden md:block h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 opacity-80" />
       </header>
 
-      {/* Bottom Navigation - Mobile Only (Authenticated Users) */}
-      {user && <BottomNav isAdmin={userIsAdmin} />}
+      {/* Bottom Navigation - Mobile Only (All Users) */}
+      <BottomNav isAdmin={userIsAdmin} />
     </>
   )
 }
