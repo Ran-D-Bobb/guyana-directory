@@ -3,7 +3,7 @@
 
 -- Create admin_emails table to store admin email addresses
 CREATE TABLE IF NOT EXISTS public.admin_emails (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT NOT NULL UNIQUE,
   created_at TIMESTAMPTZ DEFAULT now(),
   notes TEXT

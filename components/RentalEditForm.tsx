@@ -189,7 +189,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               required
               value={formData.property_type}
               onChange={(e) => setFormData({ ...formData, property_type: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             >
               <option value="">Select property type</option>
               <option value="apartment">Apartment</option>
@@ -232,7 +232,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g., Modern 2BR Apartment in Georgetown"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -247,7 +247,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               maxLength={500}
               rows={4}
               placeholder="Describe your property, highlight key features..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
             <p className="text-sm text-gray-500 mt-1">{formData.description.length}/500 characters</p>
           </div>
@@ -554,7 +554,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
         </button>
@@ -562,7 +562,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
           type="button"
           onClick={handleDelete}
           disabled={isDeleting}
-          className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <Trash2 className="h-4 w-4" />
           {isDeleting ? 'Deleting...' : 'Delete Listing'}

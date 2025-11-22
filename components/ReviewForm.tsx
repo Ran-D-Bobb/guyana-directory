@@ -277,7 +277,7 @@ export function ReviewForm({ businessId, businessName, user, existingReview, onR
           onChange={(e) => setComment(e.target.value)}
           placeholder={`Share your experience with ${businessName}...`}
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
           maxLength={500}
         />
         <p className="text-sm text-gray-500 mt-1">{comment.length}/500 characters</p>
@@ -294,7 +294,7 @@ export function ReviewForm({ businessId, businessName, user, existingReview, onR
       <button
         type="submit"
         disabled={isSubmitting || rating === 0}
-        className="w-full px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+        className="w-full px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed transition-colors font-medium"
       >
         {isSubmitting ? (existingReview ? 'Updating...' : 'Submitting...') : (existingReview ? 'Update Review' : 'Submit Review')}
       </button>

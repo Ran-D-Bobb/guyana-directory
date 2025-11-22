@@ -123,7 +123,7 @@ export function BusinessEventCreateForm({ business, eventTypes }: BusinessEventC
             name="title"
             required
             maxLength={200}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             placeholder="e.g., Weekend Flash Sale - 50% Off"
           />
         </div>
@@ -138,7 +138,7 @@ export function BusinessEventCreateForm({ business, eventTypes }: BusinessEventC
           id="event_type_id"
           name="event_type_id"
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
         >
           <option value="">Select an event type</option>
           {eventTypes.map((type) => (
@@ -162,7 +162,7 @@ export function BusinessEventCreateForm({ business, eventTypes }: BusinessEventC
             required
             rows={6}
             maxLength={2000}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             placeholder="Describe your promotional offer, terms & conditions, what's included, etc."
           />
         </div>
@@ -258,7 +258,7 @@ export function BusinessEventCreateForm({ business, eventTypes }: BusinessEventC
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Creating Event...' : 'Create Event'}
         </button>

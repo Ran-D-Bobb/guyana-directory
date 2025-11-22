@@ -159,7 +159,7 @@ export function AdminBusinessEditForm({
             name="owner_id"
             value={formData.owner_id}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
           >
             <option value="">No owner (admin-managed)</option>
             {users.map((user) => (
@@ -211,7 +211,7 @@ export function AdminBusinessEditForm({
           value={formData.name}
           onChange={handleChange}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
         />
       </div>
 
@@ -226,7 +226,7 @@ export function AdminBusinessEditForm({
           value={formData.description}
           onChange={handleChange}
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
         />
       </div>
 
@@ -240,7 +240,7 @@ export function AdminBusinessEditForm({
           name="category_id"
           value={formData.category_id}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
         >
           <option value="">Select a category</option>
           {categories.map((category) => (
@@ -261,7 +261,7 @@ export function AdminBusinessEditForm({
           name="region_id"
           value={formData.region_id}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
         >
           <option value="">Select a location</option>
           {regions.map((region) => (
@@ -288,7 +288,7 @@ export function AdminBusinessEditForm({
             value={formData.whatsapp_number}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
           />
         </div>
 
@@ -303,7 +303,7 @@ export function AdminBusinessEditForm({
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
           />
         </div>
 
@@ -318,7 +318,7 @@ export function AdminBusinessEditForm({
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
           />
         </div>
 
@@ -333,7 +333,7 @@ export function AdminBusinessEditForm({
             name="website"
             value={formData.website}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
           />
         </div>
 
@@ -348,7 +348,7 @@ export function AdminBusinessEditForm({
             value={formData.address}
             onChange={handleChange}
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
           />
         </div>
       </div>
@@ -358,7 +358,7 @@ export function AdminBusinessEditForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+          className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed transition-colors font-medium"
         >
           {isSubmitting ? 'Updating...' : 'Update Business'}
         </button>

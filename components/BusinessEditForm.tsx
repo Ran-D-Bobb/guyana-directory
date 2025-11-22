@@ -148,7 +148,7 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
           value={formData.name}
           onChange={handleChange}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
         />
       </div>
 
@@ -163,7 +163,7 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
           value={formData.description}
           onChange={handleChange}
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
           placeholder="Describe your business..."
         />
       </div>
@@ -178,7 +178,7 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
           name="category_id"
           value={formData.category_id}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
         >
           <option value="">Select a category</option>
           {categories.map((category) => (
@@ -199,7 +199,7 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
           name="region_id"
           value={formData.region_id}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
         >
           <option value="">Select a location</option>
           {regions.map((region) => (
@@ -226,7 +226,7 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
             value={formData.whatsapp_number}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
             placeholder="5921234567"
           />
         </div>
@@ -242,7 +242,7 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
             placeholder="+592-123-4567"
           />
         </div>
@@ -258,7 +258,7 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
             placeholder="contact@yourbusiness.com"
           />
         </div>
@@ -274,7 +274,7 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
             name="website"
             value={formData.website}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
             placeholder="https://www.yourbusiness.com"
           />
         </div>
@@ -290,7 +290,7 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
             value={formData.address}
             onChange={handleChange}
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
             placeholder="123 Main Street, Georgetown"
           />
         </div>
@@ -301,7 +301,7 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+          className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed transition-colors font-medium"
         >
           {isSubmitting ? 'Saving...' : 'Save Changes'}
         </button>

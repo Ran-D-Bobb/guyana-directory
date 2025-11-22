@@ -207,7 +207,7 @@ export function TourismExperienceCreateForm({ userId, categories, regions }: Tou
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
             placeholder="e.g., Kaieteur Falls Day Trip"
           />
         </div>
@@ -223,7 +223,7 @@ export function TourismExperienceCreateForm({ userId, categories, regions }: Tou
             onChange={handleChange}
             required
             rows={6}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
             placeholder="Describe the experience in detail - what tourists will see, do, and enjoy..."
           />
         </div>
@@ -238,7 +238,7 @@ export function TourismExperienceCreateForm({ userId, categories, regions }: Tou
               name="tourism_category_id"
               value={formData.tourism_category_id}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900"
             >
               <option value="">Select a category</option>
               {categories.map((category) => (
@@ -258,7 +258,7 @@ export function TourismExperienceCreateForm({ userId, categories, regions }: Tou
               name="experience_type"
               value={formData.experience_type}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900"
             >
               <option value="tour">Tour</option>
               <option value="activity">Activity</option>
@@ -732,7 +732,7 @@ export function TourismExperienceCreateForm({ userId, categories, regions }: Tou
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+          className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed transition-colors font-medium"
         >
           {isSubmitting ? 'Creating...' : 'Create Tourism Experience'}
         </button>

@@ -1,6 +1,6 @@
 -- Add helpful votes table
 CREATE TABLE IF NOT EXISTS review_helpful_votes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   review_id UUID NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   is_helpful BOOLEAN NOT NULL,
@@ -15,7 +15,7 @@ ADD COLUMN IF NOT EXISTS not_helpful_count INTEGER DEFAULT 0;
 
 -- Add business responses table
 CREATE TABLE IF NOT EXISTS review_responses (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   review_id UUID NOT NULL REFERENCES reviews(id) ON DELETE CASCADE UNIQUE,
   business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,

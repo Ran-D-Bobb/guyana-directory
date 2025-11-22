@@ -2,13 +2,13 @@
 -- This migration creates all necessary tables, functions, and policies for the tourism section
 
 -- Enable necessary extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ============================================
 -- TOURISM CATEGORIES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.tourism_categories (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   icon TEXT NOT NULL, -- Lucide icon name
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS public.tourism_categories (
 -- TOURISM EXPERIENCES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.tourism_experiences (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   description TEXT NOT NULL,
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS public.tourism_experiences (
 -- TOURISM PHOTOS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.tourism_photos (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   experience_id UUID NOT NULL REFERENCES tourism_experiences(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL,
   caption TEXT,
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS public.tourism_photos (
 -- TOURISM REVIEWS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.tourism_reviews (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   experience_id UUID NOT NULL REFERENCES tourism_experiences(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS public.tourism_reviews (
 -- TOURISM INQUIRY CLICKS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.tourism_inquiry_clicks (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   experience_id UUID NOT NULL REFERENCES tourism_experiences(id) ON DELETE CASCADE,
   clicked_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   device_type TEXT, -- 'mobile', 'tablet', 'desktop', 'kiosk'
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS public.tourist_profiles (
 -- TOURISM SAVED EXPERIENCES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.tourism_saved_experiences (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   experience_id UUID NOT NULL REFERENCES tourism_experiences(id) ON DELETE CASCADE,
   saved_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

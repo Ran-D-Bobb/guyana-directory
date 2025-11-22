@@ -1,5 +1,5 @@
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Enable UUID extension (use pgcrypto for gen_random_uuid)
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Create profiles table (linked to Supabase Auth)
 CREATE TABLE profiles (
@@ -14,7 +14,7 @@ CREATE TABLE profiles (
 
 -- Create categories table
 CREATE TABLE categories (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   icon TEXT NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE categories (
 
 -- Create regions table
 CREATE TABLE regions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   type TEXT NOT NULL CHECK (type IN ('city', 'town', 'village', 'region')),
@@ -33,7 +33,7 @@ CREATE TABLE regions (
 
 -- Create businesses table
 CREATE TABLE businesses (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   description TEXT,
@@ -70,7 +70,7 @@ CREATE TABLE businesses (
 
 -- Create business_photos table
 CREATE TABLE business_photos (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL,
   display_order INTEGER DEFAULT 0,
@@ -80,7 +80,7 @@ CREATE TABLE business_photos (
 
 -- Create reviews table
 CREATE TABLE reviews (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
@@ -94,7 +94,7 @@ CREATE TABLE reviews (
 
 -- Create whatsapp_clicks table for analytics
 CREATE TABLE whatsapp_clicks (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
   clicked_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   device_type TEXT,
