@@ -17,7 +17,8 @@ import {
   Backpack,
   Plane,
   Globe,
-  ArrowLeft
+  ArrowLeft,
+  type LucideIcon
 } from 'lucide-react'
 import { useKioskConfig } from './KioskLayoutOptimized'
 import KioskFeaturedAttractions from './KioskFeaturedAttractions'
@@ -50,7 +51,7 @@ interface KioskCategoryGridProps {
   onBack?: () => void
 }
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, LucideIcon> = {
   leaf: Leaf,
   mountain: Mountain,
   users: Users,
@@ -84,7 +85,7 @@ const categoryImages: Record<string, string> = {
 export default function KioskCategoryGrid({ categories, featuredAttractions, onBack }: KioskCategoryGridProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [viewportWidth, setViewportWidth] = useState(1920)
-  const kioskConfig = useKioskConfig()
+  useKioskConfig()
 
   // Update viewport width on mount and resize
   useEffect(() => {

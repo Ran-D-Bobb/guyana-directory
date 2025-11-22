@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { formatDistanceToNow } from 'date-fns'
 import { Star, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -112,11 +113,15 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
       {/* Review Header */}
       <div className="flex items-start gap-3 mb-3">
         {review.profiles?.photo ? (
-          <img
-            src={review.profiles.photo}
-            alt={review.profiles.name || 'User'}
-            className="w-12 h-12 rounded-full object-cover"
-          />
+          <div className="relative w-12 h-12 rounded-full overflow-hidden">
+            <Image
+              src={review.profiles.photo}
+              alt={review.profiles.name || 'User'}
+              fill
+              className="object-cover"
+              sizes="48px"
+            />
+          </div>
         ) : (
           <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
             <span className="text-gray-600 font-medium text-lg">
@@ -192,11 +197,15 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
         <div className="mt-4 ml-15 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-4">
           <div className="flex items-center gap-2 mb-2">
             {businessResponse.profiles?.photo ? (
-              <img
-                src={businessResponse.profiles.photo}
-                alt={businessResponse.profiles.name || 'Business'}
-                className="w-8 h-8 rounded-full object-cover"
-              />
+              <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                <Image
+                  src={businessResponse.profiles.photo}
+                  alt={businessResponse.profiles.name || 'Business'}
+                  fill
+                  className="object-cover"
+                  sizes="32px"
+                />
+              </div>
             ) : (
               <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center">
                 <span className="text-blue-700 font-medium text-sm">

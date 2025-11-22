@@ -29,21 +29,21 @@ interface Experience {
   category_name: string
   region_name: string | null
   location: string | null
-  duration_hours: number | null
+  duration: string | null
   difficulty_level: string | null
   max_group_size: number | null
-  min_age: number | null
-  price_from: number
-  rating: number
-  review_count: number
+  min_age: string | null
+  price_from: number | null
+  rating: number | null
+  review_count: number | null
   whatsapp_number: string | null
   phone: string | null
   languages_offered: string[] | null
   what_to_bring: string[] | null
   accessibility_info: string | null
   safety_information: string | null
-  included_items: string[] | null
-  excluded_items: string[] | null
+  included_items: string | null
+  excluded_items: string | null
   tourism_photos: ExperiencePhoto[]
   tourism_reviews: ExperienceReview[]
 }

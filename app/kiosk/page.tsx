@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import KioskHomePage from './KioskHomePage'
 
 export const metadata = {
@@ -55,34 +55,36 @@ export default async function KioskPage() {
               <li>Check that sample tourism data is seeded</li>
             </ol>
           </div>
-          <a
+          <Link
             href="/"
             className="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold text-xl px-8 py-4 rounded-full transition-all hover:scale-105"
           >
             Back to Home
-          </a>
+          </Link>
         </div>
       </div>
     )
   }
 
   // Transform data for the component
-  const transformedExperiences = (experiences || []).map((exp: any) => {
-    const primaryPhoto = exp.tourism_photos?.find((p: any) => p.is_primary)
-    const anyPhoto = exp.tourism_photos?.[0]
+  const transformedExperiences = (experiences || []).map((exp) => {
+    const photos = exp.tourism_photos as Array<{image_url: string; is_primary: boolean | null}> | null
+    const primaryPhoto = photos?.find((p) => p.is_primary)
+    const anyPhoto = photos?.[0]
+    const category = exp.tourism_categories as {name: string} | null
 
     return {
-      id: exp.id,
-      slug: exp.slug,
-      name: exp.name,
-      description: exp.description,
-      image_url: primaryPhoto?.image_url || anyPhoto?.image_url || null,
-      rating: exp.rating,
-      review_count: exp.review_count,
-      duration: exp.duration,
-      price_from: exp.price_from,
-      category_name: exp.tourism_categories?.name || 'Experience',
-      difficulty_level: exp.difficulty_level
+      id: exp.id as string,
+      slug: exp.slug as string,
+      name: exp.name as string,
+      description: exp.description as string,
+      image_url: (primaryPhoto?.image_url || anyPhoto?.image_url || null) as string | null,
+      rating: exp.rating as number,
+      review_count: exp.review_count as number,
+      duration: exp.duration as string | null,
+      price_from: exp.price_from as number,
+      category_name: category?.name || 'Experience',
+      difficulty_level: exp.difficulty_level as string | null
     }
   })
 
@@ -100,15 +102,19 @@ export default async function KioskPage() {
 
   // Get experience counts for each category
   const categoriesWithCounts = await Promise.all(
-    (categories || []).map(async (category: any) => {
+    (categories || []).map(async (category) => {
       const { count } = await supabase
         .from('tourism_experiences')
         .select('*', { count: 'exact', head: true })
-        .eq('tourism_category_id', category.id)
+        .eq('tourism_category_id', category.id as string)
         .eq('is_approved', true)
 
       return {
-        ...category,
+        id: category.id as string,
+        slug: category.slug as string,
+        name: category.name as string,
+        icon: category.icon as string,
+        description: category.description as string | null,
         experience_count: count || 0
       }
     })
@@ -136,22 +142,24 @@ export default async function KioskPage() {
     .order('rating', { ascending: false })
     .limit(6)
 
-  const transformedFeatured = (featuredExps || []).map((exp: any) => {
-    const primaryPhoto = exp.tourism_photos?.find((p: any) => p.is_primary)
-    const anyPhoto = exp.tourism_photos?.[0]
+  const transformedFeatured = (featuredExps || []).map((exp) => {
+    const photos = exp.tourism_photos as Array<{image_url: string; is_primary: boolean | null}> | null
+    const primaryPhoto = photos?.find((p) => p.is_primary)
+    const anyPhoto = photos?.[0]
+    const category = exp.tourism_categories as {name: string} | null
 
     return {
-      id: exp.id,
-      slug: exp.slug,
-      name: exp.name,
-      description: exp.description,
-      image_url: primaryPhoto?.image_url || anyPhoto?.image_url || null,
-      rating: exp.rating,
-      review_count: exp.review_count,
-      duration: exp.duration,
-      price_from: exp.price_from,
-      category_name: exp.tourism_categories?.name || 'Experience',
-      difficulty_level: exp.difficulty_level
+      id: exp.id as string,
+      slug: exp.slug as string,
+      name: exp.name as string,
+      description: exp.description as string,
+      image_url: (primaryPhoto?.image_url || anyPhoto?.image_url || null) as string | null,
+      rating: exp.rating as number,
+      review_count: exp.review_count as number,
+      duration: exp.duration as string | null,
+      price_from: exp.price_from as number,
+      category_name: category?.name || 'Experience',
+      difficulty_level: exp.difficulty_level as string | null
     }
   })
 

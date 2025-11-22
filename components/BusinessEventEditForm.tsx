@@ -128,7 +128,7 @@ export function BusinessEventEditForm({ event, business, eventTypes }: BusinessE
             name="title"
             required
             maxLength={200}
-            defaultValue={event.title}
+            defaultValue={event.title || ''}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             placeholder="e.g., Weekend Flash Sale - 50% Off"
           />
@@ -144,7 +144,7 @@ export function BusinessEventEditForm({ event, business, eventTypes }: BusinessE
           id="event_type_id"
           name="event_type_id"
           required
-          defaultValue={event.event_type_id}
+          defaultValue={event.event_type_id || ''}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
         >
           <option value="">Select an event type</option>
@@ -169,7 +169,7 @@ export function BusinessEventEditForm({ event, business, eventTypes }: BusinessE
             required
             rows={6}
             maxLength={2000}
-            defaultValue={event.description}
+            defaultValue={event.description || ''}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             placeholder="Describe your promotional offer, terms & conditions, what's included, etc."
           />

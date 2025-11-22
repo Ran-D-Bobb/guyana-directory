@@ -10,8 +10,8 @@ import Link from 'next/link'
 interface Photo {
   id: string
   image_url: string
-  display_order: number
-  is_primary: boolean
+  display_order: number | null
+  is_primary: boolean | null
 }
 
 interface RentalPhotoUploadProps {
@@ -67,7 +67,7 @@ export default function RentalPhotoUpload({ rentalId, existingPhotos }: RentalPh
         const fileName = `${rentalId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
 
         // Upload to storage
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('rental-photos')
           .upload(fileName, file)
 
@@ -98,9 +98,9 @@ export default function RentalPhotoUpload({ rentalId, existingPhotos }: RentalPh
       setPhotos([...photos, ...uploadedPhotos])
       setSuccessMessage(`Successfully uploaded ${uploadedPhotos.length} photo(s)!`)
       router.refresh()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Upload error:', error)
-      setUploadError(error.message || 'Failed to upload photos')
+      setUploadError(error instanceof Error ? error.message : 'Failed to upload photos')
     } finally {
       setIsUploading(false)
       // Clear file input
@@ -135,9 +135,9 @@ export default function RentalPhotoUpload({ rentalId, existingPhotos }: RentalPh
       setPhotos(photos.filter(p => p.id !== photoId))
       setSuccessMessage('Photo deleted successfully')
       router.refresh()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Delete error:', error)
-      setUploadError(error.message || 'Failed to delete photo')
+      setUploadError(error instanceof Error ? error.message : 'Failed to delete photo')
     }
   }
 
@@ -164,9 +164,9 @@ export default function RentalPhotoUpload({ rentalId, existingPhotos }: RentalPh
       })))
       setSuccessMessage('Primary photo updated')
       router.refresh()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Set primary error:', error)
-      setUploadError(error.message || 'Failed to set primary photo')
+      setUploadError(error instanceof Error ? error.message : 'Failed to set primary photo')
     }
   }
 
@@ -233,7 +233,7 @@ export default function RentalPhotoUpload({ rentalId, existingPhotos }: RentalPh
         {photos.length >= MAX_PHOTOS && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
             <p className="text-sm text-yellow-800">
-              You've reached the maximum of {MAX_PHOTOS} photos. Delete some photos to upload new ones.
+              You&apos;ve reached the maximum of {MAX_PHOTOS} photos. Delete some photos to upload new ones.
             </p>
           </div>
         )}

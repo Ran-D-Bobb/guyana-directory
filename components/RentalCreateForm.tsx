@@ -4,9 +4,21 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
+interface Category {
+  id: string
+  name: string
+  slug: string
+}
+
+interface Region {
+  id: string
+  name: string
+  slug: string
+}
+
 interface RentalCreateFormProps {
-  categories: any[]
-  regions: any[]
+  categories: Category[]
+  regions: Region[]
   userId: string
 }
 
@@ -133,9 +145,9 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
 
       // Redirect to photo upload page
       router.push(`/dashboard/my-rentals/${rental.id}/photos`)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating rental:', err)
-      setError(err.message || 'Failed to create listing. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to create listing. Please try again.')
       setIsSubmitting(false)
     }
   }
@@ -246,7 +258,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               required
               value={formData.region_id}
               onChange={(e) => setFormData({ ...formData, region_id: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             >
               <option value="">Select region</option>
               {regions.map((region) => (
@@ -266,7 +278,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               placeholder="e.g., 123 Main Street"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -279,7 +291,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               value={formData.location_details}
               onChange={(e) => setFormData({ ...formData, location_details: e.target.value })}
               placeholder="e.g., Near Stabroek Market"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
         </div>
@@ -300,7 +312,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               max="10"
               value={formData.bedrooms}
               onChange={(e) => setFormData({ ...formData, bedrooms: parseInt(e.target.value) })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
 
@@ -316,7 +328,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               step="0.5"
               value={formData.bathrooms}
               onChange={(e) => setFormData({ ...formData, bathrooms: parseFloat(e.target.value) })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
 
@@ -331,7 +343,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               max="50"
               value={formData.max_guests}
               onChange={(e) => setFormData({ ...formData, max_guests: parseInt(e.target.value) })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
 
@@ -344,7 +356,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               min="0"
               value={formData.square_feet || ''}
               onChange={(e) => setFormData({ ...formData, square_feet: e.target.value ? parseInt(e.target.value) : null })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
         </div>
@@ -364,7 +376,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               value={formData.price_per_night || ''}
               onChange={(e) => setFormData({ ...formData, price_per_night: e.target.value ? parseInt(e.target.value) : null })}
               placeholder="e.g., 15000"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -378,7 +390,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               value={formData.price_per_week || ''}
               onChange={(e) => setFormData({ ...formData, price_per_week: e.target.value ? parseInt(e.target.value) : null })}
               placeholder="e.g., 90000"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -393,7 +405,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               value={formData.price_per_month || ''}
               onChange={(e) => setFormData({ ...formData, price_per_month: e.target.value ? parseInt(e.target.value) : 0 })}
               placeholder="e.g., 350000"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -407,7 +419,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               value={formData.security_deposit || ''}
               onChange={(e) => setFormData({ ...formData, security_deposit: e.target.value ? parseInt(e.target.value) : null })}
               placeholder="e.g., 100000"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
         </div>
@@ -489,7 +501,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               value={formData.whatsapp_number}
               onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
               placeholder="5926123456"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
             <p className="text-sm text-gray-500 mt-1">Include country code (592 for Guyana)</p>
           </div>
@@ -503,7 +515,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               placeholder="e.g., +592-612-3456"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -516,7 +528,7 @@ export default function RentalCreateForm({ categories, regions, userId }: Rental
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="your@email.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
         </div>

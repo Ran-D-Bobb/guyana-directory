@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
         // Increment inquiry count using the database function
         const { error: incrementError } = await supabase
-          .rpc('increment_tourism_inquiry', { experience_uuid: experience_id })
+          .rpc('increment_tourism_inquiry' as 'increment_tourism_view_count', { experience_id })
 
         if (incrementError) {
           console.error('Error incrementing inquiry count:', incrementError)
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       // Track experience view
       if (interaction_type === 'view') {
         const { error: viewError } = await supabase
-          .rpc('increment_tourism_view_count', { experience_uuid: experience_id })
+          .rpc('increment_tourism_view_count', { experience_id })
 
         if (viewError) {
           console.error('Error incrementing view count:', viewError)

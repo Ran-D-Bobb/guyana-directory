@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { MapPin, Star, BadgeCheck, MessageCircle, ArrowRight } from 'lucide-react'
 import { Database } from '@/types/supabase'
 import {
@@ -69,10 +70,12 @@ export function FeaturedBusinessCarousel({ businesses }: FeaturedBusinessCarouse
                   <div className="relative h-[180px] rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-emerald-200 hover:shadow-2xl transition-all duration-300">
                     {/* Background Image with Overlay */}
                     <div className="absolute inset-0">
-                      <img
+                      <Image
                         src={imageUrl}
                         alt={business.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 600px"
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40" />
                     </div>
@@ -89,7 +92,7 @@ export function FeaturedBusinessCarousel({ businesses }: FeaturedBusinessCarouse
                               Verified
                             </span>
                           )}
-                          {business.rating > 0 && (
+                          {business.rating && business.rating > 0 && (
                             <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/90 backdrop-blur-sm rounded-full">
                               <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                               <span className="text-xs font-bold text-gray-900">

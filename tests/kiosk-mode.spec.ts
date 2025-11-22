@@ -480,7 +480,7 @@ test.describe('Kiosk Mode - Performance Testing', () => {
       const firstImage = images.first();
 
       // Next.js Image should have specific attributes
-      const hasOptimization = await firstImage.evaluate((img) => {
+      const hasOptimization = await firstImage.evaluate((img: HTMLImageElement) => {
         return img.srcset !== '' || img.loading === 'lazy';
       });
 

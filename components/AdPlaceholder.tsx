@@ -76,20 +76,3 @@ export function AdPlaceholder({
     </section>
   )
 }
-
-// Add gradient animation to globals.css if not already present
-const gradientKeyframes = `
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-.animate-gradient-shift {
-  background-size: 200% 200%;
-  animation: gradient-shift 6s ease infinite;
-}
-`

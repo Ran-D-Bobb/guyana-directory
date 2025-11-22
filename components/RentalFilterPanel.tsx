@@ -17,17 +17,6 @@ interface RentalFilterPanelProps {
   }
 }
 
-const propertyTypes = [
-  { value: 'apartment', label: 'Apartment' },
-  { value: 'house', label: 'House' },
-  { value: 'vacation-home', label: 'Vacation Home' },
-  { value: 'room', label: 'Room' },
-  { value: 'office', label: 'Office' },
-  { value: 'commercial', label: 'Commercial' },
-  { value: 'shared', label: 'Shared Housing' },
-  { value: 'land', label: 'Land' },
-]
-
 const bedroomOptions = [
   { value: '0', label: 'Studio' },
   { value: '1', label: '1 Bedroom' },

@@ -48,7 +48,7 @@ export default async function CreateRentalPage() {
             <div className="max-w-md mx-auto">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Free Tier Limit Reached</h2>
               <p className="text-gray-600 mb-4">
-                You've reached the limit of 1 active listing on the free tier.
+                You&apos;ve reached the limit of 1 active listing on the free tier.
               </p>
               <p className="text-gray-600 mb-6">
                 Want to list more properties? Upgrade to Premium for unlimited listings!

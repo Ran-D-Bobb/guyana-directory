@@ -63,7 +63,15 @@ export default async function TourismPhotosPage({ params }: PageProps) {
 
         {/* Photo Upload Component */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <TourismPhotoUpload experienceId={experience.id} existingPhotos={photos || []} />
+          <TourismPhotoUpload
+            experienceId={experience.id}
+            existingPhotos={(photos || []).map(p => ({
+              id: p.id,
+              image_url: p.image_url,
+              display_order: p.display_order ?? 0,
+              is_primary: p.is_primary ?? false
+            }))}
+          />
         </div>
 
         {/* Help Text */}

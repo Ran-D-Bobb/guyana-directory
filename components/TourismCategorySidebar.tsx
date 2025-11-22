@@ -17,7 +17,8 @@ import {
   Camera,
   Bird,
   Compass,
-  Car
+  Car,
+  type LucideIcon
 } from 'lucide-react'
 import { useState } from 'react'
 import { Database } from '@/types/supabase'
@@ -32,7 +33,7 @@ interface TourismCategorySidebarProps {
 }
 
 // Map icon names to actual Lucide components
-const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+const iconMap: Record<string, LucideIcon> = {
   Trees,
   Activity,
   Users,

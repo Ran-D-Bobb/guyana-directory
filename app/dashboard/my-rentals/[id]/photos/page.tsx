@@ -42,7 +42,12 @@ export default async function RentalPhotosPage({ params }: { params: Promise<{ i
 
         <RentalPhotoUpload
           rentalId={rental.id}
-          existingPhotos={photos || []}
+          existingPhotos={(photos || []).map(p => ({
+            id: p.id,
+            image_url: p.image_url,
+            display_order: p.display_order ?? 0,
+            is_primary: p.is_primary ?? false
+          }))}
         />
       </div>
     </div>

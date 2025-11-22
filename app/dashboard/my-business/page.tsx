@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeft, Eye, MessageCircle, Star, Phone, Edit, Upload, Calendar } from 'lucide-react'
 
 export default async function MyBusinessPage() {
@@ -221,10 +222,12 @@ export default async function MyBusinessPage() {
               <div className="grid grid-cols-3 gap-2">
                 {photos.map((photo) => (
                   <div key={photo.id} className="aspect-square relative rounded-lg overflow-hidden">
-                    <img
+                    <Image
                       src={photo.image_url}
                       alt="Business"
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 33vw, 150px"
                     />
                     {photo.is_primary && (
                       <div className="absolute top-1 right-1 bg-emerald-600 text-white text-xs px-2 py-1 rounded">

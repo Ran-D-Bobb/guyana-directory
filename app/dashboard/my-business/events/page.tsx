@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, Plus, Eye, MessageCircle, ChevronLeft, Pencil } from 'lucide-react'
+import { Calendar, Plus, Eye, ChevronLeft, Pencil } from 'lucide-react'
 import { BusinessEventDeleteButton } from '@/components/BusinessEventDeleteButton'
 
 export default async function BusinessEventsPage() {

@@ -10,7 +10,7 @@ interface CategoryCardProps {
 
 export function CategoryCard({ name, slug, icon, description }: CategoryCardProps) {
   // Dynamically get the icon component from lucide-react
-  const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[icon] || LucideIcons.MoreHorizontal
+  const IconComponent = (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[icon] || LucideIcons.MoreHorizontal
 
   return (
     <Link

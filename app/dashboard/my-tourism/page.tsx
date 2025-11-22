@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Eye, MessageCircle, Star, Phone, Edit, Upload, Calendar, Briefcase } from 'lucide-react'
+import { ArrowLeft, Eye, MessageCircle, Star, Phone, Edit, Upload, Briefcase } from 'lucide-react'
 
 export default async function MyTourismPage() {
   const supabase = await createClient()

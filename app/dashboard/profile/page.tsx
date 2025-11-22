@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeft } from 'lucide-react'
 
 export default async function ProfilePage() {
@@ -55,11 +56,15 @@ export default async function ProfilePage() {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center gap-4">
             {user.user_metadata.avatar_url ? (
-              <img
-                src={user.user_metadata.avatar_url}
-                alt={profile?.name || 'User'}
-                className="w-20 h-20 rounded-full"
-              />
+              <div className="relative w-20 h-20 rounded-full overflow-hidden">
+                <Image
+                  src={user.user_metadata.avatar_url}
+                  alt={profile?.name || 'User'}
+                  fill
+                  className="object-cover"
+                  sizes="80px"
+                />
+              </div>
             ) : (
               <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
                 <span className="text-2xl font-bold text-emerald-600">
@@ -116,7 +121,7 @@ export default async function ProfilePage() {
                       ))}
                     </div>
                     <span className="text-sm text-gray-500">
-                      {new Date(review.created_at).toLocaleDateString()}
+                      {review.created_at ? new Date(review.created_at).toLocaleDateString() : 'N/A'}
                     </span>
                   </div>
                   {review.comment && (

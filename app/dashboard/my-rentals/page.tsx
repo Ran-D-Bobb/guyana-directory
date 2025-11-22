@@ -114,7 +114,7 @@ export default async function MyRentalsPage() {
                 <div>
                   <h3 className="font-semibold text-yellow-900 mb-1">Free Tier Limit Reached</h3>
                   <p className="text-sm text-yellow-800 mb-3">
-                    You've reached the limit of 1 active listing on the free tier.
+                    You&apos;ve reached the limit of 1 active listing on the free tier.
                   </p>
                   <p className="text-sm text-yellow-800 mb-3">
                     Want to list more properties? Upgrade to Premium for unlimited listings!
@@ -230,7 +230,7 @@ export default async function MyRentalsPage() {
                         <Camera className="h-4 w-4" />
                         Manage Photos
                       </Link>
-                      <DeleteRentalButton rentalId={rental.id} rentalName={rental.name} />
+                      <DeleteRentalButton rentalName={rental.name} />
                     </div>
                   </div>
                 </div>
@@ -242,7 +242,7 @@ export default async function MyRentalsPage() {
             <Home className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-gray-900 mb-2">List Your First Property</h3>
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              Start earning by listing your property on Guyana Directory. It's free to list your first property!
+              Start earning by listing your property on Guyana Directory. It&apos;s free to list your first property!
             </p>
             <Link
               href="/dashboard/my-rentals/create"

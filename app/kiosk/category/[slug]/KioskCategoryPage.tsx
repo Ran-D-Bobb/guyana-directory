@@ -12,11 +12,11 @@ interface Experience {
   image_url: string | null
   rating: number
   review_count: number
-  duration_hours: number | null
-  max_group_size: number | null
+  duration: string | null
+  group_size_max: number | null
   price_from: number
   difficulty_level: string | null
-  location: string | null
+  location_details: string | null
   region_name: string | null
 }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { MapPin, ArrowUpDown, X, Filter, Search, ChevronDown, ChevronUp, Mountain, Clock, DollarSign } from 'lucide-react'
+import { MapPin, ArrowUpDown, X, Filter, Search, ChevronDown, ChevronUp, Mountain, Clock } from 'lucide-react'
 import { useState } from 'react'
 
 interface TourismFilterPanelProps {

@@ -3,11 +3,10 @@
 import { Trash2 } from 'lucide-react'
 
 interface DeleteRentalButtonProps {
-  rentalId: string
   rentalName: string
 }
 
-export default function DeleteRentalButton({ rentalId, rentalName }: DeleteRentalButtonProps) {
+export default function DeleteRentalButton({ rentalName }: DeleteRentalButtonProps) {
   const handleDelete = () => {
     if (confirm(`Are you sure you want to delete "${rentalName}"? This action cannot be undone.`)) {
       // TODO: Implement delete functionality

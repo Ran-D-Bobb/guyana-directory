@@ -45,7 +45,7 @@ const defaultImage = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1
 
 export default function CategoryCarousel({ categories }: { categories: Category[] }) {
   const getIcon = (iconName: string) => {
-    const Icon = (Icons as Record<string, LucideIcon>)[iconName]
+    const Icon = (Icons as unknown as Record<string, LucideIcon>)[iconName]
     return Icon || Icons.Store
   }
 

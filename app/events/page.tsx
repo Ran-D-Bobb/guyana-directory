@@ -44,7 +44,8 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
     .select(`
       *,
       event_categories:category_id (name, icon),
-      businesses:business_id (name, slug)
+      businesses:business_id (name, slug),
+      profiles:user_id (name)
     `)
 
   // Apply time filter
@@ -93,12 +94,28 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       break
   }
 
-  const { data: events, error } = await query
+  const { data: rawEvents, error } = await query
 
   // Log errors for debugging
   if (error) {
     console.error('Events query error:', error)
   }
+
+  // Map events to ensure proper types
+  const events = (rawEvents || []).map(event => ({
+    ...event,
+    event_categories: event.event_categories ? {
+      name: event.event_categories.name,
+      icon: event.event_categories.icon || ''
+    } : null,
+    businesses: event.businesses ? {
+      name: event.businesses.name,
+      slug: event.businesses.slug
+    } : null,
+    profiles: event.profiles && 'name' in event.profiles && typeof event.profiles.name === 'string' ? {
+      name: event.profiles.name
+    } : null
+  }))
 
   return (
     <div className="min-h-screen bg-gray-50 flex pb-0 lg:pb-0">

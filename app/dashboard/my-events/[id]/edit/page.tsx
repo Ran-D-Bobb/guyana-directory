@@ -79,8 +79,24 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <EventEditForm
-            event={event}
-            eventCategories={eventCategories || []}
+            event={{
+              id: event.id,
+              title: event.title,
+              description: event.description ?? '',
+              start_date: event.start_date,
+              end_date: event.end_date,
+              location: event.location,
+              category_id: event.category_id ?? '',
+              business_id: event.business_id,
+              whatsapp_number: event.whatsapp_number,
+              email: event.email,
+              image_url: event.image_url
+            }}
+            eventCategories={(eventCategories || []).map(cat => ({
+              id: cat.id,
+              name: cat.name,
+              icon: cat.icon ?? ''
+            }))}
             userBusinesses={userBusinesses || []}
           />
         </div>

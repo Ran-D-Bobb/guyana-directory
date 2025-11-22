@@ -61,6 +61,7 @@ export function HeroSection() {
       setCurrentWord((prev) => (prev + 1) % rotatingWords.length)
     }, 3000)
     return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -68,6 +69,7 @@ export function HeroSection() {
       setCurrentImage((prev) => (prev + 1) % backgroundImages.length)
     }, 8000) // Change image every 8 seconds
     return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const quickLinks = [
@@ -114,7 +116,7 @@ export function HeroSection() {
 
         {/* Main headline - optimized for mobile */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black text-white mb-4 md:mb-8 animate-fade-in leading-tight px-2">
-          Discover Guyana's
+          Discover Guyana&apos;s
           <br />
           <span className="relative inline-block mt-1 md:mt-2">
             <span className="bg-gradient-to-r from-green-600 via-amber-400 via-yellow-300 via-gray-900 via-white to-red-600 bg-clip-text text-transparent animate-scale-in drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]" style={{ backgroundSize: '200% 100%' }}>

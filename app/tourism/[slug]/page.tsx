@@ -14,8 +14,7 @@ import {
   Mountain,
   Calendar,
   CheckCircle2,
-  Package,
-  ShieldCheck
+  Package
 } from 'lucide-react'
 import { TourismWhatsAppButton } from '@/components/tourism/TourismWhatsAppButton'
 
@@ -69,31 +68,18 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
   await incrementViewCount(experience.id)
 
   // Check if current user has saved this experience
-  let userHasSaved = false
   if (user) {
-    const { data: saved } = await supabase
+    await supabase
       .from('tourism_saved_experiences')
       .select('id')
       .eq('experience_id', experience.id)
       .eq('user_id', user.id)
       .single()
-
-    userHasSaved = !!saved
   }
 
   // Get primary photo or first photo
   const photos = Array.isArray(experience.tourism_photos) ? experience.tourism_photos : []
   const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || DEFAULT_TOURISM_IMAGE
-
-  // Difficulty color coding
-  const difficultyColors: Record<string, string> = {
-    easy: 'bg-green-100 text-green-700 border-green-200',
-    moderate: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    challenging: 'bg-orange-100 text-orange-700 border-orange-200',
-    expert: 'bg-red-100 text-red-700 border-red-200'
-  }
-
-  const difficultyColor = difficultyColors[experience.difficulty_level || 'easy'] || difficultyColors.easy
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50/30 to-teal-50/20">
@@ -144,12 +130,6 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
                   <span className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full shadow-md">
                     <CheckCircle2 className="w-4 h-4" />
                     Verified
-                  </span>
-                )}
-                {experience.is_tripadvisor_approved && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold bg-gradient-to-r from-green-600 to-lime-600 text-white rounded-full shadow-md">
-                    <ShieldCheck className="w-4 h-4" />
-                    TripAdvisor Approved
                   </span>
                 )}
                 {experience.tourism_categories && (

@@ -2,11 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home as HomeIcon, Calendar, User, Plane, Home, Building2 } from 'lucide-react'
+import { Home as HomeIcon, Calendar, Plane, Home, Building2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface BottomNavProps {
-  isAdmin: boolean
+  isAdmin?: boolean
 }
 
 export function BottomNav({ isAdmin }: BottomNavProps) {

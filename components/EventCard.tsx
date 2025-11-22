@@ -150,7 +150,7 @@ export function EventCard({ event }: EventCardProps) {
           </div>
 
           {/* Interest Count */}
-          {event.interest_count > 0 && (
+          {event.interest_count != null && event.interest_count > 0 && (
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 rounded-full">
               <Star className="w-4 h-4 fill-purple-500 text-purple-500" />
               <span className="text-sm font-bold text-purple-700">{event.interest_count}</span>

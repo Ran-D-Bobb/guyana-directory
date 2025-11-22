@@ -17,7 +17,8 @@ import {
   Bird,
   Compass,
   Car,
-  Grid3x3
+  Grid3x3,
+  type LucideIcon
 } from 'lucide-react'
 import { Database } from '@/types/supabase'
 
@@ -30,7 +31,7 @@ interface MobileTourismCategoryDrawerProps {
   currentCategorySlug?: string
 }
 
-const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+const iconMap: Record<string, LucideIcon> = {
   Trees,
   Activity,
   Users,

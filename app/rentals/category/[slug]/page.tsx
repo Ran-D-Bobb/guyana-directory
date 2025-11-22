@@ -66,7 +66,7 @@ export default async function RentalCategoryPage({
     .from('rentals')
     .select(`
       *,
-      rental_categories(name, slug),
+      rental_categories(name, slug, icon),
       regions(name),
       rental_photos(image_url, is_primary, display_order)
     `)
@@ -188,7 +188,6 @@ export default async function RentalCategoryPage({
         {/* Desktop Sidebar */}
         <RentalCategorySidebar
           categories={categoriesWithCounts}
-          currentCategory={slug}
         />
 
         {/* Main Content */}

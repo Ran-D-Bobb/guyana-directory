@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { MapPin, Star, BadgeCheck, Sparkles, Share2, Heart, MessageCircle } from 'lucide-react'
+import Image from 'next/image'
+import { MapPin, BadgeCheck, Sparkles, Share2, Heart, MessageCircle } from 'lucide-react'
 import { Database } from '@/types/supabase'
 import { useState } from 'react'
 import { ViewMode } from './ViewModeToggle'
@@ -66,10 +67,12 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
         className="group block rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 bg-white border border-gray-100 hover:border-emerald-200 hover:-translate-y-1"
       >
         <div className="relative w-full h-56 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-          <img
+          <Image
             src={imageUrl}
             alt={business.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
 
           {/* Dark overlay on hover */}
@@ -92,11 +95,11 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
           </div>
 
           {/* Rating */}
-          {business.rating > 0 && (
+          {business.rating && business.rating > 0 && (
             <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
               <StarRating rating={business.rating} size="md" />
               <span className="text-sm font-bold text-gray-900">{business.rating.toFixed(1)}</span>
-              {business.review_count > 0 && (
+              {business.review_count && business.review_count > 0 && (
                 <span className="text-xs text-gray-600">({business.review_count})</span>
               )}
             </div>
@@ -162,12 +165,14 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
       >
         {/* Image */}
         <div className="relative w-48 h-32 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
-          <img
+          <Image
             src={imageUrl}
             alt={business.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 768px) 192px, 192px"
           />
-          {business.rating > 0 && (
+          {business.rating && business.rating > 0 && (
             <div className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-1 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
               <StarRating rating={business.rating} size="sm" />
               <span className="text-xs font-bold text-gray-900">{business.rating.toFixed(1)}</span>
@@ -256,10 +261,12 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
     >
       {/* Small Image */}
       <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
-        <img
+        <Image
           src={imageUrl}
           alt={business.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          sizes="80px"
         />
       </div>
 
@@ -283,7 +290,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
 
       {/* Rating & Actions */}
       <div className="flex items-center gap-3">
-        {business.rating > 0 && (
+        {business.rating && business.rating > 0 && (
           <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-lg">
             <StarRating rating={business.rating} size="sm" />
             <span className="text-sm font-bold text-gray-900">{business.rating.toFixed(1)}</span>

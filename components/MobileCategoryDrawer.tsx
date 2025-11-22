@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { X, Store, ShoppingBag, UtensilsCrossed, Wrench, Briefcase, Shirt, Home as HomeIcon, Heart, Laptop, GraduationCap, Music, Camera, Dumbbell, Leaf, Car, Plane, PawPrint, Baby, Gift, Coffee, Package, Grid3x3 } from 'lucide-react'
+import { X, Store, ShoppingBag, UtensilsCrossed, Wrench, Briefcase, Shirt, Home as HomeIcon, Heart, Laptop, GraduationCap, Music, Camera, Dumbbell, Leaf, Car, Plane, PawPrint, Baby, Gift, Coffee, Package, Grid3x3, type LucideIcon } from 'lucide-react'
 import { Database } from '@/types/supabase'
 
 type Category = Database['public']['Tables']['categories']['Row'] & {
@@ -14,7 +14,7 @@ interface MobileCategoryDrawerProps {
   currentCategorySlug?: string
 }
 
-const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+const iconMap: Record<string, LucideIcon> = {
   Store, ShoppingBag, UtensilsCrossed, Wrench, Briefcase, Shirt, HomeIcon, Heart, Laptop,
   GraduationCap, Music, Camera, Dumbbell, Leaf, Car, Plane, PawPrint, Baby, Gift, Coffee, Package
 }

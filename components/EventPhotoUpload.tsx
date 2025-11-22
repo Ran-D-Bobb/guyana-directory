@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
 
@@ -20,6 +21,7 @@ export function EventPhotoUpload({
   disabled = false
 }: EventPhotoUploadProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(currentImageUrl || null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null)
   const [isUploading, setIsUploading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -190,11 +192,13 @@ export function EventPhotoUpload({
 
       {previewUrl ? (
         <div className="relative">
-          <div className="aspect-video w-full bg-gray-100 rounded-lg overflow-hidden">
-            <img
+          <div className="aspect-video w-full bg-gray-100 rounded-lg overflow-hidden relative">
+            <Image
               src={previewUrl}
               alt="Event cover"
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 800px"
             />
           </div>
           <button

@@ -9,7 +9,7 @@ import { BusinessResponseForm } from '@/components/BusinessResponseForm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronLeft, MapPin, Star, Clock, Phone, Mail, Globe, BadgeCheck, Sparkles, Calendar, Tag } from 'lucide-react'
+import { ChevronLeft, MapPin, Clock, Phone, Mail, Globe, BadgeCheck, Sparkles, Calendar, Tag } from 'lucide-react'
 
 // Default business image from Unsplash
 const DEFAULT_BUSINESS_IMAGE = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1200&q=80'
@@ -370,6 +370,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                 {/* Ratings Breakdown */}
                 {reviews && reviews.length > 0 && (
                   <RatingsBreakdown
+                    reviews={reviews.map(r => ({ overall_rating: r.rating }))}
                     ratingCounts={ratingCounts}
                     totalReviews={business.review_count || 0}
                     averageRating={business.rating || 0}
@@ -397,14 +398,36 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                       Customer Reviews
                     </h3>
                     {reviews
-                      .filter(review => review.user_id !== user?.id) // Don't show user's own review in the list
+                      .filter(review => review.user_id !== user?.id && review.created_at) // Don't show user's own review in the list
                       .map((review) => (
                         <div key={review.id}>
                           <ReviewItem
-                            review={review}
+                            review={{
+                              id: review.id,
+                              rating: review.rating,
+                              comment: review.comment,
+                              created_at: review.created_at!,
+                              helpful_count: review.helpful_count ?? 0,
+                              not_helpful_count: review.not_helpful_count ?? 0,
+                              profiles: review.profiles ? {
+                                name: review.profiles.name ?? 'Anonymous',
+                                photo: review.profiles.photo
+                              } : null
+                            }}
                             user={user}
                             userVote={userVotesMap.get(review.id)}
-                            businessResponse={responsesMap.get(review.id)}
+                            businessResponse={(() => {
+                              const resp = responsesMap.get(review.id)
+                              if (!resp || !resp.created_at) return null
+                              return {
+                                response: resp.response,
+                                created_at: resp.created_at,
+                                profiles: resp.profiles ? {
+                                  name: resp.profiles.name ?? 'Business Owner',
+                                  photo: resp.profiles.photo
+                                } : null
+                              }
+                            })()}
                           />
                           {/* Business Response Form (only for business owner) */}
                           {isBusinessOwner && (

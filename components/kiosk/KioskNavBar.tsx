@@ -1,13 +1,11 @@
 'use client'
 
-import Link from 'next/link'
-import { Home, Globe } from 'lucide-react'
 import { useState } from 'react'
 import { useKioskConfig } from './KioskLayoutOptimized'
 
 export default function KioskNavBar() {
   const [showLanguages, setShowLanguages] = useState(false)
-  const kioskConfig = useKioskConfig()
+  useKioskConfig()
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇬🇾' },

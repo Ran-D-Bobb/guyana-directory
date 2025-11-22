@@ -14,10 +14,9 @@ interface ReviewFormProps {
     rating: number
     comment: string | null
   } | null
-  onReviewSubmitted?: () => void
 }
 
-export function ReviewForm({ businessId, businessName, user, existingReview, onReviewSubmitted }: ReviewFormProps) {
+export function ReviewForm({ businessId, businessName, user, existingReview }: ReviewFormProps) {
   const [rating, setRating] = useState(0)
   const [hoveredRating, setHoveredRating] = useState(0)
   const [comment, setComment] = useState('')

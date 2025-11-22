@@ -11,7 +11,7 @@ interface KioskQRCodeProps {
 }
 
 export default function KioskQRCode({ url, title, onClose }: KioskQRCodeProps) {
-  const kioskConfig = useKioskConfig()
+  useKioskConfig()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-lg kiosk-animate-fade-in">
@@ -122,7 +122,7 @@ export default function KioskQRCode({ url, title, onClose }: KioskQRCodeProps) {
               className="text-blue-800 list-decimal list-inside"
               style={{ fontSize: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}
             >
-              <li>Open your phone's camera app</li>
+              <li>Open your phone&apos;s camera app</li>
               <li>Point it at the QR code above</li>
               <li>Tap the notification to open the link</li>
             </ol>

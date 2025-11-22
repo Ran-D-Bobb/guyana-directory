@@ -5,10 +5,47 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Trash2 } from 'lucide-react'
 
+interface Category {
+  id: string
+  name: string
+  slug: string
+}
+
+interface Region {
+  id: string
+  name: string
+  slug: string
+}
+
+interface Rental {
+  id: string
+  property_type: string | null
+  category_id: string
+  name: string
+  description: string | null
+  region_id: string | null
+  address: string | null
+  location_details: string | null
+  bedrooms: number | null
+  bathrooms: number | null
+  max_guests: number | null
+  square_feet: number | null
+  price_per_night: number | null
+  price_per_week: number | null
+  price_per_month: number | null
+  security_deposit: number | null
+  amenities: unknown
+  utilities_included: unknown
+  house_rules: unknown
+  whatsapp_number: string
+  phone: string | null
+  email: string | null
+}
+
 interface RentalEditFormProps {
-  rental: any
-  categories: any[]
-  regions: any[]
+  rental: Rental
+  categories: Category[]
+  regions: Region[]
 }
 
 // Amenities list
@@ -55,7 +92,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
     description: rental.description || '',
     region_id: rental.region_id || '',
     address: rental.address || '',
-    location: rental.location || '',
+    location_details: rental.location_details || '',
     bedrooms: rental.bedrooms || 1,
     bathrooms: rental.bathrooms || 1,
     max_guests: rental.max_guests || 1,
@@ -64,9 +101,9 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
     price_per_week: rental.price_per_week || null,
     price_per_month: rental.price_per_month || 0,
     security_deposit: rental.security_deposit || null,
-    amenities: rental.amenities || [],
-    utilities_included: rental.utilities_included || [],
-    house_rules: rental.house_rules || [],
+    amenities: Array.isArray(rental.amenities) ? rental.amenities as string[] : [],
+    utilities_included: Array.isArray(rental.utilities_included) ? rental.utilities_included as string[] : [],
+    house_rules: Array.isArray(rental.house_rules) ? rental.house_rules as string[] : [],
     whatsapp_number: rental.whatsapp_number || '',
     phone: rental.phone || '',
     email: rental.email || ''
@@ -88,7 +125,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
           property_type: formData.property_type,
           region_id: formData.region_id,
           address: formData.address || null,
-          location: formData.location || null,
+          location_details: formData.location_details || null,
           bedrooms: formData.bedrooms,
           bathrooms: formData.bathrooms,
           max_guests: formData.max_guests,
@@ -97,9 +134,9 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
           price_per_week: formData.price_per_week,
           price_per_month: formData.price_per_month,
           security_deposit: formData.security_deposit,
-          amenities: formData.amenities,
-          utilities_included: formData.utilities_included,
-          house_rules: formData.house_rules,
+          amenities: JSON.parse(JSON.stringify(formData.amenities)),
+          utilities_included: JSON.parse(JSON.stringify(formData.utilities_included)),
+          house_rules: JSON.parse(JSON.stringify(formData.house_rules)),
           whatsapp_number: formData.whatsapp_number,
           phone: formData.phone || null,
           email: formData.email || null
@@ -110,9 +147,9 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
 
       // Redirect to dashboard
       router.push('/dashboard/my-rentals')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating rental:', err)
-      setError(err.message || 'Failed to update listing. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to update listing. Please try again.')
       setIsSubmitting(false)
     }
   }
@@ -153,9 +190,9 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
 
       // Redirect to dashboard
       router.push('/dashboard/my-rentals')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting rental:', err)
-      setError(err.message || 'Failed to delete listing. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to delete listing. Please try again.')
       setIsDeleting(false)
     }
   }
@@ -211,7 +248,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               required
               value={formData.category_id}
               onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             >
               <option value="">Select category</option>
               {categories.map((category) => (
@@ -266,7 +303,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               required
               value={formData.region_id}
               onChange={(e) => setFormData({ ...formData, region_id: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             >
               <option value="">Select region</option>
               {regions.map((region) => (
@@ -286,7 +323,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               placeholder="e.g., 123 Main Street"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -296,10 +333,10 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
             </label>
             <input
               type="text"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              value={formData.location_details}
+              onChange={(e) => setFormData({ ...formData, location_details: e.target.value })}
               placeholder="e.g., Near Stabroek Market"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
         </div>
@@ -320,7 +357,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               max="10"
               value={formData.bedrooms}
               onChange={(e) => setFormData({ ...formData, bedrooms: parseInt(e.target.value) })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
 
@@ -336,7 +373,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               step="0.5"
               value={formData.bathrooms}
               onChange={(e) => setFormData({ ...formData, bathrooms: parseFloat(e.target.value) })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
 
@@ -351,7 +388,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               max="50"
               value={formData.max_guests}
               onChange={(e) => setFormData({ ...formData, max_guests: parseInt(e.target.value) })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
 
@@ -364,7 +401,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               min="0"
               value={formData.square_feet || ''}
               onChange={(e) => setFormData({ ...formData, square_feet: e.target.value ? parseInt(e.target.value) : null })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
         </div>
@@ -384,7 +421,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               value={formData.price_per_night || ''}
               onChange={(e) => setFormData({ ...formData, price_per_night: e.target.value ? parseInt(e.target.value) : null })}
               placeholder="e.g., 15000"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -398,7 +435,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               value={formData.price_per_week || ''}
               onChange={(e) => setFormData({ ...formData, price_per_week: e.target.value ? parseInt(e.target.value) : null })}
               placeholder="e.g., 90000"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -413,7 +450,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               value={formData.price_per_month}
               onChange={(e) => setFormData({ ...formData, price_per_month: parseInt(e.target.value) })}
               placeholder="e.g., 350000"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -427,7 +464,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               value={formData.security_deposit || ''}
               onChange={(e) => setFormData({ ...formData, security_deposit: e.target.value ? parseInt(e.target.value) : null })}
               placeholder="e.g., 100000"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
         </div>
@@ -509,7 +546,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               value={formData.whatsapp_number}
               onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
               placeholder="5926123456"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
             <p className="text-sm text-gray-500 mt-1">Include country code (592 for Guyana)</p>
           </div>
@@ -523,7 +560,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               placeholder="e.g., +592-612-3456"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
 
@@ -536,7 +573,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="your@email.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
         </div>

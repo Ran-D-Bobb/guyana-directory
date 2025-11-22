@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { X, Calendar, Music, GraduationCap, Users, PartyPopper, Trophy, Briefcase, Utensils, Palette, Heart, Grid3x3 } from 'lucide-react'
+import { X, Calendar, Music, GraduationCap, Users, PartyPopper, Trophy, Briefcase, Utensils, Palette, Heart, Grid3x3, type LucideIcon } from 'lucide-react'
 import { Database } from '@/types/supabase'
 
 type EventCategory = Database['public']['Tables']['event_categories']['Row'] & {
@@ -14,7 +14,7 @@ interface MobileEventCategoryDrawerProps {
   currentCategorySlug?: string
 }
 
-const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+const iconMap: Record<string, LucideIcon> = {
   Music, GraduationCap, Users, PartyPopper, Trophy, Briefcase, Utensils, Palette, Heart, Calendar
 }
 

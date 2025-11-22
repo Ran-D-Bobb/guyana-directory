@@ -72,21 +72,6 @@ export default function KioskCategorySlideshow({ experiences, categoryName, feat
     setShowQR(true)
   }
 
-  const getDifficultyColor = (difficulty: string | null) => {
-    switch (difficulty?.toLowerCase()) {
-      case 'easy':
-        return 'from-green-500 to-emerald-600'
-      case 'moderate':
-        return 'from-yellow-500 to-orange-500'
-      case 'challenging':
-        return 'from-orange-500 to-red-500'
-      case 'difficult':
-        return 'from-red-600 to-rose-700'
-      default:
-        return 'from-gray-500 to-gray-600'
-    }
-  }
-
   return (
     <div className="relative w-full h-screen overflow-hidden" style={{ background: 'var(--kiosk-bg-base)' }}>
       {/* Background Image with Overlay */}

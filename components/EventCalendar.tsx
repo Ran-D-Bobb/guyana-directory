@@ -10,7 +10,7 @@ interface Event {
   slug: string
   start_date: string
   end_date: string
-  is_featured: boolean
+  is_featured: boolean | null
   event_categories: { name: string } | null
 }
 

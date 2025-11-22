@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ChevronRight, ChevronLeft, Calendar, Music, GraduationCap, Users, PartyPopper, Trophy, Briefcase, Utensils, Palette, Heart } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Calendar, Music, GraduationCap, Users, PartyPopper, Trophy, Briefcase, Utensils, Palette, Heart, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Database } from '@/types/supabase'
 
@@ -16,7 +16,7 @@ interface EventCategorySidebarProps {
 }
 
 // Map icon names to actual Lucide components
-const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+const iconMap: Record<string, LucideIcon> = {
   Music, GraduationCap, Users, PartyPopper, Trophy, Briefcase, Utensils, Palette, Heart, Calendar
 }
 

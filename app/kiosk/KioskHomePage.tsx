@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import KioskAttractionLoop from '@/components/kiosk/KioskAttractionLoop'
 import KioskCategoryGrid from '@/components/kiosk/KioskCategoryGrid'
 import { useIdleTimer } from '@/hooks/useIdleTimer'
@@ -14,7 +13,7 @@ interface Experience {
   image_url: string | null
   rating: number
   review_count: number
-  duration_hours: number | null
+  duration: string | null
   price_from: number
   category_name: string
   difficulty_level: string | null
@@ -37,7 +36,6 @@ interface KioskHomePageProps {
 
 export default function KioskHomePage({ experiences, categories, featuredAttractions }: KioskHomePageProps) {
   const [mode, setMode] = useState<'attraction' | 'categories'>('attraction')
-  const router = useRouter()
 
   // Prioritize featured attractions in the loop - show featured first, then other experiences
   const prioritizedExperiences = featuredAttractions && featuredAttractions.length > 0

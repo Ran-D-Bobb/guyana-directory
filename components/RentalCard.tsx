@@ -9,15 +9,18 @@ import { createClient } from '@/lib/supabase/client'
 
 type Rental = Database['public']['Tables']['rentals']['Row'] & {
   rental_photos: Array<{
-    id: string
+    id?: string
     image_url: string
-    is_primary: boolean
-    display_order: number
+    is_primary: boolean | null
+    display_order: number | null
   }>
   rental_categories: {
     name: string
     icon: string
   }
+  regions: {
+    name: string
+  } | null
 }
 
 interface RentalCardProps {
@@ -37,7 +40,7 @@ export function RentalCard({ rental, onSaveToggle, isSaved = false }: RentalCard
     ?.sort((a, b) => {
       if (a.is_primary) return -1
       if (b.is_primary) return 1
-      return a.display_order - b.display_order
+      return (a.display_order || 0) - (b.display_order || 0)
     })
     .slice(0, 3) || []
 
@@ -177,10 +180,10 @@ export function RentalCard({ rental, onSaveToggle, isSaved = false }: RentalCard
       <div className="p-4">
         {/* Location & Name */}
         <div className="mb-3">
-          {rental.region && (
+          {rental.regions && (
             <div className="flex items-center gap-1 text-sm text-gray-600 mb-1">
               <MapPin className="h-4 w-4" />
-              <span>{rental.region}</span>
+              <span>{rental.regions.name}</span>
             </div>
           )}
           <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-emerald-600 transition-colors">

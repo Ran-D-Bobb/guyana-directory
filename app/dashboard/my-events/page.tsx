@@ -333,10 +333,10 @@ export default async function MyEventsPage() {
                             </div>
                           )}
 
-                          {event.profiles && (
+                          {event.profiles && typeof event.profiles === 'object' && 'name' in event.profiles && (
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-sm text-gray-600">
-                                Organized by: {event.profiles.name}
+                                Organized by: {(event.profiles as { name: string }).name}
                               </span>
                             </div>
                           )}

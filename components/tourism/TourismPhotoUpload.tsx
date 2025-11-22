@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -8,8 +9,8 @@ import { useRouter } from 'next/navigation'
 interface Photo {
   id: string
   image_url: string
-  display_order: number
-  is_primary: boolean
+  display_order: number | null
+  is_primary: boolean | null
 }
 
 interface TourismPhotoUploadProps {
@@ -227,11 +228,13 @@ export function TourismPhotoUpload({ experienceId, existingPhotos }: TourismPhot
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {photos.map((photo) => (
             <div key={photo.id} className="relative group">
-              <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                <img
+              <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative">
+                <Image
                   src={photo.image_url}
                   alt="Tourism Experience"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 300px"
                 />
               </div>
 

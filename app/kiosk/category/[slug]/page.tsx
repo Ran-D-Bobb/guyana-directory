@@ -86,24 +86,26 @@ export default async function Page({ params }: PageProps) {
   }
 
   // Transform data for the component
-  const transformedExperiences = experiences.map((exp: any) => {
-    const primaryPhoto = exp.tourism_photos?.find((p: any) => p.is_primary)
-    const anyPhoto = exp.tourism_photos?.[0]
+  const transformedExperiences = experiences.map((exp) => {
+    const photos = exp.tourism_photos as Array<{image_url: string; is_primary: boolean}> | null
+    const primaryPhoto = photos?.find(p => p.is_primary)
+    const anyPhoto = photos?.[0]
+    const region = exp.regions as {name: string} | null
 
     return {
-      id: exp.id,
-      slug: exp.slug,
-      name: exp.name,
-      description: exp.description,
-      image_url: primaryPhoto?.image_url || anyPhoto?.image_url || null,
-      rating: exp.rating,
-      review_count: exp.review_count,
-      duration: exp.duration,
-      group_size_max: exp.group_size_max,
-      price_from: exp.price_from,
-      difficulty_level: exp.difficulty_level,
-      location_details: exp.location_details,
-      region_name: exp.regions?.name || null
+      id: exp.id as string,
+      slug: exp.slug as string,
+      name: exp.name as string,
+      description: exp.description as string,
+      image_url: (primaryPhoto?.image_url || anyPhoto?.image_url || null) as string | null,
+      rating: exp.rating as number,
+      review_count: exp.review_count as number,
+      duration: exp.duration as string | null,
+      group_size_max: exp.group_size_max as number | null,
+      price_from: exp.price_from as number,
+      difficulty_level: exp.difficulty_level as string | null,
+      location_details: exp.location_details as string | null,
+      region_name: region?.name || null
     }
   })
 
@@ -127,21 +129,23 @@ export default async function Page({ params }: PageProps) {
     .order('rating', { ascending: false })
     .limit(6)
 
-  const featuredExperiences = (featuredExps || []).map((exp: any) => {
-    const primaryPhoto = exp.tourism_photos?.find((p: any) => p.is_primary)
-    const anyPhoto = exp.tourism_photos?.[0]
+  const featuredExperiences = (featuredExps || []).map((exp) => {
+    const photos = exp.tourism_photos as Array<{image_url: string; is_primary: boolean}> | null
+    const primaryPhoto = photos?.find(p => p.is_primary)
+    const anyPhoto = photos?.[0]
+    const category = exp.tourism_categories as {name: string} | null
 
     return {
-      id: exp.id,
-      slug: exp.slug,
-      name: exp.name,
-      description: exp.description,
-      image_url: primaryPhoto?.image_url || anyPhoto?.image_url || null,
-      rating: exp.rating,
-      review_count: exp.review_count,
-      duration: exp.duration,
-      price_from: exp.price_from,
-      category_name: exp.tourism_categories?.name || 'Experience'
+      id: exp.id as string,
+      slug: exp.slug as string,
+      name: exp.name as string,
+      description: exp.description as string,
+      image_url: (primaryPhoto?.image_url || anyPhoto?.image_url || null) as string | null,
+      rating: exp.rating as number,
+      review_count: exp.review_count as number,
+      duration: exp.duration as string | null,
+      price_from: exp.price_from as number,
+      category_name: category?.name || 'Experience'
     }
   })
 

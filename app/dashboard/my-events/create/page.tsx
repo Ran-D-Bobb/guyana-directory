@@ -54,7 +54,11 @@ export default async function CreateEventPage() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <EventCreateForm
-            eventCategories={eventCategories || []}
+            eventCategories={(eventCategories || []).map(cat => ({
+              id: cat.id,
+              name: cat.name,
+              icon: cat.icon ?? ''
+            }))}
             userBusinesses={userBusinesses || []}
           />
         </div>

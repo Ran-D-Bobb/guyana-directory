@@ -10,38 +10,16 @@ import {
   Flag,
   AlertTriangle,
   Home,
-  Building2,
-  TrendingUp
+  Building2
 } from 'lucide-react'
 import AdminRentalActions from '@/components/admin/AdminRentalActions'
 
 export const dynamic = 'force-dynamic'
 
-interface RentalWithStats {
-  id: string
-  name: string
-  slug: string
-  property_type: string
-  category_id: string
-  is_featured: boolean
-  is_approved: boolean
-  is_flagged: boolean
-  flag_count: number
-  flag_reasons: string[] | null
-  view_count: number
-  inquiry_count: number
-  save_count: number
-  rating: number | null
-  review_count: number
-  rental_categories: {
-    name: string
-  }
-}
-
 export default async function AdminRentalsPage({
   searchParams,
 }: {
-  searchParams: { category?: string; featured?: string; flagged?: string }
+  searchParams: Promise<{ category?: string; featured?: string; flagged?: string }>
 }) {
   const supabase = await createClient()
 
@@ -50,9 +28,12 @@ export default async function AdminRentalsPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user || !(await isAdmin(user.email!))) {
+  if (!user || !isAdmin(user)) {
     redirect('/admin')
   }
+
+  // Await searchParams in Next.js 15
+  const params = await searchParams
 
   // Build query
   let query = supabase
@@ -64,16 +45,16 @@ export default async function AdminRentalsPage({
     .order('created_at', { ascending: false })
 
   // Apply filters
-  if (searchParams.category) {
-    query = query.eq('category_id', searchParams.category)
+  if (params.category) {
+    query = query.eq('category_id', params.category)
   }
-  if (searchParams.featured === 'true') {
+  if (params.featured === 'true') {
     query = query.eq('is_featured', true)
   }
-  if (searchParams.featured === 'false') {
+  if (params.featured === 'false') {
     query = query.eq('is_featured', false)
   }
-  if (searchParams.flagged === 'true') {
+  if (params.flagged === 'true') {
     query = query.eq('is_flagged', true)
   }
 
@@ -97,12 +78,9 @@ export default async function AdminRentalsPage({
 
   // Calculate stats
   const totalRentals = rentals?.length || 0
-  const totalViews = rentals?.reduce((sum, r) => sum + r.view_count, 0) || 0
-  const totalInquiries = rentals?.reduce((sum, r) => sum + r.inquiry_count, 0) || 0
-  const totalSaves = rentals?.reduce((sum, r) => sum + r.save_count, 0) || 0
-  const avgRating = rentals?.filter(r => r.rating).length
-    ? (rentals.filter(r => r.rating).reduce((sum, r) => sum + (r.rating || 0), 0) / rentals.filter(r => r.rating).length).toFixed(1)
-    : 'N/A'
+  const totalViews = rentals?.reduce((sum, r) => sum + (r.view_count || 0), 0) || 0
+  const totalInquiries = rentals?.reduce((sum, r) => sum + (r.inquiry_count || 0), 0) || 0
+  const totalSaves = rentals?.reduce((sum, r) => sum + (r.save_count || 0), 0) || 0
 
   // Separate flagged listings
   const flaggedListings = rentals?.filter(r => r.is_flagged) || []
@@ -223,11 +201,11 @@ export default async function AdminRentalsPage({
                       </span>
                     </div>
 
-                    {rental.flag_reasons && rental.flag_reasons.length > 0 && (
+                    {rental.flag_reasons && Array.isArray(rental.flag_reasons) && rental.flag_reasons.length > 0 && (
                       <div className="bg-red-100 rounded p-2">
                         <p className="text-xs font-semibold text-red-900 mb-1">Flag Reasons:</p>
                         <div className="flex flex-wrap gap-1">
-                          {rental.flag_reasons.map((reason, idx) => (
+                          {(rental.flag_reasons as string[]).map((reason, idx) => (
                             <span key={idx} className="px-2 py-1 bg-red-200 text-red-800 text-xs rounded">
                               {reason}
                             </span>
@@ -241,11 +219,11 @@ export default async function AdminRentalsPage({
                     <AdminRentalActions
                       rentalId={rental.id}
                       rentalName={rental.name}
-                      isFeatured={rental.is_featured}
-                      isApproved={rental.is_approved}
-                      isFlagged={rental.is_flagged}
-                      flagCount={rental.flag_count}
-                      flagReasons={rental.flag_reasons}
+                      isFeatured={rental.is_featured ?? false}
+                      isApproved={rental.is_approved ?? false}
+                      isFlagged={rental.is_flagged ?? false}
+                      flagCount={rental.flag_count ?? 0}
+                      flagReasons={rental.flag_reasons as string[] | null}
                       onUpdate={() => window.location.reload()}
                     />
                   </div>
@@ -265,15 +243,15 @@ export default async function AdminRentalsPage({
             <label className="block text-sm font-medium mb-1">Category</label>
             <select
               className="border rounded px-3 py-2"
-              value={searchParams.category || ''}
+              value={params.category || ''}
               onChange={(e) => {
-                const params = new URLSearchParams(searchParams)
+                const urlParams = new URLSearchParams(params as Record<string, string>)
                 if (e.target.value) {
-                  params.set('category', e.target.value)
+                  urlParams.set('category', e.target.value)
                 } else {
-                  params.delete('category')
+                  urlParams.delete('category')
                 }
-                window.location.href = `/admin/rentals?${params.toString()}`
+                window.location.href = `/admin/rentals?${urlParams.toString()}`
               }}
             >
               <option value="">All Categories</option>
@@ -290,15 +268,15 @@ export default async function AdminRentalsPage({
             <label className="block text-sm font-medium mb-1">Featured</label>
             <select
               className="border rounded px-3 py-2"
-              value={searchParams.featured || ''}
+              value={params.featured || ''}
               onChange={(e) => {
-                const params = new URLSearchParams(searchParams)
+                const urlParams = new URLSearchParams(params as Record<string, string>)
                 if (e.target.value) {
-                  params.set('featured', e.target.value)
+                  urlParams.set('featured', e.target.value)
                 } else {
-                  params.delete('featured')
+                  urlParams.delete('featured')
                 }
-                window.location.href = `/admin/rentals?${params.toString()}`
+                window.location.href = `/admin/rentals?${urlParams.toString()}`
               }}
             >
               <option value="">All</option>
@@ -312,15 +290,15 @@ export default async function AdminRentalsPage({
             <label className="block text-sm font-medium mb-1">Flagged</label>
             <select
               className="border rounded px-3 py-2"
-              value={searchParams.flagged || ''}
+              value={params.flagged || ''}
               onChange={(e) => {
-                const params = new URLSearchParams(searchParams)
+                const urlParams = new URLSearchParams(params as Record<string, string>)
                 if (e.target.value) {
-                  params.set('flagged', e.target.value)
+                  urlParams.set('flagged', e.target.value)
                 } else {
-                  params.delete('flagged')
+                  urlParams.delete('flagged')
                 }
-                window.location.href = `/admin/rentals?${params.toString()}`
+                window.location.href = `/admin/rentals?${urlParams.toString()}`
               }}
             >
               <option value="">All</option>
@@ -329,7 +307,7 @@ export default async function AdminRentalsPage({
           </div>
 
           {/* Clear Filters */}
-          {(searchParams.category || searchParams.featured || searchParams.flagged) && (
+          {(params.category || params.featured || params.flagged) && (
             <div className="flex items-end">
               <Link
                 href="/admin/rentals"
@@ -409,11 +387,11 @@ export default async function AdminRentalsPage({
                     <AdminRentalActions
                       rentalId={rental.id}
                       rentalName={rental.name}
-                      isFeatured={rental.is_featured}
-                      isApproved={rental.is_approved}
-                      isFlagged={rental.is_flagged}
-                      flagCount={rental.flag_count}
-                      flagReasons={rental.flag_reasons}
+                      isFeatured={rental.is_featured ?? false}
+                      isApproved={rental.is_approved ?? false}
+                      isFlagged={rental.is_flagged ?? false}
+                      flagCount={rental.flag_count ?? 0}
+                      flagReasons={rental.flag_reasons as string[] | null}
                       onUpdate={() => window.location.reload()}
                     />
                   </div>

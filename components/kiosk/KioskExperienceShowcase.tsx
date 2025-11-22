@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Star, Clock, Users, MapPin, Calendar, Shield, Languages, QrCode, ArrowLeft, DollarSign, Sparkles } from 'lucide-react'
+import { Clock, Users, MapPin, Calendar, Shield, QrCode, ArrowLeft, DollarSign, Sparkles } from 'lucide-react'
 import KioskQRCode from './KioskQRCode'
 import KioskFeaturedExperiencesSlideshow from './KioskFeaturedExperiencesSlideshow'
 
@@ -14,7 +14,7 @@ interface ExperiencePhoto {
 
 interface ExperienceReview {
   id: string
-  overall_rating: number
+  rating: number
   comment: string | null
   created_at: string
   profiles: {
@@ -33,18 +33,18 @@ interface Experience {
   duration: string | null
   difficulty_level: string | null
   max_group_size: number | null
-  min_age: number | null
-  price_from: number
-  rating: number
-  review_count: number
+  min_age: string | null
+  price_from: number | null
+  rating: number | null
+  review_count: number | null
   whatsapp_number: string | null
   phone: string | null
   languages_offered: string[] | null
   what_to_bring: string[] | null
   accessibility_info: string | null
   safety_information: string | null
-  included_items: string[] | null
-  excluded_items: string[] | null
+  included_items: string | null
+  excluded_items: string | null
   tourism_photos: ExperiencePhoto[]
   tourism_reviews: ExperienceReview[]
 }
@@ -74,7 +74,6 @@ export default function KioskExperienceShowcase({ experience, featuredExperience
   const [qrType, setQrType] = useState<'page' | 'whatsapp'>('page')
 
   const photos = experience.tourism_photos || []
-  const reviews = experience.tourism_reviews || []
 
   const handleShowPageQR = () => {
     setQrType('page')
@@ -273,24 +272,26 @@ export default function KioskExperienceShowcase({ experience, featuredExperience
               )}
 
               {/* Pricing */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'auto 1fr',
-                  alignItems: 'center',
-                  gap: '16px',
-                  borderTop: '1px solid rgba(19, 236, 19, 0.2)',
-                  padding: '20px 0'
-                }}
-              >
-                <DollarSign size={24} style={{ color: 'var(--kiosk-primary-500)' }} />
-                <div>
-                  <p style={{ fontSize: '14px', color: 'rgba(157, 185, 157, 1)', marginBottom: '4px' }}>Pricing</p>
-                  <p style={{ fontSize: '18px', color: 'white', fontWeight: '600' }}>
-                    From ${experience.price_from.toLocaleString()}
-                  </p>
+              {experience.price_from != null && (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr',
+                    alignItems: 'center',
+                    gap: '16px',
+                    borderTop: '1px solid rgba(19, 236, 19, 0.2)',
+                    padding: '20px 0'
+                  }}
+                >
+                  <DollarSign size={24} style={{ color: 'var(--kiosk-primary-500)' }} />
+                  <div>
+                    <p style={{ fontSize: '14px', color: 'rgba(157, 185, 157, 1)', marginBottom: '4px' }}>Pricing</p>
+                    <p style={{ fontSize: '18px', color: 'white', fontWeight: '600' }}>
+                      From ${experience.price_from.toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Location */}
               {(experience.location || experience.region_name) && (

@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import { Star, Clock, Users, ChevronLeft, ChevronRight, Sparkles, Hand, Pause, Play, Eye } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Sparkles, Pause, Play, Eye } from 'lucide-react'
 import { useKioskConfig } from './KioskLayoutOptimized'
 import { useRouter } from 'next/navigation'
 
@@ -29,8 +28,8 @@ export default function KioskAttractionLoop({ experiences, onTapToExplore }: Kio
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(true)
   const [progress, setProgress] = useState(0)
-  const kioskConfig = useKioskConfig()
   const router = useRouter()
+  useKioskConfig()
 
   const SLIDE_DURATION = 8000 // 8 seconds per slide
 

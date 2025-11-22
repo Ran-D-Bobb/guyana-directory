@@ -55,7 +55,15 @@ export default async function BusinessPhotosPage() {
 
         {/* Photo Upload Component */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <PhotoUpload businessId={business.id} existingPhotos={photos || []} />
+          <PhotoUpload
+            businessId={business.id}
+            existingPhotos={(photos || []).map(p => ({
+              id: p.id,
+              image_url: p.image_url,
+              display_order: p.display_order ?? 0,
+              is_primary: p.is_primary ?? false
+            }))}
+          />
         </div>
 
         {/* Help Text */}

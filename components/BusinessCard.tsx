@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { MapPin, Star, BadgeCheck, Sparkles, ArrowRight } from 'lucide-react'
+import Image from 'next/image'
+import { MapPin, BadgeCheck, Sparkles, ArrowRight } from 'lucide-react'
 import { Database } from '@/types/supabase'
 import { StarRating } from './StarRating'
 
@@ -26,10 +27,12 @@ export function BusinessCard({ business, primaryPhoto }: BusinessCardProps) {
     >
       {/* Business Photo with Overlay */}
       <div className="relative w-full h-56 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-        <img
+        <Image
           src={imageUrl}
           alt={business.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
 
         {/* Gradient Overlay */}
@@ -52,13 +55,13 @@ export function BusinessCard({ business, primaryPhoto }: BusinessCardProps) {
         </div>
 
         {/* Rating Badge - Floating on Image */}
-        {business.rating > 0 && (
+        {business.rating != null && business.rating > 0 && (
           <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
             <StarRating rating={business.rating} size="md" />
             <span className="text-sm font-bold text-gray-900">
               {business.rating.toFixed(1)}
             </span>
-            {business.review_count > 0 && (
+            {business.review_count != null && business.review_count > 0 && (
               <span className="text-xs text-gray-600">({business.review_count})</span>
             )}
           </div>

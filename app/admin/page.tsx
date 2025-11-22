@@ -115,7 +115,6 @@ export default async function AdminDashboard() {
   // Calculate rentals analytics
   const totalRentalViews = rentalsData?.reduce((sum, r) => sum + (r.view_count || 0), 0) || 0
   const totalRentalInquiries = rentalsData?.reduce((sum, r) => sum + (r.inquiry_count || 0), 0) || 0
-  const totalRentalSaves = rentalsData?.reduce((sum, r) => sum + (r.save_count || 0), 0) || 0
 
   const stats = [
     {

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ChevronRight, ChevronLeft, Store, ShoppingBag, UtensilsCrossed, Wrench, Briefcase, Shirt, Home as HomeIcon, Heart, Laptop, GraduationCap, Music, Camera, Dumbbell, Leaf, Car, Plane, PawPrint, Baby, Gift, Coffee, Package } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Store, ShoppingBag, UtensilsCrossed, Wrench, Briefcase, Shirt, Home as HomeIcon, Heart, Laptop, GraduationCap, Music, Camera, Dumbbell, Leaf, Car, Plane, PawPrint, Baby, Gift, Coffee, Package, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Database } from '@/types/supabase'
 
@@ -16,7 +16,7 @@ interface CategorySidebarProps {
 }
 
 // Map icon names to actual Lucide components
-const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+const iconMap: Record<string, LucideIcon> = {
   Store, ShoppingBag, UtensilsCrossed, Wrench, Briefcase, Shirt, HomeIcon, Heart, Laptop,
   GraduationCap, Music, Camera, Dumbbell, Leaf, Car, Plane, PawPrint, Baby, Gift, Coffee, Package
 }

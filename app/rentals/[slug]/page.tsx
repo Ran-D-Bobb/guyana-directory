@@ -56,10 +56,7 @@ export default async function RentalDetailPage({
   // Get reviews with ratings breakdown
   const { data: reviews } = await supabase
     .from('rental_reviews')
-    .select(`
-      *,
-      profiles(full_name, avatar_url)
-    `)
+    .select(`*`)
     .eq('rental_id', rental.id)
     .order('created_at', { ascending: false })
 
@@ -78,10 +75,16 @@ export default async function RentalDetailPage({
     .limit(4)
 
   // Sort photos (primary first, then by display_order)
-  const photos = rental.rental_photos?.sort((a: any, b: any) => {
+  interface RentalPhoto {
+    image_url: string
+    is_primary: boolean | null
+    display_order: number | null
+  }
+
+  const photos = rental.rental_photos?.sort((a: RentalPhoto, b: RentalPhoto) => {
     if (a.is_primary) return -1
     if (b.is_primary) return 1
-    return a.display_order - b.display_order
+    return (a.display_order ?? 0) - (b.display_order ?? 0)
   }) || []
 
   // Default image if no photos

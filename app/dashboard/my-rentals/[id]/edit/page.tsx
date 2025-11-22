@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import RentalEditForm from '@/components/RentalEditForm'
 
-export default async function EditRentalPage({ params }: { params: { id: string } }) {
+export default async function EditRentalPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -11,11 +11,14 @@ export default async function EditRentalPage({ params }: { params: { id: string 
     redirect('/auth/signin')
   }
 
+  // Await params in Next.js 15
+  const { id } = await params
+
   // Get the rental listing
   const { data: rental, error } = await supabase
     .from('rentals')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('landlord_id', user.id)
     .single()
 

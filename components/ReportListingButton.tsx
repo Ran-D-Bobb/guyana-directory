@@ -68,7 +68,7 @@ export function ReportListingButton({ rentalId, rentalName }: ReportListingButto
         .insert({
           rental_id: rentalId,
           user_id: user.id,
-          flag_reason: selectedReason,
+          reason: selectedReason,
           comment: comment || null,
         })
 

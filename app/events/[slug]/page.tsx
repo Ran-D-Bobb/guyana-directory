@@ -46,6 +46,17 @@ export default async function EventPage({ params }: EventPageProps) {
     .eq('slug', slug)
     .single()
 
+  // Fetch creator profile separately if there's a user_id
+  let creatorProfile = null
+  if (event?.user_id) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('name')
+      .eq('id', event.user_id)
+      .single()
+    creatorProfile = profile
+  }
+
   if (!event) {
     notFound()
   }
@@ -299,7 +310,7 @@ export default async function EventPage({ params }: EventPageProps) {
                         </div>
                       )}
                     </div>
-                  ) : event.profiles?.name ? (
+                  ) : creatorProfile?.name ? (
                     /* User Organizer */
                     <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100">
                       <div className="p-2 bg-purple-600 rounded-lg shadow-md">
@@ -307,7 +318,7 @@ export default async function EventPage({ params }: EventPageProps) {
                       </div>
                       <div>
                         <p className="font-bold text-gray-900 mb-1">
-                          {event.profiles.name}
+                          {creatorProfile.name}
                         </p>
                         <p className="text-sm text-purple-600 font-medium">
                           Community Organizer

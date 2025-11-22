@@ -32,7 +32,7 @@ export default async function RentalsPage({
     .from('rentals')
     .select(`
       *,
-      rental_categories(name, slug),
+      rental_categories(name, slug, icon),
       regions(name),
       rental_photos(image_url, is_primary, display_order)
     `)

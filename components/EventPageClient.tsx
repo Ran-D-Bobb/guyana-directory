@@ -10,6 +10,9 @@ import { Database } from '@/types/supabase'
 type Event = Database['public']['Tables']['events']['Row'] & {
   event_categories: { name: string; icon: string } | null
   businesses: { name: string; slug: string } | null
+  profiles: {
+    name: string | null
+  } | null
 }
 
 interface EventPageClientProps {
@@ -26,7 +29,7 @@ interface EventPageClientProps {
 
 export function EventPageClient({ events, searchParams }: EventPageClientProps) {
   const { category, time, sort, q, region, view = 'grid' } = searchParams
-  const featuredCount = events?.filter(e => e.is_featured).length || 0
+  const featuredCount = events?.filter(e => e.is_featured === true).length || 0
 
   return (
     <>
@@ -62,7 +65,13 @@ export function EventPageClient({ events, searchParams }: EventPageClientProps) 
         {/* View Toggle */}
         <div className="flex items-center gap-2 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-1.5 shadow-sm border border-gray-200">
           <Link
-            href={`/events?${new URLSearchParams(Object.fromEntries(Object.entries({ category, time, sort, q, region, view: 'grid' }).filter(([, v]) => v && v !== 'grid'))).toString()}`}
+            href={`/events?${new URLSearchParams(
+              Object.fromEntries(
+                Object.entries({ category, time, sort, q, region, view: 'grid' })
+                  .filter(([, v]) => v && v !== 'grid')
+                  .map(([k, v]) => [k, String(v)])
+              )
+            ).toString()}`}
             className={`
               flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300
               ${view === 'grid'
@@ -74,7 +83,13 @@ export function EventPageClient({ events, searchParams }: EventPageClientProps) 
             Grid
           </Link>
           <Link
-            href={`/events?${new URLSearchParams(Object.fromEntries(Object.entries({ category, time, sort, q, region, view: 'calendar' }).filter(([, v]) => v))).toString()}`}
+            href={`/events?${new URLSearchParams(
+              Object.fromEntries(
+                Object.entries({ category, time, sort, q, region, view: 'calendar' })
+                  .filter(([, v]) => v)
+                  .map(([k, v]) => [k, String(v)])
+              )
+            ).toString()}`}
             className={`
               flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300
               ${view === 'calendar'

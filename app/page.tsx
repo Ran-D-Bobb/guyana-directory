@@ -2,12 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { PremiumSpotlight } from '@/components/PremiumSpotlight'
 import { HeroSection } from '@/components/HeroSection'
 import { StatsBar } from '@/components/StatsBar'
-import { EnhancedBusinessCard } from '@/components/EnhancedBusinessCard'
 import { EventCard } from '@/components/EventCard'
 import { ExperienceCard } from '@/components/tourism/ExperienceCard'
 import { RentalCard } from '@/components/RentalCard'
 import Link from 'next/link'
-import { TrendingUp, Plane, Home, Calendar, ArrowRight, Sparkles, Star, Crown } from 'lucide-react'
+import { Plane, Home as HomeIcon, Calendar, ArrowRight, Star } from 'lucide-react'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -37,13 +36,13 @@ export default async function Home() {
   }))
 
   // Fetch ALL featured tourism experiences (for both spotlight and experiences section)
-  const { data: featuredExperiences } = await supabase
+  const { data: rawExperiences } = await supabase
     .from('tourism_experiences')
     .select(`
       *,
       tourism_categories:tourism_category_id (name, icon),
       regions:region_id (name),
-      tourism_photos:tourism_photos (image_url, is_primary, display_order)
+      tourism_photos (image_url, is_primary, display_order)
     `)
     .eq('is_featured', true)
     .eq('is_approved', true)
@@ -51,14 +50,26 @@ export default async function Home() {
     .order('view_count', { ascending: false })
     .limit(30)
 
+  // Map experiences to ensure proper types
+  const featuredExperiences = (rawExperiences || []).map(exp => ({
+    ...exp,
+    tourism_photos: Array.isArray(exp.tourism_photos)
+      ? exp.tourism_photos.map(p => ({
+          image_url: p.image_url,
+          is_primary: p.is_primary ?? false,
+          display_order: p.display_order
+        }))
+      : []
+  }))
+
   // Fetch ALL featured rentals (for both spotlight and rentals section)
-  const { data: featuredRentals } = await supabase
+  const { data: rawRentals } = await supabase
     .from('rentals')
     .select(`
       *,
       rental_categories:category_id (name, slug, icon),
       regions:region_id (name),
-      rental_photos:rental_photos (image_url, is_primary, display_order)
+      rental_photos (id, image_url, is_primary, display_order)
     `)
     .eq('is_featured', true)
     .eq('is_approved', true)
@@ -66,21 +77,46 @@ export default async function Home() {
     .order('view_count', { ascending: false })
     .limit(30)
 
+  // Map rentals to ensure proper types
+  const featuredRentals = (rawRentals || []).map(rental => ({
+    ...rental,
+    rental_photos: Array.isArray(rental.rental_photos)
+      ? rental.rental_photos.map(p => ({
+          id: p.id,
+          image_url: p.image_url,
+          is_primary: p.is_primary ?? false,
+          display_order: p.display_order ?? 0
+        }))
+      : []
+  }))
+
   // Fetch ALL featured events (for both spotlight and events section)
   const now = new Date().toISOString()
-  const { data: featuredEvents } = await supabase
+  const { data: rawEvents } = await supabase
     .from('events')
     .select(`
       *,
       event_categories:category_id (name, icon),
-      businesses:business_id (name, slug),
-      profiles:user_id (name)
+      businesses:business_id (name, slug)
     `)
     .eq('is_featured', true)
     .gt('start_date', now)
     .order('interest_count', { ascending: false, nullsFirst: false })
     .order('start_date', { ascending: true })
     .limit(30)
+
+  // Map events to ensure proper types
+  const featuredEvents = (rawEvents || []).map(event => ({
+    ...event,
+    event_categories: event.event_categories ? {
+      name: event.event_categories.name,
+      icon: event.event_categories.icon || ''
+    } : null,
+    businesses: event.businesses ? {
+      name: event.businesses.name,
+      slug: event.businesses.slug
+    } : null
+  }))
 
   // Prepare spotlight items - mix ALL featured items from all types, sorted by quality
   const allSpotlightCandidates = [
@@ -95,14 +131,13 @@ export default async function Home() {
       type: 'business' as const,
       slug: b.slug,
       category: b.categories?.name,
-      whatsapp_number: b.whatsapp_number,
+      whatsapp_number: b.whatsapp_number || undefined,
       price: undefined,
       view_count: b.view_count || 0,
     })),
-    ...(featuredExperiences || []).map(exp => {
-      const primaryPhoto = Array.isArray(exp.tourism_photos)
-        ? exp.tourism_photos.find(p => p.is_primary)?.image_url || exp.tourism_photos[0]?.image_url
-        : null
+    ...featuredExperiences.map(exp => {
+      const photos = exp.tourism_photos || []
+      const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url
       return {
         id: exp.id,
         name: exp.name,
@@ -114,15 +149,14 @@ export default async function Home() {
         type: 'tourism' as const,
         slug: exp.slug,
         category: exp.tourism_categories?.name,
-        whatsapp_number: exp.whatsapp_number,
+        whatsapp_number: exp.whatsapp_number || undefined,
         price: exp.price_from ? `From GYD ${exp.price_from.toLocaleString()}` : undefined,
         view_count: exp.view_count || 0,
       }
     }),
-    ...(featuredRentals || []).map(rental => {
-      const primaryPhoto = Array.isArray(rental.rental_photos)
-        ? rental.rental_photos.find(p => p.is_primary)?.image_url || rental.rental_photos[0]?.image_url
-        : null
+    ...featuredRentals.map(rental => {
+      const photos = rental.rental_photos || []
+      const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url
       return {
         id: rental.id,
         name: rental.name,
@@ -134,15 +168,15 @@ export default async function Home() {
         type: 'rental' as const,
         slug: rental.slug,
         category: rental.rental_categories?.name,
-        whatsapp_number: rental.whatsapp_number,
+        whatsapp_number: rental.whatsapp_number || undefined,
         price: rental.price_per_month ? `GYD ${rental.price_per_month.toLocaleString()}/month` : undefined,
         view_count: rental.view_count || 0,
       }
     }),
-    ...(featuredEvents || []).map(event => {
+    ...featuredEvents.map(event => {
       return {
         id: event.id,
-        name: event.name,
+        name: event.title,
         description: event.description || '',
         image_url: event.image_url || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&h=600&fit=crop',
         rating: 0,
@@ -151,8 +185,8 @@ export default async function Home() {
         type: 'event' as const,
         slug: event.slug,
         category: event.event_categories?.name,
-        whatsapp_number: event.whatsapp_number,
-        price: event.is_free ? 'Free Event' : (event.ticket_price ? `GYD ${event.ticket_price}` : undefined),
+        whatsapp_number: event.whatsapp_number || undefined,
+        price: undefined,
         view_count: event.view_count || 0,
       }
     }),
@@ -228,7 +262,7 @@ export default async function Home() {
           <div className="text-center mb-8 md:mb-12">
             <div className="inline-flex items-center justify-center gap-2 md:gap-3 mb-3 md:mb-4 flex-wrap px-2">
               <div className="h-12 w-12 md:h-16 md:w-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg md:shadow-2xl shadow-blue-500/30 animate-pulse-glow">
-                <Home className="h-6 w-6 md:h-8 md:w-8 text-white" strokeWidth={2.5} />
+                <HomeIcon className="h-6 w-6 md:h-8 md:w-8 text-white" strokeWidth={2.5} />
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-gray-900">
                 Premium Properties

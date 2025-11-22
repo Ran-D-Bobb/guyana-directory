@@ -184,7 +184,7 @@ export default function AdminRentalActions({
             <AlertDialogHeader>
               <AlertDialogTitle>Dismiss Flags</AlertDialogTitle>
               <AlertDialogDescription>
-                This will clear all {flagCount} flag(s) for "{rentalName}".
+                This will clear all {flagCount} flag(s) for &quot;{rentalName}&quot;.
                 {flagReasons && flagReasons.length > 0 && (
                   <div className="mt-4">
                     <p className="font-semibold text-sm mb-2">Flag Reasons:</p>
@@ -226,7 +226,7 @@ export default function AdminRentalActions({
               Delete Rental
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to permanently delete "{rentalName}"? This will also delete:
+              Are you sure you want to permanently delete &quot;{rentalName}&quot;? This will also delete:
               <ul className="list-disc list-inside mt-2 space-y-1">
                 <li>All photos</li>
                 <li>All reviews and ratings</li>
