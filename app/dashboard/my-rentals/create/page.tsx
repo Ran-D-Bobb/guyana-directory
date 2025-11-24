@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import RentalCreateForm from '@/components/RentalCreateForm'
+import RentalFormSteps from '@/components/forms/rental/RentalFormSteps'
 
 export default async function CreateRentalPage() {
   const supabase = await createClient()
@@ -35,15 +35,15 @@ export default async function CreateRentalPage() {
     .select('*')
     .order('name')
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">List Your Property</h1>
-          <p className="text-gray-600">Fill out the form below to create your rental listing</p>
-        </div>
+  if (hasReachedLimit) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">List Your Property</h1>
+            <p className="text-gray-600">Fill out the form below to create your rental listing</p>
+          </div>
 
-        {hasReachedLimit ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <div className="max-w-md mx-auto">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Free Tier Limit Reached</h2>
@@ -73,14 +73,18 @@ export default async function CreateRentalPage() {
               </p>
             </div>
           </div>
-        ) : (
-          <RentalCreateForm
-            categories={categories || []}
-            regions={regions || []}
-            userId={user.id}
-          />
-        )}
+        </div>
       </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <RentalFormSteps
+        categories={categories || []}
+        regions={regions || []}
+        userId={user.id}
+      />
     </div>
   )
 }

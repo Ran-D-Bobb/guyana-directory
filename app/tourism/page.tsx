@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { TourismCategorySidebar } from '@/components/TourismCategorySidebar'
-import { TourismFilterPanel } from '@/components/TourismFilterPanel'
 import { TourismPageClient } from '@/components/TourismPageClient'
 import { MobileTourismCategoryDrawer } from '@/components/MobileTourismCategoryDrawer'
+import { MobileTourismFilterSheet } from '@/components/MobileTourismFilterSheet'
+import { getTourismCategoriesWithCounts } from '@/lib/category-counts'
 import { Plane } from 'lucide-react'
 
 interface TourismPageProps {
@@ -20,17 +21,8 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
   const { category, difficulty, duration, sort = 'featured', q, region } = await searchParams
   const supabase = await createClient()
 
-  // Fetch all tourism categories with experience counts for sidebar and drawer
-  const { data: tourismCategories } = await supabase
-    .from('tourism_categories')
-    .select('*, tourism_experiences:tourism_experiences(count)')
-    .order('display_order')
-
-  // Transform categories to include experience count
-  const categoriesWithCount = tourismCategories?.map((cat) => ({
-    ...cat,
-    experience_count: Array.isArray(cat.tourism_experiences) ? cat.tourism_experiences.length : 0,
-  })) || []
+  // Fetch all tourism categories with counts
+  const categoriesWithCount = await getTourismCategoriesWithCounts()
 
   // Fetch all regions for filters
   const { data: regions } = await supabase
@@ -95,10 +87,10 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
       query = query.order('rating', { ascending: false })
       break
     case 'price_low':
-      query = query.order('price_per_person', { ascending: true })
+      query = query.order('price_from', { ascending: true })
       break
     case 'price_high':
-      query = query.order('price_per_person', { ascending: false })
+      query = query.order('price_from', { ascending: false })
       break
     case 'rating':
       query = query.order('rating', { ascending: false })
@@ -122,13 +114,6 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0">
-        {/* Tourism Filter Panel - Sticky, Collapsible */}
-        <TourismFilterPanel
-          regions={regions || []}
-          experienceCount={experiences?.length || 0}
-          categoryName="Tourism Experiences"
-        />
-
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
           {/* Page Header */}
@@ -162,6 +147,9 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
 
       {/* Mobile Tourism Category Drawer */}
       <MobileTourismCategoryDrawer categories={categoriesWithCount} />
+
+      {/* Mobile Tourism Filter Sheet */}
+      <MobileTourismFilterSheet regions={regions || []} />
     </div>
   )
 }

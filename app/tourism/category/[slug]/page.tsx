@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { TourismCategorySidebar } from '@/components/TourismCategorySidebar'
-import { TourismFilterPanel } from '@/components/TourismFilterPanel'
 import { TourismPageClient } from '@/components/TourismPageClient'
 import { MobileTourismCategoryDrawer } from '@/components/MobileTourismCategoryDrawer'
+import { MobileTourismFilterSheet } from '@/components/MobileTourismFilterSheet'
+import { getTourismCategoriesWithCounts } from '@/lib/category-counts'
 
 interface TourismCategoryPageProps {
   params: Promise<{
@@ -34,17 +35,8 @@ export default async function TourismCategoryPage({ params, searchParams }: Tour
     notFound()
   }
 
-  // Fetch all tourism categories with experience counts for sidebar and drawer
-  const { data: tourismCategories } = await supabase
-    .from('tourism_categories')
-    .select('*, tourism_experiences:tourism_experiences(count)')
-    .order('display_order')
-
-  // Transform categories to include experience count
-  const categoriesWithCount = tourismCategories?.map((cat) => ({
-    ...cat,
-    experience_count: Array.isArray(cat.tourism_experiences) ? cat.tourism_experiences.length : 0,
-  })) || []
+  // Fetch all tourism categories with counts
+  const categoriesWithCount = await getTourismCategoriesWithCounts()
 
   // Fetch all regions for filters
   const { data: regions } = await supabase
@@ -147,13 +139,6 @@ export default async function TourismCategoryPage({ params, searchParams }: Tour
           </p>
         </div>
 
-        {/* Tourism Filter Panel - Desktop Only, Sticky, Collapsible */}
-        <TourismFilterPanel
-          regions={regions || []}
-          experienceCount={experiences?.length || 0}
-          categoryName={category.name}
-        />
-
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
           {/* Category Header - Desktop Only */}
@@ -189,6 +174,9 @@ export default async function TourismCategoryPage({ params, searchParams }: Tour
 
       {/* Mobile Tourism Category Drawer */}
       <MobileTourismCategoryDrawer categories={categoriesWithCount} currentCategorySlug={slug} />
+
+      {/* Mobile Tourism Filter Sheet */}
+      <MobileTourismFilterSheet regions={regions || []} />
     </div>
   )
 }

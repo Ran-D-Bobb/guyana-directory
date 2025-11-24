@@ -23,10 +23,10 @@ export function MobileEventCategoryDrawer({ categories, currentCategorySlug }: M
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - positioned on left to avoid conflict with filter button on right */}
       <button
         onClick={() => setIsOpen(true)}
-        className="lg:hidden fixed bottom-[5.5rem] right-4 z-[60] h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center"
+        className="lg:hidden fixed bottom-[5.5rem] left-4 z-[60] h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center"
         aria-label="Open event categories"
       >
         <Grid3x3 className="h-5 w-5" strokeWidth={2.5} />

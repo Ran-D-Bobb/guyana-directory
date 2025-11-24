@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { CategorySidebar } from '@/components/CategorySidebar'
-import { CategoryFilters } from '@/components/CategoryFilters'
 import { CategoryPageClient } from '@/components/CategoryPageClient'
 import { MobileCategoryDrawer } from '@/components/MobileCategoryDrawer'
+import { MobileFilterSheet } from '@/components/MobileFilterSheet'
+import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
 import { Building2 } from 'lucide-react'
 
 interface BusinessesPageProps {
@@ -18,17 +19,8 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
   const { category, region, sort = 'featured', q } = await searchParams
   const supabase = await createClient()
 
-  // Fetch all categories with business counts for sidebar and drawer
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('*, businesses:businesses(count)')
-    .order('name')
-
-  // Transform categories to include business count
-  const categoriesWithCount = categories?.map((cat) => ({
-    ...cat,
-    business_count: Array.isArray(cat.businesses) ? cat.businesses.length : 0,
-  })) || []
+  // Fetch all categories with business counts
+  const categoriesWithCount = await getBusinessCategoriesWithCounts()
 
   // Fetch all regions for filters
   const { data: regions } = await supabase
@@ -100,25 +92,22 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0">
-        {/* Filter Panel */}
+        {/* Header */}
         <div className="sticky top-20 z-30 bg-white border-b border-gray-200 shadow-sm">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                  <Building2 className="h-5 w-5 text-white" strokeWidth={2.5} />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900">
-                    All Businesses
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {businessesWithPhotos.length} {businessesWithPhotos.length === 1 ? 'business' : 'businesses'} found
-                  </p>
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                <Building2 className="h-5 w-5 text-white" strokeWidth={2.5} />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  All Businesses
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {businessesWithPhotos.length} {businessesWithPhotos.length === 1 ? 'business' : 'businesses'} found
+                </p>
               </div>
             </div>
-            <CategoryFilters regions={regions || []} />
           </div>
         </div>
 
@@ -155,6 +144,9 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
 
       {/* Mobile Category Drawer */}
       <MobileCategoryDrawer categories={categoriesWithCount} />
+
+      {/* Mobile Filter Sheet */}
+      <MobileFilterSheet regions={regions || []} />
     </div>
   )
 }

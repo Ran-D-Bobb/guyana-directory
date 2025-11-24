@@ -15,7 +15,8 @@ export function TourismFilterPanel({ regions, experienceCount, categoryName }: T
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState('')
-  const [isExpanded, setIsExpanded] = useState(true)
+  // Default to collapsed on mobile to save screen space
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const currentRegion = searchParams.get('region') || 'all'
   const currentSort = searchParams.get('sort') || 'featured'

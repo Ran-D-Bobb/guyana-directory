@@ -15,7 +15,7 @@ export function EventFilterPanel({ regions, eventCount, categoryName }: EventFil
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState('')
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false) // Default to collapsed on mobile
 
   const currentRegion = searchParams.get('region') || 'all'
   const currentSort = searchParams.get('sort') || 'featured'

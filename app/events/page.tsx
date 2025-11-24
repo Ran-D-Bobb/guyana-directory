@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { EventCategorySidebar } from '@/components/EventCategorySidebar'
-import { EventFilterPanel } from '@/components/EventFilterPanel'
 import { EventPageClient } from '@/components/EventPageClient'
 import { MobileEventCategoryDrawer } from '@/components/MobileEventCategoryDrawer'
+import { getEventCategoriesWithCounts } from '@/lib/category-counts'
 import { Calendar } from 'lucide-react'
+import { MobileEventFilterSheet } from '@/components/MobileEventFilterSheet'
 
 interface EventsPageProps {
   searchParams: Promise<{
@@ -20,17 +21,12 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const { category, time = 'upcoming', sort = 'featured', q, region, view = 'grid' } = await searchParams
   const supabase = await createClient()
 
-  // Fetch all event categories with event counts for sidebar and drawer
-  const { data: eventCategories } = await supabase
-    .from('event_categories')
-    .select('*, events:events(count)')
-    .order('name')
+  // Fetch all event categories with counts based on time filter
+  const validTimeFilter = ['upcoming', 'ongoing', 'past', 'all'].includes(time) ? time as 'upcoming' | 'ongoing' | 'past' | 'all' : 'upcoming'
+  const categoriesWithCount = await getEventCategoriesWithCounts(validTimeFilter)
 
-  // Transform categories to include event count
-  const categoriesWithCount = eventCategories?.map((cat) => ({
-    ...cat,
-    event_count: Array.isArray(cat.events) ? cat.events.length : 0,
-  })) || []
+  // Get current time for main query
+  const now = new Date().toISOString()
 
   // Fetch all regions for filters
   const { data: regions } = await supabase
@@ -44,12 +40,10 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
     .select(`
       *,
       event_categories:category_id (name, icon),
-      businesses:business_id (name, slug),
-      profiles:user_id (name)
+      businesses:business_id (name, slug)
     `)
 
-  // Apply time filter
-  const now = new Date().toISOString()
+  // Apply time filter (now already defined above)
   switch (time) {
     case 'upcoming':
       query = query.gt('start_date', now)
@@ -112,9 +106,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       name: event.businesses.name,
       slug: event.businesses.slug
     } : null,
-    profiles: event.profiles && 'name' in event.profiles && typeof event.profiles.name === 'string' ? {
-      name: event.profiles.name
-    } : null
+    profiles: null as { name: string | null } | null
   }))
 
   return (
@@ -124,13 +116,6 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0">
-        {/* Event Filter Panel - Sticky, Collapsible */}
-        <EventFilterPanel
-          regions={regions || []}
-          eventCount={events?.length || 0}
-          categoryName="Events"
-        />
-
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
           {/* Page Header */}
@@ -164,6 +149,8 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
 
       {/* Mobile Event Category Drawer */}
       <MobileEventCategoryDrawer categories={categoriesWithCount} />
+      {/* Mobile Event Filter Sheet */}
+      <MobileEventFilterSheet regions={regions || []} />
     </div>
   )
 }

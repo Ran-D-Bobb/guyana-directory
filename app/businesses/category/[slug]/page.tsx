@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { CategorySidebar } from '@/components/CategorySidebar'
-import { AdvancedFilterPanel } from '@/components/AdvancedFilterPanel'
 import { CategoryPageClient } from '@/components/CategoryPageClient'
 import { MobileCategoryDrawer } from '@/components/MobileCategoryDrawer'
 import { MobileFilterSheet } from '@/components/MobileFilterSheet'
+import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
 
 interface CategoryPageProps {
   params: Promise<{
@@ -35,17 +35,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     notFound()
   }
 
-  // Fetch all categories with business counts for sidebar and drawer
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('*, businesses:businesses(count)')
-    .order('name')
-
-  // Transform categories to include business count
-  const categoriesWithCount = categories?.map((cat) => ({
-    ...cat,
-    business_count: Array.isArray(cat.businesses) ? cat.businesses.length : 0,
-  })) || []
+  // Fetch all categories with business counts
+  const categoriesWithCount = await getBusinessCategoriesWithCounts()
 
   // Fetch all regions for filters
   const { data: regions } = await supabase
@@ -132,13 +123,6 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             <span className="font-semibold text-gray-900">{businessesWithPhotos.length}</span> results
           </p>
         </div>
-
-        {/* Advanced Filter Panel - Desktop Only, Sticky, Collapsible */}
-        <AdvancedFilterPanel
-          regions={regions || []}
-          businessCount={businessesWithPhotos.length}
-          categoryName={category.name}
-        />
 
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">

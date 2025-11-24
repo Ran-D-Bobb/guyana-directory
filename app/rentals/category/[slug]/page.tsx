@@ -3,7 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { RentalCard } from '@/components/RentalCard'
 import { RentalCategorySidebar } from '@/components/RentalCategorySidebar'
-import { RentalFilterPanel } from '@/components/RentalFilterPanel'
+import { MobileRentalCategoryDrawer } from '@/components/MobileRentalCategoryDrawer'
+import { MobileRentalFilterSheet } from '@/components/MobileRentalFilterSheet'
+import { getRentalCategoriesWithCounts } from '@/lib/category-counts'
 
 export async function generateMetadata({
   params,
@@ -161,20 +163,8 @@ export default async function RentalCategoryPage({
     return <div>Error loading rentals</div>
   }
 
-  // Get categories for sidebar
-  const { data: categories } = await supabase
-    .from('rental_categories')
-    .select(`
-      *,
-      rentals!inner(id)
-    `)
-    .eq('rentals.is_approved', true)
-
-  // Count rentals per category
-  const categoriesWithCounts = categories?.map(cat => ({
-    ...cat,
-    count: cat.rentals?.length || 0
-  })) || []
+  // Get categories with counts
+  const categoriesWithCounts = await getRentalCategoriesWithCounts()
 
   // Get regions for filter
   const { data: regions } = await supabase
@@ -219,22 +209,6 @@ export default async function RentalCategoryPage({
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <RentalFilterPanel
-              regions={regions || []}
-              currentFilters={{
-                beds: filters.beds,
-                baths: filters.baths,
-                price_min: filters.price_min,
-                price_max: filters.price_max,
-                region: filters.region,
-                sort: filters.sort,
-                amenities: filters.amenities,
-              }}
-            />
-          </div>
-
           {/* Rentals Grid */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
             {rentals && rentals.length > 0 ? (
@@ -268,6 +242,14 @@ export default async function RentalCategoryPage({
           </div>
         </div>
       </div>
+      {/* Mobile Rental Category Drawer */}
+      <MobileRentalCategoryDrawer
+        categories={categoriesWithCounts.map(cat => ({ ...cat, listing_count: cat.count }))}
+        currentCategorySlug={slug}
+      />
+
+      {/* Mobile Rental Filter Sheet */}
+      <MobileRentalFilterSheet regions={regions?.map(r => ({ name: r.name, slug: r.slug || r.id })) || []} />
     </div>
   )
 }

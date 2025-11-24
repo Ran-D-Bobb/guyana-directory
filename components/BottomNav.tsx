@@ -12,6 +12,20 @@ interface BottomNavProps {
 export function BottomNav({ isAdmin }: BottomNavProps) {
   const pathname = usePathname()
 
+  // Hide bottom nav on form creation/edit pages for better UX
+  const hideOnPaths = [
+    '/dashboard/my-business/create',
+    '/dashboard/my-business/edit',
+    '/dashboard/my-events/create',
+    '/dashboard/my-events/edit',
+    '/dashboard/my-rentals/create',
+    '/dashboard/my-rentals/edit',
+  ]
+
+  if (hideOnPaths.some(path => pathname.startsWith(path))) {
+    return null
+  }
+
   const navItems = [
     {
       name: 'Home',
