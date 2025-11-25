@@ -40,15 +40,15 @@ export default function PropertyTypeStep({
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           Property Basics
         </h2>
-        <p className="text-base text-gray-600">
+        <p className="text-base text-gray-500">
           Tell us about the type of property you&apos;re listing
         </p>
       </div>
 
       {/* Property Type Selection - Card Grid */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          Property Type *
+        <label className="block text-sm font-medium text-gray-900 mb-3">
+          Property Type <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3">
           {PROPERTY_TYPES.map((type) => {
@@ -60,29 +60,29 @@ export default function PropertyTypeStep({
                 type="button"
                 onClick={() => onChange('property_type', type.value)}
                 className={`
-                  relative p-4 rounded-lg border-2 text-left transition-all
+                  relative p-4 rounded-xl border bg-white text-left transition-all
                   ${isSelected
-                    ? 'border-blue-600 bg-blue-50 shadow-sm'
-                    : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                    ? 'border-gray-900 ring-1 ring-gray-900'
+                    : 'border-gray-200 hover:border-gray-300'
                   }
                 `}
               >
                 <div className="flex flex-col items-start gap-2">
                   <Icon
-                    className={`w-6 h-6 ${isSelected ? 'text-blue-600' : 'text-gray-600'}`}
+                    className={`w-6 h-6 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
                   />
                   <div>
-                    <div className={`font-semibold text-sm ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
+                    <div className={`font-medium text-sm ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>
                       {type.label}
                     </div>
-                    <div className={`text-xs mt-1 ${isSelected ? 'text-blue-700' : 'text-gray-500'}`}>
+                    <div className="text-xs mt-1 text-gray-500">
                       {type.description}
                     </div>
                   </div>
                 </div>
                 {isSelected && (
-                  <div className="absolute top-2 right-2">
-                    <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                  <div className="absolute top-3 right-3">
+                    <div className="w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
                       <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
@@ -94,7 +94,7 @@ export default function PropertyTypeStep({
           })}
         </div>
         {errors.property_type && (
-          <p className="text-sm text-red-600 mt-1">{errors.property_type}</p>
+          <p className="text-sm text-red-500 mt-2">{errors.property_type}</p>
         )}
       </div>
 

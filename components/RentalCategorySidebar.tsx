@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import * as LucideIcons from 'lucide-react'
-import { LucideIcon, Home } from 'lucide-react'
+import { useState } from 'react'
+import { ChevronRight, ChevronLeft, Home, Building, Hotel, Castle, Warehouse, TreePine, Tent, Ship, type LucideIcon } from 'lucide-react'
 
 interface RentalCategory {
   id: string
@@ -11,86 +11,134 @@ interface RentalCategory {
   slug: string
   icon: string
   listing_count?: number
+  count?: number
 }
 
 interface RentalCategorySidebarProps {
   categories: RentalCategory[]
 }
 
+// Map icon names to actual Lucide components
+const iconMap: Record<string, LucideIcon> = {
+  Home, Building, Hotel, Castle, Warehouse, TreePine, Tent, Ship
+}
+
 export function RentalCategorySidebar({ categories }: RentalCategorySidebarProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const pathname = usePathname()
 
+  const totalListings = categories.reduce((sum, cat) => sum + (cat.listing_count || cat.count || 0), 0)
+
   return (
-    <div className="hidden lg:block lg:w-64 flex-shrink-0">
-      <div className="sticky top-4 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+    <>
+      {/* Desktop Sidebar */}
+      <aside
+        className={`hidden lg:block fixed left-0 top-0 h-screen bg-white border-r border-gray-200 shadow-lg z-40 transition-all duration-300 ${
+          isCollapsed ? 'w-20' : 'w-72'
+        }`}
+      >
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4">
-          <h2 className="text-lg font-bold text-white">Categories</h2>
-        </div>
-
-        {/* All Rentals Link */}
-        <Link
-          href="/rentals"
-          className={`flex items-center justify-between px-4 py-3 border-b border-gray-200 transition-colors ${
-            pathname === '/rentals'
-              ? 'bg-emerald-50 text-emerald-700 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <Home className="h-5 w-5" />
-            <span>All Rentals</span>
-          </div>
-          {categories.reduce((sum, cat) => sum + (cat.listing_count || 0), 0) > 0 && (
-            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-              {categories.reduce((sum, cat) => sum + (cat.listing_count || 0), 0)}
-            </span>
+        <div className="h-16 border-b border-gray-200 flex items-center justify-between px-4">
+          {!isCollapsed && (
+            <Link href="/rentals" className="flex items-center gap-2 group">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                <Home className="h-4 w-4 text-white" strokeWidth={2.5} />
+              </div>
+              <span className="font-bold text-lg text-gray-900 group-hover:text-emerald-600 transition-colors">
+                Rentals
+              </span>
+            </Link>
           )}
-        </Link>
-
-        {/* Category List */}
-        <nav className="max-h-[calc(100vh-12rem)] overflow-y-auto">
-          {categories.map((category) => {
-            const IconComponent = (LucideIcons[category.icon as keyof typeof LucideIcons] || Home) as LucideIcon
-            const isActive = pathname === `/rentals/category/${category.slug}`
-
-            return (
-              <Link
-                key={category.id}
-                href={`/rentals/category/${category.slug}`}
-                className={`flex items-center justify-between px-4 py-3 border-b border-gray-100 transition-colors ${
-                  isActive
-                    ? 'bg-emerald-50 text-emerald-700 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <IconComponent className="h-5 w-5" />
-                  <span className="text-sm">{category.name}</span>
-                </div>
-                {category.listing_count !== undefined && category.listing_count > 0 && (
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      isActive
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    {category.listing_count}
-                  </span>
-                )}
-              </Link>
-            )
-          })}
-        </nav>
-
-        {/* Footer */}
-        <div className="p-4 bg-gray-50 border-t border-gray-200">
-          <p className="text-xs text-gray-600 text-center">
-            Browse {categories.reduce((sum, cat) => sum + (cat.listing_count || 0), 0)} properties across Guyana
-          </p>
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors ml-auto"
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-5 w-5 text-gray-600" />
+            ) : (
+              <ChevronLeft className="h-5 w-5 text-gray-600" />
+            )}
+          </button>
         </div>
-      </div>
-    </div>
+
+        {/* Categories List */}
+        <nav className="overflow-y-auto h-[calc(100vh-4rem)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+          <div className="p-2">
+            {/* All Rentals Link */}
+            <Link
+              href="/rentals"
+              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all mb-1 group ${
+                pathname === '/rentals'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30'
+                  : 'hover:bg-gray-100 text-gray-700'
+              }`}
+            >
+              <div className={`flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`}>
+                <Home
+                  className={`h-5 w-5 ${pathname === '/rentals' ? 'text-white' : 'text-gray-400 group-hover:text-emerald-600'}`}
+                  strokeWidth={2}
+                />
+              </div>
+              {!isCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold truncate">All Rentals</div>
+                  <div className={`text-xs ${pathname === '/rentals' ? 'text-white/80' : 'text-gray-500'}`}>
+                    {totalListings} {totalListings === 1 ? 'property' : 'properties'}
+                  </div>
+                </div>
+              )}
+            </Link>
+
+            {/* Category Links */}
+            {categories.map((category) => {
+              const IconComponent = category.icon ? iconMap[category.icon as keyof typeof iconMap] || Home : Home
+              const isActive = pathname === `/rentals/category/${category.slug}`
+              const count = category.listing_count || category.count || 0
+
+              return (
+                <Link
+                  key={category.id}
+                  href={`/rentals/category/${category.slug}`}
+                  className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all mb-1 group ${
+                    isActive
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30'
+                      : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  <div className={`flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`}>
+                    <IconComponent
+                      className={`h-5 w-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-emerald-600'}`}
+                      strokeWidth={2}
+                    />
+                  </div>
+                  {!isCollapsed && (
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold truncate">{category.name}</div>
+                      {count > 0 && (
+                        <div className={`text-xs ${isActive ? 'text-white/80' : 'text-gray-500'}`}>
+                          {count} {count === 1 ? 'property' : 'properties'}
+                        </div>
+                      )}
+                      {count === 0 && (
+                        <div className={`text-xs ${isActive ? 'text-white/80' : 'text-gray-400'}`}>
+                          No properties yet
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {!isCollapsed && isActive && (
+                    <ChevronRight className="h-4 w-4 text-white flex-shrink-0" />
+                  )}
+                </Link>
+              )
+            })}
+          </div>
+        </nav>
+      </aside>
+
+      {/* Spacer for desktop layout */}
+      <div className={`hidden lg:block flex-shrink-0 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-72'}`} />
+    </>
   )
 }

@@ -33,8 +33,8 @@ export function FormNavigation({
   return (
     <footer className={cn(
       'fixed bottom-0 left-0 right-0 z-50',
-      'bg-white dark:bg-gray-900',
-      'border-t-2 border-gray-300 dark:border-gray-700',
+      'bg-white',
+      'border-t border-gray-200',
       'shadow-lg',
       className
     )}>
@@ -44,13 +44,13 @@ export function FormNavigation({
           onClick={onBack}
           disabled={!canGoBack || isSubmitting}
           className={cn(
-            'h-14 w-full rounded-xl text-base font-bold',
-            'bg-gray-300 dark:bg-gray-700',
-            'text-gray-800 dark:text-white',
+            'h-12 w-full rounded-xl text-base font-semibold',
+            'bg-gray-100',
+            'text-gray-700',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             'transition-all duration-200',
-            'hover:bg-gray-400 dark:hover:bg-gray-600 active:scale-[0.98]',
-            'border-2 border-gray-400 dark:border-gray-600'
+            'hover:bg-gray-200 active:scale-[0.98]',
+            'border border-gray-200'
           )}
         >
           {backLabel}
@@ -61,13 +61,12 @@ export function FormNavigation({
           onClick={onNext}
           disabled={!canGoNext || isSubmitting}
           className={cn(
-            'h-14 w-full rounded-xl text-base font-bold',
-            'bg-emerald-600 dark:bg-emerald-500 text-white',
-            'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-gray-700',
+            'h-12 w-full rounded-xl text-base font-semibold',
+            'bg-gray-900 text-white',
+            'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300',
             'transition-all duration-200',
-            'hover:bg-emerald-700 dark:hover:bg-emerald-600 active:scale-[0.98]',
-            'flex items-center justify-center gap-2',
-            'shadow-md'
+            'hover:bg-gray-800 active:scale-[0.98]',
+            'flex items-center justify-center gap-2'
           )}
         >
           {isSubmitting ? (

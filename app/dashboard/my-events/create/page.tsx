@@ -27,7 +27,7 @@ export default async function CreateEventPage() {
     .eq('owner_id', user.id)
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <EventFormSteps
         userId={user.id}
         eventCategories={(eventCategories || []).map(cat => ({

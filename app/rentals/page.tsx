@@ -5,6 +5,7 @@ import { RentalCategorySidebar } from '@/components/RentalCategorySidebar'
 import { MobileRentalCategoryDrawer } from '@/components/MobileRentalCategoryDrawer'
 import { MobileRentalFilterSheet } from '@/components/MobileRentalFilterSheet'
 import { getRentalCategoriesWithCounts } from '@/lib/category-counts'
+import { Home } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Browse Rentals - Guyana Directory',
@@ -155,72 +156,89 @@ export default async function RentalsPage({
     .select('*')
     .order('name')
 
+  // Get current category name for header
+  const currentCategory = params.category
+    ? categoriesWithCounts.find(c => c.slug === params.category)
+    : null
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        {/* Desktop Sidebar */}
-        <RentalCategorySidebar categories={categoriesWithCounts} />
+    <div className="min-h-screen bg-gray-50 flex pb-0 lg:pb-0">
+      {/* Desktop Category Sidebar */}
+      <RentalCategorySidebar categories={categoriesWithCounts} />
 
-        {/* Main Content */}
-        <div className="flex-1 lg:ml-64">
-          {/* Header */}
-          <div className="bg-white border-b">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-              <h1 className="text-3xl font-bold text-gray-900">
-                {params.category
-                  ? categoriesWithCounts.find(c => c.slug === params.category)?.name || 'Browse Rentals'
-                  : 'Browse Rentals'}
-              </h1>
-              <p className="mt-2 text-gray-600">
-                {rentals?.length || 0} properties available
-              </p>
-
-              {/* Search Bar */}
-              <form className="mt-4">
-                <input
-                  type="text"
-                  name="q"
-                  defaultValue={params.q}
-                  placeholder="Search by location, name, or description..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              </form>
-            </div>
-          </div>
-
-          {/* Rentals Grid */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-            {rentals && rentals.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {rentals.map((rental) => (
-                  <RentalCard key={rental.id} rental={rental} />
-                ))}
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0">
+        {/* Header - Sticky on desktop */}
+        <div className="lg:sticky lg:top-20 z-30 bg-white border-b border-gray-200 shadow-sm">
+          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                <Home className="h-5 w-5 text-white" strokeWidth={2.5} />
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                  />
-                </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No properties found</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Try adjusting your filters or search terms.
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  {currentCategory?.name || 'All Rentals'}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {rentals?.length || 0} {(rentals?.length || 0) === 1 ? 'property' : 'properties'} found
                 </p>
               </div>
-            )}
+            </div>
           </div>
         </div>
+
+        {/* Content Container */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
+          {/* Page Header */}
+          <div className="mb-6">
+            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">
+              Find Your Perfect Rental
+            </h1>
+            <p className="text-lg text-gray-600 max-w-3xl">
+              Browse apartments, houses, vacation homes, and more across Guyana. Contact property owners instantly via WhatsApp.
+            </p>
+          </div>
+
+          {/* Search Bar */}
+          <form className="mb-6">
+            <input
+              type="text"
+              name="q"
+              defaultValue={params.q}
+              placeholder="Search by location, name, or description..."
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm"
+            />
+          </form>
+
+          {/* Rentals Grid */}
+          {rentals && rentals.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 animate-fade-in">
+              {rentals.map((rental, index) => (
+                <div
+                  key={rental.id}
+                  className="animate-slide-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <RentalCard rental={rental} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 animate-fade-in">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 mb-6">
+                <Home className="w-10 h-10 text-emerald-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                No properties found
+              </h3>
+              <p className="text-gray-500 text-lg max-w-md mx-auto">
+                Try adjusting your filters or check back later for new listings
+              </p>
+            </div>
+          )}
+        </main>
       </div>
+
       {/* Mobile Rental Category Drawer */}
       <MobileRentalCategoryDrawer categories={categoriesWithCounts.map(cat => ({ ...cat, listing_count: cat.count }))} />
 

@@ -119,21 +119,21 @@ export function MultiStepFormWrapper<T extends object>({
   return (
     <>
       {/* Mobile Layout - iOS Style */}
-      <div className={cn('lg:hidden relative flex min-h-screen w-full flex-col h-screen overflow-hidden', className)}>
+      <div className={cn('lg:hidden relative flex min-h-screen w-full flex-col h-screen overflow-hidden bg-gray-50', className)}>
         {/* Sticky Header with Progress */}
-        <header className="flex-shrink-0 w-full bg-white dark:bg-gray-900 border-b-2 border-gray-300 dark:border-gray-700 shadow-sm z-10">
+        <header className="flex-shrink-0 w-full bg-white border-b border-gray-200 shadow-sm z-10">
           <div className="flex items-center p-4">
             {/* Back Button */}
             <button
               onClick={prevStep}
               disabled={!canGoBack || isSubmitting}
-              className="text-gray-700 dark:text-white flex size-10 shrink-0 items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+              className="text-gray-700 flex size-10 shrink-0 items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 rounded-full transition-colors"
             >
               <ArrowLeft className="w-6 h-6" />
             </button>
 
             {/* Centered Title */}
-            <h1 className="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center">
+            <h1 className="text-gray-900 text-lg font-bold leading-tight tracking-tight flex-1 text-center">
               {currentStepConfig?.title || 'Form'}
             </h1>
 
@@ -153,11 +153,11 @@ export function MultiStepFormWrapper<T extends object>({
         </header>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto bg-gray-50">
           {/* Sticky Step Description */}
           {currentStepConfig?.description && (
-            <div className="sticky top-0 z-[9] bg-gradient-to-b from-gray-50 via-gray-50 to-transparent dark:from-gray-900 dark:via-gray-900 px-4 pt-4 pb-6">
-              <p className="text-gray-700 dark:text-gray-300 text-sm font-medium leading-relaxed">
+            <div className="sticky top-0 z-[9] bg-gradient-to-b from-gray-50 via-gray-50 to-transparent px-4 pt-4 pb-6">
+              <p className="text-gray-600 text-sm font-medium leading-relaxed">
                 {currentStepConfig.description}
               </p>
             </div>
@@ -283,14 +283,14 @@ export function MultiStepFormWrapper<T extends object>({
         )}
 
         {/* Form Card */}
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md border border-gray-200 dark:border-gray-800 p-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
           {/* Step Title */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
               {currentStepConfig?.title || 'Form'}
             </h2>
             {currentStepConfig?.description && (
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-500">
                 {currentStepConfig.description}
               </p>
             )}
@@ -312,7 +312,7 @@ export function MultiStepFormWrapper<T extends object>({
           </div>
 
           {/* Desktop Navigation */}
-          <div className="flex justify-between items-center mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex justify-between items-center mt-8 pt-8 border-t border-gray-200">
             <Button
               type="button"
               variant="outline"

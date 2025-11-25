@@ -48,7 +48,7 @@ export function TextInput({
     <div className={cn('w-full', className)}>
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-700 mb-1.5"
+        className="block text-sm font-medium text-gray-900 mb-1.5"
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -73,28 +73,29 @@ export function TextInput({
           maxLength={maxLength}
           required={required}
           className={cn(
-            'w-full px-3 py-2.5 md:py-2',
-            'border rounded-lg',
+            'w-full px-4 py-3',
+            'border rounded-xl',
+            'bg-white',
             'text-gray-900 placeholder:text-gray-400',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             'transition-all duration-200',
-            'min-h-[44px] md:min-h-[40px]', // Minimum touch target for mobile
+            'min-h-[48px]',
             icon && 'pl-10',
             (showSuccess || showError) && 'pr-10',
             showError &&
-              'border-red-300 focus:border-red-500 focus:ring-red-500/20',
+              'border-red-500 focus:border-red-500 focus:ring-red-100',
             showSuccess &&
-              'border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20',
+              'border-gray-900 focus:border-gray-900 focus:ring-gray-100',
             !showError &&
               !showSuccess &&
-              'border-gray-300 focus:border-emerald-500 focus:ring-emerald-500/20',
-            isFocused && 'ring-2'
+              'border-gray-200 focus:border-gray-900 focus:ring-gray-100',
+            isFocused && !showError && 'ring-2 ring-gray-100'
           )}
         />
 
         {/* Success/Error icon */}
         {showSuccess && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-900">
             <Check className="w-5 h-5" />
           </div>
         )}
@@ -107,14 +108,14 @@ export function TextInput({
 
       {/* Helper text or error message */}
       {showError ? (
-        <p className="text-sm text-red-600 mt-1 flex items-start gap-1">
+        <p className="text-sm text-red-500 mt-1.5 flex items-start gap-1">
           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           {error}
         </p>
       ) : helperText ? (
-        <p className="text-sm text-gray-500 mt-1">{helperText}</p>
+        <p className="text-sm text-gray-500 mt-1.5">{helperText}</p>
       ) : maxLength ? (
-        <p className="text-xs text-gray-500 mt-1 text-right">
+        <p className="text-xs text-gray-400 mt-1.5 text-right">
           {value.length} / {maxLength}
         </p>
       ) : null}

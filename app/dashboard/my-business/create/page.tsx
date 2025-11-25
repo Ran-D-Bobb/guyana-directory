@@ -37,7 +37,7 @@ export default async function CreateBusinessPage() {
     .order('name', { ascending: true })
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <BusinessFormClient
         userId={user.id}
         categories={categories || []}

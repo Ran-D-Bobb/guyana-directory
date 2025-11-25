@@ -23,8 +23,8 @@ export default async function RootLayout({
   const isKioskMode = pathname.startsWith("/kiosk");
 
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="en" className="light">
+      <body className="antialiased bg-white">
         {/* Don't render Header in kiosk mode - it should be a standalone fullscreen experience */}
         {!isKioskMode && <Header />}
         {children}

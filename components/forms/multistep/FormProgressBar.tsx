@@ -31,10 +31,10 @@ export function FormProgressBar({
           <div
             key={index}
             className={cn(
-              'h-2.5 flex-1 rounded-full transition-all duration-300',
-              isCurrent && 'bg-emerald-600 dark:bg-emerald-500',
-              isCompleted && 'bg-emerald-600 dark:bg-emerald-500',
-              !isCurrent && !isCompleted && 'bg-gray-300 dark:bg-gray-700'
+              'h-2 flex-1 rounded-full transition-all duration-300',
+              isCurrent && 'bg-gray-900',
+              isCompleted && 'bg-gray-900',
+              !isCurrent && !isCompleted && 'bg-gray-200'
             )}
           />
         )
