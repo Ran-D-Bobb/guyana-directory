@@ -1,7 +1,32 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { AdminTourismActions } from '@/components/admin/AdminTourismActions'
-import { Eye, MessageCircle, Star, MapPin } from 'lucide-react'
+import {
+  Compass,
+  Eye,
+  MessageCircle,
+  Star,
+  Filter,
+  ExternalLink,
+  Search,
+  MapPin,
+  User,
+  CheckCircle,
+  Clock,
+  Sparkles,
+  Mountain,
+  ArrowUpRight
+} from 'lucide-react'
+import { AdminHeader } from '@/components/admin/AdminHeader'
+import { AdminStatCard } from '@/components/admin/AdminStatCard'
+import { TourismActions } from '@/components/admin/AdminActionButtons'
+import { cn } from '@/lib/utils'
+
+const difficultyColors = {
+  easy: 'bg-emerald-100 text-emerald-700',
+  moderate: 'bg-amber-100 text-amber-700',
+  challenging: 'bg-orange-100 text-orange-700',
+  extreme: 'bg-red-100 text-red-700',
+}
 
 export default async function AdminTourismPage({
   searchParams,
@@ -15,6 +40,7 @@ export default async function AdminTourismPage({
   const categoryFilter = params.category as string | undefined
   const approvedFilter = params.approved as string | undefined
   const featuredFilter = params.featured as string | undefined
+  const searchQuery = params.q as string | undefined
 
   // Build query
   let query = supabase
@@ -56,233 +82,310 @@ export default async function AdminTourismPage({
     .select('*', { count: 'exact', head: true })
     .eq('is_approved', false)
 
+  // Apply search filter client-side
+  const filteredExperiences = searchQuery
+    ? experiences?.filter(e =>
+        e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : experiences
+
+  // Calculate stats
+  const totalExperiences = experiences?.length || 0
+  const approvedCount = experiences?.filter(e => e.is_approved).length || 0
+  const totalViews = experiences?.reduce((sum, e) => sum + (e.view_count || 0), 0) || 0
+  const totalInquiries = experiences?.reduce((sum, e) => sum + (e.booking_inquiry_count || 0), 0) || 0
+
+  // Check if any filter is active
+  const hasActiveFilters = categoryFilter || approvedFilter || featuredFilter || searchQuery
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Manage Tourism Experiences</h1>
-          <p className="text-gray-600">
-            {experiences?.length || 0} total experiences
-            {pendingCount && pendingCount > 0 && (
-              <span className="ml-2 text-orange-600 font-semibold">
-                • {pendingCount} pending approval
-              </span>
-            )}
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen">
+      <AdminHeader
+        title="Tourism Experiences"
+        subtitle={`Manage ${totalExperiences} tourism experiences`}
+      />
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-        <form className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Category
-            </label>
-            <select
-              name="category"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              defaultValue={categoryFilter || ''}
-            >
-              <option value="">All Categories</option>
-              {categories?.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex-1 min-w-[150px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Approval Status
-            </label>
-            <select
-              name="approved"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              defaultValue={approvedFilter || ''}
-            >
-              <option value="">All</option>
-              <option value="true">Approved Only</option>
-              <option value="false">Pending Approval</option>
-            </select>
-          </div>
-
-          <div className="flex-1 min-w-[150px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Featured
-            </label>
-            <select
-              name="featured"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              defaultValue={featuredFilter || ''}
-            >
-              <option value="">All</option>
-              <option value="true">Featured Only</option>
-              <option value="false">Not Featured</option>
-            </select>
-          </div>
-
-          <div className="flex items-end gap-2">
-            <button
-              type="submit"
-              className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
-            >
-              Apply Filters
-            </button>
-            <Link
-              href="/admin/tourism"
-              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-            >
-              Clear
-            </Link>
-          </div>
-        </form>
-      </div>
-
-      {/* Quick Actions */}
-      {pendingCount && pendingCount > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-orange-900 mb-1">
-                Pending Approvals
-              </h3>
+      <div className="px-4 lg:px-8 py-6 space-y-6">
+        {/* Pending Approval Alert */}
+        {pendingCount && pendingCount > 0 && (
+          <Link
+            href="/admin/tourism?approved=false"
+            className="group flex items-center gap-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-2xl hover:shadow-lg hover:border-orange-300 transition-all"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-xl">
+              <Clock className="text-orange-600" size={24} />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-orange-900">Pending Approvals</h3>
               <p className="text-sm text-orange-700">
-                {pendingCount} experience{pendingCount !== 1 ? 's' : ''} waiting for approval
+                {pendingCount} experience{pendingCount !== 1 ? 's' : ''} waiting for your review
               </p>
             </div>
-            <Link
-              href="/admin/tourism?approved=false"
-              className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm"
-            >
-              Review Pending
-            </Link>
-          </div>
-        </div>
-      )}
+            <ArrowUpRight className="text-orange-400 group-hover:text-orange-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" size={20} />
+          </Link>
+        )}
 
-      {/* Experience List */}
-      <div className="space-y-4">
-        {experiences && experiences.length > 0 ? (
-          experiences.map((experience) => (
-            <div
-              key={experience.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-            >
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4 gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-start gap-2 mb-2">
-                    <Link
-                      href={`/tourism/${experience.slug}`}
-                      className="text-lg lg:text-xl font-bold text-gray-900 hover:text-emerald-600 break-words"
-                      target="_blank"
-                    >
-                      {experience.name}
-                    </Link>
-                    <div className="flex flex-wrap gap-1.5">
-                      {!experience.is_approved && (
-                        <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded font-semibold whitespace-nowrap">
-                          Pending
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <AdminStatCard
+            label="Total Experiences"
+            value={totalExperiences}
+            icon="Compass"
+            color="cyan"
+            size="sm"
+          />
+          <AdminStatCard
+            label="Approved"
+            value={approvedCount}
+            icon="CheckCircle"
+            color="emerald"
+            size="sm"
+          />
+          <AdminStatCard
+            label="Pending"
+            value={pendingCount || 0}
+            icon="Clock"
+            color="orange"
+            size="sm"
+          />
+          <AdminStatCard
+            label="Total Views"
+            value={totalViews}
+            icon="Eye"
+            color="blue"
+            size="sm"
+          />
+          <AdminStatCard
+            label="Inquiries"
+            value={totalInquiries}
+            icon="MessageCircle"
+            color="purple"
+            size="sm"
+          />
+        </div>
+
+        {/* Filters & Actions */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-slate-100">
+            <form className="flex flex-col lg:flex-row gap-4">
+              {/* Search */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                  type="text"
+                  name="q"
+                  placeholder="Search experiences..."
+                  defaultValue={searchQuery || ''}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-cyan-300 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none transition-all"
+                />
+              </div>
+
+              {/* Category Filter */}
+              <select
+                name="category"
+                defaultValue={categoryFilter || ''}
+                className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-cyan-300 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none transition-all min-w-[180px]"
+              >
+                <option value="">All Categories</option>
+                {categories?.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Approved Filter */}
+              <select
+                name="approved"
+                defaultValue={approvedFilter || ''}
+                className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-cyan-300 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none transition-all min-w-[160px]"
+              >
+                <option value="">All Status</option>
+                <option value="true">Approved</option>
+                <option value="false">Pending</option>
+              </select>
+
+              {/* Featured Filter */}
+              <select
+                name="featured"
+                defaultValue={featuredFilter || ''}
+                className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-cyan-300 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none transition-all min-w-[140px]"
+              >
+                <option value="">All Listings</option>
+                <option value="true">Featured</option>
+                <option value="false">Not Featured</option>
+              </select>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="submit"
+                  className="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl text-sm font-medium transition-colors shadow-sm"
+                >
+                  <Filter size={16} className="inline mr-2" />
+                  Apply
+                </button>
+                {hasActiveFilters && (
+                  <Link
+                    href="/admin/tourism"
+                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors"
+                  >
+                    Clear
+                  </Link>
+                )}
+              </div>
+            </form>
+          </div>
+
+          {/* Results Count */}
+          <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <span className="text-sm text-slate-600">
+              Showing {filteredExperiences?.length || 0} experiences
+              {hasActiveFilters && ' (filtered)'}
+            </span>
+          </div>
+
+          {/* Experience List */}
+          <div className="divide-y divide-slate-100">
+            {filteredExperiences && filteredExperiences.length > 0 ? (
+              filteredExperiences.map((experience) => (
+                <div
+                  key={experience.id}
+                  className={cn(
+                    'p-4 transition-colors',
+                    !experience.is_approved ? 'bg-orange-50/30 hover:bg-orange-50/50' : 'hover:bg-slate-50/50'
+                  )}
+                >
+                  <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                    {/* Main Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-start gap-2 mb-2">
+                        <Link
+                          href={`/tourism/${experience.slug}`}
+                          target="_blank"
+                          className="group text-lg font-semibold text-slate-900 hover:text-cyan-600 transition-colors inline-flex items-center gap-1.5"
+                        >
+                          {experience.name}
+                          <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </Link>
+
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {!experience.is_approved && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+                              <Clock size={12} />
+                              Pending
+                            </span>
+                          )}
+                          {experience.is_approved && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
+                              <CheckCircle size={12} />
+                              Approved
+                            </span>
+                          )}
+                          {experience.is_featured && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                              <Sparkles size={12} />
+                              Featured
+                            </span>
+                          )}
+                          {experience.difficulty_level && (
+                            <span className={cn(
+                              'inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full capitalize',
+                              difficultyColors[experience.difficulty_level as keyof typeof difficultyColors]
+                            )}>
+                              <Mountain size={12} />
+                              {experience.difficulty_level}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Meta Info */}
+                      <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-2">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Compass size={14} className="text-slate-400" />
+                          {experience.tourism_categories?.name || 'Uncategorized'}
                         </span>
+                        {experience.regions?.name && (
+                          <span className="inline-flex items-center gap-1.5">
+                            <MapPin size={14} className="text-slate-400" />
+                            {experience.regions.name}
+                          </span>
+                        )}
+                        {experience.profiles ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <User size={14} className="text-slate-400" />
+                            {experience.profiles.name || experience.profiles.email}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 text-orange-600">
+                            <User size={14} />
+                            No operator
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Description */}
+                      {experience.description && (
+                        <p className="text-sm text-slate-600 line-clamp-2 mb-3">
+                          {experience.description}
+                        </p>
                       )}
-                      {experience.is_approved && (
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded whitespace-nowrap">
-                          Approved
+
+                      {/* Stats Row */}
+                      <div className="flex flex-wrap items-center gap-4 text-sm">
+                        <span className="inline-flex items-center gap-1.5 text-slate-500">
+                          <Eye size={14} className="text-slate-400" />
+                          <span className="font-medium text-slate-700">{experience.view_count || 0}</span>
+                          views
                         </span>
-                      )}
-                      {experience.is_featured && (
-                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded whitespace-nowrap">
-                          Featured
+                        <span className="inline-flex items-center gap-1.5 text-slate-500">
+                          <MessageCircle size={14} className="text-slate-400" />
+                          <span className="font-medium text-slate-700">{experience.booking_inquiry_count || 0}</span>
+                          inquiries
                         </span>
-                      )}
-                      {experience.is_verified && (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded whitespace-nowrap">
-                          Verified
+                        <span className="inline-flex items-center gap-1.5 text-slate-500">
+                          <Star size={14} className="text-amber-400 fill-amber-400" />
+                          <span className="font-medium text-slate-700">{experience.rating?.toFixed(1) || '0.0'}</span>
+                          ({experience.review_count || 0})
                         </span>
-                      )}
+                        {experience.price_from && (
+                          <span className="inline-flex items-center gap-1.5 text-slate-500">
+                            <span className="font-medium text-slate-700">
+                              GYD {experience.price_from.toLocaleString()}
+                            </span>
+                            /person
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-col gap-2 lg:items-end">
+                      <TourismActions
+                        experienceId={experience.id}
+                        experienceName={experience.name}
+                        isApproved={experience.is_approved || false}
+                        isFeatured={experience.is_featured || false}
+                      />
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                    <span>{experience.tourism_categories?.name}</span>
-                    {experience.regions?.name && (
-                      <>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <MapPin size={14} />
-                          {experience.regions.name}
-                        </span>
-                      </>
-                    )}
-                    {experience.difficulty_level && (
-                      <>
-                        <span>•</span>
-                        <span className={`font-medium ${
-                          experience.difficulty_level === 'easy' ? 'text-green-600' :
-                          experience.difficulty_level === 'moderate' ? 'text-yellow-600' :
-                          experience.difficulty_level === 'challenging' ? 'text-orange-600' :
-                          'text-red-600'
-                        }`}>
-                          {experience.difficulty_level.charAt(0).toUpperCase() + experience.difficulty_level.slice(1)}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  {experience.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                      {experience.description}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Eye size={14} />
-                      {experience.view_count || 0} views
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MessageCircle size={14} />
-                      {experience.booking_inquiry_count || 0} inquiries
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                      {experience.rating?.toFixed(1) || '0.0'} ({experience.review_count || 0}{' '}
-                      reviews)
-                    </span>
-                  </div>
-                  {experience.price_from && (
-                    <p className="text-sm text-gray-500 mt-2">
-                      From GYD {experience.price_from.toLocaleString()} per person
-                    </p>
-                  )}
-                  {experience.profiles && (
-                    <p className="text-sm text-gray-500 mt-2">
-                      Operator: {experience.profiles.name} ({experience.profiles.email})
-                    </p>
-                  )}
-                  {!experience.operator_id && (
-                    <p className="text-sm text-orange-600 mt-2">
-                      No operator (admin-created)
-                    </p>
-                  )}
                 </div>
-
-                <div className="flex flex-col gap-2 lg:ml-4 w-full lg:w-auto">
-                  <AdminTourismActions
-                    experienceId={experience.id}
-                    isApproved={experience.is_approved || false}
-                    isFeatured={experience.is_featured || false}
-                  />
-                </div>
+              ))
+            ) : (
+              <div className="p-12 text-center">
+                <Compass className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-slate-900 mb-1">No experiences found</h3>
+                <p className="text-slate-500">
+                  {hasActiveFilters
+                    ? 'Try adjusting your filters or search query'
+                    : 'Tourism experiences created by operators will appear here'}
+                </p>
               </div>
-            </div>
-          ))
-        ) : (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <p className="text-gray-500 text-lg mb-4">No tourism experiences found</p>
-            <p className="text-sm text-gray-400">
-              Tourism experiences are created by operators via their dashboard
-            </p>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

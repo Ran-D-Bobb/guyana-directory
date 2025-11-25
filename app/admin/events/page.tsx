@@ -1,21 +1,40 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import { isAdmin } from '@/lib/admin'
 import Link from 'next/link'
-import { ChevronLeft, Calendar, Star } from 'lucide-react'
-import { AdminEventActions } from '@/components/AdminEventActions'
+import {
+  Calendar,
+  Eye,
+  TrendingUp,
+  Sparkles,
+  Building2,
+  ExternalLink,
+  MapPin,
+  CalendarDays
+} from 'lucide-react'
+import { AdminHeader } from '@/components/admin/AdminHeader'
+import { AdminStatCard } from '@/components/admin/AdminStatCard'
+import { EventActions } from '@/components/admin/AdminActionButtons'
+import { cn } from '@/lib/utils'
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+}
+
+function getEventStatus(startDate: string, endDate: string) {
+  const now = new Date()
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+
+  if (now < start) return { label: 'Upcoming', variant: 'purple' as const }
+  if (now > end) return { label: 'Past', variant: 'slate' as const }
+  return { label: 'Ongoing', variant: 'emerald' as const }
+}
 
 export default async function AdminEventsPage() {
   const supabase = await createClient()
-
-  // Check if user is authenticated
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user || !isAdmin(user)) {
-    redirect('/')
-  }
 
   // Fetch all general events
   const { data: generalEvents } = await supabase
@@ -23,7 +42,7 @@ export default async function AdminEventsPage() {
     .select(`
       *,
       event_categories:category_id (name),
-      businesses!business_id (name)
+      businesses!business_id (name, slug)
     `)
     .order('created_at', { ascending: false })
 
@@ -33,7 +52,7 @@ export default async function AdminEventsPage() {
     .select(`
       *,
       business_event_types!event_type_id (name),
-      businesses!business_id (name)
+      businesses!business_id (name, slug)
     `)
     .order('created_at', { ascending: false })
 
@@ -41,265 +60,277 @@ export default async function AdminEventsPage() {
   const now = new Date().toISOString()
   const upcomingGeneralEvents = generalEvents?.filter(e => e.start_date > now).length || 0
   const upcomingBusinessEvents = businessEvents?.filter(e => e.start_date > now).length || 0
-  const featuredGeneralEvents = generalEvents?.filter(e => e.is_featured).length || 0
+  const totalViews = (generalEvents?.reduce((sum, e) => sum + (e.view_count || 0), 0) || 0)
+  const totalInterests = (generalEvents?.reduce((sum, e) => sum + (e.interest_count || 0), 0) || 0)
+
+  const statusVariants = {
+    purple: 'bg-purple-100 text-purple-700',
+    emerald: 'bg-emerald-100 text-emerald-700',
+    slate: 'bg-slate-100 text-slate-600',
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-2 text-purple-100 hover:text-white mb-4"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            Back to Admin Dashboard
-          </Link>
-          <div className="flex items-center gap-3 mb-2">
-            <Calendar className="w-8 h-8" />
-            <h1 className="text-4xl font-bold">Events Management</h1>
-          </div>
-          <p className="text-purple-100 text-lg">
-            Manage community events and business promotional offers
-          </p>
+    <div className="min-h-screen">
+      <AdminHeader
+        title="Events"
+        subtitle="Manage community events and business promotions"
+      />
+
+      <div className="px-4 lg:px-8 py-6 space-y-6">
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <AdminStatCard
+            label="General Events"
+            value={generalEvents?.length || 0}
+            icon="Calendar"
+            color="purple"
+            size="sm"
+          />
+          <AdminStatCard
+            label="Business Events"
+            value={businessEvents?.length || 0}
+            icon="Building2"
+            color="blue"
+            size="sm"
+          />
+          <AdminStatCard
+            label="Upcoming"
+            value={upcomingGeneralEvents + upcomingBusinessEvents}
+            icon="CalendarClock"
+            color="emerald"
+            size="sm"
+          />
+          <AdminStatCard
+            label="Total Views"
+            value={totalViews}
+            icon="Eye"
+            color="cyan"
+            size="sm"
+          />
+          <AdminStatCard
+            label="Interested"
+            value={totalInterests}
+            icon="TrendingUp"
+            color="pink"
+            size="sm"
+          />
         </div>
-      </header>
 
-      {/* Stats */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-purple-50 rounded-lg p-4">
-              <div className="text-2xl font-bold text-purple-600">
-                {generalEvents?.length || 0}
-              </div>
-              <div className="text-sm text-gray-600">General Events</div>
-            </div>
-            <div className="bg-blue-50 rounded-lg p-4">
-              <div className="text-2xl font-bold text-blue-600">
-                {businessEvents?.length || 0}
-              </div>
-              <div className="text-sm text-gray-600">Business Events</div>
-            </div>
-            <div className="bg-green-50 rounded-lg p-4">
-              <div className="text-2xl font-bold text-green-600">
-                {upcomingGeneralEvents + upcomingBusinessEvents}
-              </div>
-              <div className="text-sm text-gray-600">Upcoming</div>
-            </div>
-            <div className="bg-amber-50 rounded-lg p-4">
-              <div className="text-2xl font-bold text-amber-600">
-                {featuredGeneralEvents}
-              </div>
-              <div className="text-sm text-gray-600">Featured Events</div>
-            </div>
+        {/* General Events Section */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <Calendar className="text-purple-600" size={20} />
+              General Events
+              <span className="text-sm font-normal text-slate-500">({generalEvents?.length || 0})</span>
+            </h2>
           </div>
-        </div>
-      </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* General Events */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            General Events ({generalEvents?.length || 0})
-          </h2>
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            {generalEvents && generalEvents.length > 0 ? (
+              <div className="divide-y divide-slate-100">
+                {generalEvents.map((event) => {
+                  const status = getEventStatus(event.start_date, event.end_date)
+                  return (
+                    <div
+                      key={event.id}
+                      className="p-4 hover:bg-slate-50/50 transition-colors"
+                    >
+                      <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                        {/* Date Badge */}
+                        <div className="flex-shrink-0 w-16 h-16 bg-purple-50 rounded-xl flex flex-col items-center justify-center border border-purple-100">
+                          <span className="text-xs font-medium text-purple-600 uppercase">
+                            {new Date(event.start_date).toLocaleDateString('en-US', { month: 'short' })}
+                          </span>
+                          <span className="text-2xl font-bold text-purple-700">
+                            {new Date(event.start_date).getDate()}
+                          </span>
+                        </div>
 
-          {generalEvents && generalEvents.length > 0 ? (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Event
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Organizer
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {generalEvents.map((event) => {
-                    const startDate = new Date(event.start_date)
-                    const endDate = new Date(event.end_date)
-                    const isUpcoming = startDate > new Date()
-                    const isPast = endDate < new Date()
+                        {/* Main Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-start gap-2 mb-2">
+                            <Link
+                              href={`/events/${event.slug}`}
+                              target="_blank"
+                              className="group text-lg font-semibold text-slate-900 hover:text-purple-600 transition-colors inline-flex items-center gap-1.5"
+                            >
+                              {event.title}
+                              <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </Link>
 
-                    return (
-                      <tr key={event.id}>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {event.title}
-                              </div>
-                              {event.event_categories && (
-                                <div className="text-sm text-gray-500">
-                                  {event.event_categories.name}
-                                </div>
+                            {/* Badges */}
+                            <div className="flex flex-wrap gap-1.5">
+                              <span className={cn(
+                                'inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full',
+                                statusVariants[status.variant]
+                              )}>
+                                {status.label}
+                              </span>
+                              {event.is_featured && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                                  <Sparkles size={12} />
+                                  Featured
+                                </span>
                               )}
                             </div>
-                            {event.is_featured && (
-                              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                          </div>
+
+                          {/* Meta Info */}
+                          <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-2">
+                            {event.event_categories && (
+                              <span className="inline-flex items-center gap-1.5">
+                                <Calendar size={14} className="text-slate-400" />
+                                {event.event_categories.name}
+                              </span>
+                            )}
+                            <span className="inline-flex items-center gap-1.5">
+                              <CalendarDays size={14} className="text-slate-400" />
+                              {formatDate(event.start_date)} - {formatDate(event.end_date)}
+                            </span>
+                            {event.location && (
+                              <span className="inline-flex items-center gap-1.5">
+                                <MapPin size={14} className="text-slate-400" />
+                                {event.location}
+                              </span>
                             )}
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">
-                            User Event
+
+                          {/* Stats Row */}
+                          <div className="flex flex-wrap items-center gap-4 text-sm">
+                            <span className="inline-flex items-center gap-1.5 text-slate-500">
+                              <Eye size={14} className="text-slate-400" />
+                              <span className="font-medium text-slate-700">{event.view_count || 0}</span>
+                              views
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 text-slate-500">
+                              <TrendingUp size={14} className="text-slate-400" />
+                              <span className="font-medium text-slate-700">{event.interest_count || 0}</span>
+                              interested
+                            </span>
                           </div>
-                          {event.businesses && (
-                            <div className="text-sm text-gray-500">
-                              {event.businesses.name}
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {startDate.toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          {isUpcoming && (
-                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                              Upcoming
-                            </span>
-                          )}
-                          {isPast && (
-                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                              Past
-                            </span>
-                          )}
-                          {!isUpcoming && !isPast && (
-                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                              Ongoing
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm font-medium">
-                          <AdminEventActions
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
+                          <EventActions
                             eventId={event.id}
-                            isFeatured={event.is_featured ?? false}
                             eventType="general"
+                            isFeatured={event.is_featured ?? false}
                           />
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-              <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No general events found</p>
-            </div>
-          )}
-        </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="p-12 text-center">
+                <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-slate-900 mb-1">No general events</h3>
+                <p className="text-slate-500">Events will appear here once created</p>
+              </div>
+            )}
+          </div>
+        </section>
 
-        {/* Business Events */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Business Events ({businessEvents?.length || 0})
-          </h2>
+        {/* Business Events Section */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <Building2 className="text-blue-600" size={20} />
+              Business Events
+              <span className="text-sm font-normal text-slate-500">({businessEvents?.length || 0})</span>
+            </h2>
+          </div>
 
-          {businessEvents && businessEvents.length > 0 ? (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Event
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Business
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {businessEvents.map((event) => {
-                    const startDate = new Date(event.start_date)
-                    const endDate = new Date(event.end_date)
-                    const isUpcoming = startDate > new Date()
-                    const isPast = endDate < new Date()
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            {businessEvents && businessEvents.length > 0 ? (
+              <div className="divide-y divide-slate-100">
+                {businessEvents.map((event) => {
+                  const status = getEventStatus(event.start_date, event.end_date)
+                  return (
+                    <div
+                      key={event.id}
+                      className="p-4 hover:bg-slate-50/50 transition-colors"
+                    >
+                      <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                        {/* Date Badge */}
+                        <div className="flex-shrink-0 w-16 h-16 bg-blue-50 rounded-xl flex flex-col items-center justify-center border border-blue-100">
+                          <span className="text-xs font-medium text-blue-600 uppercase">
+                            {new Date(event.start_date).toLocaleDateString('en-US', { month: 'short' })}
+                          </span>
+                          <span className="text-2xl font-bold text-blue-700">
+                            {new Date(event.start_date).getDate()}
+                          </span>
+                        </div>
 
-                    return (
-                      <tr key={event.id}>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {event.title}
-                              </div>
-                              {event.business_event_types && (
-                                <div className="text-sm text-gray-500">
-                                  {event.business_event_types.name}
-                                </div>
-                              )}
+                        {/* Main Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-start gap-2 mb-2">
+                            <span className="text-lg font-semibold text-slate-900">
+                              {event.title}
+                            </span>
+
+                            {/* Badges */}
+                            <div className="flex flex-wrap gap-1.5">
+                              <span className={cn(
+                                'inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full',
+                                statusVariants[status.variant]
+                              )}>
+                                {status.label}
+                              </span>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">
-                            {event.businesses?.name || 'Unknown'}
+
+                          {/* Meta Info */}
+                          <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-2">
+                            {event.business_event_types && (
+                              <span className="inline-flex items-center gap-1.5">
+                                <Calendar size={14} className="text-slate-400" />
+                                {event.business_event_types.name}
+                              </span>
+                            )}
+                            {event.businesses && (
+                              <Link
+                                href={`/businesses/${event.businesses.slug}`}
+                                target="_blank"
+                                className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700"
+                              >
+                                <Building2 size={14} />
+                                {event.businesses.name}
+                              </Link>
+                            )}
+                            <span className="inline-flex items-center gap-1.5">
+                              <CalendarDays size={14} className="text-slate-400" />
+                              {formatDate(event.start_date)} - {formatDate(event.end_date)}
+                            </span>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {startDate.toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          {isUpcoming && (
-                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                              Upcoming
-                            </span>
-                          )}
-                          {isPast && (
-                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                              Past
-                            </span>
-                          )}
-                          {!isUpcoming && !isPast && (
-                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                              Ongoing
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm font-medium">
-                          <AdminEventActions
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
+                          <EventActions
                             eventId={event.id}
-                            isFeatured={false}
                             eventType="business"
+                            isFeatured={false}
                           />
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-              <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No business events found</p>
-            </div>
-          )}
-        </div>
-      </main>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="p-12 text-center">
+                <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-slate-900 mb-1">No business events</h3>
+                <p className="text-slate-500">Business events and promotions will appear here</p>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   )
 }
