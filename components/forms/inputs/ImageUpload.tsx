@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Upload, X, AlertCircle, Image as ImageIcon } from 'lucide-react'
+import { Upload, X, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
@@ -23,7 +23,6 @@ interface ImageUploadProps {
 export function ImageUpload({
   label,
   name,
-  value,
   onChange,
   preview,
   maxSize = 5,

@@ -12,11 +12,11 @@ interface FormStepProps {
 
 export function FormStep({
   title,
-  description,
   children,
   isActive,
   direction = 'forward',
 }: FormStepProps) {
+  // title is used as key for animation
   const variants = {
     enter: (direction: string) => ({
       x: direction === 'forward' ? 20 : -20,

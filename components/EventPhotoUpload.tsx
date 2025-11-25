@@ -21,7 +21,6 @@ export function EventPhotoUpload({
   disabled = false
 }: EventPhotoUploadProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(currentImageUrl || null)
-  const [imageFile, setImageFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null)
   const [isUploading, setIsUploading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -44,7 +43,6 @@ export function EventPhotoUpload({
     }
 
     setError(null)
-    setImageFile(file)
 
     // Create preview URL
     const preview = URL.createObjectURL(file)
@@ -149,7 +147,6 @@ export function EventPhotoUpload({
 
       setImageUrl(null)
       setPreviewUrl(null)
-      setImageFile(null)
 
       if (onImageChange) {
         onImageChange(null)
@@ -167,7 +164,6 @@ export function EventPhotoUpload({
 
   const handleRemovePreview = () => {
     setPreviewUrl(null)
-    setImageFile(null)
     if (onImageFileChange) {
       onImageFileChange(null)
     }

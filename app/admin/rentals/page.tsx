@@ -224,7 +224,6 @@ export default async function AdminRentalsPage({
                       isFlagged={rental.is_flagged ?? false}
                       flagCount={rental.flag_count ?? 0}
                       flagReasons={rental.flag_reasons as string[] | null}
-                      onUpdate={() => window.location.reload()}
                     />
                   </div>
                 </div>
@@ -392,7 +391,6 @@ export default async function AdminRentalsPage({
                       isFlagged={rental.is_flagged ?? false}
                       flagCount={rental.flag_count ?? 0}
                       flagReasons={rental.flag_reasons as string[] | null}
-                      onUpdate={() => window.location.reload()}
                     />
                   </div>
                 </div>

@@ -7,7 +7,7 @@ interface LocationStepProps {
     location?: string
     business_id?: string
   }
-  updateFormData: (data: any) => void
+  updateFormData: (data: Partial<LocationStepProps['formData']>) => void
   errors: Record<string, string>
   userBusinesses: Array<{
     id: string
@@ -58,7 +58,7 @@ export function LocationStep({
           <p className="text-sm text-red-600 mt-1">{errors.location}</p>
         )}
         <p className="text-sm text-gray-500 mt-1">
-          Provide a specific address, venue name, or indicate if it's an online event
+          Provide a specific address, venue name, or indicate if it&apos;s an online event
         </p>
       </div>
 
@@ -98,7 +98,7 @@ export function LocationStep({
       {userBusinesses.length === 0 && (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
           <p className="text-sm text-gray-600">
-            You don't have any businesses yet. If you'd like to link events to a business, you can create one from your dashboard.
+            You don&apos;t have any businesses yet. If you&apos;d like to link events to a business, you can create one from your dashboard.
           </p>
         </div>
       )}

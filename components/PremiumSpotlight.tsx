@@ -23,8 +23,11 @@ type SpotlightItem = {
 export function PremiumSpotlight({ items }: { items: SpotlightItem[] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
-  const [touchStart, setTouchStart] = useState<number | null>(null)
-  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  const [touchStartY, setTouchStartY] = useState<number | null>(null)
+  const [touchEndX, setTouchEndX] = useState<number | null>(null)
+  const [isHorizontalSwipe, setIsHorizontalSwipe] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
 
   // Minimum swipe distance (in px) to trigger navigation
   const minSwipeDistance = 50
@@ -40,20 +43,43 @@ export function PremiumSpotlight({ items }: { items: SpotlightItem[] }) {
     return () => clearInterval(interval)
   }, [isPaused, items.length])
 
+  // Reset image loaded state when changing slides
+  useEffect(() => {
+    setImageLoaded(false)
+  }, [currentIndex])
+
   // Touch event handlers for swipe functionality
   const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientX)
+    setTouchEndX(null)
+    setTouchStartX(e.targetTouches[0].clientX)
+    setTouchStartY(e.targetTouches[0].clientY)
+    setIsHorizontalSwipe(false)
   }
 
   const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
+    if (!touchStartX || !touchStartY) return
+
+    const currentX = e.targetTouches[0].clientX
+    const currentY = e.targetTouches[0].clientY
+    const diffX = Math.abs(currentX - touchStartX)
+    const diffY = Math.abs(currentY - touchStartY)
+
+    // Determine if this is a horizontal swipe (more X movement than Y)
+    if (!isHorizontalSwipe && diffX > 10 && diffX > diffY) {
+      setIsHorizontalSwipe(true)
+    }
+
+    // Only prevent default and track if horizontal swipe
+    if (isHorizontalSwipe || diffX > diffY * 1.5) {
+      e.preventDefault()
+      setTouchEndX(currentX)
+    }
   }
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
+    if (!touchStartX || !touchEndX) return
 
-    const distance = touchStart - touchEnd
+    const distance = touchStartX - touchEndX
     const isLeftSwipe = distance > minSwipeDistance
     const isRightSwipe = distance < -minSwipeDistance
 
@@ -63,6 +89,12 @@ export function PremiumSpotlight({ items }: { items: SpotlightItem[] }) {
     if (isRightSwipe) {
       handlePrevious()
     }
+
+    // Reset states
+    setTouchStartX(null)
+    setTouchStartY(null)
+    setTouchEndX(null)
+    setIsHorizontalSwipe(false)
   }
 
   if (!items || items.length === 0) return null
@@ -133,13 +165,18 @@ export function PremiumSpotlight({ items }: { items: SpotlightItem[] }) {
     >
       {/* Background Image with Ken Burns Effect */}
       <div className="absolute inset-0">
+        {/* Show loading skeleton while image loads */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 animate-pulse" />
+        )}
         <Image
           src={current.image_url || '/placeholder-business.jpg'}
           alt={current.name}
           fill
-          className="object-cover animate-ken-burns"
+          className={`object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-100 animate-ken-burns' : 'opacity-0'}`}
           priority
           sizes="100vw"
+          onLoad={() => setImageLoaded(true)}
         />
         {/* Dark Gradient Overlay - Enhanced for mobile readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/30 md:from-black/80 md:via-black/50 md:to-transparent" />

@@ -143,24 +143,24 @@ export default async function AdminBusinessesPage({
               key={business.id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4 gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-start gap-2 mb-2">
                     <Link
                       href={`/businesses/${business.slug}`}
-                      className="text-xl font-bold text-gray-900 hover:text-emerald-600"
+                      className="text-lg lg:text-xl font-bold text-gray-900 hover:text-emerald-600 break-words"
                       target="_blank"
                     >
                       {business.name}
                     </Link>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {business.is_verified && (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded whitespace-nowrap">
                           Verified
                         </span>
                       )}
                       {business.is_featured && (
-                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded whitespace-nowrap">
                           Featured
                         </span>
                       )}
@@ -201,10 +201,10 @@ export default async function AdminBusinessesPage({
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2 ml-4">
+                <div className="flex flex-row lg:flex-col gap-2 lg:ml-4 w-full lg:w-auto">
                   <Link
                     href={`/admin/businesses/${business.id}/edit`}
-                    className="flex items-center gap-2 bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                    className="flex items-center justify-center gap-2 bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm flex-1 lg:flex-initial"
                   >
                     <Edit size={16} />
                     Edit

@@ -220,3 +220,18 @@ html, body {
   height: 100%;
   overflow-x: hidden;
 }
+
+/* Fix form input text color - ensure text is always visible */
+input, textarea, select {
+  color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+input::placeholder, textarea::placeholder {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+/* Fix select option text */
+select option {
+  color: rgb(17, 24, 39);
+  background-color: white;
+}

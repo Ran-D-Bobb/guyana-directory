@@ -32,7 +32,7 @@ interface AdminRentalActionsProps {
   isFlagged: boolean
   flagCount: number
   flagReasons?: string[] | null
-  onUpdate: () => void
+  onUpdate?: () => void
 }
 
 export default function AdminRentalActions({
@@ -57,7 +57,8 @@ export default function AdminRentalActions({
         .eq('id', rentalId)
 
       if (error) throw error
-      onUpdate()
+      if (onUpdate) onUpdate()
+      else window.location.reload()
     } catch (error) {
       console.error('Error toggling featured status:', error)
       alert('Failed to update featured status')
@@ -75,7 +76,8 @@ export default function AdminRentalActions({
         .eq('id', rentalId)
 
       if (error) throw error
-      onUpdate()
+      if (onUpdate) onUpdate()
+      else window.location.reload()
     } catch (error) {
       console.error('Error toggling approved status:', error)
       alert('Failed to update approved status')
@@ -97,7 +99,8 @@ export default function AdminRentalActions({
         .eq('id', rentalId)
 
       if (error) throw error
-      onUpdate()
+      if (onUpdate) onUpdate()
+      else window.location.reload()
     } catch (error) {
       console.error('Error dismissing flags:', error)
       alert('Failed to dismiss flags')
@@ -116,7 +119,8 @@ export default function AdminRentalActions({
         .eq('id', rentalId)
 
       if (error) throw error
-      onUpdate()
+      if (onUpdate) onUpdate()
+      else window.location.reload()
     } catch (error) {
       console.error('Error deleting rental:', error)
       alert('Failed to delete rental')

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { MapPin, Maximize2, Info } from 'lucide-react'
+import Image from 'next/image'
 
 interface MapPreviewProps {
   latitude: number
@@ -26,9 +27,7 @@ export function MapPreview({
   const [mapImageUrl, setMapImageUrl] = useState<string>('')
   const [isDragging, setIsDragging] = useState(false)
   const [markerPosition, setMarkerPosition] = useState({ x: 50, y: 50 }) // Percentage
-  const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
-  const markerRef = useRef<HTMLDivElement>(null)
 
   // Generate static map image URL
   useEffect(() => {
@@ -46,63 +45,56 @@ export function MapPreview({
     if (!draggable) return
     e.preventDefault()
     setIsDragging(true)
-    setDragStartPos({ x: e.clientX, y: e.clientY })
-  }
-
-  // Handle marker drag
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging || !containerRef.current || !draggable) return
-
-    const container = containerRef.current.getBoundingClientRect()
-    const x = ((e.clientX - container.left) / container.width) * 100
-    const y = ((e.clientY - container.top) / container.height) * 100
-
-    // Constrain within bounds
-    const clampedX = Math.max(0, Math.min(100, x))
-    const clampedY = Math.max(0, Math.min(100, y))
-
-    setMarkerPosition({ x: clampedX, y: clampedY })
-  }
-
-  // Handle marker drag end
-  const handleMouseUp = () => {
-    if (!isDragging || !draggable) return
-    setIsDragging(false)
-
-    // Calculate new lat/lon based on marker position
-    // This is an approximation - for production, you'd want to do proper map projection math
-    if (containerRef.current && onLocationChange) {
-      const deltaX = (markerPosition.x - 50) / 50 // -1 to 1
-      const deltaY = (50 - markerPosition.y) / 50 // -1 to 1 (inverted Y)
-
-      // Approximate degrees per pixel based on zoom level
-      // This is a simplified calculation
-      const metersPerPixel = (156543.03392 * Math.cos((latitude * Math.PI) / 180)) / Math.pow(2, zoom)
-      const containerWidth = containerRef.current.offsetWidth
-      const degreesPerPixel = metersPerPixel / 111320 // meters per degree
-
-      const pixelDeltaX = (deltaX * containerWidth) / 2
-      const pixelDeltaY = (deltaY * containerRef.current.offsetHeight) / 2
-
-      const newLon = longitude + pixelDeltaX * degreesPerPixel
-      const newLat = latitude + pixelDeltaY * degreesPerPixel
-
-      onLocationChange(newLat, newLon)
-    }
   }
 
   // Add and remove event listeners for dragging
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove)
-      window.addEventListener('mouseup', handleMouseUp)
+      const moveHandler = (e: MouseEvent) => {
+        if (!containerRef.current || !draggable) return
+
+        const container = containerRef.current.getBoundingClientRect()
+        const x = ((e.clientX - container.left) / container.width) * 100
+        const y = ((e.clientY - container.top) / container.height) * 100
+
+        // Constrain within bounds
+        const clampedX = Math.max(0, Math.min(100, x))
+        const clampedY = Math.max(0, Math.min(100, y))
+
+        setMarkerPosition({ x: clampedX, y: clampedY })
+      }
+
+      const upHandler = () => {
+        setIsDragging(false)
+
+        // Calculate new lat/lon based on marker position
+        if (containerRef.current && onLocationChange) {
+          const deltaX = (markerPosition.x - 50) / 50
+          const deltaY = (50 - markerPosition.y) / 50
+
+          const metersPerPixel = (156543.03392 * Math.cos((latitude * Math.PI) / 180)) / Math.pow(2, zoom)
+          const containerWidth = containerRef.current.offsetWidth
+          const degreesPerPixel = metersPerPixel / 111320
+
+          const pixelDeltaX = (deltaX * containerWidth) / 2
+          const pixelDeltaY = (deltaY * containerRef.current.offsetHeight) / 2
+
+          const newLon = longitude + pixelDeltaX * degreesPerPixel
+          const newLat = latitude + pixelDeltaY * degreesPerPixel
+
+          onLocationChange(newLat, newLon)
+        }
+      }
+
+      window.addEventListener('mousemove', moveHandler)
+      window.addEventListener('mouseup', upHandler)
 
       return () => {
-        window.removeEventListener('mousemove', handleMouseMove)
-        window.removeEventListener('mouseup', handleMouseUp)
+        window.removeEventListener('mousemove', moveHandler)
+        window.removeEventListener('mouseup', upHandler)
       }
     }
-  }, [isDragging, markerPosition])
+  }, [isDragging, markerPosition, draggable, latitude, longitude, zoom, onLocationChange])
 
   // Open in Google Maps
   const handleOpenInGoogleMaps = () => {
@@ -133,11 +125,13 @@ export function MapPreview({
       >
         {/* Map image */}
         {mapImageUrl ? (
-          <img
+          <Image
             src={mapImageUrl}
             alt="Location map"
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
             draggable={false}
+            unoptimized
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
@@ -151,7 +145,6 @@ export function MapPreview({
         {/* Draggable marker overlay */}
         {draggable && mapImageUrl && (
           <div
-            ref={markerRef}
             className={cn(
               'absolute -translate-x-1/2 -translate-y-full cursor-grab active:cursor-grabbing',
               'transition-all duration-150',

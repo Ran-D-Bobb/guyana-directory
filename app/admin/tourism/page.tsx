@@ -170,34 +170,34 @@ export default async function AdminTourismPage({
               key={experience.id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4 gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-start gap-2 mb-2">
                     <Link
                       href={`/tourism/${experience.slug}`}
-                      className="text-xl font-bold text-gray-900 hover:text-emerald-600"
+                      className="text-lg lg:text-xl font-bold text-gray-900 hover:text-emerald-600 break-words"
                       target="_blank"
                     >
                       {experience.name}
                     </Link>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {!experience.is_approved && (
-                        <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded font-semibold">
+                        <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded font-semibold whitespace-nowrap">
                           Pending
                         </span>
                       )}
                       {experience.is_approved && (
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded whitespace-nowrap">
                           Approved
                         </span>
                       )}
                       {experience.is_featured && (
-                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded whitespace-nowrap">
                           Featured
                         </span>
                       )}
                       {experience.is_verified && (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded whitespace-nowrap">
                           Verified
                         </span>
                       )}
@@ -265,7 +265,7 @@ export default async function AdminTourismPage({
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2 ml-4">
+                <div className="flex flex-col gap-2 lg:ml-4 w-full lg:w-auto">
                   <AdminTourismActions
                     experienceId={experience.id}
                     isApproved={experience.is_approved || false}

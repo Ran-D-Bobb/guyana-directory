@@ -5,6 +5,7 @@ import { StatsBar } from '@/components/StatsBar'
 import { EventCard } from '@/components/EventCard'
 import { ExperienceCard } from '@/components/tourism/ExperienceCard'
 import { RentalCard } from '@/components/RentalCard'
+import { Footer } from '@/components/Footer'
 import Link from 'next/link'
 import { Plane, Home as HomeIcon, Calendar, ArrowRight, Star } from 'lucide-react'
 
@@ -318,60 +319,7 @@ export default async function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-12 md:py-16 px-3 sm:px-4 mt-0">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 mb-6 md:mb-8">
-            {/* Brand */}
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-gray-900 to-black flex items-center justify-center shadow-lg shadow-black/30 border border-gray-700">
-                  <span className="text-2xl font-bold text-white">W</span>
-                </div>
-                <span className="text-3xl font-bold text-white">
-                  Waypoint
-                </span>
-              </div>
-              <p className="text-gray-400 mb-4 max-w-md">
-                Guyana&apos;s premier discovery platform for businesses, tourism experiences, properties, and events.
-              </p>
-              <p className="text-gray-500 text-sm">
-                © 2025 Waypoint. All rights reserved.
-              </p>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="font-bold text-lg mb-4">Discover</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/businesses" className="hover:text-emerald-400 transition-colors">Businesses</Link></li>
-                <li><Link href="/tourism" className="hover:text-emerald-400 transition-colors">Tourism</Link></li>
-                <li><Link href="/rentals" className="hover:text-emerald-400 transition-colors">Rentals</Link></li>
-                <li><Link href="/events" className="hover:text-emerald-400 transition-colors">Events</Link></li>
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div>
-              <h3 className="font-bold text-lg mb-4">Support</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/dashboard/my-business" className="hover:text-emerald-400 transition-colors">List Your Business</Link></li>
-                <li><Link href="/dashboard/my-tourism" className="hover:text-emerald-400 transition-colors">List Your Experience</Link></li>
-                <li><Link href="/dashboard/my-rentals" className="hover:text-emerald-400 transition-colors">List Your Property</Link></li>
-                <li>
-                  <a
-                    href="https://wa.me/5925551234?text=I need help with Waypoint"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-emerald-400 transition-colors"
-                  >
-                    Contact Us
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

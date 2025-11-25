@@ -40,8 +40,6 @@ export function Select({
   const showError = error && isTouched
   const showSuccess = !error && value && isTouched && required
 
-  const selectedOption = options.find(opt => opt.value === value)
-
   const handleBlur = () => {
     setIsTouched(true)
   }

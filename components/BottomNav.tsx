@@ -9,7 +9,7 @@ interface BottomNavProps {
   isAdmin?: boolean
 }
 
-export function BottomNav({ isAdmin }: BottomNavProps) {
+export function BottomNav({}: BottomNavProps) {
   const pathname = usePathname()
 
   // Hide bottom nav on form creation/edit pages for better UX

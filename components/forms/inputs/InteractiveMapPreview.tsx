@@ -48,10 +48,10 @@ function MapContent({
   draggable = true,
   zoom = 15,
 }: InteractiveMapPreviewProps) {
-  const mapRef = useRef<any>(null)
-  const markerRef = useRef<any>(null)
+  const mapRef = useRef<L.Map | null>(null)
+  const markerRef = useRef<L.Marker | null>(null)
   const [currentZoom, setCurrentZoom] = useState(zoom)
-  const [L, setL] = useState<any>(null)
+  const [L, setL] = useState<typeof import('leaflet') | null>(null)
   const mapIdRef = useRef(`leaflet-map-${Math.random().toString(36).substr(2, 9)}`)
 
   // Load Leaflet dynamically
@@ -62,7 +62,8 @@ function MapContent({
       const leaflet = await import('leaflet')
 
       // Fix for default marker icon issue in Next.js
-      delete (leaflet.Icon.Default.prototype as any)._getIconUrl
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (leaflet.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
       leaflet.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
         iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
@@ -131,8 +132,8 @@ function MapContent({
 
     // Handle marker drag
     if (draggable && onLocationChange) {
-      marker.on('dragend', (e: any) => {
-        const position = e.target.getLatLng()
+      marker.on('dragend', (e: L.DragEndEvent) => {
+        const position = (e.target as L.Marker).getLatLng()
         onLocationChange(position.lat, position.lng)
       })
     }
@@ -154,7 +155,7 @@ function MapContent({
 
   // Update marker position when props change
   useEffect(() => {
-    if (markerRef.current && mapRef.current) {
+    if (markerRef.current && mapRef.current && L) {
       const newLatLng = L.latLng(latitude, longitude)
       markerRef.current.setLatLng(newLatLng)
       mapRef.current.setView(newLatLng, currentZoom)

@@ -21,10 +21,8 @@ interface FormNavigationProps {
 export function FormNavigation({
   onBack,
   onNext,
-  onSkip,
   canGoBack,
   canGoNext,
-  canSkip = false,
   isLastStep,
   isSubmitting = false,
   nextLabel = 'Continue',

@@ -18,7 +18,6 @@ interface FormProgressBarProps {
 export function FormProgressBar({
   currentStep,
   totalSteps,
-  steps,
   completedSteps,
   className,
 }: FormProgressBarProps) {

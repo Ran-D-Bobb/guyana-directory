@@ -22,7 +22,6 @@ interface CheckboxGridProps {
 
 export function CheckboxGrid({
   label,
-  name,
   options,
   selected,
   onChange,

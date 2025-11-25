@@ -9,7 +9,7 @@ interface DateTimeStepProps {
     end_date?: string
     end_time?: string
   }
-  updateFormData: (data: any) => void
+  updateFormData: (data: Partial<DateTimeStepProps['formData']>) => void
   errors: Record<string, string>
 }
 

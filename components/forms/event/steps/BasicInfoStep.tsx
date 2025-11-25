@@ -8,7 +8,7 @@ interface BasicInfoStepProps {
     description?: string
     category_id?: string
   }
-  updateFormData: (data: any) => void
+  updateFormData: (data: Partial<BasicInfoStepProps['formData']>) => void
   errors: Record<string, string>
   eventCategories: Array<{
     id: string

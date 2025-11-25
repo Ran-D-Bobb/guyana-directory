@@ -28,7 +28,7 @@ interface MultiStepFormWrapperProps<T> {
   progressSteps?: ProgressStep[]
 }
 
-export function MultiStepFormWrapper<T extends Record<string, any>>({
+export function MultiStepFormWrapper<T extends object>({
   steps,
   initialData,
   onSubmit,
@@ -52,7 +52,6 @@ export function MultiStepFormWrapper<T extends Record<string, any>>({
     isSubmitting,
     isDirty,
     currentStepConfig,
-    isFirstStep,
     isLastStep,
     canGoBack,
     canGoNext,
@@ -62,8 +61,6 @@ export function MultiStepFormWrapper<T extends Record<string, any>>({
     previousStep: prevStep,
     skipStep,
     handleSubmit,
-    saveDraft,
-    setErrors,
   } = useMultiStepForm<T>({
     steps,
     initialData,
@@ -104,13 +101,6 @@ export function MultiStepFormWrapper<T extends Record<string, any>>({
     } else {
       nextStep()
     }
-  }
-
-  // Handle manual draft save
-  const handleSaveDraft = () => {
-    saveDraft()
-    // Show success toast (could integrate with a toast library)
-    console.log('Draft saved successfully')
   }
 
   // Prevent accidental navigation away

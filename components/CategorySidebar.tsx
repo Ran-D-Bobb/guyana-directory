@@ -110,9 +110,14 @@ export function CategorySidebar({ categories, currentCategorySlug }: CategorySid
                   {!isCollapsed && (
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold truncate">{category.name}</div>
-                      {category.business_count !== undefined && (
+                      {category.business_count !== undefined && category.business_count > 0 && (
                         <div className={`text-xs ${isActive ? 'text-white/80' : 'text-gray-500'}`}>
                           {category.business_count} {category.business_count === 1 ? 'business' : 'businesses'}
+                        </div>
+                      )}
+                      {(category.business_count === undefined || category.business_count === 0) && (
+                        <div className={`text-xs ${isActive ? 'text-white/80' : 'text-gray-400'}`}>
+                          No businesses yet
                         </div>
                       )}
                     </div>

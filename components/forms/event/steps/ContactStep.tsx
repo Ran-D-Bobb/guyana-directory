@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { MessageCircle, Mail, Image as ImageIcon, X, Upload } from 'lucide-react'
+import { MessageCircle, Mail, X, Upload, ImageIcon } from 'lucide-react'
+import Image from 'next/image'
 
 interface ContactStepProps {
   formData: {
@@ -9,7 +10,7 @@ interface ContactStepProps {
     email?: string
     image_file?: File | null
   }
-  updateFormData: (data: any) => void
+  updateFormData: (data: Partial<ContactStepProps['formData']>) => void
   errors: Record<string, string>
 }
 
@@ -108,7 +109,7 @@ export function ContactStep({
           <p className="text-sm text-red-600 mt-1">{errors.email}</p>
         )}
         <p className="text-sm text-gray-500 mt-1">
-          Alternative contact method for attendees who don't use WhatsApp
+          Alternative contact method for attendees who don&apos;t use WhatsApp
         </p>
       </div>
 
@@ -147,11 +148,12 @@ export function ContactStep({
             </p>
           </div>
         ) : (
-          <div className="relative">
-            <img
+          <div className="relative w-full h-64">
+            <Image
               src={imagePreview || ''}
               alt="Event preview"
-              className="w-full h-64 object-cover rounded-lg"
+              fill
+              className="object-cover rounded-lg"
             />
             <button
               type="button"
