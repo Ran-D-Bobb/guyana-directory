@@ -21,16 +21,7 @@ export default function LocationStep({
   regions
 }: LocationStepProps) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          Where is your property located?
-        </h2>
-        <p className="text-base text-gray-600">
-          Help renters find your property easily
-        </p>
-      </div>
-
+    <div className="space-y-5">
       {/* Region Selection */}
       <Select
         label="Region"

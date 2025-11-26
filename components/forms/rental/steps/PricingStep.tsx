@@ -35,16 +35,7 @@ export default function PricingStep({
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          Pricing
-        </h2>
-        <p className="text-base text-gray-600">
-          Set your rental rates in GYD (Guyanese Dollars)
-        </p>
-      </div>
-
+    <div className="space-y-5">
       {/* Pricing Grid */}
       <div className="space-y-4">
         {/* Price per Night */}

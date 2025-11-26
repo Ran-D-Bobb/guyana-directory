@@ -65,13 +65,13 @@ export function AuthButton({ user }: AuthButtonProps) {
           </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 p-2">
+      <DropdownMenuContent align="end" className="w-64 p-3 bg-white border border-gray-200 shadow-xl">
         <DropdownMenuItem
           onClick={() => handleSignIn('google')}
           disabled={isLoading}
-          className="group cursor-pointer flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-gradient-to-r hover:from-blue-50 hover:to-red-50 dark:hover:from-blue-950/30 dark:hover:to-red-950/30 focus:bg-gradient-to-r focus:from-blue-50 focus:to-red-50"
+          className="group cursor-pointer flex items-center gap-3 p-3 rounded-xl transition-all bg-gray-50 hover:bg-gray-100 focus:bg-gray-100 border border-gray-200"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm group-hover:shadow-md transition-shadow border border-gray-200">
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
@@ -92,24 +92,24 @@ export function AuthButton({ user }: AuthButtonProps) {
             </svg>
           </div>
           <div className="flex flex-col">
-            <span className="font-medium text-sm">Continue with Google</span>
-            <span className="text-xs text-muted-foreground">Fast & secure</span>
+            <span className="font-semibold text-sm text-gray-900">Continue with Google</span>
+            <span className="text-xs text-gray-600">Fast & secure</span>
           </div>
         </DropdownMenuItem>
 
         <DropdownMenuItem
           onClick={() => handleSignIn('facebook')}
           disabled={true}
-          className="group cursor-not-allowed opacity-50 flex items-center gap-3 p-3 rounded-lg mt-1"
+          className="group cursor-not-allowed flex items-center gap-3 p-3 rounded-xl mt-2 bg-gray-100 border border-gray-200"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1877F2] shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1877F2]/70 shadow-sm">
             <svg className="h-5 w-5" fill="white" viewBox="0 0 24 24">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
             </svg>
           </div>
           <div className="flex flex-col">
-            <span className="font-medium text-sm">Continue with Facebook</span>
-            <span className="text-xs text-muted-foreground">Coming soon</span>
+            <span className="font-medium text-sm text-gray-500">Continue with Facebook</span>
+            <span className="text-xs text-gray-400">Coming soon</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -26,16 +26,7 @@ export function PricingStep({
   onChange,
 }: PricingStepProps) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          Pricing
-        </h2>
-        <p className="text-base text-gray-600">
-          Set your pricing and what&apos;s included
-        </p>
-      </div>
-
+    <div className="space-y-5">
       {/* Price and Currency */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">

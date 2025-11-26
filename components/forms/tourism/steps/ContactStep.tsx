@@ -22,16 +22,7 @@ export function ContactStep({
   onChange,
 }: ContactStepProps) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          Contact Information
-        </h2>
-        <p className="text-base text-gray-600">
-          How can international tourists reach you?
-        </p>
-      </div>
-
+    <div className="space-y-5">
       {/* Operator Name */}
       <TextInput
         label="Company/Operator Name"

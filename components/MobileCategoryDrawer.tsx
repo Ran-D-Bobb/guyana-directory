@@ -72,7 +72,7 @@ export function MobileCategoryDrawer({ categories, currentCategorySlug }: Mobile
         <div className="overflow-y-auto px-4 py-4" style={{ maxHeight: 'calc(85vh - 120px)' }}>
           {/* All Categories */}
           <Link
-            href="/"
+            href="/businesses"
             onClick={() => setIsOpen(false)}
             className={`flex items-center gap-4 px-4 py-3.5 rounded-xl mb-2 transition-all ${
               !currentCategorySlug

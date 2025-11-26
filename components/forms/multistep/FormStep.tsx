@@ -48,7 +48,7 @@ export function FormStep({
           }}
           className="w-full"
         >
-          <div className="space-y-3">{children}</div>
+          {children}
         </motion.div>
       )}
     </AnimatePresence>

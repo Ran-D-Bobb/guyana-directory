@@ -85,9 +85,9 @@ export function MobileRentalFilterSheet({ regions }: MobileRentalFilterSheetProp
   ].filter(Boolean).length
 
   const topAmenities = [
-    { value: 'wifi', label: 'WiFi', icon: Wifi },
-    { value: 'ac', label: 'AC', icon: Wind },
-    { value: 'parking', label: 'Parking', icon: Car },
+    { value: 'WiFi', label: 'WiFi', icon: Wifi },
+    { value: 'Air Conditioning', label: 'AC', icon: Wind },
+    { value: 'Parking', label: 'Parking', icon: Car },
   ]
 
   return (

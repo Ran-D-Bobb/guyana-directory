@@ -32,16 +32,7 @@ export function ExperienceDetailsStep({
   onChange,
 }: ExperienceDetailsStepProps) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          Experience Details
-        </h2>
-        <p className="text-base text-gray-600">
-          Help tourists understand what to expect
-        </p>
-      </div>
-
+    <div className="space-y-5">
       {/* Duration */}
       <TextInput
         label="Duration"

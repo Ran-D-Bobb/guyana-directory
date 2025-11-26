@@ -35,16 +35,7 @@ export default function PropertyTypeStep({
   categories
 }: PropertyTypeStepProps) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          Property Basics
-        </h2>
-        <p className="text-base text-gray-500">
-          Tell us about the type of property you&apos;re listing
-        </p>
-      </div>
-
+    <div className="space-y-5">
       {/* Property Type Selection - Card Grid */}
       <div>
         <label className="block text-sm font-medium text-gray-900 mb-3">

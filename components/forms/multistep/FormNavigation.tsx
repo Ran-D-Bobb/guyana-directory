@@ -24,7 +24,7 @@ export function FormNavigation({
   onNext,
   onSkip,
   canGoBack,
-  canGoNext,
+  canGoNext: _canGoNext,
   canSkip = false,
   isLastStep,
   isSubmitting = false,
@@ -34,6 +34,7 @@ export function FormNavigation({
   skipLabel = 'Skip',
   className,
 }: FormNavigationProps) {
+  void _canGoNext // Keep interface compatibility
   return (
     <footer className={cn(
       'fixed bottom-0 left-0 right-0 z-50',
@@ -85,7 +86,7 @@ export function FormNavigation({
           <button
             type="button"
             onClick={onNext}
-            disabled={!canGoNext || isSubmitting}
+            disabled={isSubmitting}
             className={cn(
               'h-12 w-full rounded-xl text-base font-semibold',
               'bg-emerald-600 text-white',

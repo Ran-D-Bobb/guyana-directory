@@ -323,30 +323,35 @@ export function MultiStepFormWrapper<T extends object>({
             </div>
           )}
 
-          {/* Compact error summary - only shows count, individual errors are inline */}
+          {/* Error summary with specific messages */}
           {Object.keys(errors).length > 0 && (
-            <div className="mb-3 flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-1.5">
-              <AlertCircle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />
-              <span className="text-xs text-red-700">
-                Please fix {Object.keys(errors).length} {Object.keys(errors).length === 1 ? 'error' : 'errors'} below
-              </span>
+            <div className="mb-3 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2 mb-1">
+                <AlertCircle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />
+                <span className="text-xs font-medium text-red-700">
+                  Please fix the following:
+                </span>
+              </div>
+              <ul className="ml-5 space-y-0.5">
+                {Object.values(errors).map((error, index) => (
+                  <li key={index} className="text-xs text-red-600 list-disc">
+                    {error}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
-          {/* Form Steps */}
-          <div className="space-y-3">
-            {steps.map((step, index) => (
-              <FormStep
-                key={step.id}
-                title={step.title}
-                description={step.description}
-                isActive={index === currentStep}
-                direction={direction}
-              >
-                {renderStep(step.id, formData, updateFormData, errors)}
-              </FormStep>
-            ))}
-          </div>
+          {/* Form Steps - Only render active step */}
+          <FormStep
+            key={steps[currentStep]?.id}
+            title={steps[currentStep]?.title || ''}
+            description={steps[currentStep]?.description}
+            isActive={true}
+            direction={direction}
+          >
+            {renderStep(steps[currentStep]?.id || '', formData, updateFormData, errors)}
+          </FormStep>
         </main>
         </div>
 
@@ -403,26 +408,35 @@ export function MultiStepFormWrapper<T extends object>({
           />
         </div>
 
-        {/* Compact error summary */}
+        {/* Error summary with specific messages */}
         {Object.keys(errors).length > 0 && (
-          <div className="mb-4 flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-            <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
-            <span className="text-sm text-red-700">
-              Please fix {Object.keys(errors).length} {Object.keys(errors).length === 1 ? 'error' : 'errors'} to continue
-            </span>
+          <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span className="text-sm font-medium text-red-700">
+                Please fix the following to continue:
+              </span>
+            </div>
+            <ul className="ml-6 space-y-1">
+              {Object.values(errors).map((error, index) => (
+                <li key={index} className="text-sm text-red-600 list-disc">
+                  {error}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
         {/* Form Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           {/* Step Title with Skip option */}
-          <div className="mb-4 flex items-start justify-between">
+          <div className="mb-5 flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-1">
+              <h2 className="text-xl font-bold text-gray-900">
                 {currentStepConfig?.title || 'Form'}
               </h2>
               {currentStepConfig?.description && (
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-500 text-sm mt-1">
                   {currentStepConfig.description}
                 </p>
               )}
@@ -439,20 +453,16 @@ export function MultiStepFormWrapper<T extends object>({
             )}
           </div>
 
-          {/* Form Steps */}
-          <div className="space-y-4">
-            {steps.map((step, index) => (
-              <FormStep
-                key={step.id}
-                title={step.title}
-                description={step.description}
-                isActive={index === currentStep}
-                direction={direction}
-              >
-                {renderStep(step.id, formData, updateFormData, errors)}
-              </FormStep>
-            ))}
-          </div>
+          {/* Form Steps - Only render active step */}
+          <FormStep
+            key={steps[currentStep]?.id}
+            title={steps[currentStep]?.title || ''}
+            description={steps[currentStep]?.description}
+            isActive={true}
+            direction={direction}
+          >
+            {renderStep(steps[currentStep]?.id || '', formData, updateFormData, errors)}
+          </FormStep>
 
           {/* Desktop Navigation */}
           <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-200">
@@ -471,7 +481,7 @@ export function MultiStepFormWrapper<T extends object>({
               <Button
                 type="button"
                 onClick={handleNext}
-                disabled={!canGoNext || isSubmitting}
+                disabled={isSubmitting}
                 size="lg"
                 className="bg-emerald-600 hover:bg-emerald-700"
               >

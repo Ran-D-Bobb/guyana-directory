@@ -61,16 +61,7 @@ export default function AmenitiesStep({
   onChange
 }: AmenitiesStepProps) {
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          Amenities & Features
-        </h2>
-        <p className="text-base text-gray-600">
-          What does your property offer? (All optional)
-        </p>
-      </div>
-
+    <div className="space-y-5">
       {/* Amenities */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-3">

@@ -31,16 +31,7 @@ export function BasicInfoStep({
   categories,
 }: BasicInfoStepProps) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          Basic Information
-        </h2>
-        <p className="text-base text-gray-600">
-          Tell tourists about your experience
-        </p>
-      </div>
-
+    <div className="space-y-5">
       {/* Experience Name */}
       <TextInput
         label="Experience Name"

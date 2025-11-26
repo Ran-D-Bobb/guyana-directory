@@ -20,16 +20,7 @@ export default function PropertyDetailsStep({
   onChange
 }: PropertyDetailsStepProps) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          Property Details
-        </h2>
-        <p className="text-base text-gray-600">
-          Tell us about the size and capacity of your property
-        </p>
-      </div>
-
+    <div className="space-y-5">
       {/* Bedrooms */}
       <NumberStepper
         label="Bedrooms"

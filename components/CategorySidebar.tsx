@@ -63,23 +63,23 @@ export function CategorySidebar({ categories, currentCategorySlug }: CategorySid
           <div className="p-2">
             {/* All Categories Link */}
             <Link
-              href="/"
+              href="/businesses"
               className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all mb-1 group ${
-                pathname === '/'
+                pathname === '/businesses'
                   ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30'
                   : 'hover:bg-gray-100 text-gray-700'
               }`}
             >
               <div className={`flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`}>
                 <HomeIcon
-                  className={`h-5 w-5 ${pathname === '/' ? 'text-white' : 'text-gray-400 group-hover:text-emerald-600'}`}
+                  className={`h-5 w-5 ${pathname === '/businesses' ? 'text-white' : 'text-gray-400 group-hover:text-emerald-600'}`}
                   strokeWidth={2}
                 />
               </div>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold truncate">All Categories</div>
-                  <div className={`text-xs ${pathname === '/' ? 'text-white/80' : 'text-gray-500'}`}>
+                  <div className={`text-xs ${pathname === '/businesses' ? 'text-white/80' : 'text-gray-500'}`}>
                     Browse everything
                   </div>
                 </div>
