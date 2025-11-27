@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { User as UserIcon, Building2, Calendar, Compass, Home, Shield, LogOut, ChevronDown } from 'lucide-react'
+import { User as UserIcon, Building2, Calendar, Compass, Home, Shield, LogOut, ChevronDown, Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -125,6 +125,18 @@ export function UserMenu({ user, isAdmin }: UserMenuProps) {
                 <Calendar className="h-4 w-4 text-gray-500 group-hover:text-purple-600 transition-colors" />
               </div>
               <span className="font-medium text-gray-700 group-hover:text-gray-900">My Events</span>
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild>
+            <Link
+              href="/dashboard/my-interested-events"
+              className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+            >
+              <div className="h-8 w-8 rounded-lg bg-white border border-gray-200 group-hover:border-amber-200 group-hover:bg-amber-50 flex items-center justify-center transition-colors">
+                <Star className="h-4 w-4 text-gray-500 group-hover:text-amber-600 transition-colors" />
+              </div>
+              <span className="font-medium text-gray-700 group-hover:text-gray-900">Interested Events</span>
             </Link>
           </DropdownMenuItem>
 

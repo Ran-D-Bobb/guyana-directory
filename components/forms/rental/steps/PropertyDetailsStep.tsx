@@ -12,31 +12,42 @@ interface PropertyDetailsStepProps {
   }
   errors: Record<string, string>
   onChange: (field: string, value: number | null) => void
+  propertyType?: string
 }
+
+// Property types that don't require bedrooms
+const NO_BEDROOM_TYPES = ['office', 'commercial', 'land']
 
 export default function PropertyDetailsStep({
   formData,
   errors,
-  onChange
+  onChange,
+  propertyType
 }: PropertyDetailsStepProps) {
+  const showBedrooms = !NO_BEDROOM_TYPES.includes(propertyType || '')
+  const showMaxGuests = propertyType !== 'land'
+  const isCommercial = propertyType === 'office' || propertyType === 'commercial'
+
   return (
     <div className="space-y-5">
-      {/* Bedrooms */}
-      <NumberStepper
-        label="Bedrooms"
-        name="bedrooms"
-        value={formData.bedrooms}
-        onChange={(value) => onChange('bedrooms', value)}
-        min={0}
-        max={10}
-        step={1}
-        required
-        error={errors.bedrooms}
-      />
+      {/* Bedrooms - only show for residential properties */}
+      {showBedrooms && (
+        <NumberStepper
+          label="Bedrooms"
+          name="bedrooms"
+          value={formData.bedrooms}
+          onChange={(value) => onChange('bedrooms', value)}
+          min={0}
+          max={10}
+          step={1}
+          required
+          error={errors.bedrooms}
+        />
+      )}
 
       {/* Bathrooms */}
       <NumberStepper
-        label="Bathrooms"
+        label={isCommercial ? "Restrooms" : "Bathrooms"}
         name="bathrooms"
         value={formData.bathrooms}
         onChange={(value) => onChange('bathrooms', value)}
@@ -47,18 +58,20 @@ export default function PropertyDetailsStep({
         error={errors.bathrooms}
       />
 
-      {/* Max Guests */}
-      <NumberStepper
-        label="Maximum Guests"
-        name="max_guests"
-        value={formData.max_guests}
-        onChange={(value) => onChange('max_guests', value)}
-        min={1}
-        max={50}
-        step={1}
-        required
-        error={errors.max_guests}
-      />
+      {/* Max Guests/Capacity - not shown for land */}
+      {showMaxGuests && (
+        <NumberStepper
+          label={isCommercial ? "Maximum Capacity" : "Maximum Guests"}
+          name="max_guests"
+          value={formData.max_guests}
+          onChange={(value) => onChange('max_guests', value)}
+          min={1}
+          max={50}
+          step={1}
+          required
+          error={errors.max_guests}
+        />
+      )}
 
       {/* Square Feet - Optional */}
       <TextInput

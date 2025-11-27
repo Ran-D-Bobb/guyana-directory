@@ -30,7 +30,11 @@ const nextConfig: NextConfig = {
         port: '55321',
         pathname: '/storage/v1/object/public/**',
       },
-      // Add Supabase production storage domain when deploying
+      {
+        protocol: 'https',
+        hostname: 'cgkjhdqyaxkcianuwevp.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
     ],
   },
 };

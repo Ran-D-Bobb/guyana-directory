@@ -192,8 +192,12 @@ html {
 }
 
 /* Fix for iOS Safari bounce scroll */
-html, body {
-  height: 100%;
+html {
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100%;
   overflow-x: hidden;
 }
 

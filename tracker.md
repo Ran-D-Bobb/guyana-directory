@@ -1738,4 +1738,44 @@ All three sections have:
 
 ---
 
+## Bug Fixes (Nov 27, 2024)
+
+### Mobile Scrolling Fix
+- ✅ Fixed page sticking issue when scrolling on mobile devices
+- **Root Cause:** `globals.css` had `height: 100%` on html and body, preventing scroll beyond viewport
+- **Fix:** Changed to `min-height: 100%` for body and removed `height: 100%` from both html and body
+
+### Rentals Form - Office Space Bedrooms Fix
+- ✅ Fixed bedrooms being required for office/commercial/land property types
+- **Files Modified:**
+  - `components/forms/rental/RentalFormSteps.tsx` - Updated validation to skip bedrooms for office/commercial/land
+  - `components/forms/rental/steps/PropertyDetailsStep.tsx` - Conditionally hide bedrooms field, show "Restrooms"/"Maximum Capacity" labels for commercial properties
+
+### Amenities Filter Fix
+- ✅ Fixed amenities filter error in rentals pages
+- **Root Cause:** Filter used proper case ("WiFi", "Air Conditioning") but database had lowercase ("wifi", "ac")
+- **Fix:** Added amenity mapping to handle multiple case variations
+- **Files Modified:**
+  - `app/rentals/page.tsx` - Added amenityMapping object with OR conditions
+  - `app/rentals/category/[slug]/page.tsx` - Same fix applied
+
+### Rental Photos Display Fix
+- ✅ Fixed rental photos not displaying on listing pages
+- **Root Cause:** Missing SELECT policy on `rental_photos` table - the fix migration dropped the original policy
+- **Fix:** Created migration `20251127140000_fix_rental_photos_select_policy.sql` to restore the SELECT policy
+- **Note:** Run `supabase migration up` to apply this fix
+
+### My Interested Events Page
+- ✅ Created dedicated page for viewing interested events
+- **New Page:** `/dashboard/my-interested-events`
+  - Header with back button and event count
+  - Separate sections for Upcoming and Past events
+  - Uses EventCard component for consistent display
+  - Empty state with CTA to browse events
+- ✅ Added "Interested Events" link to UserMenu
+  - Star icon with amber hover color
+  - Appears between "My Events" and "My Tourism"
+
+---
+
 

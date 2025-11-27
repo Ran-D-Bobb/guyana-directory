@@ -108,12 +108,35 @@ export default async function RentalsPage({
   if (params.amenities) {
     const selectedAmenities = params.amenities.split(',').filter(Boolean)
 
-    // The amenities field is a JSONB array, so we need to check if all selected amenities exist
-    // Use contains operator for JSONB array matching
-    selectedAmenities.forEach(amenity => {
-      // Match the amenity value in the JSONB array (case-insensitive)
-      query = query.contains('amenities', [amenity])
-    })
+    // Map UI filter values to the lowercase database values
+    const amenityToDbValue: Record<string, string> = {
+      'WiFi': 'wifi',
+      'Air Conditioning': 'ac',
+      'Parking': 'parking',
+      'Pool': 'pool',
+      'Kitchen': 'kitchen',
+      'Washer/Dryer': 'washer_dryer',
+      'TV': 'tv',
+      'Hot Water': 'hot_water',
+      'Furnished': 'furnished',
+      'Security': 'security',
+      'Generator': 'generator',
+      'Garden': 'yard',
+      'Balcony': 'balcony',
+      'Gym': 'gym',
+      'Elevator': 'elevator',
+      'Pet Friendly': 'pet_friendly',
+      'Wheelchair Accessible': 'wheelchair_accessible',
+      'Smoke Detector': 'smoke_detector',
+      'Fire Extinguisher': 'fire_extinguisher',
+      'First Aid Kit': 'first_aid_kit',
+    }
+
+    // For each selected amenity, filter using the database value
+    for (const amenity of selectedAmenities) {
+      const dbValue = amenityToDbValue[amenity] || amenity.toLowerCase().replace(/\s+/g, '_')
+      query = query.contains('amenities', [dbValue])
+    }
   }
 
   // Apply sorting

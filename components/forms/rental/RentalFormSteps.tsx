@@ -170,13 +170,18 @@ export default function RentalFormSteps({
         break
 
       case 2: // Property Details
-        if (!data.bedrooms || data.bedrooms < 0) {
+        // Property types that don't require bedrooms
+        const noBedroomTypes = ['office', 'commercial', 'land']
+        const requiresBedrooms = !noBedroomTypes.includes(data.property_type || '')
+
+        if (requiresBedrooms && (data.bedrooms === undefined || data.bedrooms < 0)) {
           errors.bedrooms = 'Please specify number of bedrooms'
         }
         if (!data.bathrooms || data.bathrooms < 0.5) {
           errors.bathrooms = 'Please specify number of bathrooms'
         }
-        if (!data.max_guests || data.max_guests < 1) {
+        // Max guests not required for land
+        if (data.property_type !== 'land' && (!data.max_guests || data.max_guests < 1)) {
           errors.max_guests = 'Please specify maximum number of guests'
         }
         break
@@ -292,6 +297,7 @@ export default function RentalFormSteps({
             }}
             errors={errors}
             onChange={handleChange}
+            propertyType={formData.property_type}
           />
         )
       case 'pricing':

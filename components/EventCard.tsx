@@ -4,7 +4,7 @@ import { Calendar, MapPin, Building2, Sparkles, User, Star } from 'lucide-react'
 import { Database } from '@/types/supabase'
 
 type Event = Database['public']['Tables']['events']['Row'] & {
-  event_categories: { name: string; icon: string } | null
+  event_categories: { name: string; icon: string | null } | null
   businesses: {
     name: string
     slug: string
