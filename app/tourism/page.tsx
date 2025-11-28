@@ -3,6 +3,7 @@ import { TourismCategorySidebar } from '@/components/TourismCategorySidebar'
 import { TourismPageClient } from '@/components/TourismPageClient'
 import { MobileTourismCategoryDrawer } from '@/components/MobileTourismCategoryDrawer'
 import { MobileTourismFilterSheet } from '@/components/MobileTourismFilterSheet'
+import { TourismFilterPanel } from '@/components/TourismFilterPanel'
 import { getTourismCategoriesWithCounts } from '@/lib/category-counts'
 import { Plane } from 'lucide-react'
 
@@ -112,8 +113,8 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
       {/* Desktop Tourism Category Sidebar */}
       <TourismCategorySidebar categories={categoriesWithCount} />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0">
+      {/* Main Content Area - scrollable on desktop */}
+      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
           {/* Page Header */}
@@ -124,6 +125,19 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
             <p className="text-lg text-gray-600 max-w-3xl">
               Discover unforgettable tourism experiences, from pristine rainforests to stunning waterfalls and cultural adventures
             </p>
+          </div>
+
+          {/* Desktop Filter Panel - Sticky */}
+          <div className="hidden lg:block sticky top-0 z-30 mb-6">
+            <TourismFilterPanel
+              regions={regions || []}
+              currentFilters={{
+                region,
+                difficulty,
+                duration,
+                sort,
+              }}
+            />
           </div>
 
           {/* Experiences Grid */}

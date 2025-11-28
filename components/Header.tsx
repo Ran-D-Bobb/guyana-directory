@@ -18,7 +18,7 @@ export async function Header() {
   return (
     <>
       {/* Top Header */}
-      <header className="bg-white/90 backdrop-blur-2xl shadow-lg sticky top-0 z-50 border-b border-gray-200/50">
+      <header className="bg-white/90 backdrop-blur-2xl shadow-lg fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo Section with Enhanced Design */}
@@ -115,6 +115,9 @@ export async function Header() {
         {/* Sub-navigation bar with gradient accent */}
         <div className="hidden md:block h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 opacity-80" />
       </header>
+
+      {/* Spacer to prevent content from going under fixed header */}
+      <div className="h-[81px] hidden lg:block" />
 
       {/* Bottom Navigation - Mobile Only (All Users) */}
       <BottomNav isAdmin={userIsAdmin} />

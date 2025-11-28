@@ -1,277 +1,291 @@
 'use client'
 
+import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { MapPin, ArrowUpDown, X, Filter, Search, ChevronDown, ChevronUp, Mountain, Clock } from 'lucide-react'
-import { useState } from 'react'
+import { X, MapPin, ChevronDown, SlidersHorizontal, Star, Clock, Mountain, DollarSign, TrendingUp, Sparkles } from 'lucide-react'
 
 interface TourismFilterPanelProps {
-  regions: Array<{ id: string; name: string }>
-  experienceCount: number
-  categoryName?: string
+  regions?: Array<{ id: string; name: string; slug?: string | null }>
+  currentFilters?: {
+    region?: string
+    difficulty?: string
+    duration?: string
+    sort?: string
+  }
 }
 
-export function TourismFilterPanel({ regions, experienceCount, categoryName }: TourismFilterPanelProps) {
+const difficultyOptions = [
+  { value: 'easy', label: 'Easy' },
+  { value: 'moderate', label: 'Moderate' },
+  { value: 'challenging', label: 'Challenging' },
+  { value: 'expert', label: 'Expert' },
+]
+
+const durationOptions = [
+  { value: 'quick', label: '1-2 hrs' },
+  { value: 'half_day', label: 'Half Day' },
+  { value: 'full_day', label: 'Full Day' },
+  { value: 'multi_day', label: 'Multi-Day' },
+]
+
+const sortOptions = [
+  { value: 'featured', label: 'Featured', icon: Sparkles },
+  { value: 'price_low', label: 'Price ↑', icon: DollarSign },
+  { value: 'price_high', label: 'Price ↓', icon: DollarSign },
+  { value: 'rating', label: 'Top Rated', icon: Star },
+  { value: 'popular', label: 'Popular', icon: TrendingUp },
+]
+
+// Dropdown component for consistent styling
+function FilterDropdown({
+  label,
+  icon: Icon,
+  iconColor,
+  children,
+  isOpen,
+  onToggle,
+  hasValue
+}: {
+  label: string
+  icon: React.ElementType
+  iconColor: string
+  children: React.ReactNode
+  isOpen: boolean
+  onToggle: () => void
+  hasValue: boolean
+}) {
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        if (isOpen) onToggle()
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isOpen, onToggle])
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={onToggle}
+        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
+          hasValue
+            ? 'bg-gray-900 text-white border-gray-900'
+            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+        }`}
+      >
+        <Icon className={`h-4 w-4 ${hasValue ? 'text-white' : iconColor}`} />
+        <span>{label}</span>
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isOpen ? 'rotate-180' : ''} ${hasValue ? 'text-white/70' : 'text-gray-400'}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 z-[100] min-w-[200px] animate-in fade-in slide-in-from-top-2 duration-200">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function TourismFilterPanel({ regions = [], currentFilters = {} }: TourismFilterPanelProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [searchQuery, setSearchQuery] = useState('')
-  // Default to collapsed on mobile to save screen space
-  const [isExpanded, setIsExpanded] = useState(false)
 
-  const currentRegion = searchParams.get('region') || 'all'
-  const currentSort = searchParams.get('sort') || 'featured'
-  const currentDifficulty = searchParams.get('difficulty') || 'all'
-  const currentDuration = searchParams.get('duration') || 'all'
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
-  const updateFilter = (key: string, value: string) => {
+  const activeFilterCount = [
+    currentFilters.region && currentFilters.region !== 'all',
+    currentFilters.difficulty && currentFilters.difficulty !== 'all',
+    currentFilters.duration && currentFilters.duration !== 'all',
+    currentFilters.sort && currentFilters.sort !== 'featured',
+  ].filter(Boolean).length
+
+  const updateFilters = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-
-    if (value === 'all' || value === '' || value === 'false') {
+    if (key === 'sort' && value === 'featured') {
+      params.delete(key)
+    } else if (!value || value === 'all') {
       params.delete(key)
     } else {
       params.set(key, value)
     }
-
     router.push(`${pathname}?${params.toString()}`)
   }
 
-  const clearAllFilters = () => {
-    router.push(pathname)
+  const clearFilters = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('region')
+    params.delete('difficulty')
+    params.delete('duration')
+    params.delete('sort')
+    router.push(`${pathname}?${params.toString()}`)
   }
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      const params = new URLSearchParams(searchParams.toString())
-      params.set('q', searchQuery.trim())
-      router.push(`${pathname}?${params.toString()}`)
-    }
+  const toggleDropdown = (name: string) => {
+    setOpenDropdown(openDropdown === name ? null : name)
   }
 
-  const activeFiltersCount = [
-    currentRegion !== 'all',
-    currentSort !== 'featured',
-    currentDifficulty !== 'all',
-    currentDuration !== 'all'
-  ].filter(Boolean).length
+  // Get display labels
+  const regionLabel = regions.find(r => r.id === currentFilters.region)?.name || 'Location'
+  const difficultyLabel = difficultyOptions.find(d => d.value === currentFilters.difficulty)?.label || 'Difficulty'
+  const durationLabel = durationOptions.find(d => d.value === currentFilters.duration)?.label || 'Duration'
 
   return (
-    <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-full px-4 sm:px-6 py-4">
-        {/* Collapsible Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-2 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors"
-            >
-              <Filter className="h-5 w-5 text-gray-600" />
-              <h3 className="font-semibold text-gray-900">Search & Filters</h3>
-              {isExpanded ? (
-                <ChevronUp className="h-4 w-4 text-gray-600" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-gray-600" />
-              )}
-            </button>
-            {activeFiltersCount > 0 && (
-              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-emerald-600 text-white text-xs font-bold">
-                {activeFiltersCount}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600">
-              <span className="font-semibold text-gray-900">{experienceCount}</span> results
-            </span>
-            {activeFiltersCount > 0 && (
-              <button
-                onClick={clearAllFilters}
-                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
-              >
-                Clear all
-              </button>
-            )}
-          </div>
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/80 p-3 relative z-40">
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Filter Icon & Label */}
+        <div className="flex items-center gap-2 pr-3 border-r border-gray-200">
+          <SlidersHorizontal className="h-4 w-4 text-gray-500" />
+          <span className="text-sm font-medium text-gray-600">Filters</span>
         </div>
 
-        {/* Collapsible Content */}
-        <div
-          className={`overflow-hidden transition-all duration-300 ${
-            isExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
-          }`}
+        {/* Difficulty Dropdown */}
+        <FilterDropdown
+          label={difficultyLabel}
+          icon={Mountain}
+          iconColor="text-emerald-500"
+          isOpen={openDropdown === 'difficulty'}
+          onToggle={() => toggleDropdown('difficulty')}
+          hasValue={!!currentFilters.difficulty && currentFilters.difficulty !== 'all'}
         >
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="mb-4">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder={`Search in ${categoryName || 'tourism experiences'}...`}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-gray-900 placeholder:text-gray-400"
-              />
-            </div>
-          </form>
-
-          {/* Quick Filter Chips */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {/* Easy Difficulty */}
+          <div className="space-y-1 min-w-[150px]">
             <button
-              onClick={() => updateFilter('difficulty', currentDifficulty === 'easy' ? 'all' : 'easy')}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                currentDifficulty === 'easy'
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              onClick={() => { updateFilters('difficulty', ''); setOpenDropdown(null) }}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                !currentFilters.difficulty || currentFilters.difficulty === 'all'
+                  ? 'bg-emerald-500 text-white'
+                  : 'hover:bg-gray-100 text-gray-700'
               }`}
             >
-              <Mountain className="h-4 w-4" />
-              Easy
-              {currentDifficulty === 'easy' && <X className="h-3 w-3 ml-1" />}
+              All Levels
             </button>
-
-            {/* Full Day */}
-            <button
-              onClick={() => updateFilter('duration', currentDuration === 'full_day' ? 'all' : 'full_day')}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                currentDuration === 'full_day'
-                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-500/30'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              <Clock className="h-4 w-4" />
-              Full Day
-              {currentDuration === 'full_day' && <X className="h-3 w-3 ml-1" />}
-            </button>
-
-            {/* Multi-Day */}
-            <button
-              onClick={() => updateFilter('duration', currentDuration === 'multi_day' ? 'all' : 'multi_day')}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                currentDuration === 'multi_day'
-                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/30'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              <Clock className="h-4 w-4" />
-              Multi-Day
-              {currentDuration === 'multi_day' && <X className="h-3 w-3 ml-1" />}
-            </button>
+            {difficultyOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => { updateFilters('difficulty', option.value); setOpenDropdown(null) }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  currentFilters.difficulty === option.value
+                    ? 'bg-emerald-500 text-white'
+                    : 'hover:bg-gray-100 text-gray-700'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
           </div>
+        </FilterDropdown>
 
-          {/* Main Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Region Filter */}
-            <div>
-              <label htmlFor="region" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                <MapPin className="h-4 w-4 text-teal-600" />
-                Location
-              </label>
-              <select
-                id="region"
-                value={currentRegion}
-                onChange={(e) => updateFilter('region', e.target.value)}
-                className="block w-full px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all cursor-pointer text-gray-900 text-sm font-medium"
+        {/* Duration Dropdown */}
+        <FilterDropdown
+          label={durationLabel}
+          icon={Clock}
+          iconColor="text-cyan-500"
+          isOpen={openDropdown === 'duration'}
+          onToggle={() => toggleDropdown('duration')}
+          hasValue={!!currentFilters.duration && currentFilters.duration !== 'all'}
+        >
+          <div className="space-y-1 min-w-[150px]">
+            <button
+              onClick={() => { updateFilters('duration', ''); setOpenDropdown(null) }}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                !currentFilters.duration || currentFilters.duration === 'all'
+                  ? 'bg-cyan-500 text-white'
+                  : 'hover:bg-gray-100 text-gray-700'
+              }`}
+            >
+              Any Duration
+            </button>
+            {durationOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => { updateFilters('duration', option.value); setOpenDropdown(null) }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  currentFilters.duration === option.value
+                    ? 'bg-cyan-500 text-white'
+                    : 'hover:bg-gray-100 text-gray-700'
+                }`}
               >
-                <option value="all">All Locations</option>
-                {regions.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Difficulty Filter */}
-            <div>
-              <label htmlFor="difficulty" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                <Mountain className="h-4 w-4 text-emerald-600" />
-                Difficulty
-              </label>
-              <select
-                id="difficulty"
-                value={currentDifficulty}
-                onChange={(e) => updateFilter('difficulty', e.target.value)}
-                className="block w-full px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all cursor-pointer text-gray-900 text-sm font-medium"
-              >
-                <option value="all">All Levels</option>
-                <option value="easy">Easy</option>
-                <option value="moderate">Moderate</option>
-                <option value="challenging">Challenging</option>
-                <option value="expert">Expert</option>
-              </select>
-            </div>
-
-            {/* Duration Filter */}
-            <div>
-              <label htmlFor="duration" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                <Clock className="h-4 w-4 text-cyan-600" />
-                Duration
-              </label>
-              <select
-                id="duration"
-                value={currentDuration}
-                onChange={(e) => updateFilter('duration', e.target.value)}
-                className="block w-full px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all cursor-pointer text-gray-900 text-sm font-medium"
-              >
-                <option value="all">Any Duration</option>
-                <option value="quick">Quick (1-2 hours)</option>
-                <option value="half_day">Half Day (3-4 hours)</option>
-                <option value="full_day">Full Day (5-8 hours)</option>
-                <option value="multi_day">Multi-Day</option>
-              </select>
-            </div>
-
-            {/* Sort Filter */}
-            <div>
-              <label htmlFor="sort" className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                <ArrowUpDown className="h-4 w-4 text-emerald-600" />
-                Sort By
-              </label>
-              <select
-                id="sort"
-                value={currentSort}
-                onChange={(e) => updateFilter('sort', e.target.value)}
-                className="block w-full px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all cursor-pointer text-gray-900 text-sm font-medium"
-              >
-                <option value="featured">Featured First</option>
-                <option value="price_low">Price: Low to High</option>
-                <option value="price_high">Price: High to Low</option>
-                <option value="rating">Highest Rated</option>
-                <option value="popular">Most Popular</option>
-              </select>
-            </div>
+                {option.label}
+              </button>
+            ))}
           </div>
+        </FilterDropdown>
+
+        {/* Location Dropdown */}
+        {regions.length > 0 && (
+          <FilterDropdown
+            label={regionLabel}
+            icon={MapPin}
+            iconColor="text-red-500"
+            isOpen={openDropdown === 'region'}
+            onToggle={() => toggleDropdown('region')}
+            hasValue={!!currentFilters.region && currentFilters.region !== 'all'}
+          >
+            <div className="max-h-[250px] overflow-y-auto space-y-1 min-w-[180px]">
+              <button
+                onClick={() => { updateFilters('region', ''); setOpenDropdown(null) }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  !currentFilters.region || currentFilters.region === 'all'
+                    ? 'bg-teal-500 text-white'
+                    : 'hover:bg-gray-100 text-gray-700'
+                }`}
+              >
+                All Regions
+              </button>
+              {regions.map((region) => (
+                <button
+                  key={region.id}
+                  onClick={() => { updateFilters('region', region.id); setOpenDropdown(null) }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    currentFilters.region === region.id
+                      ? 'bg-teal-500 text-white'
+                      : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {region.name}
+                </button>
+              ))}
+            </div>
+          </FilterDropdown>
+        )}
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Sort Pills */}
+        <div className="flex items-center gap-1 pl-3 border-l border-gray-200">
+          {sortOptions.map((option) => {
+            const Icon = option.icon
+            return (
+              <button
+                key={option.value}
+                onClick={() => updateFilters('sort', option.value)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  (currentFilters.sort || 'featured') === option.value
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {option.label}
+              </button>
+            )
+          })}
         </div>
 
-        {/* Compact Active Filters Display (when collapsed) */}
-        {!isExpanded && activeFiltersCount > 0 && (
-          <div className="flex flex-wrap gap-2 animate-fade-in">
-            {currentDifficulty !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
-                <Mountain className="h-3 w-3" />
-                {currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1)}
-              </span>
-            )}
-            {currentDuration !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-xs font-medium">
-                <Clock className="h-3 w-3" />
-                {currentDuration === 'quick' ? 'Quick' : currentDuration === 'half_day' ? 'Half Day' : currentDuration === 'full_day' ? 'Full Day' : 'Multi-Day'}
-              </span>
-            )}
-            {currentRegion !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-xs font-medium">
-                <MapPin className="h-3 w-3" />
-                {regions.find(r => r.id === currentRegion)?.name}
-              </span>
-            )}
-            {currentSort !== 'featured' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                <ArrowUpDown className="h-3 w-3" />
-                {currentSort === 'price_low' ? 'Price: Low to High' : currentSort === 'price_high' ? 'Price: High to Low' : currentSort === 'rating' ? 'Highest Rated' : 'Most Popular'}
-              </span>
-            )}
-          </div>
+        {/* Clear All */}
+        {activeFilterCount > 0 && (
+          <button
+            onClick={clearFilters}
+            className="flex items-center gap-1 px-2.5 py-1.5 text-red-600 hover:bg-red-50 rounded-lg text-xs font-medium transition-colors ml-2"
+          >
+            <X className="h-3.5 w-3.5" />
+            Clear ({activeFilterCount})
+          </button>
         )}
       </div>
     </div>

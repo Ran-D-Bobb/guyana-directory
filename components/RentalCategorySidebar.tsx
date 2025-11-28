@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { ChevronRight, ChevronLeft, Home, Building, Hotel, Castle, Warehouse, TreePine, Tent, Ship, type LucideIcon } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Home, Building, Building2, Hotel, BedDouble, Briefcase, Store, Users, Mountain, Palmtree, type LucideIcon } from 'lucide-react'
 
 interface RentalCategory {
   id: string
@@ -20,7 +20,16 @@ interface RentalCategorySidebarProps {
 
 // Map icon names to actual Lucide components
 const iconMap: Record<string, LucideIcon> = {
-  Home, Building, Hotel, Castle, Warehouse, TreePine, Tent, Ship
+  Home,
+  Building,
+  Building2,
+  Hotel,
+  BedDouble,
+  Briefcase,
+  Store,
+  Users,
+  Mountain,
+  Palmtree
 }
 
 export function RentalCategorySidebar({ categories }: RentalCategorySidebarProps) {
@@ -31,9 +40,9 @@ export function RentalCategorySidebar({ categories }: RentalCategorySidebarProps
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - starts below header (h-20 + border) */}
       <aside
-        className={`hidden lg:block fixed left-0 top-0 h-screen bg-white border-r border-gray-200 shadow-lg z-40 transition-all duration-300 ${
+        className={`hidden lg:block fixed left-0 top-[81px] h-[calc(100vh-81px)] bg-white border-r border-gray-200 shadow-lg z-40 transition-all duration-300 ${
           isCollapsed ? 'w-20' : 'w-72'
         }`}
       >
@@ -63,7 +72,7 @@ export function RentalCategorySidebar({ categories }: RentalCategorySidebarProps
         </div>
 
         {/* Categories List */}
-        <nav className="overflow-y-auto h-[calc(100vh-4rem)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <nav className="overflow-y-auto h-[calc(100%-4rem)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           <div className="p-2">
             {/* All Rentals Link */}
             <Link

@@ -3,6 +3,7 @@ import { CategorySidebar } from '@/components/CategorySidebar'
 import { CategoryPageClient } from '@/components/CategoryPageClient'
 import { MobileCategoryDrawer } from '@/components/MobileCategoryDrawer'
 import { MobileFilterSheet } from '@/components/MobileFilterSheet'
+import { BusinessFilterPanel } from '@/components/BusinessFilterPanel'
 import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
 import { Building2 } from 'lucide-react'
 
@@ -90,10 +91,10 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
       {/* Desktop Category Sidebar */}
       <CategorySidebar categories={categoriesWithCount} />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0">
-        {/* Header - Not sticky on mobile to prevent content blocking */}
-        <div className="lg:sticky lg:top-20 z-30 bg-white border-b border-gray-200 shadow-sm">
+      {/* Main Content Area - scrollable on desktop */}
+      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
+        {/* Page Header */}
+        <div className="bg-white border-b border-gray-200 shadow-sm">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
@@ -121,6 +122,17 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
             <p className="text-lg text-gray-600 max-w-3xl">
               Browse and connect with local businesses across Guyana. Contact them instantly via WhatsApp.
             </p>
+          </div>
+
+          {/* Desktop Filter Panel - Sticky */}
+          <div className="hidden lg:block sticky top-0 z-30 mb-6">
+            <BusinessFilterPanel
+              regions={regions || []}
+              currentFilters={{
+                region,
+                sort,
+              }}
+            />
           </div>
 
           {/* Business Grid */}

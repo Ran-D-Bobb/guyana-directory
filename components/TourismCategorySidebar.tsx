@@ -55,9 +55,9 @@ export function TourismCategorySidebar({ categories, currentCategorySlug }: Tour
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - starts below header (h-20 + border) */}
       <aside
-        className={`hidden lg:block fixed left-0 top-0 h-screen bg-white border-r border-gray-200 shadow-lg z-40 transition-all duration-300 ${
+        className={`hidden lg:block fixed left-0 top-[81px] h-[calc(100vh-81px)] bg-white border-r border-gray-200 shadow-lg z-40 transition-all duration-300 ${
           isCollapsed ? 'w-20' : 'w-72'
         }`}
       >
@@ -87,7 +87,7 @@ export function TourismCategorySidebar({ categories, currentCategorySlug }: Tour
         </div>
 
         {/* Categories List */}
-        <nav className="overflow-y-auto h-[calc(100vh-4rem)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <nav className="overflow-y-auto h-[calc(100%-4rem)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           <div className="p-2">
             {/* All Experiences Link */}
             <Link

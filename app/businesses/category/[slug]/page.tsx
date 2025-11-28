@@ -107,8 +107,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       {/* Desktop Category Sidebar */}
       <CategorySidebar categories={categoriesWithCount} currentCategorySlug={slug} />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0">
+      {/* Main Content Area - scrollable on desktop */}
+      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
         {/* Mobile Header - Sticky */}
         <div className="lg:hidden sticky top-0 z-20 bg-white border-b border-gray-200 px-4 py-4 shadow-sm">
           <h1 className="text-2xl font-extrabold text-gray-900 mb-1">

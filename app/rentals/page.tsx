@@ -195,10 +195,10 @@ export default async function RentalsPage({
       {/* Desktop Category Sidebar */}
       <RentalCategorySidebar categories={categoriesWithCounts} />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0">
-        {/* Header - Sticky on desktop */}
-        <div className="lg:sticky lg:top-20 z-30 bg-white border-b border-gray-200 shadow-sm">
+      {/* Main Content Area - scrollable on desktop */}
+      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 shadow-sm">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">

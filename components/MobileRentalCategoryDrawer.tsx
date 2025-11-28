@@ -5,12 +5,15 @@ import { useState } from 'react'
 import {
   X,
   Home,
+  Building,
   Building2,
-  TreePine,
+  Hotel,
   BedDouble,
   Briefcase,
   Store,
   Users,
+  Mountain,
+  Palmtree,
   MapPin,
   Grid3x3,
   type LucideIcon
@@ -28,12 +31,15 @@ interface MobileRentalCategoryDrawerProps {
 
 const iconMap: Record<string, LucideIcon> = {
   Home,
+  Building,
   Building2,
-  TreePine,
+  Hotel,
   BedDouble,
   Briefcase,
   Store,
   Users,
+  Mountain,
+  Palmtree,
   MapPin
 }
 

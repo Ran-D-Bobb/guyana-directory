@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { EventCategorySidebar } from '@/components/EventCategorySidebar'
 import { EventPageClient } from '@/components/EventPageClient'
 import { MobileEventCategoryDrawer } from '@/components/MobileEventCategoryDrawer'
+import { EventFilterPanel } from '@/components/EventFilterPanel'
 import { getEventCategoriesWithCounts } from '@/lib/category-counts'
 import { Calendar } from 'lucide-react'
 import { MobileEventFilterSheet } from '@/components/MobileEventFilterSheet'
@@ -114,8 +115,8 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       {/* Desktop Event Category Sidebar */}
       <EventCategorySidebar categories={categoriesWithCount} />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0">
+      {/* Main Content Area - scrollable on desktop */}
+      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
           {/* Page Header */}
@@ -126,6 +127,19 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
             <p className="text-lg text-gray-600 max-w-3xl">
               Discover local events, workshops, festivals, and community gatherings across Guyana
             </p>
+          </div>
+
+          {/* Desktop Filter Panel - Sticky */}
+          <div className="hidden lg:block sticky top-0 z-30 mb-6">
+            <EventFilterPanel
+              regions={regions || []}
+              currentFilters={{
+                region,
+                time,
+                sort,
+                view,
+              }}
+            />
           </div>
 
           {/* Events Grid/Calendar with View Controls */}

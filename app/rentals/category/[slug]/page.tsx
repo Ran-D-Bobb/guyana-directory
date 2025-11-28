@@ -201,15 +201,14 @@ export default async function RentalCategoryPage({
     .order('name')
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        {/* Desktop Sidebar */}
-        <RentalCategorySidebar
-          categories={categoriesWithCounts}
-        />
+    <div className="min-h-screen bg-gray-50 flex pb-0 lg:pb-0">
+      {/* Desktop Sidebar */}
+      <RentalCategorySidebar
+        categories={categoriesWithCounts}
+      />
 
-        {/* Main Content */}
-        <div className="flex-1 lg:ml-64">
+      {/* Main Content - scrollable on desktop */}
+      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
           {/* Category Header */}
           <div className="bg-white border-b">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -285,7 +284,7 @@ export default async function RentalCategoryPage({
             )}
           </div>
         </div>
-      </div>
+
       {/* Mobile Rental Category Drawer */}
       <MobileRentalCategoryDrawer
         categories={categoriesWithCounts.map(cat => ({ ...cat, listing_count: cat.count }))}

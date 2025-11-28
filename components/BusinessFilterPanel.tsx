@@ -2,34 +2,20 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { X, MapPin, ChevronDown, SlidersHorizontal, Star, CalendarClock, Clock, History, CalendarDays, LayoutGrid, CalendarRange } from 'lucide-react'
+import { X, MapPin, ChevronDown, SlidersHorizontal, Star, Sparkles, Clock } from 'lucide-react'
 
-interface EventFilterPanelProps {
-  regions?: Array<{ id: string; name: string; slug?: string | null }>
+interface BusinessFilterPanelProps {
+  regions?: Array<{ id: string; name: string; slug: string | null }>
   currentFilters?: {
     region?: string
-    time?: string
     sort?: string
-    view?: string
   }
 }
 
-const timeOptions = [
-  { value: 'upcoming', label: 'Upcoming', icon: CalendarClock },
-  { value: 'ongoing', label: 'Now', icon: Clock },
-  { value: 'past', label: 'Past', icon: History },
-  { value: 'all', label: 'All', icon: CalendarDays },
-]
-
 const sortOptions = [
-  { value: 'featured', label: 'Featured', icon: Star },
-  { value: 'date', label: 'Date', icon: CalendarDays },
-  { value: 'popular', label: 'Popular', icon: Star },
-]
-
-const viewOptions = [
-  { value: 'grid', label: 'Grid', icon: LayoutGrid },
-  { value: 'calendar', label: 'Calendar', icon: CalendarRange },
+  { value: 'featured', label: 'Featured', icon: Sparkles },
+  { value: 'rating', label: 'Top Rated', icon: Star },
+  { value: 'newest', label: 'Newest', icon: Clock },
 ]
 
 // Dropdown component for consistent styling
@@ -86,7 +72,7 @@ function FilterDropdown({
   )
 }
 
-export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFilterPanelProps) {
+export function BusinessFilterPanel({ regions = [], currentFilters = {} }: BusinessFilterPanelProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -95,21 +81,12 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
 
   const activeFilterCount = [
     currentFilters.region && currentFilters.region !== 'all',
-    currentFilters.time && currentFilters.time !== 'upcoming',
     currentFilters.sort && currentFilters.sort !== 'featured',
   ].filter(Boolean).length
 
   const updateFilters = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (key === 'time' && value === 'upcoming') {
-      params.delete(key)
-    } else if (key === 'sort' && value === 'featured') {
-      params.delete(key)
-    } else if (key === 'view' && value === 'grid') {
-      params.delete(key)
-    } else if (key === 'region' && (!value || value === 'all')) {
-      params.delete(key)
-    } else if (value) {
+    if (value && value !== 'all') {
       params.set(key, value)
     } else {
       params.delete(key)
@@ -120,7 +97,6 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
   const clearFilters = () => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete('region')
-    params.delete('time')
     params.delete('sort')
     router.push(`${pathname}?${params.toString()}`)
   }
@@ -130,7 +106,7 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
   }
 
   // Get display labels
-  const regionLabel = regions.find(r => r.id === currentFilters.region)?.name || 'Location'
+  const regionLabel = regions.find(r => r.id === currentFilters.region || r.slug === currentFilters.region)?.name || 'Location'
 
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/80 p-3 relative z-40">
@@ -139,28 +115,6 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
         <div className="flex items-center gap-2 pr-3 border-r border-gray-200">
           <SlidersHorizontal className="h-4 w-4 text-gray-500" />
           <span className="text-sm font-medium text-gray-600">Filters</span>
-        </div>
-
-        {/* Time Filter Pills */}
-        <div className="flex items-center gap-1 pr-3 border-r border-gray-200">
-          {timeOptions.map((option) => {
-            const Icon = option.icon
-            const isSelected = (currentFilters.time || 'upcoming') === option.value
-            return (
-              <button
-                key={option.value}
-                onClick={() => updateFilters('time', option.value)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  isSelected
-                    ? 'bg-purple-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                <span className="hidden xl:inline">{option.label}</span>
-              </button>
-            )
-          })}
         </div>
 
         {/* Location Dropdown */}
@@ -178,7 +132,7 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
                 onClick={() => { updateFilters('region', ''); setOpenDropdown(null) }}
                 className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   !currentFilters.region || currentFilters.region === 'all'
-                    ? 'bg-purple-500 text-white'
+                    ? 'bg-emerald-500 text-white'
                     : 'hover:bg-gray-100 text-gray-700'
                 }`}
               >
@@ -190,7 +144,7 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
                   onClick={() => { updateFilters('region', region.id); setOpenDropdown(null) }}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                     currentFilters.region === region.id
-                      ? 'bg-purple-500 text-white'
+                      ? 'bg-emerald-500 text-white'
                       : 'hover:bg-gray-100 text-gray-700'
                   }`}
                 >
@@ -204,27 +158,6 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* View Toggle */}
-        <div className="flex items-center gap-1 pr-3 border-r border-gray-200">
-          {viewOptions.map((option) => {
-            const Icon = option.icon
-            return (
-              <button
-                key={option.value}
-                onClick={() => updateFilters('view', option.value)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  (currentFilters.view || 'grid') === option.value
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {option.label}
-              </button>
-            )
-          })}
-        </div>
-
         {/* Sort Pills */}
         <div className="flex items-center gap-1 pl-3 border-l border-gray-200">
           {sortOptions.map((option) => {
@@ -232,7 +165,7 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
             return (
               <button
                 key={option.value}
-                onClick={() => updateFilters('sort', option.value)}
+                onClick={() => updateFilters('sort', option.value === 'featured' ? '' : option.value)}
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   (currentFilters.sort || 'featured') === option.value
                     ? 'bg-gray-900 text-white'
