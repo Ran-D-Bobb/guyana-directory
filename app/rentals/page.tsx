@@ -4,6 +4,7 @@ import { RentalCard } from '@/components/RentalCard'
 import { RentalCategorySidebar } from '@/components/RentalCategorySidebar'
 import { MobileRentalCategoryDrawer } from '@/components/MobileRentalCategoryDrawer'
 import { MobileRentalFilterSheet } from '@/components/MobileRentalFilterSheet'
+import { RentalFilterPanel } from '@/components/RentalFilterPanel'
 import { getRentalCategoriesWithCounts } from '@/lib/category-counts'
 import { Home } from 'lucide-react'
 
@@ -132,11 +133,13 @@ export default async function RentalsPage({
       'First Aid Kit': 'first_aid_kit',
     }
 
-    // For each selected amenity, filter using the database value
-    for (const amenity of selectedAmenities) {
-      const dbValue = amenityToDbValue[amenity] || amenity.toLowerCase().replace(/\s+/g, '_')
-      query = query.contains('amenities', [dbValue])
-    }
+    // Convert all selected amenities to database values and filter
+    const dbAmenities = selectedAmenities.map(amenity =>
+      amenityToDbValue[amenity] || amenity.toLowerCase().replace(/\s+/g, '_')
+    )
+
+    // Use contains with JSON array format for JSONB column
+    query = query.contains('amenities', JSON.stringify(dbAmenities))
   }
 
   // Apply sorting
@@ -166,8 +169,11 @@ export default async function RentalsPage({
   const { data: rentals, error } = await query
 
   if (error) {
-    console.error('Error fetching rentals:', error)
-    return <div>Error loading rentals</div>
+    console.error('Error fetching rentals:', JSON.stringify(error, null, 2))
+    console.error('Error message:', error.message)
+    console.error('Error code:', error.code)
+    console.error('Error details:', error.details)
+    return <div>Error loading rentals: {error.message || 'Unknown error'}</div>
   }
 
   // Get categories with counts
@@ -232,6 +238,22 @@ export default async function RentalsPage({
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm"
             />
           </form>
+
+          {/* Desktop Filter Panel */}
+          <div className="hidden lg:block mb-6">
+            <RentalFilterPanel
+              regions={regions?.map(r => ({ name: r.name, slug: r.slug || r.id })) || []}
+              currentFilters={{
+                beds: params.beds,
+                baths: params.baths,
+                price_min: params.price_min,
+                price_max: params.price_max,
+                region: params.region,
+                sort: params.sort,
+                amenities: params.amenities,
+              }}
+            />
+          </div>
 
           {/* Rentals Grid */}
           {rentals && rentals.length > 0 ? (

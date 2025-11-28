@@ -5,6 +5,7 @@ import { RentalCard } from '@/components/RentalCard'
 import { RentalCategorySidebar } from '@/components/RentalCategorySidebar'
 import { MobileRentalCategoryDrawer } from '@/components/MobileRentalCategoryDrawer'
 import { MobileRentalFilterSheet } from '@/components/MobileRentalFilterSheet'
+import { RentalFilterPanel } from '@/components/RentalFilterPanel'
 import { getRentalCategoriesWithCounts } from '@/lib/category-counts'
 
 export async function generateMetadata({
@@ -150,11 +151,13 @@ export default async function RentalCategoryPage({
       'First Aid Kit': 'first_aid_kit',
     }
 
-    // For each selected amenity, filter using the database value
-    for (const amenity of selectedAmenities) {
-      const dbValue = amenityToDbValue[amenity] || amenity.toLowerCase().replace(/\s+/g, '_')
-      query = query.contains('amenities', [dbValue])
-    }
+    // Convert all selected amenities to database values and filter
+    const dbAmenities = selectedAmenities.map(amenity =>
+      amenityToDbValue[amenity] || amenity.toLowerCase().replace(/\s+/g, '_')
+    )
+
+    // Use contains with JSON array format for JSONB column
+    query = query.contains('amenities', JSON.stringify(dbAmenities))
   }
 
   // Apply sorting
@@ -231,6 +234,22 @@ export default async function RentalCategoryPage({
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
               </form>
+
+              {/* Desktop Filter Panel */}
+              <div className="hidden lg:block mt-4">
+                <RentalFilterPanel
+                  regions={regions?.map(r => ({ name: r.name, slug: r.slug || r.id })) || []}
+                  currentFilters={{
+                    beds: filters.beds,
+                    baths: filters.baths,
+                    price_min: filters.price_min,
+                    price_max: filters.price_max,
+                    region: filters.region,
+                    sort: filters.sort,
+                    amenities: filters.amenities,
+                  }}
+                />
+              </div>
             </div>
           </div>
 

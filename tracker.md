@@ -1776,6 +1776,23 @@ All three sections have:
   - Star icon with amber hover color
   - Appears between "My Events" and "My Tourism"
 
+### Desktop Rental Filter Panel (Nov 27, 2024)
+- ✅ Added RentalFilterPanel component to desktop view
+- **Root Cause:** The `RentalFilterPanel` component existed but was not being used in the rentals pages - only the mobile `MobileRentalFilterSheet` was visible (`lg:hidden`)
+- **Fix:** Added `RentalFilterPanel` to both `/rentals` and `/rentals/category/[slug]` pages for desktop users
+- **Files Modified:**
+  - `app/rentals/page.tsx` - Added desktop filter panel with `hidden lg:block` visibility
+  - `app/rentals/category/[slug]/page.tsx` - Added desktop filter panel below search bar
+- **Features Available on Desktop:**
+  - Top amenities quick filter chips (WiFi, AC, Parking)
+  - Price range inputs (min/max GYD per month)
+  - Bedrooms dropdown (Studio, 1, 2, 3, 4+)
+  - Bathrooms dropdown (1, 1.5, 2, 2.5, 3+)
+  - Region filter dropdown
+  - Sort by options (Featured, Price low/high, Rating, Newest)
+  - Clear all filters button
+  - Collapsible panel with active filter count badge
+
 ---
 
 
