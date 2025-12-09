@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Star, MapPin, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Star, MapPin, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 
 type SpotlightItem = {
   id: string
@@ -20,10 +20,26 @@ type SpotlightItem = {
 }
 
 const typeConfig = {
-  business: { label: 'Business', color: 'bg-amber-500' },
-  tourism: { label: 'Experience', color: 'bg-emerald-500' },
-  rental: { label: 'Stay', color: 'bg-blue-500' },
-  event: { label: 'Event', color: 'bg-purple-500' },
+  business: {
+    label: 'Business',
+    gradient: 'from-amber-500 to-orange-500',
+    glow: 'group-hover:shadow-amber-500/20',
+  },
+  tourism: {
+    label: 'Experience',
+    gradient: 'from-emerald-500 to-teal-500',
+    glow: 'group-hover:shadow-emerald-500/20',
+  },
+  rental: {
+    label: 'Stay',
+    gradient: 'from-blue-500 to-indigo-500',
+    glow: 'group-hover:shadow-blue-500/20',
+  },
+  event: {
+    label: 'Event',
+    gradient: 'from-purple-500 to-pink-500',
+    glow: 'group-hover:shadow-purple-500/20',
+  },
 }
 
 const defaultImages = {
@@ -33,76 +49,106 @@ const defaultImages = {
   event: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
 }
 
-function SpotlightCard({ item }: { item: SpotlightItem }) {
+function SpotlightCard({ item, index }: { item: SpotlightItem; index: number }) {
   const config = typeConfig[item.type]
-  const href = item.type === 'business'
-    ? `/businesses/${item.slug}`
-    : item.type === 'tourism'
-    ? `/tourism/${item.slug}`
-    : item.type === 'rental'
-    ? `/rentals/${item.slug}`
-    : `/events/${item.slug}`
+  const href =
+    item.type === 'business'
+      ? `/businesses/${item.slug}`
+      : item.type === 'tourism'
+      ? `/tourism/${item.slug}`
+      : item.type === 'rental'
+      ? `/rentals/${item.slug}`
+      : `/events/${item.slug}`
 
   return (
     <Link
       href={href}
-      className="group block flex-shrink-0 w-[280px] sm:w-[320px] md:w-[360px] snap-start"
+      className={`group block flex-shrink-0 w-[300px] sm:w-[340px] md:w-[380px] snap-start animate-fade-up`}
+      style={{ animationDelay: `${index * 100}ms` }}
     >
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full">
-        {/* Image */}
+      <div
+        className={`relative bg-white rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-2 card-elevated ${config.glow}`}
+      >
+        {/* Image container with overlay */}
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
             src={item.image_url || defaultImages[item.type]}
             alt={item.name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, 360px"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            sizes="(max-width: 640px) 300px, (max-width: 768px) 340px, 380px"
           />
-          {/* Type badge */}
-          <div className="absolute top-3 left-3">
-            <span className={`${config.color} text-white text-xs font-medium px-3 py-1.5 rounded-full`}>
+
+          {/* Gradient overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          {/* Type badge - top left */}
+          <div className="absolute top-4 left-4 z-10">
+            <span
+              className={`inline-flex items-center gap-1.5 bg-gradient-to-r ${config.gradient} text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg`}
+            >
               {config.label}
             </span>
           </div>
+
+          {/* Rating badge - top right */}
+          {item.rating > 0 && (
+            <div className="absolute top-4 right-4 z-10">
+              <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm text-white px-2.5 py-1 rounded-full">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span className="text-sm font-semibold">{item.rating.toFixed(1)}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Price badge - bottom right (shows on hover) */}
+          {item.price && (
+            <div className="absolute bottom-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+              <span className="bg-white/95 text-gray-900 text-sm font-bold px-3 py-1.5 rounded-lg shadow-lg">
+                {item.price}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Content */}
-        <div className="p-4">
+        <div className="p-5">
           {/* Category */}
           {item.category && (
-            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1.5">
+            <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wider mb-2">
               {item.category}
             </p>
           )}
 
           {/* Title */}
-          <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-1 group-hover:text-gray-700 transition-colors">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1 group-hover:text-emerald-700 transition-colors font-display">
             {item.name}
           </h3>
 
           {/* Location */}
           {item.location && (
-            <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
-              <MapPin className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1.5 text-sm text-gray-500">
+              <MapPin className="w-4 h-4 text-gray-400" />
               <span className="line-clamp-1">{item.location}</span>
             </div>
           )}
 
-          {/* Rating & Price */}
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+          {/* Bottom row */}
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
             {item.rating > 0 ? (
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span className="text-sm font-medium text-gray-900">{item.rating.toFixed(1)}</span>
-                <span className="text-xs text-gray-400">({item.review_count})</span>
-              </div>
+              <span className="text-xs text-gray-400">
+                {item.review_count} {item.review_count === 1 ? 'review' : 'reviews'}
+              </span>
             ) : (
-              <span className="text-xs text-gray-400">New</span>
+              <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-medium">
+                <Sparkles className="w-3 h-3" />
+                New listing
+              </span>
             )}
 
-            {item.price && (
-              <span className="text-sm font-semibold text-gray-900">{item.price}</span>
-            )}
+            <span className="text-xs font-medium text-emerald-600 group-hover:text-emerald-700 transition-colors">
+              View details →
+            </span>
           </div>
         </div>
       </div>
@@ -117,7 +163,6 @@ export function SpotlightSlider({ items }: { items: SpotlightItem[] }) {
   const [isHovered, setIsHovered] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
-  // Check if mobile
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
@@ -125,7 +170,6 @@ export function SpotlightSlider({ items }: { items: SpotlightItem[] }) {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Update scroll button states
   const updateScrollButtons = () => {
     if (!scrollRef.current) return
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
@@ -142,12 +186,11 @@ export function SpotlightSlider({ items }: { items: SpotlightItem[] }) {
     }
   }, [])
 
-  // Auto-scroll for desktop (pauses on hover)
   useEffect(() => {
     if (isMobile || isHovered || !scrollRef.current) return
 
     const container = scrollRef.current
-    const cardWidth = 360 + 16 // card width + gap
+    const cardWidth = 380 + 24
 
     const interval = setInterval(() => {
       if (!container) return
@@ -156,20 +199,18 @@ export function SpotlightSlider({ items }: { items: SpotlightItem[] }) {
       const maxScroll = scrollWidth - clientWidth
 
       if (scrollLeft >= maxScroll - 10) {
-        // Reset to start smoothly
         container.scrollTo({ left: 0, behavior: 'smooth' })
       } else {
-        // Scroll one card
         container.scrollTo({ left: scrollLeft + cardWidth, behavior: 'smooth' })
       }
-    }, 4000) // Scroll every 4 seconds
+    }, 5000)
 
     return () => clearInterval(interval)
   }, [isMobile, isHovered])
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return
-    const cardWidth = 360 + 16
+    const cardWidth = 380 + 24
     const scrollAmount = direction === 'left' ? -cardWidth : cardWidth
     scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
   }
@@ -177,28 +218,31 @@ export function SpotlightSlider({ items }: { items: SpotlightItem[] }) {
   if (!items.length) return null
 
   return (
-    <section className="py-16 md:py-24 bg-gray-50">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-20 md:py-28 gradient-mesh-jungle noise-overlay relative">
+      <div className="max-w-[1400px] mx-auto relative z-10">
         {/* Header */}
-        <div className="px-6 mb-8 flex items-end justify-between">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+        <div className="px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="animate-fade-up">
+            <span className="text-emerald-600 font-semibold text-sm uppercase tracking-wider mb-2 block">
+              Handpicked for you
+            </span>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display text-gray-900 mb-3">
               Featured this week
             </h2>
-            <p className="text-gray-600">
-              Hand-picked across Guyana
+            <p className="text-gray-600 text-lg max-w-md">
+              The best businesses, experiences, and events across Guyana
             </p>
           </div>
 
-          {/* Desktop navigation arrows */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* Desktop navigation */}
+          <div className="hidden md:flex items-center gap-3 animate-fade-up delay-200">
             <button
               onClick={() => scroll('left')}
               disabled={!canScrollLeft}
-              className={`p-2 rounded-full border transition-all ${
+              className={`p-3 rounded-full transition-all duration-300 ${
                 canScrollLeft
-                  ? 'border-gray-300 hover:border-gray-400 hover:bg-gray-100 text-gray-700'
-                  : 'border-gray-200 text-gray-300 cursor-not-allowed'
+                  ? 'bg-white hover:bg-gray-50 text-gray-700 shadow-md hover:shadow-lg border border-gray-200'
+                  : 'bg-gray-100 text-gray-300 cursor-not-allowed'
               }`}
               aria-label="Scroll left"
             >
@@ -207,10 +251,10 @@ export function SpotlightSlider({ items }: { items: SpotlightItem[] }) {
             <button
               onClick={() => scroll('right')}
               disabled={!canScrollRight}
-              className={`p-2 rounded-full border transition-all ${
+              className={`p-3 rounded-full transition-all duration-300 ${
                 canScrollRight
-                  ? 'border-gray-300 hover:border-gray-400 hover:bg-gray-100 text-gray-700'
-                  : 'border-gray-200 text-gray-300 cursor-not-allowed'
+                  ? 'bg-white hover:bg-gray-50 text-gray-700 shadow-md hover:shadow-lg border border-gray-200'
+                  : 'bg-gray-100 text-gray-300 cursor-not-allowed'
               }`}
               aria-label="Scroll right"
             >
@@ -224,20 +268,20 @@ export function SpotlightSlider({ items }: { items: SpotlightItem[] }) {
           ref={scrollRef}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-6 pb-4"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-          }}
+          className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-6 pb-4"
         >
-          {items.map((item) => (
-            <SpotlightCard key={`${item.type}-${item.id}`} item={item} />
+          {items.map((item, index) => (
+            <SpotlightCard key={`${item.type}-${item.id}`} item={item} index={index} />
           ))}
         </div>
 
-        {/* Mobile scroll hint */}
-        <div className="md:hidden flex justify-center mt-4">
-          <p className="text-xs text-gray-400">Swipe to see more</p>
+        {/* Mobile hint */}
+        <div className="md:hidden flex justify-center mt-6 animate-fade-up delay-300">
+          <p className="text-sm text-gray-500 flex items-center gap-2">
+            <span className="w-8 h-0.5 bg-gray-300 rounded-full" />
+            Swipe to explore
+            <span className="w-8 h-0.5 bg-gray-300 rounded-full" />
+          </p>
         </div>
       </div>
     </section>

@@ -1,99 +1,118 @@
 import Link from 'next/link'
+import { MessageCircle, ArrowUpRight } from 'lucide-react'
 
 export function FooterMinimal() {
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          {/* Brand */}
-          <div className="md:col-span-1">
-            <Link href="/" className="text-2xl font-bold">
-              Waypoint
+    <footer className="gradient-mesh-dark text-white relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-3xl" />
+
+      <div className="max-w-7xl mx-auto px-6 py-20 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+          {/* Brand column */}
+          <div className="md:col-span-4">
+            <Link href="/" className="inline-block mb-6">
+              <span className="text-3xl font-display font-semibold text-white">
+                Waypoint
+              </span>
             </Link>
-            <p className="mt-4 text-gray-400 text-sm leading-relaxed">
-              Guyana&apos;s discovery platform. Find businesses, experiences, stays, and events — connect instantly via WhatsApp.
+            <p className="text-gray-400 leading-relaxed mb-6 max-w-sm">
+              Guyana&apos;s premier discovery platform. Find businesses, experiences,
+              stays, and events — connect instantly via WhatsApp.
             </p>
+
+            {/* WhatsApp CTA */}
+            <a
+              href="https://wa.me/5925551234?text=Hi, I have a question about Waypoint"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-5 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-all duration-300 group"
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="font-medium">Chat with us</span>
+              <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all" />
+            </a>
           </div>
 
-          {/* Discover */}
-          <div>
-            <h3 className="font-semibold mb-4">Discover</h3>
-            <ul className="space-y-3 text-gray-400 text-sm">
-              <li>
-                <Link href="/businesses" className="hover:text-white transition-colors">
-                  Businesses
-                </Link>
-              </li>
-              <li>
-                <Link href="/tourism" className="hover:text-white transition-colors">
-                  Experiences
-                </Link>
-              </li>
-              <li>
-                <Link href="/rentals" className="hover:text-white transition-colors">
-                  Stays
-                </Link>
-              </li>
-              <li>
-                <Link href="/events" className="hover:text-white transition-colors">
-                  Events
-                </Link>
-              </li>
+          {/* Discover column */}
+          <div className="md:col-span-2">
+            <h3 className="font-semibold text-white mb-5 text-sm uppercase tracking-wider">
+              Discover
+            </h3>
+            <ul className="space-y-4">
+              {[
+                { label: 'Businesses', href: '/businesses' },
+                { label: 'Experiences', href: '/tourism' },
+                { label: 'Stays', href: '/rentals' },
+                { label: 'Events', href: '/events' },
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="text-gray-400 hover:text-white transition-colors duration-300 flex items-center gap-1 group"
+                  >
+                    {item.label}
+                    <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* List with us */}
-          <div>
-            <h3 className="font-semibold mb-4">List with us</h3>
-            <ul className="space-y-3 text-gray-400 text-sm">
-              <li>
-                <Link href="/dashboard/my-business" className="hover:text-white transition-colors">
-                  Add your business
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard/my-tourism" className="hover:text-white transition-colors">
-                  Add your experience
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard/my-rentals" className="hover:text-white transition-colors">
-                  List your property
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard/my-events" className="hover:text-white transition-colors">
-                  Post an event
-                </Link>
-              </li>
+          {/* List with us column */}
+          <div className="md:col-span-3">
+            <h3 className="font-semibold text-white mb-5 text-sm uppercase tracking-wider">
+              List with us
+            </h3>
+            <ul className="space-y-4">
+              {[
+                { label: 'Add your business', href: '/dashboard/my-business' },
+                { label: 'Add your experience', href: '/dashboard/my-tourism' },
+                { label: 'List your property', href: '/dashboard/my-rentals' },
+                { label: 'Post an event', href: '/dashboard/my-events' },
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="text-gray-400 hover:text-white transition-colors duration-300 flex items-center gap-1 group"
+                  >
+                    {item.label}
+                    <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Contact */}
-          <div>
-            <h3 className="font-semibold mb-4">Contact</h3>
-            <ul className="space-y-3 text-gray-400 text-sm">
-              <li>
-                <a
-                  href="https://wa.me/5925551234?text=Hi, I have a question about Waypoint"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                >
-                  WhatsApp support
-                </a>
-              </li>
-            </ul>
+          {/* Newsletter / Highlight column */}
+          <div className="md:col-span-3">
+            <h3 className="font-semibold text-white mb-5 text-sm uppercase tracking-wider">
+              Stay connected
+            </h3>
+            <p className="text-gray-400 text-sm mb-4">
+              Join our WhatsApp community for exclusive deals and updates.
+            </p>
+            <a
+              href="https://wa.me/5925551234?text=I want to join the Waypoint community"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium text-sm transition-colors group"
+            >
+              Join the community
+              <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </a>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-8 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-sm">
             © {new Date().getFullYear()} Waypoint. All rights reserved.
           </p>
-          <div className="flex items-center gap-6 text-gray-500 text-sm">
-            <span>Made in Guyana</span>
+          <div className="flex items-center gap-2 text-gray-500 text-sm">
+            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            <span>Made with pride in Guyana</span>
           </div>
         </div>
       </div>
