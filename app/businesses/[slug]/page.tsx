@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { PageViewTracker } from '@/components/PageViewTracker'
 import { ReviewForm } from '@/components/ReviewForm'
-import { StarRating } from '@/components/StarRating'
 import { RatingsBreakdown } from '@/components/RatingsBreakdown'
 import { ReviewItem } from '@/components/ReviewItem'
 import { BusinessResponseForm } from '@/components/BusinessResponseForm'

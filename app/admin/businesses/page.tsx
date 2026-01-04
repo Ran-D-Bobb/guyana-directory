@@ -5,7 +5,6 @@ import {
   Plus,
   Filter,
   Eye,
-  MessageCircle,
   Star,
   Edit,
   ExternalLink,

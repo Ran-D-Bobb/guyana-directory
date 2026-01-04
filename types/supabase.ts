@@ -199,7 +199,7 @@ export type Database = {
           view_count: number | null
           website: string | null
           whatsapp_clicks: number | null
-          whatsapp_number: string
+          whatsapp_number: string | null
         }
         Insert: {
           address?: string | null
@@ -225,7 +225,7 @@ export type Database = {
           view_count?: number | null
           website?: string | null
           whatsapp_clicks?: number | null
-          whatsapp_number: string
+          whatsapp_number?: string | null
         }
         Update: {
           address?: string | null
@@ -897,7 +897,7 @@ export type Database = {
           updated_at: string | null
           utilities_included: Json | null
           view_count: number | null
-          whatsapp_number: string
+          whatsapp_number: string | null
         }
         Insert: {
           address?: string | null
@@ -940,7 +940,7 @@ export type Database = {
           updated_at?: string | null
           utilities_included?: Json | null
           view_count?: number | null
-          whatsapp_number: string
+          whatsapp_number?: string | null
         }
         Update: {
           address?: string | null
@@ -1226,7 +1226,7 @@ export type Database = {
           website: string | null
           what_to_bring: string[] | null
           whatsapp_clicks: number | null
-          whatsapp_number: string
+          whatsapp_number: string | null
         }
         Insert: {
           accessibility_info?: string | null
@@ -1276,7 +1276,7 @@ export type Database = {
           website?: string | null
           what_to_bring?: string[] | null
           whatsapp_clicks?: number | null
-          whatsapp_number: string
+          whatsapp_number?: string | null
         }
         Update: {
           accessibility_info?: string | null

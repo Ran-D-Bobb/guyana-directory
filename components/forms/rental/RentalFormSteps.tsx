@@ -132,7 +132,7 @@ export default function RentalFormSteps({
           house_rules: data.house_rules,
           phone: data.phone || null,
           email: data.email || null,
-          is_approved: true // Instant publishing (no approval queue)
+          is_approved: true, // Instant publishing (no approval queue)
         })
         .select()
         .single()

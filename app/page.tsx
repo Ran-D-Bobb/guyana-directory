@@ -50,7 +50,7 @@ export default async function Home() {
   const { data: featuredEvents } = await supabase
     .from('events')
     .select(`
-      id, title, slug, description, image_url, interest_count, location, phone,
+      id, title, slug, description, image_url, interest_count, location,
       event_categories:category_id (name)
     `)
     .eq('is_featured', true)
