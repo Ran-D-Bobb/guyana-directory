@@ -88,7 +88,7 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
               location: event.location,
               category_id: event.category_id ?? '',
               business_id: event.business_id,
-              whatsapp_number: event.whatsapp_number,
+              phone: event.whatsapp_number,
               email: event.email,
               image_url: event.image_url
             }}

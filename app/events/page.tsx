@@ -6,6 +6,10 @@ import { EventFilterPanel } from '@/components/EventFilterPanel'
 import { getEventCategoriesWithCounts } from '@/lib/category-counts'
 import { Calendar } from 'lucide-react'
 import { MobileEventFilterSheet } from '@/components/MobileEventFilterSheet'
+import { TimelineBanner } from '@/components/TimelineBanner'
+
+// Revalidate every 5 minutes
+export const revalidate = 300
 
 interface EventsPageProps {
   searchParams: Promise<{
@@ -89,6 +93,9 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       break
   }
 
+  // Limit initial page load for performance
+  query = query.limit(24)
+
   const { data: rawEvents, error } = await query
 
   // Log errors for debugging
@@ -128,6 +135,9 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
               Discover local events, workshops, festivals, and community gatherings across Guyana
             </p>
           </div>
+
+          {/* Annual Events Timeline Banner */}
+          <TimelineBanner />
 
           {/* Desktop Filter Panel - Sticky */}
           <div className="hidden lg:block sticky top-0 z-30 mb-6">

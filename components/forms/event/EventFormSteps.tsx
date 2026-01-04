@@ -21,7 +21,7 @@ interface EventFormData {
   end_time: string
   location: string
   business_id?: string
-  whatsapp_number: string
+  phone: string
   email: string
   image_file?: File | null
 }
@@ -134,8 +134,8 @@ export function EventFormSteps({
         const errors: Record<string, string> = {}
 
         // At least one contact method required
-        if (!data.whatsapp_number && !data.email) {
-          errors.contact = 'Please provide at least one contact method (WhatsApp or email)'
+        if (!data.phone && !data.email) {
+          errors.contact = 'Please provide at least one contact method (phone or email)'
         }
 
         // Validate email format if provided
@@ -180,7 +180,7 @@ export function EventFormSteps({
           category_id: data.category_id,
           business_id: data.business_id || null,
           user_id: userId,
-          whatsapp_number: data.whatsapp_number || null,
+          phone: data.phone || null,
           email: data.email || null,
         })
         .select()

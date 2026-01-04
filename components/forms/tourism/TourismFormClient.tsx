@@ -18,7 +18,6 @@ interface TourismFormData {
   region_id: string
   location_details: string
   meeting_point: string
-  whatsapp_number: string
   phone: string
   email: string
   website: string
@@ -90,7 +89,6 @@ export function TourismFormClient({
           region_id: data.region_id || null,
           location_details: data.location_details.trim() || null,
           meeting_point: data.meeting_point.trim() || null,
-          whatsapp_number: data.whatsapp_number.trim(),
           phone: data.phone.trim() || null,
           email: data.email.trim() || null,
           website: data.website.trim() || null,

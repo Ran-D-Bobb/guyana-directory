@@ -100,7 +100,7 @@ export function StatsBar({ businesses, experiences, rentals, events }: StatsBarP
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse animation-delay-2000" />
-            <span>WhatsApp Connect</span>
+            <span>Direct Contact</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse animation-delay-4000" />

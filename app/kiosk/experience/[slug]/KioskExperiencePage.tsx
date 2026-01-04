@@ -36,7 +36,6 @@ interface Experience {
   price_from: number | null
   rating: number | null
   review_count: number | null
-  whatsapp_number: string | null
   phone: string | null
   languages_offered: string[] | null
   what_to_bring: string[] | null

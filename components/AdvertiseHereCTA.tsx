@@ -43,7 +43,7 @@ export function AdvertiseHereCTA() {
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all">
               <Zap className="h-8 w-8 mb-3 mx-auto" />
               <h3 className="font-bold text-lg mb-2">Instant Results</h3>
-              <p className="text-sm text-purple-100">WhatsApp contacts, calls, and walk-ins same day</p>
+              <p className="text-sm text-purple-100">Phone calls, emails, and walk-ins same day</p>
             </div>
           </div>
 
@@ -57,9 +57,7 @@ export function AdvertiseHereCTA() {
             </Link>
 
             <a
-              href="https://wa.me/5925551234?text=I'm interested in advertising on Waypoint"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="mailto:sales@waypointguyana.com?subject=Advertising%20Inquiry"
               className="inline-flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl hover:bg-white/10 transition-all text-lg font-bold"
             >
               Contact Sales

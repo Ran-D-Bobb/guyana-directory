@@ -88,7 +88,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       query = query.order('created_at', { ascending: false })
       break
     case 'popular':
-      query = query.order('whatsapp_clicks', { ascending: false })
+      query = query.order('view_count', { ascending: false })
       break
   }
 

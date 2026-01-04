@@ -11,7 +11,7 @@ export default async function Home() {
   const { data: featuredBusinesses } = await supabase
     .from('businesses')
     .select(`
-      id, name, slug, description, rating, review_count, whatsapp_number,
+      id, name, slug, description, rating, review_count, phone,
       categories:category_id (name),
       regions:region_id (name),
       business_photos (image_url, is_primary)
@@ -23,7 +23,7 @@ export default async function Home() {
   const { data: featuredExperiences } = await supabase
     .from('tourism_experiences')
     .select(`
-      id, name, slug, description, rating, review_count, price_from, whatsapp_number,
+      id, name, slug, description, rating, review_count, price_from, phone,
       tourism_categories:tourism_category_id (name),
       regions:region_id (name),
       tourism_photos (image_url, is_primary)
@@ -36,7 +36,7 @@ export default async function Home() {
   const { data: featuredRentals } = await supabase
     .from('rentals')
     .select(`
-      id, name, slug, description, rating, review_count, price_per_month, whatsapp_number,
+      id, name, slug, description, rating, review_count, price_per_month, phone,
       rental_categories:category_id (name),
       regions:region_id (name),
       rental_photos (image_url, is_primary)
@@ -50,7 +50,7 @@ export default async function Home() {
   const { data: featuredEvents } = await supabase
     .from('events')
     .select(`
-      id, title, slug, description, image_url, interest_count, location, whatsapp_number,
+      id, title, slug, description, image_url, interest_count, location, phone,
       event_categories:category_id (name)
     `)
     .eq('is_featured', true)

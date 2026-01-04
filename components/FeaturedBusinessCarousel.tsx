@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Star, BadgeCheck, MessageCircle, ArrowRight } from 'lucide-react'
+import { MapPin, Star, BadgeCheck, Phone, ArrowRight } from 'lucide-react'
 import { Database } from '@/types/supabase'
 import {
   Carousel,
@@ -31,20 +31,12 @@ export function FeaturedBusinessCarousel({ businesses }: FeaturedBusinessCarouse
     Autoplay({ delay: 4000, stopOnInteraction: false, stopOnMouseEnter: true })
   )
 
-  const handleWhatsAppClick = (e: React.MouseEvent, phone: string | null, businessName: string) => {
+  const handlePhoneClick = (e: React.MouseEvent, phone: string | null) => {
     e.preventDefault()
     e.stopPropagation()
 
     if (!phone) return
-
-    const message = `Hi! I found you on Guyana Directory and I'm interested in ${businessName}`
-    const encodedMessage = encodeURIComponent(message)
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    const whatsappUrl = isMobile
-      ? `https://wa.me/${phone}?text=${encodedMessage}`
-      : `https://web.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`
-
-    window.open(whatsappUrl, '_blank')
+    window.location.href = `tel:${phone}`
   }
 
   return (
@@ -126,13 +118,13 @@ export function FeaturedBusinessCarousel({ businesses }: FeaturedBusinessCarouse
 
                       {/* Bottom Section - CTA Buttons */}
                       <div className="flex gap-2 mt-3">
-                        {business.whatsapp_number && (
+                        {business.phone && (
                           <button
-                            onClick={(e) => handleWhatsAppClick(e, business.whatsapp_number, business.name)}
+                            onClick={(e) => handlePhoneClick(e, business.phone)}
                             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50"
                           >
-                            <MessageCircle className="w-3.5 h-3.5" />
-                            WhatsApp
+                            <Phone className="w-3.5 h-3.5" />
+                            Call
                           </button>
                         )}
                         <div className="flex items-center gap-1 px-3 py-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition-all group/details">

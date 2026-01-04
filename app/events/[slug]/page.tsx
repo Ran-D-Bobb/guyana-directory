@@ -1,11 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { EventViewTracker } from '@/components/EventViewTracker'
-import { EventWhatsAppButton } from '@/components/EventWhatsAppButton'
 import { EventInterestButton } from '@/components/EventInterestButton'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronLeft, Calendar, MapPin, Building2, Clock, Sparkles, Eye, MessageCircle, User } from 'lucide-react'
+import { ChevronLeft, Calendar, MapPin, Building2, Clock, Sparkles, Eye, User, Phone } from 'lucide-react'
 
 // Default event image from Unsplash
 const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80'
@@ -35,7 +34,6 @@ export default async function EventPage({ params }: EventPageProps) {
         id,
         name,
         slug,
-        whatsapp_number,
         phone,
         email,
         website,
@@ -235,14 +233,6 @@ export default async function EventPage({ params }: EventPageProps) {
                       {event.view_count} {event.view_count === 1 ? 'view' : 'views'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                    <div className="p-1.5 bg-emerald-100 rounded-lg">
-                      <MessageCircle className="w-5 h-5 text-emerald-600" />
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900">
-                      {event.whatsapp_clicks} {event.whatsapp_clicks === 1 ? 'inquiry' : 'inquiries'}
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -262,15 +252,16 @@ export default async function EventPage({ params }: EventPageProps) {
                   </div>
                 )}
 
-                {/* Contact/WhatsApp Button */}
-                {event.businesses && event.businesses.whatsapp_number && (
+                {/* Contact Button */}
+                {event.businesses && event.businesses.phone && (
                   <div className={!isPast ? "" : "pb-6 border-b-2 border-gray-100"}>
-                    <EventWhatsAppButton
-                      eventTitle={event.title}
-                      businessName={event.businesses.name}
-                      whatsappNumber={event.businesses.whatsapp_number}
-                      eventId={event.id}
-                    />
+                    <a
+                      href={`tel:${event.businesses.phone}`}
+                      className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5"
+                    >
+                      <Phone className="w-6 h-6" />
+                      <span>Contact Organizer</span>
+                    </a>
                   </div>
                 )}
 

@@ -55,12 +55,12 @@ export default async function AdminAnalyticsPage() {
     supabase.from('rentals').select('*', { count: 'exact', head: true }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('reviews').select('*', { count: 'exact', head: true }),
-    supabase.from('businesses').select('view_count, whatsapp_clicks, rating, is_verified, is_featured'),
-    supabase.from('events').select('view_count, whatsapp_clicks, interest_count'),
+    supabase.from('businesses').select('view_count, rating, is_verified, is_featured'),
+    supabase.from('events').select('view_count, interest_count'),
     supabase.from('tourism_experiences').select('view_count, booking_inquiry_count, is_approved'),
     supabase.from('rentals').select('view_count, inquiry_count, save_count, is_flagged'),
     supabase.from('businesses')
-      .select('name, slug, view_count, whatsapp_clicks')
+      .select('name, slug, view_count')
       .order('view_count', { ascending: false })
       .limit(5),
     supabase.from('tourism_experiences')
@@ -79,9 +79,7 @@ export default async function AdminAnalyticsPage() {
 
   // Calculate totals
   const businessViews = businessesData?.reduce((sum, b) => sum + (b.view_count || 0), 0) || 0
-  const businessClicks = businessesData?.reduce((sum, b) => sum + (b.whatsapp_clicks || 0), 0) || 0
   const eventViews = eventsData?.reduce((sum, e) => sum + (e.view_count || 0), 0) || 0
-  const eventClicks = eventsData?.reduce((sum, e) => sum + (e.whatsapp_clicks || 0), 0) || 0
   const eventInterests = eventsData?.reduce((sum, e) => sum + (e.interest_count || 0), 0) || 0
   const tourismViews = tourismData?.reduce((sum, t) => sum + (t.view_count || 0), 0) || 0
   const tourismInquiries = tourismData?.reduce((sum, t) => sum + (t.booking_inquiry_count || 0), 0) || 0
@@ -90,7 +88,7 @@ export default async function AdminAnalyticsPage() {
   const rentalSaves = rentalsData?.reduce((sum, r) => sum + (r.save_count || 0), 0) || 0
 
   const totalViews = businessViews + eventViews + tourismViews + rentalViews
-  const totalEngagement = businessClicks + eventClicks + tourismInquiries + rentalInquiries
+  const totalEngagement = tourismInquiries + rentalInquiries
 
   // Calculate percentages
   const verifiedBusinesses = businessesData?.filter(b => b.is_verified).length || 0
@@ -184,10 +182,6 @@ export default async function AdminAnalyticsPage() {
                   <span className="font-medium text-slate-700">{businessViews.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">WhatsApp Clicks</span>
-                  <span className="font-medium text-slate-700">{businessClicks.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="text-slate-500">Verified</span>
                   <span className="font-medium text-emerald-600">{verifiedBusinesses}</span>
                 </div>
@@ -208,10 +202,6 @@ export default async function AdminAnalyticsPage() {
                 <div className="flex justify-between">
                   <span className="text-slate-500">Views</span>
                   <span className="font-medium text-slate-700">{eventViews.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">WhatsApp Clicks</span>
-                  <span className="font-medium text-slate-700">{eventClicks.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Interests</span>
@@ -355,9 +345,6 @@ export default async function AdminAnalyticsPage() {
                         <div className="flex items-center gap-2 text-xs text-slate-500">
                           <span className="flex items-center gap-1">
                             <Eye size={12} /> {business.view_count || 0}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <MessageCircle size={12} /> {business.whatsapp_clicks || 0}
                           </span>
                         </div>
                       </div>

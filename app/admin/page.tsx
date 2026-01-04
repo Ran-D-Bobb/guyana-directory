@@ -45,11 +45,11 @@ export default async function AdminDashboard() {
     supabase.from('rentals').select('*', { count: 'exact', head: true }).eq('is_flagged', true),
     supabase
       .from('businesses')
-      .select('whatsapp_clicks, view_count')
+      .select('view_count')
       .order('created_at', { ascending: false }),
     supabase
       .from('events')
-      .select('view_count, whatsapp_clicks, interest_count')
+      .select('view_count, interest_count')
       .order('created_at', { ascending: false }),
     supabase
       .from('tourism_experiences')
@@ -98,7 +98,6 @@ export default async function AdminDashboard() {
   ])
 
   // Calculate totals
-  const totalWhatsAppClicks = businesses?.reduce((sum, b) => sum + (b.whatsapp_clicks || 0), 0) || 0
   const totalViews = businesses?.reduce((sum, b) => sum + (b.view_count || 0), 0) || 0
   const totalEventViews = events?.reduce((sum, e) => sum + (e.view_count || 0), 0) || 0
   const totalTourismViews = tourismData?.reduce((sum, t) => sum + (t.view_count || 0), 0) || 0
@@ -161,7 +160,6 @@ export default async function AdminDashboard() {
     ],
     stats: [
       { icon: 'Eye', value: b.view_count || 0 },
-      { icon: 'MessageCircle', value: b.whatsapp_clicks || 0 },
     ],
   })) || []
 
@@ -316,13 +314,6 @@ export default async function AdminDashboard() {
               size="sm"
             />
             <AdminStatCard
-              label="WhatsApp Clicks"
-              value={totalWhatsAppClicks}
-              icon="MessageCircle"
-              color="emerald"
-              size="sm"
-            />
-            <AdminStatCard
               label="Tourism Inquiries"
               value={totalTourismInquiries}
               icon="TrendingUp"
@@ -413,7 +404,7 @@ export default async function AdminDashboard() {
                 <div className="flex items-center justify-between py-2 border-b border-slate-100">
                   <span className="text-sm text-slate-600">Total Engagement</span>
                   <span className="text-sm font-medium text-slate-900">
-                    {(totalWhatsAppClicks + totalTourismInquiries + totalRentalInquiries).toLocaleString()}
+                    {(totalTourismInquiries + totalRentalInquiries).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">

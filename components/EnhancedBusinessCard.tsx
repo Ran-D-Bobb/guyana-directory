@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, BadgeCheck, Sparkles, Share2, Heart, MessageCircle } from 'lucide-react'
+import { MapPin, BadgeCheck, Sparkles, Share2, Heart, Phone } from 'lucide-react'
 import { Database } from '@/types/supabase'
 import { useState } from 'react'
 import { ViewMode } from './ViewModeToggle'
@@ -25,19 +25,12 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
   const [isFavorited, setIsFavorited] = useState(false)
   const imageUrl = primaryPhoto || DEFAULT_BUSINESS_IMAGE
 
-  const handleWhatsAppClick = (e: React.MouseEvent) => {
+  const handlePhoneClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
-    if (!business.whatsapp_number) return
-
-    const message = encodeURIComponent(`Hi! I found you on Guyana Directory and I'm interested in ${business.name}`)
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    const whatsappUrl = isMobile
-      ? `https://wa.me/${business.whatsapp_number}?text=${message}`
-      : `https://web.whatsapp.com/send?phone=${business.whatsapp_number}&text=${message}`
-
-    window.open(whatsappUrl, '_blank')
+    if (!business.phone) return
+    window.location.href = `tel:${business.phone}`
   }
 
   const handleShare = (e: React.MouseEvent) => {
@@ -108,13 +101,13 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
           {/* Quick Actions - Visible on hover */}
           <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
             <div className="flex items-center gap-2">
-              {business.whatsapp_number && (
+              {business.phone && (
                 <button
-                  onClick={handleWhatsAppClick}
+                  onClick={handlePhoneClick}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-semibold shadow-lg transition-colors"
                 >
-                  <MessageCircle className="h-4 w-4" />
-                  <span className="text-sm">WhatsApp</span>
+                  <Phone className="h-4 w-4" />
+                  <span className="text-sm">Call</span>
                 </button>
               )}
               <button
@@ -224,13 +217,13 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            {business.whatsapp_number && (
+            {business.phone && (
               <button
-                onClick={handleWhatsAppClick}
+                onClick={handlePhoneClick}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-semibold text-sm transition-colors"
               >
-                <MessageCircle className="h-4 w-4" />
-                Contact via WhatsApp
+                <Phone className="h-4 w-4" />
+                Call Now
               </button>
             )}
             <button

@@ -77,7 +77,7 @@ export function HeroMinimal({ suggestions = [] }: HeroMinimalProps) {
         {/* Subheadline */}
         <p className="text-lg md:text-xl lg:text-2xl text-white/80 mb-12 font-light max-w-2xl mx-auto animate-fade-up delay-300 leading-relaxed">
           Businesses, experiences, stays & events — <br className="hidden sm:block" />
-          all connected via <span className="text-emerald-400 font-medium">WhatsApp</span>
+          all in <span className="text-emerald-400 font-medium">one place</span>
         </p>
 
         {/* Search bar with glass effect */}

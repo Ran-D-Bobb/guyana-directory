@@ -7,6 +7,9 @@ import { TourismFilterPanel } from '@/components/TourismFilterPanel'
 import { getTourismCategoriesWithCounts } from '@/lib/category-counts'
 import { Plane } from 'lucide-react'
 
+// Revalidate every 5 minutes
+export const revalidate = 300
+
 interface TourismPageProps {
   searchParams: Promise<{
     category?: string
@@ -100,6 +103,9 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
       query = query.order('view_count', { ascending: false })
       break
   }
+
+  // Limit initial page load for performance
+  query = query.limit(24)
 
   const { data: experiences, error } = await query
 

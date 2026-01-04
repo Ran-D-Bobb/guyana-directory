@@ -16,7 +16,7 @@ interface EventEditFormProps {
     location: string | null
     category_id: string
     business_id: string | null
-    whatsapp_number: string | null
+    phone: string | null
     email: string | null
     image_url: string | null
   }
@@ -62,7 +62,7 @@ export function EventEditForm({ event, eventCategories, userBusinesses }: EventE
     const location = formData.get('location') as string
     const categoryId = formData.get('category_id') as string
     const businessId = formData.get('business_id') as string
-    const whatsappNumber = formData.get('whatsapp_number') as string
+    const phone = formData.get('phone') as string
     const email = formData.get('email') as string
 
     // Validate required fields
@@ -73,8 +73,8 @@ export function EventEditForm({ event, eventCategories, userBusinesses }: EventE
     }
 
     // Validate at least one contact method
-    if (!whatsappNumber && !email) {
-      setError('Please provide at least one contact method (WhatsApp or email)')
+    if (!phone && !email) {
+      setError('Please provide at least one contact method (phone or email)')
       setIsSubmitting(false)
       return
     }
@@ -103,7 +103,7 @@ export function EventEditForm({ event, eventCategories, userBusinesses }: EventE
         location: location || null,
         category_id: categoryId,
         business_id: businessId || null,
-        whatsapp_number: whatsappNumber || null,
+        phone: phone || null,
         email: email || null,
       })
       .eq('id', event.id)
@@ -316,29 +316,26 @@ export function EventEditForm({ event, eventCategories, userBusinesses }: EventE
           Contact Information
         </h3>
         <p className="text-sm text-gray-600 mb-4">
-          Provide at least one way for people to contact you about this event
+          Provide at least one way for people to contact you about this event (phone or email)
         </p>
 
         <div className="space-y-4">
-          {/* WhatsApp */}
+          {/* Phone */}
           <div>
-            <label htmlFor="whatsapp_number" className="block text-sm font-medium text-gray-700 mb-2">
-              WhatsApp Number
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+              Phone Number
             </label>
             <div className="relative">
               <MessageCircle className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
               <input
                 type="tel"
-                id="whatsapp_number"
-                name="whatsapp_number"
-                defaultValue={event.whatsapp_number || ''}
+                id="phone"
+                name="phone"
+                defaultValue={event.phone || ''}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="e.g., +5926001234"
+                placeholder="e.g., +592-600-1234"
               />
             </div>
-            <p className="text-sm text-gray-500 mt-1">
-              Include country code (e.g., +592 for Guyana)
-            </p>
           </div>
 
           {/* Email */}

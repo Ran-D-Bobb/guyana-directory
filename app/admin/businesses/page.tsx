@@ -80,7 +80,6 @@ export default async function AdminBusinessesPage({
   const verifiedCount = businesses?.filter(b => b.is_verified).length || 0
   const featuredCount = businesses?.filter(b => b.is_featured).length || 0
   const totalViews = businesses?.reduce((sum, b) => sum + (b.view_count || 0), 0) || 0
-  const totalClicks = businesses?.reduce((sum, b) => sum + (b.whatsapp_clicks || 0), 0) || 0
 
   // Check if any filter is active
   const hasActiveFilters = categoryFilter || verifiedFilter || featuredFilter || searchQuery
@@ -121,13 +120,6 @@ export default async function AdminBusinessesPage({
             value={totalViews}
             icon="Eye"
             color="purple"
-            size="sm"
-          />
-          <AdminStatCard
-            label="WhatsApp Clicks"
-            value={totalClicks}
-            icon="MessageCircle"
-            color="cyan"
             size="sm"
           />
         </div>
@@ -295,11 +287,6 @@ export default async function AdminBusinessesPage({
                           <Eye size={14} className="text-slate-400" />
                           <span className="font-medium text-slate-700">{business.view_count || 0}</span>
                           views
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 text-slate-500">
-                          <MessageCircle size={14} className="text-slate-400" />
-                          <span className="font-medium text-slate-700">{business.whatsapp_clicks || 0}</span>
-                          clicks
                         </span>
                         <span className="inline-flex items-center gap-1.5 text-slate-500">
                           <Star size={14} className="text-amber-400 fill-amber-400" />

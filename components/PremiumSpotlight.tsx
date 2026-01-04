@@ -17,7 +17,7 @@ type SpotlightItem = {
   slug: string
   price?: string
   category?: string
-  whatsapp_number?: string
+  phone?: string
 }
 
 export function PremiumSpotlight({ items }: { items: SpotlightItem[] }) {
@@ -246,15 +246,13 @@ export function PremiumSpotlight({ items }: { items: SpotlightItem[] }) {
               <ExternalLink className="h-4 w-4 md:h-6 md:w-6 transition-transform group-hover:translate-x-1" />
             </Link>
 
-            {current.whatsapp_number && (
+            {current.phone && (
               <a
-                href={`https://wa.me/${current.whatsapp_number.replace(/\D/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`tel:${current.phone.replace(/\D/g, '')}`}
                 className="group inline-flex items-center justify-center gap-2 md:gap-3 px-4 py-2.5 md:px-8 md:py-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 border-2 border-white/50 text-white rounded-lg md:rounded-xl shadow-xl md:shadow-2xl transition-all transform hover:scale-105 active:scale-95 text-sm md:text-lg font-bold flex-1 md:flex-initial touch-manipulation"
               >
                 <Phone className="h-4 w-4 md:h-6 md:w-6" />
-                <span>Contact</span>
+                <span>Call</span>
               </a>
             )}
           </div>

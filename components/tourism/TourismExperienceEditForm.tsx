@@ -33,7 +33,6 @@ export function TourismExperienceEditForm({ experience, categories, regions }: T
     region_id: experience.region_id || '',
     location_details: experience.location_details || '',
     meeting_point: experience.meeting_point || '',
-    whatsapp_number: experience.whatsapp_number || '',
     phone: experience.phone || '',
     email: experience.email || '',
     website: experience.website || '',
@@ -93,8 +92,9 @@ export function TourismExperienceEditForm({ experience, categories, regions }: T
         return
       }
 
-      if (!formData.whatsapp_number.trim()) {
-        setError('WhatsApp number is required for booking inquiries')
+      // At least one contact method required
+      if (!formData.phone.trim() && !formData.email.trim()) {
+        setError('Please provide at least one contact method (phone or email)')
         setIsSubmitting(false)
         return
       }
@@ -148,7 +148,6 @@ export function TourismExperienceEditForm({ experience, categories, regions }: T
           region_id: formData.region_id || null,
           location_details: formData.location_details.trim() || null,
           meeting_point: formData.meeting_point.trim() || null,
-          whatsapp_number: formData.whatsapp_number.trim(),
           phone: formData.phone.trim() || null,
           email: formData.email.trim() || null,
           website: formData.website.trim() || null,
@@ -415,25 +414,7 @@ export function TourismExperienceEditForm({ experience, categories, regions }: T
       {/* Contact Information */}
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Contact Information</h3>
-
-        <div>
-          <label htmlFor="whatsapp_number" className="block text-sm font-medium text-gray-700 mb-2">
-            WhatsApp Number * (with country code, e.g., 5921234567)
-          </label>
-          <input
-            type="text"
-            id="whatsapp_number"
-            name="whatsapp_number"
-            value={formData.whatsapp_number}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-            placeholder="5921234567"
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            Primary contact method for tourist booking inquiries
-          </p>
-        </div>
+        <p className="text-sm text-gray-600">Please provide at least one contact method (phone or email)</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

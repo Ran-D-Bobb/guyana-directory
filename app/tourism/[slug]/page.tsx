@@ -8,15 +8,14 @@ import {
   Clock,
   Sparkles,
   Eye,
-  MessageCircle,
   Users,
   Star,
   Mountain,
   Calendar,
   CheckCircle2,
-  Package
+  Package,
+  Phone
 } from 'lucide-react'
-import { TourismWhatsAppButton } from '@/components/tourism/TourismWhatsAppButton'
 
 // Default tourism experience image from Unsplash
 const DEFAULT_TOURISM_IMAGE = 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1200&q=80'
@@ -287,14 +286,6 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
                     {experience.view_count} {experience.view_count === 1 ? 'view' : 'views'}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                  <div className="p-1.5 bg-teal-100 rounded-lg">
-                    <MessageCircle className="w-5 h-5 text-teal-600" />
-                  </div>
-                  <span className="text-sm font-semibold text-gray-900">
-                    {experience.booking_inquiry_count} {experience.booking_inquiry_count === 1 ? 'inquiry' : 'inquiries'}
-                  </span>
-                </div>
               </div>
             </div>
           </div>
@@ -313,15 +304,16 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
                 </div>
               )}
 
-              {/* WhatsApp Button */}
-              {experience.whatsapp_number && (
+              {/* Contact Button */}
+              {experience.phone && (
                 <div className="pb-6 border-b-2 border-gray-100">
-                  <TourismWhatsAppButton
-                    experienceId={experience.id}
-                    experienceName={experience.name}
-                    whatsappNumber={experience.whatsapp_number}
-                    variant="booking"
-                  />
+                  <a
+                    href={`tel:${experience.phone}`}
+                    className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold text-lg py-6 shadow-lg hover:shadow-xl transform transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-center gap-2 rounded-lg"
+                  >
+                    <Phone className="h-6 w-6" />
+                    <span>Book Now</span>
+                  </a>
                 </div>
               )}
 

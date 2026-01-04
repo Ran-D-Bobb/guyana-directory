@@ -53,7 +53,6 @@ interface RentalFormData {
   house_rules: string[]
 
   // Step 6: Contact
-  whatsapp_number: string
   phone: string
   email: string
 }
@@ -83,7 +82,6 @@ const INITIAL_DATA: RentalFormData = {
   amenities: [],
   utilities_included: [],
   house_rules: [],
-  whatsapp_number: '',
   phone: '',
   email: ''
 }
@@ -132,7 +130,6 @@ export default function RentalFormSteps({
           amenities: data.amenities,
           utilities_included: data.utilities_included,
           house_rules: data.house_rules,
-          whatsapp_number: data.whatsapp_number,
           phone: data.phone || null,
           email: data.email || null,
           is_approved: true // Instant publishing (no approval queue)
@@ -196,8 +193,9 @@ export default function RentalFormSteps({
         break
 
       case 5: // Contact
-        if (!data.whatsapp_number || data.whatsapp_number.trim().length < 10) {
-          errors.whatsapp_number = 'Please enter a valid WhatsApp number'
+        // At least one contact method required
+        if (!data.phone?.trim() && !data.email?.trim()) {
+          errors.phone = 'Please provide at least one contact method (phone or email)'
         }
         if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
           errors.email = 'Please enter a valid email address'
@@ -328,7 +326,6 @@ export default function RentalFormSteps({
         return (
           <ContactStep
             formData={{
-              whatsapp_number: formData.whatsapp_number || '',
               phone: formData.phone || '',
               email: formData.email || ''
             }}

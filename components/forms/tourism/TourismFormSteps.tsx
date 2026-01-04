@@ -23,7 +23,6 @@ interface TourismFormData {
   region_id: string
   location_details: string
   meeting_point: string
-  whatsapp_number: string
   phone: string
   email: string
   website: string
@@ -65,7 +64,6 @@ const INITIAL_DATA: TourismFormData = {
   region_id: '',
   location_details: '',
   meeting_point: '',
-  whatsapp_number: '',
   phone: '',
   email: '',
   website: '',
@@ -157,10 +155,9 @@ export function TourismFormSteps({
       validate: (data: Partial<TourismFormData>) => {
         const errors: Record<string, string> = {}
 
-        if (!data.whatsapp_number?.trim()) {
-          errors.whatsapp_number = 'WhatsApp number is required'
-        } else if (data.whatsapp_number.trim().length < 10) {
-          errors.whatsapp_number = 'Please enter a valid WhatsApp number with country code'
+        // At least one contact method required
+        if (!data.phone?.trim() && !data.email?.trim()) {
+          errors.phone = 'Please provide at least one contact method (phone or email)'
         }
 
         if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
@@ -262,7 +259,6 @@ export function TourismFormSteps({
         return (
           <ContactStep
             formData={{
-              whatsapp_number: formData.whatsapp_number || '',
               phone: formData.phone || '',
               email: formData.email || '',
               website: formData.website || '',

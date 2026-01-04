@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { MessageCircle, Mail, X, Upload, ImageIcon } from 'lucide-react'
+import { Phone, Mail, X, Upload, ImageIcon } from 'lucide-react'
 import Image from 'next/image'
 
 interface ContactStepProps {
   formData: {
-    whatsapp_number?: string
+    phone?: string
     email?: string
     image_file?: File | null
   }
@@ -61,26 +61,26 @@ export function ContactStep({
         </p>
       </div>
 
-      {/* WhatsApp Number */}
+      {/* Phone Number */}
       <div>
-        <label htmlFor="whatsapp_number" className="block text-sm font-medium text-gray-700 mb-2">
-          WhatsApp Number
+        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+          Phone Number
         </label>
         <div className="relative">
-          <MessageCircle className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+          <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
           <input
             type="tel"
-            id="whatsapp_number"
-            value={formData.whatsapp_number || ''}
-            onChange={(e) => updateFormData({ whatsapp_number: e.target.value })}
+            id="phone"
+            value={formData.phone || ''}
+            onChange={(e) => updateFormData({ phone: e.target.value })}
             className={`w-full pl-10 pr-4 py-3 border ${
-              errors.whatsapp_number ? 'border-red-500' : 'border-gray-300'
+              errors.phone ? 'border-red-500' : 'border-gray-300'
             } rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base`}
             placeholder="e.g., +5926001234"
           />
         </div>
-        {errors.whatsapp_number && (
-          <p className="text-sm text-red-600 mt-1">{errors.whatsapp_number}</p>
+        {errors.phone && (
+          <p className="text-sm text-red-600 mt-1">{errors.phone}</p>
         )}
         <p className="text-sm text-gray-500 mt-1">
           Include country code (e.g., +592 for Guyana). This is the preferred contact method.
@@ -109,7 +109,7 @@ export function ContactStep({
           <p className="text-sm text-red-600 mt-1">{errors.email}</p>
         )}
         <p className="text-sm text-gray-500 mt-1">
-          Alternative contact method for attendees who don&apos;t use WhatsApp
+          Alternative contact method for attendees
         </p>
       </div>
 
@@ -174,10 +174,9 @@ export function ContactStep({
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
         <p className="text-sm font-medium text-purple-900 mb-2">Contact Tips</p>
         <ul className="text-sm text-purple-800 space-y-1 list-disc list-inside">
-          <li>WhatsApp is the most common way people in Guyana communicate</li>
           <li>Respond promptly to inquiries to build trust</li>
-          <li>Consider creating a WhatsApp group for registered attendees</li>
           <li>Include your business email for professional inquiries</li>
+          <li>Make sure your phone number is correct and active</li>
         </ul>
       </div>
     </div>

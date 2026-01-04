@@ -128,7 +128,7 @@ export function HeroSection() {
 
         {/* Subheading */}
         <p className="text-base sm:text-lg md:text-2xl text-gray-200 mb-8 md:mb-12 max-w-3xl mx-auto animate-fade-in font-light drop-shadow-lg px-4">
-          Connect instantly via WhatsApp
+          Your gateway to local discovery
         </p>
 
         {/* Quick links - optimized spacing for mobile */}

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, Eye, MessageCircle, Star, Phone, Edit, Upload, Calendar } from 'lucide-react'
+import { ArrowLeft, Eye, MessageCircle, Star, Edit, Upload, Calendar } from 'lucide-react'
 
 export default async function MyBusinessPage() {
   const supabase = await createClient()
@@ -144,7 +144,7 @@ export default async function MyBusinessPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -155,20 +155,6 @@ export default async function MyBusinessPage() {
                   {business.view_count || 0}
                 </p>
                 <p className="text-sm text-gray-600">Page Views</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Phone className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {business.whatsapp_clicks || 0}
-                </p>
-                <p className="text-sm text-gray-600">WhatsApp Clicks</p>
               </div>
             </div>
           </div>

@@ -8,6 +8,9 @@ import { RentalFilterPanel } from '@/components/RentalFilterPanel'
 import { getRentalCategoriesWithCounts } from '@/lib/category-counts'
 import { Home } from 'lucide-react'
 
+// Revalidate every 5 minutes
+export const revalidate = 300
+
 export const metadata: Metadata = {
   title: 'Browse Rentals - Guyana Directory',
   description: 'Find apartments, houses, vacation homes, and more in Guyana',
@@ -224,7 +227,7 @@ export default async function RentalsPage({
               Find Your Perfect Rental
             </h1>
             <p className="text-lg text-gray-600 max-w-3xl">
-              Browse apartments, houses, vacation homes, and more across Guyana. Contact property owners instantly via WhatsApp.
+              Browse apartments, houses, vacation homes, and more across Guyana. Contact property owners directly.
             </p>
           </div>
 

@@ -1,11 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { CategorySidebar } from '@/components/CategorySidebar'
-import { CategoryPageClient } from '@/components/CategoryPageClient'
+import { BusinessesPageClient } from '@/components/BusinessesPageClient'
 import { MobileCategoryDrawer } from '@/components/MobileCategoryDrawer'
 import { MobileFilterSheet } from '@/components/MobileFilterSheet'
 import { BusinessFilterPanel } from '@/components/BusinessFilterPanel'
 import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
-import { Building2 } from 'lucide-react'
+import { Sparkles, MapPin, TrendingUp } from 'lucide-react'
+
+// Revalidate every 5 minutes - categories and regions don't change often
+export const revalidate = 300
 
 interface BusinessesPageProps {
   searchParams: Promise<{
@@ -71,6 +74,9 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
       break
   }
 
+  // Limit initial page load for performance
+  query = query.limit(24)
+
   const { data: businesses, error } = await query
 
   // Log errors for debugging
@@ -86,46 +92,128 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
       : null
   }))
 
+  // Get featured businesses for hero
+  const featuredBusinesses = businessesWithPhotos.filter(b => b.is_featured).slice(0, 3)
+  const totalBusinesses = businessesWithPhotos.length
+
   return (
-    <div className="min-h-screen bg-gray-50 flex pb-0 lg:pb-0">
+    <div className="min-h-screen bg-[hsl(var(--jungle-50))] flex pb-0 lg:pb-0">
       {/* Desktop Category Sidebar */}
       <CategorySidebar categories={categoriesWithCount} />
 
-      {/* Main Content Area - scrollable on desktop */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
-        {/* Page Header */}
-        <div className="bg-white border-b border-gray-200 shadow-sm">
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                <Building2 className="h-5 w-5 text-white" strokeWidth={2.5} />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">
-                  All Businesses
-                </h2>
-                <p className="text-sm text-gray-600">
-                  {businessesWithPhotos.length} {businessesWithPhotos.length === 1 ? 'business' : 'businesses'} found
+
+        {/* Immersive Hero Header */}
+        <header className="relative overflow-hidden">
+          {/* Background with gradient mesh */}
+          <div className="absolute inset-0 gradient-mesh-dark" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--jungle-900))]/95 via-[hsl(var(--jungle-800))]/90 to-[hsl(var(--jungle-700))]/85" />
+
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[hsl(var(--gold-500))]/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[hsl(var(--jungle-400))]/20 rounded-full blur-2xl -translate-x-1/2 translate-y-1/2" />
+
+          {/* Noise overlay */}
+          <div className="absolute inset-0 noise-overlay opacity-30" />
+
+          <div className="relative max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+
+              {/* Left: Typography */}
+              <div className="animate-fade-up">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(var(--gold-500))]/20 border border-[hsl(var(--gold-500))]/30 mb-6">
+                  <Sparkles className="w-4 h-4 text-[hsl(var(--gold-400))]" />
+                  <span className="text-sm font-medium text-[hsl(var(--gold-300))]">
+                    {totalBusinesses} Local Businesses
+                  </span>
+                </div>
+
+                <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-white mb-6 leading-[1.1]">
+                  Discover
+                  <span className="block text-gradient-gold animate-text-shimmer bg-[length:200%_auto]">
+                    Guyana&apos;s Finest
+                  </span>
+                </h1>
+
+                <p className="text-lg lg:text-xl text-[hsl(var(--jungle-200))] max-w-xl mb-8 leading-relaxed">
+                  Connect with trusted local businesses across Guyana.
+                  From restaurants to services, find exactly what you need
+                  and reach out directly.
                 </p>
+
+                {/* Quick stats */}
+                <div className="flex flex-wrap gap-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-[hsl(var(--jungle-500))]/20 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-[hsl(var(--jungle-300))]" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-white">{regions?.length || 0}</div>
+                      <div className="text-sm text-[hsl(var(--jungle-300))]">Regions</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-[hsl(var(--gold-500))]/20 flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-[hsl(var(--gold-400))]" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-white">{categoriesWithCount.length}</div>
+                      <div className="text-sm text-[hsl(var(--gold-300))]">Categories</div>
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              {/* Right: Featured Business Cards Stack */}
+              {featuredBusinesses.length > 0 && (
+                <div className="relative h-64 lg:h-80 hidden md:block animate-fade-up delay-200">
+                  {featuredBusinesses.map((business, index) => (
+                    <div
+                      key={business.id}
+                      className="absolute w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl transition-all duration-500 hover:scale-105"
+                      style={{
+                        top: `${index * 20}px`,
+                        right: `${index * 30}px`,
+                        zIndex: featuredBusinesses.length - index,
+                        transform: `rotate(${(index - 1) * 3}deg)`,
+                      }}
+                    >
+                      <div className="relative h-48 bg-gradient-to-br from-[hsl(var(--jungle-600))] to-[hsl(var(--jungle-800))]">
+                        {business.primary_photo && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={business.primary_photo}
+                            alt={business.name}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <div className="text-xs font-medium text-[hsl(var(--gold-400))] mb-1">
+                            {business.categories?.name}
+                          </div>
+                          <h3 className="text-lg font-bold text-white line-clamp-1">
+                            {business.name}
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </div>
+
+          {/* Bottom wave */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[hsl(var(--jungle-50))] to-transparent" />
+        </header>
 
         {/* Content Container */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
-          {/* Page Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">
-              Discover Local Businesses
-            </h1>
-            <p className="text-lg text-gray-600 max-w-3xl">
-              Browse and connect with local businesses across Guyana. Contact them instantly via WhatsApp.
-            </p>
-          </div>
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 max-w-screen-2xl mx-auto w-full">
 
-          {/* Desktop Filter Panel - Sticky */}
-          <div className="hidden lg:block sticky top-0 z-30 mb-6">
+          {/* Desktop Filter Panel */}
+          <div className="hidden lg:block sticky top-0 z-30 mb-8">
             <BusinessFilterPanel
               regions={regions || []}
               currentFilters={{
@@ -135,22 +223,20 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
             />
           </div>
 
-          {/* Business Grid */}
-          {businessesWithPhotos && businessesWithPhotos.length > 0 ? (
-            <CategoryPageClient businesses={businessesWithPhotos} />
-          ) : (
-            <div className="text-center py-20 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 mb-6">
-                <Building2 className="w-10 h-10 text-emerald-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                No businesses found
-              </h3>
-              <p className="text-gray-500 text-lg max-w-md mx-auto">
-                Try adjusting your filters or check back later for new businesses
+          {/* Results Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="font-display text-2xl lg:text-3xl text-[hsl(var(--jungle-900))]">
+                {q ? `Results for "${q}"` : 'All Businesses'}
+              </h2>
+              <p className="text-[hsl(var(--muted-foreground))] mt-1">
+                {totalBusinesses} {totalBusinesses === 1 ? 'business' : 'businesses'} found
               </p>
             </div>
-          )}
+          </div>
+
+          {/* Business Grid */}
+          <BusinessesPageClient businesses={businessesWithPhotos} />
         </main>
       </div>
 

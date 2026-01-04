@@ -69,7 +69,6 @@ export default async function Page({ params }: PageProps) {
     price_from: experience.price_from,
     rating: experience.rating,
     review_count: experience.review_count,
-    whatsapp_number: experience.whatsapp_number,
     phone: experience.phone,
     languages_offered: experience.languages,
     what_to_bring: experience.what_to_bring,

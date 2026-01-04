@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MessageCircle, ArrowUpRight } from 'lucide-react'
+import { Mail, ArrowUpRight } from 'lucide-react'
 
 export function FooterMinimal() {
   return (
@@ -19,18 +19,16 @@ export function FooterMinimal() {
             </Link>
             <p className="text-gray-400 leading-relaxed mb-6 max-w-sm">
               Guyana&apos;s premier discovery platform. Find businesses, experiences,
-              stays, and events — connect instantly via WhatsApp.
+              stays, and events — all in one place.
             </p>
 
-            {/* WhatsApp CTA */}
+            {/* Email CTA */}
             <a
-              href="https://wa.me/5925551234?text=Hi, I have a question about Waypoint"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="mailto:info@waypointguyana.com"
               className="inline-flex items-center gap-3 px-5 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-all duration-300 group"
             >
-              <MessageCircle className="w-5 h-5" />
-              <span className="font-medium">Chat with us</span>
+              <Mail className="w-5 h-5" />
+              <span className="font-medium">Contact us</span>
               <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all" />
             </a>
           </div>
@@ -91,15 +89,13 @@ export function FooterMinimal() {
               Stay connected
             </h3>
             <p className="text-gray-400 text-sm mb-4">
-              Join our WhatsApp community for exclusive deals and updates.
+              Follow us on social media for exclusive deals and updates.
             </p>
             <a
-              href="https://wa.me/5925551234?text=I want to join the Waypoint community"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="mailto:info@waypointguyana.com"
               className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium text-sm transition-colors group"
             >
-              Join the community
+              Get in touch
               <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </a>
           </div>

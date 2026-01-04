@@ -12,7 +12,6 @@ interface BusinessFormData {
   category_id: string
   region_id: string
   location: LocationData | null
-  whatsapp_number: string
   phone: string
   email: string
   website: string
@@ -60,7 +59,6 @@ export function BusinessFormClient({
           slug: slug,
           description: data.description.trim() || null,
           phone: data.phone.trim() || null,
-          whatsapp_number: data.whatsapp_number.trim(),
           email: data.email.trim() || null,
           website: data.website.trim() || null,
           // Location data

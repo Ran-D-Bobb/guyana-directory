@@ -11,7 +11,6 @@ interface AdminBusinessEditFormProps {
     slug: string
     description: string | null
     phone: string | null
-    whatsapp_number: string
     email: string | null
     website: string | null
     address: string | null
@@ -39,7 +38,6 @@ export function AdminBusinessEditForm({
     name: business.name,
     description: business.description || '',
     phone: business.phone || '',
-    whatsapp_number: business.whatsapp_number,
     email: business.email || '',
     website: business.website || '',
     address: business.address || '',
@@ -77,8 +75,9 @@ export function AdminBusinessEditForm({
         return
       }
 
-      if (!formData.whatsapp_number.trim()) {
-        setError('WhatsApp number is required')
+      // At least one contact method required
+      if (!formData.phone.trim() && !formData.email.trim()) {
+        setError('Please provide at least one contact method (phone or email)')
         setIsSubmitting(false)
         return
       }
@@ -96,7 +95,6 @@ export function AdminBusinessEditForm({
           slug: slug,
           description: formData.description.trim() || null,
           phone: formData.phone.trim() || null,
-          whatsapp_number: formData.whatsapp_number.trim(),
           email: formData.email.trim() || null,
           website: formData.website.trim() || null,
           address: formData.address.trim() || null,
@@ -275,22 +273,7 @@ export function AdminBusinessEditForm({
       {/* Contact Information */}
       <div className="border-t pt-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
-
-        {/* WhatsApp Number */}
-        <div className="mb-4">
-          <label htmlFor="whatsapp_number" className="block text-sm font-medium text-gray-700 mb-2">
-            WhatsApp Number * (with country code, e.g., 5921234567)
-          </label>
-          <input
-            type="text"
-            id="whatsapp_number"
-            name="whatsapp_number"
-            value={formData.whatsapp_number}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
-          />
-        </div>
+        <p className="text-sm text-gray-600 mb-4">Please provide at least one contact method (phone or email)</p>
 
         {/* Phone */}
         <div className="mb-4">

@@ -37,7 +37,6 @@ interface Rental {
   amenities: unknown
   utilities_included: unknown
   house_rules: unknown
-  whatsapp_number: string
   phone: string | null
   email: string | null
 }
@@ -104,7 +103,6 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
     amenities: Array.isArray(rental.amenities) ? rental.amenities as string[] : [],
     utilities_included: Array.isArray(rental.utilities_included) ? rental.utilities_included as string[] : [],
     house_rules: Array.isArray(rental.house_rules) ? rental.house_rules as string[] : [],
-    whatsapp_number: rental.whatsapp_number || '',
     phone: rental.phone || '',
     email: rental.email || ''
   })
@@ -137,7 +135,6 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
           amenities: JSON.parse(JSON.stringify(formData.amenities)),
           utilities_included: JSON.parse(JSON.stringify(formData.utilities_included)),
           house_rules: JSON.parse(JSON.stringify(formData.house_rules)),
-          whatsapp_number: formData.whatsapp_number,
           phone: formData.phone || null,
           email: formData.email || null
         })
@@ -535,25 +532,11 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
       {/* Section 6: Contact */}
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b">Contact Information</h2>
+        <p className="text-sm text-gray-600 mb-4">Please provide at least one contact method (phone or email)</p>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              WhatsApp Number * (e.g., 5926123456)
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.whatsapp_number}
-              onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
-              placeholder="5926123456"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
-            />
-            <p className="text-sm text-gray-500 mt-1">Include country code (592 for Guyana)</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone Number (Optional)
+              Phone Number
             </label>
             <input
               type="text"
@@ -566,7 +549,7 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email (Optional)
+              Email
             </label>
             <input
               type="email"

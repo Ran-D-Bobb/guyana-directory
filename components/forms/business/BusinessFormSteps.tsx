@@ -14,7 +14,6 @@ interface BusinessFormData {
   category_id: string
   region_id: string
   location: LocationData | null
-  whatsapp_number: string
   phone: string
   email: string
   website: string
@@ -96,10 +95,9 @@ export function BusinessFormSteps({
       validate: (data: Partial<BusinessFormData>) => {
         const errors: Record<string, string> = {}
 
-        if (!data.whatsapp_number?.trim()) {
-          errors.whatsapp_number = 'WhatsApp number is required'
-        } else if (data.whatsapp_number.trim().length < 10) {
-          errors.whatsapp_number = 'Please enter a valid WhatsApp number with country code'
+        // At least one contact method required
+        if (!data.phone?.trim() && !data.email?.trim()) {
+          errors.phone = 'Please provide at least one contact method (phone or email)'
         }
 
         if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
@@ -154,7 +152,6 @@ export function BusinessFormSteps({
         return (
           <ContactInfoStep
             data={{
-              whatsapp_number: formData.whatsapp_number || '',
               phone: formData.phone || '',
               email: formData.email || '',
               website: formData.website || '',

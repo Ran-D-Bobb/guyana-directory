@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A WhatsApp-first Progressive Web App for discovering local businesses in Guyana. Every business listing features a prominent "Contact via WhatsApp" button as the primary user interaction method.
+A Progressive Web App for discovering local businesses in Guyana. Business listings feature phone and email contact options as the primary user interaction methods.
 
 **Tech Stack:**
 - Next.js 15 (App Router)
@@ -113,10 +113,10 @@ supabase db push
 
 **businesses** - Core listings
 - Basic: name, slug, description
-- Contact: phone, whatsapp_number (required), email, website, address
+- Contact: phone (required), email, website, address
 - Relationships: category_id, region_id
 - Status: is_verified, is_featured
-- Stats: rating (calculated), review_count, whatsapp_clicks, view_count
+- Stats: rating (calculated), review_count, view_count
 - hours: JSON field with structured business hours
 
 **business_photos** - Photo storage
@@ -128,10 +128,6 @@ supabase db push
 - Unique constraint: one review per user per business
 - Triggers update business.rating and business.review_count on insert/update/delete
 
-**whatsapp_clicks** - Click analytics
-- business_id, clicked_at, device_type, user_agent
-- Used for business dashboard analytics
-
 ### Key Application Patterns
 
 **URL Structure:**
@@ -142,11 +138,10 @@ supabase db push
 - Dashboard: `/dashboard/my-business`
 - Admin: `/admin`
 
-**WhatsApp Integration:**
-- Mobile: `https://wa.me/<number>?text=<encoded_message>`
-- Desktop: `https://web.whatsapp.com/send?phone=<number>&text=<encoded_message>`
-- Message template: "Hi! I found you on Guyana Directory and I'm interested in [business name]"
-- Track click before opening WhatsApp (insert into whatsapp_clicks, increment business.whatsapp_clicks)
+**Contact Methods:**
+- Phone: Primary contact method via `tel:` links
+- Email: Secondary contact via `mailto:` links
+- Website: External links to business websites
 
 **Authentication Flow:**
 - Google OAuth only (via Supabase Auth)
@@ -210,7 +205,7 @@ supabase db push
 
 **IN SCOPE:**
 - Business directory with categories
-- WhatsApp contact as primary CTA
+- Phone/email contact options
 - Google OAuth authentication
 - Review system (5-star)
 - Basic business owner dashboard (stats, photos, info editing)
@@ -228,11 +223,3 @@ supabase db push
 - Review responses from business owners
 - Advanced analytics
 - Multi-language support
-
-
-
-
-
-
-
-

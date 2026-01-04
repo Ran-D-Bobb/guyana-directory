@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, Plus, Eye, MessageCircle, ChevronLeft, Pencil, Star } from 'lucide-react'
+import { Calendar, Plus, Eye, ChevronLeft, Pencil, Star } from 'lucide-react'
 import { EventDeleteButton } from '@/components/EventDeleteButton'
 
 export default async function MyEventsPage() {
@@ -48,7 +48,6 @@ export default async function MyEventsPage() {
   const now = new Date().toISOString()
   const upcomingEvents = events?.filter(e => e.start_date > now) || []
   const totalViews = events?.reduce((sum, e) => sum + (e.view_count || 0), 0) || 0
-  const totalClicks = events?.reduce((sum, e) => sum + (e.whatsapp_clicks || 0), 0) || 0
   const totalInterest = events?.reduce((sum, e) => sum + (e.interest_count || 0), 0) || 0
 
   return (
@@ -111,12 +110,6 @@ export default async function MyEventsPage() {
                 {totalViews}
               </div>
               <div className="text-sm text-gray-600">Total Views</div>
-            </div>
-            <div className="bg-green-50 rounded-lg p-4">
-              <div className="text-2xl font-bold text-green-600">
-                {totalClicks}
-              </div>
-              <div className="text-sm text-gray-600">WhatsApp Clicks</div>
             </div>
           </div>
         </div>
@@ -226,10 +219,6 @@ export default async function MyEventsPage() {
                           <div className="flex items-center gap-1">
                             <Eye className="w-4 h-4" />
                             <span>{event.view_count || 0} views</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <MessageCircle className="w-4 h-4" />
-                            <span>{event.whatsapp_clicks || 0} contacts</span>
                           </div>
                         </div>
                       </div>
