@@ -5,6 +5,7 @@ import { cookies } from 'next/headers'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  const type = requestUrl.searchParams.get('type') // 'signup', 'recovery', etc.
   const origin = requestUrl.origin
 
   if (code) {
@@ -36,11 +37,29 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error('Error exchanging code for session:', error)
-      return NextResponse.redirect(`${origin}/auth/error`)
+      const errorUrl = new URL(`${origin}/auth/error`)
+      errorUrl.searchParams.set('message', error.message)
+      const response = NextResponse.redirect(errorUrl)
+      response.headers.set('Cache-Control', 'no-store, max-age=0')
+      return response
+    }
+
+    // Handle password recovery - redirect to reset password page
+    if (type === 'recovery') {
+      const response = NextResponse.redirect(`${origin}/auth/reset-password`)
+      response.headers.set('Cache-Control', 'no-store, max-age=0')
+      return response
+    }
+
+    // Handle email verification (signup confirmation)
+    if (type === 'signup') {
+      const response = NextResponse.redirect(`${origin}/auth/callback-redirect?verified=true`)
+      response.headers.set('Cache-Control', 'no-store, max-age=0')
+      return response
     }
   }
 
-  // Redirect to intermediate page that will handle client-side refresh
+  // Default: Redirect to intermediate page for OAuth or other cases
   const response = NextResponse.redirect(`${origin}/auth/callback-redirect`)
 
   // Add cache control headers to prevent caching

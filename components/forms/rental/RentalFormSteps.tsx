@@ -11,12 +11,6 @@ import ContactStep from './steps/ContactStep'
 import { createClient } from '@/lib/supabase/client'
 import { Building2, MapPin, Home, DollarSign, Sparkles, Phone } from 'lucide-react'
 
-interface Category {
-  id: string
-  name: string
-  slug: string
-}
-
 interface Region {
   id: string
   name: string
@@ -26,7 +20,6 @@ interface Region {
 interface RentalFormData {
   // Step 1: Property Type & Basics
   property_type: string
-  category_id: string
   name: string
   description: string
 
@@ -58,14 +51,12 @@ interface RentalFormData {
 }
 
 interface RentalFormStepsProps {
-  categories: Category[]
   regions: Region[]
   userId: string
 }
 
 const INITIAL_DATA: RentalFormData = {
   property_type: '',
-  category_id: '',
   name: '',
   description: '',
   region_id: '',
@@ -87,7 +78,6 @@ const INITIAL_DATA: RentalFormData = {
 }
 
 export default function RentalFormSteps({
-  categories,
   regions,
   userId
 }: RentalFormStepsProps) {
@@ -111,7 +101,6 @@ export default function RentalFormSteps({
         .from('rentals')
         .insert({
           landlord_id: userId,
-          category_id: data.category_id,
           name: data.name,
           slug,
           description: data.description,
@@ -153,7 +142,6 @@ export default function RentalFormSteps({
     switch (step) {
       case 0: // Property Type & Basics
         if (!data.property_type) errors.property_type = 'Please select a property type'
-        if (!data.category_id) errors.category_id = 'Please select a category'
         if (!data.name || data.name.trim().length < 3) {
           errors.name = 'Property name must be at least 3 characters'
         }
@@ -262,13 +250,11 @@ export default function RentalFormSteps({
           <PropertyTypeStep
             formData={{
               property_type: formData.property_type || '',
-              category_id: formData.category_id || '',
               name: formData.name || '',
               description: formData.description || ''
             }}
             errors={errors}
             onChange={handleChange}
-            categories={categories}
           />
         )
       case 'location':

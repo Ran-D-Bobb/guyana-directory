@@ -5,12 +5,6 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Trash2 } from 'lucide-react'
 
-interface Category {
-  id: string
-  name: string
-  slug: string
-}
-
 interface Region {
   id: string
   name: string
@@ -20,7 +14,6 @@ interface Region {
 interface Rental {
   id: string
   property_type: string | null
-  category_id: string
   name: string
   description: string | null
   region_id: string | null
@@ -43,7 +36,6 @@ interface Rental {
 
 interface RentalEditFormProps {
   rental: Rental
-  categories: Category[]
   regions: Region[]
 }
 
@@ -77,7 +69,7 @@ const UTILITIES = ['Water', 'Electricity', 'Internet', 'Gas']
 // House rules list
 const HOUSE_RULES = ['No Smoking', 'No Pets', 'No Parties', 'Quiet Hours']
 
-export default function RentalEditForm({ rental, categories, regions }: RentalEditFormProps) {
+export default function RentalEditForm({ rental, regions }: RentalEditFormProps) {
   const router = useRouter()
   const supabase = createClient()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -86,7 +78,6 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
 
   const [formData, setFormData] = useState({
     property_type: rental.property_type || '',
-    category_id: rental.category_id || '',
     name: rental.name || '',
     description: rental.description || '',
     region_id: rental.region_id || '',
@@ -117,7 +108,6 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
       const { error: updateError } = await supabase
         .from('rentals')
         .update({
-          category_id: formData.category_id,
           name: formData.name,
           description: formData.description,
           property_type: formData.property_type,
@@ -234,25 +224,6 @@ export default function RentalEditForm({ rental, categories, regions }: RentalEd
               <option value="commercial">Commercial Property</option>
               <option value="shared_housing">Shared Housing</option>
               <option value="land">Land</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category *
-            </label>
-            <select
-              required
-              value={formData.category_id}
-              onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-            >
-              <option value="">Select category</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
             </select>
           </div>
 

@@ -40,19 +40,57 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/'
-    redirectUrl.searchParams.set('redirected', 'true')
-    return NextResponse.redirect(redirectUrl)
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    if (!user) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/auth/login'
+      redirectUrl.searchParams.set('redirected', 'true')
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    // Check if email is verified for email/password users
+    // OAuth users (google, facebook) are automatically verified
+    const provider = user.app_metadata?.provider
+    const isEmailProvider = provider === 'email'
+    const emailConfirmed = user.email_confirmed_at
+
+    if (isEmailProvider && !emailConfirmed) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/auth/verify-email'
+      if (user.email) {
+        redirectUrl.searchParams.set('email', user.email)
+      }
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
+  // Redirect authenticated users away from auth pages (except callback routes)
+  const isAuthPage = request.nextUrl.pathname.startsWith('/auth/') &&
+    !request.nextUrl.pathname.includes('/callback') &&
+    !request.nextUrl.pathname.includes('/verify-email') &&
+    !request.nextUrl.pathname.includes('/reset-password')
+
+  if (isAuthPage && user && user.email_confirmed_at) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   // Protect admin routes - require both authentication AND admin status
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!user) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/'
+      redirectUrl.pathname = '/auth/login'
       redirectUrl.searchParams.set('redirected', 'true')
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    // Check email verification for email/password users
+    const provider = user.app_metadata?.provider
+    if (provider === 'email' && !user.email_confirmed_at) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/auth/verify-email'
+      if (user.email) {
+        redirectUrl.searchParams.set('email', user.email)
+      }
       return NextResponse.redirect(redirectUrl)
     }
 

@@ -36,7 +36,7 @@ function HeroBusinessCard({ business, index }: { business: Business; index: numb
       style={{ animationDelay: `${index * 100}ms` }}
     >
       {/* Full-width image */}
-      <div className="relative aspect-[16/10] lg:aspect-[21/9] overflow-hidden">
+      <div className="relative aspect-[16/9] lg:aspect-[21/9] overflow-hidden">
         <Image
           src={imageUrl}
           alt={business.name}
@@ -116,7 +116,7 @@ function HeroBusinessCard({ business, index }: { business: Business; index: numb
 }
 
 // Editorial Standard Card
-function EditorialBusinessCard({ business, index, size = 'default' }: { business: Business; index: number; size?: 'default' | 'tall' }) {
+function EditorialBusinessCard({ business, index }: { business: Business; index: number }) {
   const imageUrl = business.primary_photo || DEFAULT_BUSINESS_IMAGE
 
   const handlePhoneClick = (e: React.MouseEvent) => {
@@ -133,7 +133,7 @@ function EditorialBusinessCard({ business, index, size = 'default' }: { business
       style={{ animationDelay: `${(index + 1) * 80}ms` }}
     >
       {/* Image */}
-      <div className={`relative overflow-hidden ${size === 'tall' ? 'aspect-[3/4]' : 'aspect-[4/3]'}`}>
+      <div className="relative overflow-hidden aspect-[4/3]">
         <Image
           src={imageUrl}
           alt={business.name}
@@ -182,13 +182,13 @@ function EditorialBusinessCard({ business, index, size = 'default' }: { business
       </div>
 
       {/* Content */}
-      <div className="p-4 lg:p-5">
+      <div className="p-4">
         {business.categories && (
-          <div className="text-xs font-semibold text-[hsl(var(--jungle-500))] mb-1.5 uppercase tracking-wider">
+          <div className="text-xs font-semibold text-[hsl(var(--jungle-500))] mb-1 uppercase tracking-wider">
             {business.categories.name}
           </div>
         )}
-        <h3 className="font-display text-lg lg:text-xl text-[hsl(var(--jungle-900))] mb-2 line-clamp-1 group-hover:text-[hsl(var(--jungle-600))] transition-colors">
+        <h3 className="font-display text-base lg:text-lg text-[hsl(var(--jungle-900))] mb-1 line-clamp-1 group-hover:text-[hsl(var(--jungle-600))] transition-colors">
           {business.name}
         </h3>
         {business.regions && (
@@ -251,7 +251,6 @@ export function BusinessesPageClient({ businesses }: BusinessesPageClientProps) 
             key={business.id}
             business={business}
             index={index}
-            size={index % 5 === 0 ? 'tall' : 'default'}
           />
         ))}
       </section>

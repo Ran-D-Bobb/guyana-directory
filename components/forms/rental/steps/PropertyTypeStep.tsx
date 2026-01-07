@@ -3,18 +3,15 @@
 import { Building2, Home, Palmtree, DoorOpen, Briefcase, Store, Users, TreePine } from 'lucide-react'
 import { TextInput } from '@/components/forms/inputs/TextInput'
 import { TextArea } from '@/components/forms/inputs/TextArea'
-import { Select } from '@/components/forms/inputs/Select'
 
 interface PropertyTypeStepProps {
   formData: {
     property_type: string
-    category_id: string
     name: string
     description: string
   }
   errors: Record<string, string>
   onChange: (field: string, value: string) => void
-  categories: Array<{ id: string; name: string; slug: string }>
 }
 
 const PROPERTY_TYPES = [
@@ -31,8 +28,7 @@ const PROPERTY_TYPES = [
 export default function PropertyTypeStep({
   formData,
   errors,
-  onChange,
-  categories
+  onChange
 }: PropertyTypeStepProps) {
   return (
     <div className="space-y-5">
@@ -88,17 +84,6 @@ export default function PropertyTypeStep({
           <p className="text-sm text-red-500 mt-2">{errors.property_type}</p>
         )}
       </div>
-
-      {/* Category */}
-      <Select
-        label="Category"
-        name="category_id"
-        value={formData.category_id}
-        onChange={(value) => onChange('category_id', value)}
-        options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
-        required
-        error={errors.category_id}
-      />
 
       {/* Property Name */}
       <TextInput

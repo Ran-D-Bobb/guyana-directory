@@ -60,7 +60,7 @@ export default async function RentalDetailPage({
     .eq('rental_id', rental.id)
     .order('created_at', { ascending: false })
 
-  // Get similar properties (same category, different property)
+  // Get similar properties (same property type, different property)
   const { data: similarRentals } = await supabase
     .from('rentals')
     .select(`
@@ -69,7 +69,7 @@ export default async function RentalDetailPage({
       regions(name),
       rental_photos(image_url, is_primary, display_order)
     `)
-    .eq('category_id', rental.category_id)
+    .eq('property_type', rental.property_type)
     .eq('is_approved', true)
     .neq('id', rental.id)
     .limit(4)

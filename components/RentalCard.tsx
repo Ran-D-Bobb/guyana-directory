@@ -15,7 +15,7 @@ type Rental = Database['public']['Tables']['rentals']['Row'] & {
   rental_categories: {
     name: string
     icon: string
-  }
+  } | null
   regions: {
     name: string
   } | null
@@ -101,11 +101,11 @@ export function RentalCard({ rental }: RentalCardProps) {
           {rental.name}
         </h3>
 
-        {/* Category & Price */}
+        {/* Property Type & Price */}
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-medium text-emerald-600 flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-            {rental.rental_categories.name}
+            {rental.property_type?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Rental'}
           </p>
           <p className="text-sm font-bold text-gray-900">
             {formatPrice(rental.price_per_month, rental.price_per_night)}

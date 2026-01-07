@@ -23,12 +23,6 @@ export default async function CreateRentalPage() {
 
   const hasReachedLimit = existingRentals && existingRentals.length >= 1
 
-  // Get rental categories
-  const { data: categories } = await supabase
-    .from('rental_categories')
-    .select('*')
-    .order('name')
-
   // Get regions
   const { data: regions } = await supabase
     .from('regions')
@@ -81,7 +75,6 @@ export default async function CreateRentalPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <RentalFormSteps
-        categories={categories || []}
         regions={regions || []}
         userId={user.id}
       />

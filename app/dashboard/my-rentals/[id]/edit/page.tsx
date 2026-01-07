@@ -26,12 +26,6 @@ export default async function EditRentalPage({ params }: { params: Promise<{ id:
     notFound()
   }
 
-  // Get rental categories
-  const { data: categories } = await supabase
-    .from('rental_categories')
-    .select('*')
-    .order('name')
-
   // Get regions
   const { data: regions } = await supabase
     .from('regions')
@@ -48,7 +42,6 @@ export default async function EditRentalPage({ params }: { params: Promise<{ id:
 
         <RentalEditForm
           rental={rental}
-          categories={categories || []}
           regions={regions || []}
         />
       </div>

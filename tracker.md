@@ -1870,3 +1870,98 @@ Following the frontend-design skill principles:
 
 ---
 
+## Phase 8: Email/Password Authentication (COMPLETE - Jan 6, 2026)
+**Goal:** Add email/password signup with email verification alongside existing Google OAuth
+
+### Features Implemented
+- ✅ **Validation Schemas** (`lib/validations/auth.ts`)
+  - signUpSchema with password requirements (8+ chars, uppercase, lowercase, number)
+  - loginSchema for email/password validation
+  - forgotPasswordSchema for password reset
+  - resetPasswordSchema with confirmation
+  - Password strength helper function
+
+- ✅ **PasswordInput Component** (`components/forms/inputs/PasswordInput.tsx`)
+  - Show/hide password toggle
+  - Real-time password strength indicator
+  - 4-level strength bar (colors: orange → yellow → emerald)
+  - Individual requirement checkboxes (8+ chars, uppercase, lowercase, number)
+  - Follows existing TextInput patterns
+
+- ✅ **Auth Form Components** (`components/auth/`)
+  - **SignUpForm.tsx** - Email signup with name, password validation, email sent confirmation
+  - **LoginForm.tsx** - Email login with unverified email handling, resend verification
+  - **ForgotPasswordForm.tsx** - Password reset request with email confirmation
+  - **ResetPasswordForm.tsx** - New password form with session validation
+  - **AuthDivider.tsx** - Visual "or" divider between OAuth and email
+  - **SocialAuthButtons.tsx** - Extracted Google OAuth button for reuse
+
+- ✅ **Auth Pages** (`app/auth/`)
+  - `/auth/signup` - Create account page with email/password form
+  - `/auth/login` - Sign in page with email/password form
+  - `/auth/forgot-password` - Request password reset page
+  - `/auth/reset-password` - Set new password page (from email link)
+  - `/auth/verify-email` - Pending verification page with resend option
+  - `/auth/error` - Auth error display with user-friendly messages
+
+- ✅ **Auth Callback Updates** (`app/auth/callback/route.ts`)
+  - Handle `type=recovery` for password reset flow
+  - Handle `type=signup` for email verification
+  - Pass error messages to error page
+
+- ✅ **Middleware Updates** (`middleware.ts`)
+  - Check email verification for email/password users
+  - Redirect unverified users to /auth/verify-email
+  - Redirect authenticated users away from auth pages
+  - Protected routes now redirect to /auth/login instead of home
+
+- ✅ **AuthButton Updates** (`components/AuthButton.tsx`)
+  - Added "Or use email" section with Log In / Sign Up buttons
+  - Links to dedicated auth pages
+  - Separator between OAuth and email options
+
+- ✅ **Database Migration** (`supabase/migrations/20260106120000_update_profile_trigger_for_email_auth.sql`)
+  - Updated `handle_new_user()` trigger function
+  - Added fallback for users without OAuth metadata
+  - Uses `name` from signup form or email prefix as fallback
+
+- ✅ **Toaster Integration** (`app/layout.tsx`)
+  - Added Sonner Toaster for toast notifications
+  - Position: top-center with rich colors
+
+### Dependencies Added
+- `zod` - Form validation
+
+### Auth Flow Summary
+1. **Email Signup:** User fills form → Supabase creates unverified user → Email sent → User clicks link → Email verified → Profile created via trigger
+2. **Email Login:** User enters credentials → Checks verification → If unverified: shows warning with resend option → If verified: logs in
+3. **Password Reset:** User requests reset → Email sent → User clicks link → Redirected to /auth/reset-password → Sets new password → Redirected to login
+4. **OAuth (unchanged):** User clicks Google → OAuth flow → Profile created via trigger → Logged in
+
+### Security Features
+- Password requirements enforced (8+ chars, mixed case, number)
+- Email verification required for protected routes
+- Rate limiting handled by Supabase
+- Secure cookies for session management
+
+---
+
+## Bug Fixes (Jan 4, 2026)
+
+### Rental Create Form - Removed Redundant Category Field
+- ✅ Removed "Category" dropdown from rental create form (step 1)
+- **Reason:** Property type selection already serves the same purpose (apartment, house, vacation_home, room, office, commercial, shared_housing, land)
+- **Files Modified:**
+  - `components/forms/rental/steps/PropertyTypeStep.tsx` - Removed category_id field and categories prop
+  - `components/forms/rental/RentalFormSteps.tsx` - Removed category_id from form data, validation, and insert
+  - `app/dashboard/my-rentals/create/page.tsx` - Removed rental_categories fetch
+  - `components/RentalEditForm.tsx` - Removed category field from edit form
+  - `app/dashboard/my-rentals/[id]/edit/page.tsx` - Removed categories fetch
+  - `types/supabase.ts` - Made category_id nullable
+  - `components/RentalCard.tsx` - Display property_type instead of category name
+  - `app/rentals/[slug]/page.tsx` - Similar rentals now match by property_type
+- **Migration:** `20260104160000_make_rental_category_nullable.sql` - Alters rentals table to allow null category_id
+- **Note:** Run `supabase migration up` after starting Supabase to apply the migration
+
+---
+

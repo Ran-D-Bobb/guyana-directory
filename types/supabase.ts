@@ -861,7 +861,7 @@ export type Database = {
           amenities: Json | null
           bathrooms: number | null
           bedrooms: number | null
-          category_id: string
+          category_id: string | null
           created_at: string | null
           description: string
           email: string | null
@@ -904,7 +904,7 @@ export type Database = {
           amenities?: Json | null
           bathrooms?: number | null
           bedrooms?: number | null
-          category_id: string
+          category_id?: string | null
           created_at?: string | null
           description: string
           email?: string | null
@@ -947,7 +947,7 @@ export type Database = {
           amenities?: Json | null
           bathrooms?: number | null
           bedrooms?: number | null
-          category_id?: string
+          category_id?: string | null
           created_at?: string | null
           description?: string
           email?: string | null

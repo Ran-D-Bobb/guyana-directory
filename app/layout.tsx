@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
+import { Toaster } from "sonner";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body className="antialiased font-sans">
         <Header />
         {children}
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );
