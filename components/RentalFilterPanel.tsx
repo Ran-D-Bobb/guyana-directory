@@ -31,11 +31,11 @@ const topAmenities = [
   { value: 'Parking', label: 'Parking', icon: Car },
 ]
 
-// Dropdown component for consistent styling
+// Premium dropdown component
 function FilterDropdown({
   label,
   icon: Icon,
-  iconColor,
+  iconGradient,
   children,
   isOpen,
   onToggle,
@@ -43,7 +43,7 @@ function FilterDropdown({
 }: {
   label: string
   icon: React.ElementType
-  iconColor: string
+  iconGradient: string
   children: React.ReactNode
   isOpen: boolean
   onToggle: () => void
@@ -65,19 +65,21 @@ function FilterDropdown({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={onToggle}
-        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
+        className={`group flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border ${
           hasValue
-            ? 'bg-gray-900 text-white border-gray-900'
-            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+            ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-lg shadow-emerald-500/25'
+            : 'glass text-gray-700 hover:bg-white/90 border-white/50'
         }`}
       >
-        <Icon className={`h-4 w-4 ${hasValue ? 'text-white' : iconColor}`} />
+        <div className={`p-1 rounded-lg ${hasValue ? 'bg-white/20' : iconGradient}`}>
+          <Icon className={`h-3.5 w-3.5 ${hasValue ? 'text-white' : 'text-white'}`} />
+        </div>
         <span>{label}</span>
-        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isOpen ? 'rotate-180' : ''} ${hasValue ? 'text-white/70' : 'text-gray-400'}`} />
+        <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''} ${hasValue ? 'text-white/80' : 'text-gray-400'}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 z-[100] min-w-[200px] animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full left-0 mt-2 glass rounded-2xl shadow-2xl border border-white/30 p-4 z-[100] min-w-[220px] animate-in fade-in slide-in-from-top-2 duration-200">
           {children}
         </div>
       )}
@@ -169,16 +171,18 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
   const regionLabel = regions.find(r => r.slug === currentFilters.region)?.name || 'Location'
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/80 p-3 relative z-40">
-      <div className="flex items-center gap-2 flex-wrap">
-        {/* Filter Icon & Label */}
-        <div className="flex items-center gap-2 pr-3 border-r border-gray-200">
-          <SlidersHorizontal className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-600">Filters</span>
+    <div className="glass rounded-2xl p-4 relative z-40 border border-white/40 shadow-lg">
+      <div className="flex items-center gap-3 flex-wrap">
+        {/* Filter Label */}
+        <div className="flex items-center gap-2.5 pr-4 border-r border-gray-200/50">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 shadow-md">
+            <SlidersHorizontal className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-sm font-bold text-gray-700">Filters</span>
         </div>
 
         {/* Quick Amenity Toggles */}
-        <div className="flex items-center gap-1 pr-3 border-r border-gray-200">
+        <div className="flex items-center gap-2 pr-4 border-r border-gray-200/50">
           {topAmenities.map((amenity) => {
             const Icon = amenity.icon
             const isSelected = selectedAmenities.includes(amenity.value)
@@ -186,14 +190,14 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
               <button
                 key={amenity.value}
                 onClick={() => toggleAmenity(amenity.value)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`group flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${
                   isSelected
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/25'
+                    : 'bg-white/60 text-gray-600 hover:bg-white hover:shadow-md border border-gray-100'
                 }`}
                 title={amenity.value}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className={`h-4 w-4 transition-transform group-hover:scale-110 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
                 <span className="hidden xl:inline">{amenity.label}</span>
               </button>
             )
@@ -204,20 +208,21 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
         <FilterDropdown
           label={bedsLabel}
           icon={BedDouble}
-          iconColor="text-blue-500"
+          iconGradient="bg-gradient-to-br from-blue-500 to-indigo-500"
           isOpen={openDropdown === 'beds'}
           onToggle={() => toggleDropdown('beds')}
           hasValue={!!currentFilters.beds}
         >
-          <div className="grid grid-cols-3 gap-1.5">
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Bedrooms</p>
+          <div className="grid grid-cols-3 gap-2">
             {['', '1', '2', '3', '4', '5+'].map((beds) => (
               <button
                 key={beds}
                 onClick={() => { updateFilters('beds', beds); setOpenDropdown(null) }}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   (currentFilters.beds || '') === beds
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
+                    : 'bg-gray-100/80 text-gray-700 hover:bg-gray-200/80'
                 }`}
               >
                 {beds === '' ? 'Any' : beds}
@@ -230,20 +235,21 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
         <FilterDropdown
           label={bathsLabel}
           icon={Bath}
-          iconColor="text-indigo-500"
+          iconGradient="bg-gradient-to-br from-purple-500 to-pink-500"
           isOpen={openDropdown === 'baths'}
           onToggle={() => toggleDropdown('baths')}
           hasValue={!!currentFilters.baths}
         >
-          <div className="grid grid-cols-3 gap-1.5">
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Bathrooms</p>
+          <div className="grid grid-cols-3 gap-2">
             {['', '1', '2', '3', '4+'].map((baths) => (
               <button
                 key={baths}
                 onClick={() => { updateFilters('baths', baths); setOpenDropdown(null) }}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   (currentFilters.baths || '') === baths
-                    ? 'bg-indigo-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
+                    : 'bg-gray-100/80 text-gray-700 hover:bg-gray-200/80'
                 }`}
               >
                 {baths === '' ? 'Any' : baths}
@@ -256,35 +262,41 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
         <FilterDropdown
           label={priceLabel}
           icon={DollarSign}
-          iconColor="text-green-500"
+          iconGradient="bg-gradient-to-br from-green-500 to-emerald-500"
           isOpen={openDropdown === 'price'}
           onToggle={() => toggleDropdown('price')}
           hasValue={!!(currentFilters.price_min || currentFilters.price_max)}
         >
-          <div className="space-y-3 w-[220px]">
-            <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Price Range (GYD/month)</div>
-            <div className="flex gap-2 items-center">
-              <input
-                type="number"
-                placeholder="Min"
-                value={localPriceMin}
-                onChange={(e) => setLocalPriceMin(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <span className="text-gray-400">—</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={localPriceMax}
-                onChange={(e) => setLocalPriceMax(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
+          <div className="w-[240px]">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Price Range (GYD/month)</p>
+            <div className="flex gap-2 items-center mb-4">
+              <div className="flex-1">
+                <label className="text-xs text-gray-500 mb-1 block">Min</label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={localPriceMin}
+                  onChange={(e) => setLocalPriceMin(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+              </div>
+              <span className="text-gray-300 mt-5">—</span>
+              <div className="flex-1">
+                <label className="text-xs text-gray-500 mb-1 block">Max</label>
+                <input
+                  type="number"
+                  placeholder="∞"
+                  value={localPriceMax}
+                  onChange={(e) => setLocalPriceMax(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+              </div>
             </div>
             <button
               onClick={applyPriceFilter}
-              className="w-full py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors"
+              className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg"
             >
-              Apply
+              Apply Price Filter
             </button>
           </div>
         </FilterDropdown>
@@ -294,18 +306,19 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
           <FilterDropdown
             label={regionLabel}
             icon={MapPin}
-            iconColor="text-red-500"
+            iconGradient="bg-gradient-to-br from-rose-500 to-red-500"
             isOpen={openDropdown === 'region'}
             onToggle={() => toggleDropdown('region')}
             hasValue={!!currentFilters.region}
           >
-            <div className="max-h-[250px] overflow-y-auto space-y-1 min-w-[180px]">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Select Region</p>
+            <div className="max-h-[280px] overflow-y-auto space-y-1.5 scrollbar-thin">
               <button
                 onClick={() => { updateFilters('region', ''); setOpenDropdown(null) }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   !currentFilters.region
-                    ? 'bg-red-500 text-white'
-                    : 'hover:bg-gray-100 text-gray-700'
+                    ? 'bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-md'
+                    : 'hover:bg-gray-100/80 text-gray-700'
                 }`}
               >
                 All Regions
@@ -314,10 +327,10 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
                 <button
                   key={region.slug}
                   onClick={() => { updateFilters('region', region.slug); setOpenDropdown(null) }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                     currentFilters.region === region.slug
-                      ? 'bg-red-500 text-white'
-                      : 'hover:bg-gray-100 text-gray-700'
+                      ? 'bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-md'
+                      : 'hover:bg-gray-100/80 text-gray-700'
                   }`}
                 >
                   {region.name}
@@ -331,15 +344,15 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
         <div className="flex-1" />
 
         {/* Sort Pills */}
-        <div className="flex items-center gap-1 pl-3 border-l border-gray-200">
+        <div className="flex items-center gap-1.5 pl-4 border-l border-gray-200/50">
           {sortOptions.map((option) => (
             <button
               key={option.value}
               onClick={() => updateFilters('sort', option.value === 'newest' ? '' : option.value)}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${
                 (currentFilters.sort || 'newest') === option.value
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                  ? 'bg-gray-900 text-white shadow-md'
+                  : 'text-gray-500 hover:bg-white/80 hover:text-gray-700 hover:shadow-sm'
               }`}
             >
               {option.label}
@@ -351,7 +364,7 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
         {activeFilterCount > 0 && (
           <button
             onClick={clearFilters}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-red-600 hover:bg-red-50 rounded-lg text-xs font-medium transition-colors ml-2"
+            className="flex items-center gap-1.5 px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-bold transition-all ml-2 border border-rose-200"
           >
             <X className="h-3.5 w-3.5" />
             Clear ({activeFilterCount})

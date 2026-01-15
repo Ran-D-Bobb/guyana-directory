@@ -2,10 +2,19 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { formatDistanceToNow } from 'date-fns'
-import { Star, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { Star, ThumbsUp, ThumbsDown, LogIn } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { User } from '@supabase/supabase-js'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { ReviewerBadge, getBadgeFromReviewCount } from '@/components/ReviewerBadge'
 
 interface ReviewItemProps {
   review: {
@@ -18,6 +27,7 @@ interface ReviewItemProps {
     profiles: {
       name: string
       photo: string | null
+      review_count?: number | null
     } | null
   }
   user: User | null
@@ -39,12 +49,14 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
   const [notHelpfulCount, setNotHelpfulCount] = useState(review.not_helpful_count || 0)
   const [currentVote, setCurrentVote] = useState<boolean | null>(userVote?.is_helpful ?? null)
   const [isVoting, setIsVoting] = useState(false)
+  const [showSignInDialog, setShowSignInDialog] = useState(false)
+  const router = useRouter()
 
   const supabase = createClient()
 
   const handleVote = async (isHelpful: boolean) => {
     if (!user) {
-      alert('Please sign in to vote on reviews')
+      setShowSignInDialog(true)
       return
     }
 
@@ -132,9 +144,15 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">
-            <p className="font-semibold text-gray-900">
-              {review.profiles?.name || 'Anonymous'}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold text-gray-900">
+                {review.profiles?.name || 'Anonymous'}
+              </p>
+              <ReviewerBadge
+                badge={getBadgeFromReviewCount(review.profiles?.review_count)}
+                size="sm"
+              />
+            </div>
             <span className="text-sm text-gray-500 whitespace-nowrap">
               {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
             </span>
@@ -162,34 +180,43 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
       )}
 
       {/* Helpful Votes */}
-      <div className="flex items-center gap-4 ml-15">
-        <span className="text-sm text-gray-600">Was this helpful?</span>
+      <div className="ml-15 space-y-2">
+        {/* "X people found this helpful" text */}
+        {helpfulCount > 0 && (
+          <p className="text-sm text-[hsl(var(--jungle-600))]">
+            {helpfulCount} {helpfulCount === 1 ? 'person' : 'people'} found this helpful
+          </p>
+        )}
 
-        <button
-          onClick={() => handleVote(true)}
-          disabled={isVoting}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors ${
-            currentVote === true
-              ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
-              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-          } disabled:opacity-50 disabled:cursor-not-allowed`}
-        >
-          <ThumbsUp className="w-4 h-4" />
-          <span className="text-sm font-medium">{helpfulCount}</span>
-        </button>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-600">Was this helpful?</span>
 
-        <button
-          onClick={() => handleVote(false)}
-          disabled={isVoting}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors ${
-            currentVote === false
-              ? 'bg-red-50 border-red-500 text-red-700'
-              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-          } disabled:opacity-50 disabled:cursor-not-allowed`}
-        >
-          <ThumbsDown className="w-4 h-4" />
-          <span className="text-sm font-medium">{notHelpfulCount}</span>
-        </button>
+          <button
+            onClick={() => handleVote(true)}
+            disabled={isVoting}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors ${
+              currentVote === true
+                ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
+                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <ThumbsUp className="w-4 h-4" />
+            <span className="text-sm font-medium">{helpfulCount}</span>
+          </button>
+
+          <button
+            onClick={() => handleVote(false)}
+            disabled={isVoting}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors ${
+              currentVote === false
+                ? 'bg-red-50 border-red-500 text-red-700'
+                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <ThumbsDown className="w-4 h-4" />
+            <span className="text-sm font-medium">{notHelpfulCount}</span>
+          </button>
+        </div>
       </div>
 
       {/* Business Response */}
@@ -225,6 +252,35 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
           <p className="text-sm text-gray-800">{businessResponse.response}</p>
         </div>
       )}
+
+      {/* Sign-in Dialog for anonymous users */}
+      <Dialog open={showSignInDialog} onOpenChange={setShowSignInDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <LogIn className="w-5 h-5 text-[hsl(var(--jungle-600))]" />
+              Sign in to vote
+            </DialogTitle>
+            <DialogDescription>
+              Create an account or sign in to vote on reviews and help others find useful feedback.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 mt-4">
+            <button
+              onClick={() => router.push('/')}
+              className="w-full bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))] text-white font-medium py-3 px-4 rounded-xl transition-colors"
+            >
+              Sign in
+            </button>
+            <button
+              onClick={() => setShowSignInDialog(false)}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl transition-colors"
+            >
+              Maybe later
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

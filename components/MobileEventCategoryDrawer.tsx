@@ -26,7 +26,7 @@ export function MobileEventCategoryDrawer({ categories, currentCategorySlug }: M
       {/* Floating Button - positioned on left to avoid conflict with filter button on right */}
       <button
         onClick={() => setIsOpen(true)}
-        className="lg:hidden fixed bottom-[5.5rem] left-4 z-[60] h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center"
+        className="lg:hidden fixed bottom-[5.5rem] left-4 z-[60] h-14 w-14 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 active:scale-95 transition-all flex items-center justify-center"
         aria-label="Open event categories"
       >
         <Grid3x3 className="h-5 w-5" strokeWidth={2.5} />
@@ -35,32 +35,32 @@ export function MobileEventCategoryDrawer({ categories, currentCategorySlug }: M
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-50 animate-in fade-in duration-200"
+          className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-in fade-in duration-200"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Drawer */}
       <div
-        className={`lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl transform transition-transform duration-300 ease-out ${
+        className={`lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-b from-white to-emerald-50/30 rounded-t-3xl shadow-2xl transform transition-transform duration-300 ease-out ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
         style={{ maxHeight: '85vh' }}
       >
         {/* Handle */}
         <div className="flex items-center justify-center pt-4 pb-2">
-          <div className="w-12 h-1.5 rounded-full bg-gray-300" />
+          <div className="w-12 h-1.5 rounded-full bg-emerald-200" />
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-emerald-100">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Event Categories</h2>
+            <h2 className="font-display text-xl font-semibold text-gray-900">Event Categories</h2>
             <p className="text-sm text-gray-600">Browse all event types</p>
           </div>
           <button
             onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-emerald-50 rounded-xl transition-colors border border-transparent hover:border-emerald-200"
             aria-label="Close"
           >
             <X className="h-6 w-6 text-gray-600" />
@@ -75,14 +75,14 @@ export function MobileEventCategoryDrawer({ categories, currentCategorySlug }: M
             onClick={() => setIsOpen(false)}
             className={`flex items-center gap-4 px-4 py-3.5 rounded-xl mb-2 transition-all ${
               !currentCategorySlug
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                : 'hover:bg-gray-100 text-gray-700'
+                ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-500/25'
+                : 'hover:bg-emerald-50 text-gray-700 border border-transparent hover:border-emerald-200'
             }`}
           >
             <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${
-              !currentCategorySlug ? 'bg-white/20' : 'bg-gray-100'
+              !currentCategorySlug ? 'bg-white/20' : 'bg-emerald-100'
             }`}>
-              <Calendar className={`h-5 w-5 ${!currentCategorySlug ? 'text-white' : 'text-gray-600'}`} strokeWidth={2} />
+              <Calendar className={`h-5 w-5 ${!currentCategorySlug ? 'text-white' : 'text-emerald-600'}`} strokeWidth={2} />
             </div>
             <div className="flex-1">
               <div className="font-semibold">All Events</div>
@@ -91,6 +91,9 @@ export function MobileEventCategoryDrawer({ categories, currentCategorySlug }: M
               </div>
             </div>
           </Link>
+
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent my-3" />
 
           {/* Category Items */}
           {categories.map((category) => {
@@ -104,14 +107,14 @@ export function MobileEventCategoryDrawer({ categories, currentCategorySlug }: M
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-4 px-4 py-3.5 rounded-xl mb-2 transition-all ${
                   isActive
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                    : 'hover:bg-gray-100 text-gray-700'
+                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-500/25'
+                    : 'hover:bg-emerald-50 text-gray-700 border border-transparent hover:border-emerald-200'
                 }`}
               >
                 <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${
                   isActive ? 'bg-white/20' : 'bg-gray-100'
                 }`}>
-                  <IconComponent className={`h-5 w-5 ${isActive ? 'text-white' : 'text-gray-600'}`} strokeWidth={2} />
+                  <IconComponent className={`h-5 w-5 ${isActive ? 'text-white' : 'text-gray-500'}`} strokeWidth={2} />
                 </div>
                 <div className="flex-1">
                   <div className="font-semibold">{category.name}</div>

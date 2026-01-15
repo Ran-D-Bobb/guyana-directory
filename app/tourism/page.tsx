@@ -1,11 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
-import { TourismCategorySidebar } from '@/components/TourismCategorySidebar'
-import { TourismPageClient } from '@/components/TourismPageClient'
-import { MobileTourismCategoryDrawer } from '@/components/MobileTourismCategoryDrawer'
+import { TourismHero } from '@/components/tourism/TourismHero'
+import { TourismCategoryPills } from '@/components/tourism/TourismCategoryPills'
+import { FeaturedExperiences } from '@/components/tourism/FeaturedExperiences'
+import { TourismFilterBarPremium } from '@/components/tourism/TourismFilterBarPremium'
+import { TourismPageClientPremium } from '@/components/tourism/TourismPageClientPremium'
 import { MobileTourismFilterSheet } from '@/components/MobileTourismFilterSheet'
-import { TourismFilterPanel } from '@/components/TourismFilterPanel'
 import { getTourismCategoriesWithCounts } from '@/lib/category-counts'
-import { Plane } from 'lucide-react'
 
 // Revalidate every 5 minutes
 export const revalidate = 300
@@ -43,7 +43,7 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
       regions:region_id (name),
       tourism_photos:tourism_photos (image_url, is_primary, display_order)
     `)
-    .eq('is_approved', true) // Only show approved experiences to public
+    .eq('is_approved', true)
 
   // Apply category filter if selected
   if (category && category !== 'all') {
@@ -55,21 +55,20 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
     query = query.eq('difficulty_level', difficulty)
   }
 
-  // Apply duration filter if selected
+  // Apply duration filter if selected (duration is stored as text like "2 hours", "Half Day", etc.)
   if (duration && duration !== 'all') {
-    // Map duration filter values to actual database values or ranges
     switch (duration) {
       case 'quick':
-        query = query.lte('duration_hours', 2)
+        query = query.or('duration.ilike.%hour%,duration.ilike.%1%,duration.ilike.%2%')
         break
       case 'half_day':
-        query = query.gte('duration_hours', 3).lte('duration_hours', 4)
+        query = query.ilike('duration', '%half%')
         break
       case 'full_day':
-        query = query.gte('duration_hours', 5).lte('duration_hours', 8)
+        query = query.ilike('duration', '%full%')
         break
       case 'multi_day':
-        query = query.gt('duration_hours', 8)
+        query = query.or('duration.ilike.%day%,duration.ilike.%week%,duration.ilike.%multi%')
         break
     }
   }
@@ -81,7 +80,7 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
 
   // Apply search filter if query exists
   if (q && q.trim()) {
-    query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,location.ilike.%${q}%`)
+    query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%,location_details.ilike.%${q}%`)
   }
 
   // Apply sorting
@@ -104,38 +103,70 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
       break
   }
 
-  // Limit initial page load for performance
   query = query.limit(24)
 
   const { data: experiences, error } = await query
 
-  // Log errors for debugging
   if (error) {
     console.error('Tourism experiences query error:', error)
   }
 
+  // Get featured experiences for the carousel (only if no filters applied)
+  const hasFilters = !!(category || difficulty || duration || region || q)
+  const featuredExperiences = !hasFilters
+    ? experiences?.filter(e => e.is_featured).slice(0, 6) || []
+    : []
+
+  // Non-featured experiences for the main grid
+  const gridExperiences = hasFilters
+    ? experiences || []
+    : experiences?.filter(e => !featuredExperiences.includes(e)) || []
+
+  const totalExperiences = experiences?.length || 0
+
   return (
-    <div className="min-h-screen bg-gray-50 flex pb-0 lg:pb-0">
-      {/* Desktop Tourism Category Sidebar */}
-      <TourismCategorySidebar categories={categoriesWithCount} />
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
+      {/* Hero Section - Only show when no search/filters */}
+      {!hasFilters && (
+        <TourismHero totalExperiences={totalExperiences} />
+      )}
 
-      {/* Main Content Area - scrollable on desktop */}
-      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
-        {/* Content Container */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
-          {/* Page Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">
-              Explore Guyana
-            </h1>
-            <p className="text-lg text-gray-600 max-w-3xl">
-              Discover unforgettable tourism experiences, from pristine rainforests to stunning waterfalls and cultural adventures
-            </p>
+      {/* Main Content */}
+      <div id="tourism-content" className="pb-24 lg:pb-12">
+        {/* Category Pills Section */}
+        <section className={`bg-white border-b border-gray-100 sticky top-0 z-30 ${hasFilters ? 'pt-4' : ''}`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <TourismCategoryPills
+              categories={categoriesWithCount}
+              currentCategoryId={category}
+            />
           </div>
+        </section>
 
-          {/* Desktop Filter Panel - Sticky */}
-          <div className="hidden lg:block sticky top-0 z-30 mb-6">
-            <TourismFilterPanel
+        {/* Featured Experiences Carousel - Only show when no filters */}
+        {!hasFilters && featuredExperiences.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <FeaturedExperiences experiences={featuredExperiences} />
+          </section>
+        )}
+
+        {/* Filter Bar & Grid Section */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Section Header */}
+          {!hasFilters && featuredExperiences.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                All Experiences
+              </h2>
+              <p className="text-gray-600 mt-1">
+                Browse our complete collection of tourism experiences
+              </p>
+            </div>
+          )}
+
+          {/* Filter Bar - Desktop */}
+          <div className="hidden lg:block mb-8">
+            <TourismFilterBarPremium
               regions={regions || []}
               currentFilters={{
                 region,
@@ -146,29 +177,24 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
             />
           </div>
 
-          {/* Experiences Grid */}
-          {experiences && experiences.length > 0 ? (
-            <TourismPageClient experiences={experiences} searchParams={{ category, difficulty, duration, sort, q, region }} />
-          ) : (
-            <div className="text-center py-20 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 mb-6">
-                <Plane className="w-10 h-10 text-emerald-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                No experiences found
-              </h3>
-              <p className="text-gray-500 text-lg max-w-md mx-auto">
-                Try adjusting your filters or check back later for new tourism experiences
+          {/* Search Query Display */}
+          {q && (
+            <div className="mb-6 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+              <p className="text-emerald-800">
+                Showing results for <span className="font-bold">&quot;{q}&quot;</span>
               </p>
             </div>
           )}
-        </main>
+
+          {/* Experiences Grid */}
+          <TourismPageClientPremium
+            experiences={gridExperiences}
+            hasFilters={hasFilters}
+          />
+        </section>
       </div>
 
-      {/* Mobile Tourism Category Drawer */}
-      <MobileTourismCategoryDrawer categories={categoriesWithCount} />
-
-      {/* Mobile Tourism Filter Sheet */}
+      {/* Mobile Filter Sheet */}
       <MobileTourismFilterSheet regions={regions || []} />
     </div>
   )

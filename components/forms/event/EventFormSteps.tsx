@@ -4,6 +4,7 @@ import { useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Calendar, FileText, MapPin, MessageCircle } from 'lucide-react'
+import type { LocationData } from '@/components/forms/inputs/LocationInput'
 import { MultiStepFormWrapper } from '../multistep/MultiStepFormWrapper'
 import { FormStepConfig } from '@/hooks/useMultiStepForm'
 import { BasicInfoStep } from './steps/BasicInfoStep'
@@ -20,6 +21,8 @@ interface EventFormData {
   end_date: string
   end_time: string
   location: string
+  locationData?: LocationData | null
+  is_online?: boolean
   business_id?: string
   phone: string
   email: string
@@ -176,7 +179,9 @@ export function EventFormSteps({
           description: data.description,
           start_date: startDateTime,
           end_date: endDateTime,
-          location: data.location || null,
+          location: data.locationData?.formatted_address || data.location || null,
+          latitude: data.locationData?.latitude || null,
+          longitude: data.locationData?.longitude || null,
           category_id: data.category_id,
           business_id: data.business_id || null,
           user_id: userId,

@@ -1,11 +1,14 @@
 'use client'
 
-import { MapPin, Building2, Info } from 'lucide-react'
+import { MapPin, Building2, Info, Globe } from 'lucide-react'
+import { LocationInput, type LocationData } from '@/components/forms/inputs/LocationInput'
 
 interface LocationStepProps {
   formData: {
     location?: string
+    locationData?: LocationData | null
     business_id?: string
+    is_online?: boolean
   }
   updateFormData: (data: Partial<LocationStepProps['formData']>) => void
   errors: Record<string, string>
@@ -22,6 +25,9 @@ export function LocationStep({
   errors,
   userBusinesses,
 }: LocationStepProps) {
+  const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
+  const isOnline = formData.is_online || false
+
   return (
     <div className="space-y-6">
       {/* Optional Notice */}
@@ -35,32 +41,83 @@ export function LocationStep({
         </div>
       </div>
 
-      {/* Location */}
-      <div>
-        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-          Event Location
+      {/* Online Event Toggle */}
+      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <input
+          type="checkbox"
+          id="is_online"
+          checked={isOnline}
+          onChange={(e) => {
+            updateFormData({
+              is_online: e.target.checked,
+              // Clear location data if switching to online
+              locationData: e.target.checked ? null : formData.locationData,
+              location: e.target.checked ? 'Online Event' : ''
+            })
+          }}
+          className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+        />
+        <label htmlFor="is_online" className="flex items-center gap-2 cursor-pointer">
+          <Globe className="w-5 h-5 text-purple-600" />
+          <span className="font-medium text-gray-900">This is an online/virtual event</span>
         </label>
-        <div className="relative">
-          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            id="location"
-            value={formData.location || ''}
-            onChange={(e) => updateFormData({ location: e.target.value })}
-            maxLength={200}
-            className={`w-full pl-10 pr-4 py-3 border ${
-              errors.location ? 'border-red-500' : 'border-gray-300'
-            } rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base`}
-            placeholder="e.g., Georgetown City Hall or Online"
-          />
-        </div>
-        {errors.location && (
-          <p className="text-sm text-red-600 mt-1">{errors.location}</p>
-        )}
-        <p className="text-sm text-gray-500 mt-1">
-          Provide a specific address, venue name, or indicate if it&apos;s an online event
-        </p>
       </div>
+
+      {/* Location Input with Map - only show for in-person events */}
+      {!isOnline && (
+        <LocationInput
+          label="Event Location"
+          name="locationData"
+          value={formData.locationData || null}
+          onChange={(value) => {
+            updateFormData({
+              locationData: value,
+              location: value?.formatted_address || ''
+            })
+          }}
+          error={errors.locationData}
+          helperText="Search for the venue address. You can drag the marker to adjust the exact location."
+          apiKey={apiKey}
+        />
+      )}
+
+      {/* Fallback text input for location name */}
+      {!isOnline && !formData.locationData && (
+        <div>
+          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+            Or enter location manually
+          </label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              id="location"
+              value={formData.location || ''}
+              onChange={(e) => updateFormData({ location: e.target.value })}
+              maxLength={200}
+              className={`w-full pl-10 pr-4 py-3 border ${
+                errors.location ? 'border-red-500' : 'border-gray-300'
+              } rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base`}
+              placeholder="e.g., Georgetown City Hall"
+            />
+          </div>
+          {errors.location && (
+            <p className="text-sm text-red-600 mt-1">{errors.location}</p>
+          )}
+          <p className="text-sm text-gray-500 mt-1">
+            If you can&apos;t find the address above, enter a venue name or description
+          </p>
+        </div>
+      )}
+
+      {/* Online event info */}
+      {isOnline && (
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+          <p className="text-sm text-purple-800">
+            <span className="font-medium">Online Event:</span> You can share the meeting link or platform details in the contact section or event description.
+          </p>
+        </div>
+      )}
 
       {/* Business Association (if user has businesses) */}
       {userBusinesses.length > 0 && (
@@ -90,7 +147,7 @@ export function LocationStep({
             <p className="text-sm text-red-600 mt-1">{errors.business_id}</p>
           )}
           <p className="text-sm text-gray-500 mt-1">
-            Link this event to one of your businesses if applicable. This will display the event on your business profile.
+            Link this event to one of your businesses if applicable.
           </p>
         </div>
       )}
@@ -102,18 +159,6 @@ export function LocationStep({
           </p>
         </div>
       )}
-
-      {/* Examples */}
-      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-        <p className="text-sm font-medium text-purple-900 mb-2">Location Examples</p>
-        <ul className="text-sm text-purple-800 space-y-1 list-disc list-inside">
-          <li>Georgetown City Hall, Main Street</li>
-          <li>National Park, East Coast Demerara</li>
-          <li>Virtual Event (Zoom Link in Contact)</li>
-          <li>Cultural Center, Linden</li>
-          <li>To Be Announced</li>
-        </ul>
-      </div>
     </div>
   )
 }

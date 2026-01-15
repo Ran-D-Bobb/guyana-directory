@@ -4,131 +4,28 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Calendar, MapPin, Sparkles, ArrowRight, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar, MapPin, Sparkles, ArrowRight, X, Play, Volume2, VolumeX } from 'lucide-react'
 
-// Guyana's Major Annual Events - Demo Data with stunning imagery
-const ANNUAL_EVENTS = [
-  {
-    id: 'mashramani',
-    month: 'February',
-    monthShort: 'FEB',
-    day: '23',
-    title: 'Mashramani',
-    subtitle: 'Republic Day Celebrations',
-    description: 'The ultimate expression of Guyanese culture! Vibrant costumes, pulsating music, and the famous float parade transform the streets into a kaleidoscope of color and rhythm.',
-    location: 'Georgetown & Nationwide',
-    image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1600&q=90',
-    color: 'from-orange-500 via-pink-500 to-purple-600',
-    accentColor: 'orange',
-    highlights: ['Float Parade', 'Costume Bands', 'Steel Pan', 'Calypso'],
-    category: 'Cultural Festival',
-  },
-  {
-    id: 'phagwah',
-    month: 'March',
-    monthShort: 'MAR',
-    day: '25',
-    title: 'Phagwah (Holi)',
-    subtitle: 'Festival of Colors',
-    description: 'Experience the joyous Hindu spring festival where streets erupt in clouds of vibrant colored powder. Music, dancing, and the triumph of good over evil.',
-    location: 'Nationwide',
-    image: 'https://images.unsplash.com/photo-1576983844349-f95c28c0cd51?w=1600&q=90',
-    color: 'from-pink-500 via-purple-500 to-indigo-500',
-    accentColor: 'pink',
-    highlights: ['Color Throwing', 'Chowtal Singing', 'Traditional Sweets', 'Spring Celebration'],
-    category: 'Religious Festival',
-  },
-  {
-    id: 'easter-regatta',
-    month: 'April',
-    monthShort: 'APR',
-    day: '20',
-    title: 'Easter Regatta',
-    subtitle: 'Bartica Sailing Festival',
-    description: 'The riverside town of Bartica comes alive with boat races, water sports, and festivities. A beloved Guyanese tradition drawing thousands to the waterfront.',
-    location: 'Bartica, Region 7',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=90',
-    color: 'from-cyan-500 via-blue-500 to-indigo-600',
-    accentColor: 'cyan',
-    highlights: ['Boat Racing', 'Swimming Competitions', 'Live Music', 'River Festival'],
-    category: 'Sports & Recreation',
-  },
-  {
-    id: 'arrival-day',
-    month: 'May',
-    monthShort: 'MAY',
-    day: '5',
-    title: 'Arrival Day',
-    subtitle: 'Celebrating Heritage',
-    description: 'Commemorating the arrival of indentured workers from India, this day honors the contributions of the Indian diaspora to Guyana\'s rich multicultural tapestry.',
-    location: 'Nationwide',
-    image: 'https://images.unsplash.com/photo-1606567595334-d39972c85dfd?w=1600&q=90',
-    color: 'from-amber-500 via-orange-500 to-red-500',
-    accentColor: 'amber',
-    highlights: ['Cultural Programs', 'Traditional Food', 'Heritage Sites', 'Community Gatherings'],
-    category: 'National Holiday',
-  },
-  {
-    id: 'amerindian-heritage',
-    month: 'September',
-    monthShort: 'SEP',
-    day: '1-30',
-    title: 'Amerindian Heritage Month',
-    subtitle: 'Indigenous Celebrations',
-    description: 'A month-long celebration of Guyana\'s nine indigenous nations. Traditional crafts, ancestral foods, storytelling, and sacred ceremonies connect past with present.',
-    location: 'Indigenous Communities',
-    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=90',
-    color: 'from-emerald-500 via-teal-500 to-cyan-500',
-    accentColor: 'emerald',
-    highlights: ['Heritage Village', 'Traditional Crafts', 'Cassava Bread Making', 'Indigenous Games'],
-    category: 'Cultural Heritage',
-  },
-  {
-    id: 'diwali',
-    month: 'November',
-    monthShort: 'NOV',
-    day: '12',
-    title: 'Diwali',
-    subtitle: 'Festival of Lights',
-    description: 'As darkness falls, thousands of diyas (oil lamps) illuminate homes and streets. The Hindu festival of lights creates a magical atmosphere across the country.',
-    location: 'Nationwide',
-    image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=1600&q=90',
-    color: 'from-yellow-400 via-amber-500 to-orange-600',
-    accentColor: 'yellow',
-    highlights: ['Diya Lighting', 'Fireworks', 'Sweets & Delicacies', 'Lakshmi Puja'],
-    category: 'Religious Festival',
-  },
-  {
-    id: 'christmas',
-    month: 'December',
-    monthShort: 'DEC',
-    day: '25',
-    title: 'Christmas Season',
-    subtitle: 'Tropical Holiday Magic',
-    description: 'Guyanese Christmas is unique! Garlic pork, pepperpot, and black cake. Masquerade bands dance through streets while families gather for traditional celebrations.',
-    location: 'Nationwide',
-    image: 'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=1600&q=90',
-    color: 'from-red-500 via-rose-500 to-pink-500',
-    accentColor: 'red',
-    highlights: ['Masquerade Dancing', 'Pepperpot', 'Carol Singing', 'Family Gatherings'],
-    category: 'National Holiday',
-  },
-  {
-    id: 'rupununi-rodeo',
-    month: 'March',
-    monthShort: 'MAR',
-    day: '15-16',
-    title: 'Rupununi Rodeo',
-    subtitle: 'Wild West of Guyana',
-    description: 'In the vast savannahs of the Rupununi, skilled vaqueros showcase horsemanship at this legendary rodeo. Cowboys, cattle, and the spirit of the frontier.',
-    location: 'Lethem, Region 9',
-    image: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=1600&q=90',
-    color: 'from-amber-600 via-yellow-600 to-lime-500',
-    accentColor: 'lime',
-    highlights: ['Bull Riding', 'Horse Racing', 'Lasso Competitions', 'Ranch Culture'],
-    category: 'Sports & Recreation',
-  },
-]
+// Timeline Event Type
+export interface TimelineEvent {
+  id: string
+  title: string
+  subtitle: string | null
+  description: string | null
+  month: string
+  month_short: string
+  day: string
+  location: string | null
+  media_type: 'image' | 'video'
+  media_url: string
+  thumbnail_url: string | null
+  gradient_colors: string
+  accent_color: string
+  category: string
+  highlights: string[]
+  display_order: number
+  is_active: boolean
+}
 
 // Pre-computed stable positions to avoid hydration mismatch
 const PARTICLE_POSITIONS = [
@@ -200,6 +97,40 @@ const FloatingElements = () => (
   </div>
 )
 
+// Video Background Component
+const VideoBackground = ({
+  src,
+  isActive,
+  isHovered
+}: {
+  src: string
+  isActive: boolean
+  isHovered: boolean
+}) => {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isActive || isHovered) {
+        videoRef.current.play().catch(() => {})
+      } else {
+        videoRef.current.pause()
+      }
+    }
+  }, [isActive, isHovered])
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      muted
+      loop
+      playsInline
+      className="absolute inset-0 w-full h-full object-cover"
+    />
+  )
+}
+
 // Event Card Component
 const EventCard = ({
   event,
@@ -207,7 +138,7 @@ const EventCard = ({
   isActive,
   onClick
 }: {
-  event: typeof ANNUAL_EVENTS[0]
+  event: TimelineEvent
   index: number
   isActive: boolean
   onClick: () => void
@@ -233,7 +164,7 @@ const EventCard = ({
     >
       {/* Main Card */}
       <div className="relative w-full h-full rounded-[2rem] overflow-hidden shadow-2xl">
-        {/* Background Image with Ken Burns */}
+        {/* Background Media with Ken Burns */}
         <motion.div
           className="absolute inset-0"
           animate={{
@@ -241,19 +172,35 @@ const EventCard = ({
           }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-          <Image
-            src={event.image}
-            alt={event.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 85vw, (max-width: 1024px) 50vw, 35vw"
-            priority={index < 3}
-          />
+          {event.media_type === 'video' ? (
+            <VideoBackground
+              src={event.media_url}
+              isActive={isActive}
+              isHovered={isHovered}
+            />
+          ) : (
+            <Image
+              src={event.media_url}
+              alt={event.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 85vw, (max-width: 1024px) 50vw, 35vw"
+              priority={index < 3}
+            />
+          )}
         </motion.div>
 
         {/* Gradient Overlays */}
-        <div className={`absolute inset-0 bg-gradient-to-t ${event.color} opacity-60 mix-blend-multiply`} />
+        <div className={`absolute inset-0 bg-gradient-to-t ${event.gradient_colors} opacity-60 mix-blend-multiply`} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+        {/* Video indicator */}
+        {event.media_type === 'video' && (
+          <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2 py-1 bg-black/30 backdrop-blur-sm rounded-full">
+            <Play size={12} className="text-white" fill="white" />
+            <span className="text-white text-xs font-medium">Video</span>
+          </div>
+        )}
 
         {/* Animated border glow on hover */}
         <motion.div
@@ -279,7 +226,7 @@ const EventCard = ({
                 backgroundColor: isHovered ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)'
               }}
             >
-              <span className="text-white/80 text-xs font-bold tracking-widest">{event.monthShort}</span>
+              <span className="text-white/80 text-xs font-bold tracking-widest">{event.month_short}</span>
               <span className="text-white text-2xl sm:text-3xl font-bold font-display">{event.day}</span>
             </motion.div>
 
@@ -305,50 +252,58 @@ const EventCard = ({
               >
                 {event.title}
               </motion.h3>
-              <motion.p
-                className="text-lg sm:text-xl text-white/80 font-medium"
-                animate={{ y: isHovered ? -5 : 0 }}
-                transition={{ delay: 0.05 }}
-              >
-                {event.subtitle}
-              </motion.p>
+              {event.subtitle && (
+                <motion.p
+                  className="text-lg sm:text-xl text-white/80 font-medium"
+                  animate={{ y: isHovered ? -5 : 0 }}
+                  transition={{ delay: 0.05 }}
+                >
+                  {event.subtitle}
+                </motion.p>
+              )}
             </div>
 
             {/* Description - shows on hover */}
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{
-                opacity: isHovered ? 1 : 0,
-                height: isHovered ? 'auto' : 0
-              }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
-            >
-              <p className="text-white/70 text-sm sm:text-base leading-relaxed line-clamp-3">
-                {event.description}
-              </p>
-            </motion.div>
+            {event.description && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{
+                  opacity: isHovered ? 1 : 0,
+                  height: isHovered ? 'auto' : 0
+                }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <p className="text-white/70 text-sm sm:text-base leading-relaxed line-clamp-3">
+                  {event.description}
+                </p>
+              </motion.div>
+            )}
 
             {/* Location */}
-            <div className="flex items-center gap-2 text-white/70">
-              <MapPin className="w-4 h-4" />
-              <span className="text-sm">{event.location}</span>
-            </div>
+            {event.location && (
+              <div className="flex items-center gap-2 text-white/70">
+                <MapPin className="w-4 h-4" />
+                <span className="text-sm">{event.location}</span>
+              </div>
+            )}
 
             {/* Highlights Tags */}
-            <motion.div
-              className="flex flex-wrap gap-2"
-              animate={{ y: isHovered ? 0 : 10, opacity: isHovered ? 1 : 0.7 }}
-            >
-              {event.highlights.slice(0, 3).map((highlight, i) => (
-                <span
-                  key={i}
-                  className="px-3 py-1 text-xs font-medium text-white/90 bg-white/10 backdrop-blur-sm rounded-full border border-white/10"
-                >
-                  {highlight}
-                </span>
-              ))}
-            </motion.div>
+            {event.highlights && event.highlights.length > 0 && (
+              <motion.div
+                className="flex flex-wrap gap-2"
+                animate={{ y: isHovered ? 0 : 10, opacity: isHovered ? 1 : 0.7 }}
+              >
+                {event.highlights.slice(0, 3).map((highlight, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1 text-xs font-medium text-white/90 bg-white/10 backdrop-blur-sm rounded-full border border-white/10"
+                  >
+                    {highlight}
+                  </span>
+                ))}
+              </motion.div>
+            )}
 
             {/* CTA Button */}
             <motion.button
@@ -373,9 +328,19 @@ const EventModal = ({
   event,
   onClose
 }: {
-  event: typeof ANNUAL_EVENTS[0] | null
+  event: TimelineEvent | null
   onClose: () => void
 }) => {
+  const [isMuted, setIsMuted] = useState(true)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted
+      setIsMuted(!isMuted)
+    }
+  }
+
   if (!event) return null
 
   return (
@@ -410,15 +375,40 @@ const EventModal = ({
             <X className="w-6 h-6 text-white" />
           </button>
 
-          {/* Hero Image */}
+          {/* Hero Media */}
           <div className="relative h-64 sm:h-80">
-            <Image
-              src={event.image}
-              alt={event.title}
-              fill
-              className="object-cover"
-            />
-            <div className={`absolute inset-0 bg-gradient-to-t ${event.color} opacity-50 mix-blend-multiply`} />
+            {event.media_type === 'video' ? (
+              <>
+                <video
+                  ref={videoRef}
+                  src={event.media_url}
+                  autoPlay
+                  loop
+                  muted={isMuted}
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+                {/* Mute toggle */}
+                <button
+                  onClick={toggleMute}
+                  className="absolute bottom-4 right-4 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                >
+                  {isMuted ? (
+                    <VolumeX className="w-5 h-5 text-white" />
+                  ) : (
+                    <Volume2 className="w-5 h-5 text-white" />
+                  )}
+                </button>
+              </>
+            ) : (
+              <Image
+                src={event.media_url}
+                alt={event.title}
+                fill
+                className="object-cover"
+              />
+            )}
+            <div className={`absolute inset-0 bg-gradient-to-t ${event.gradient_colors} opacity-50 mix-blend-multiply`} />
             <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
           </div>
 
@@ -432,36 +422,50 @@ const EventModal = ({
                 <span className="px-4 py-1.5 text-sm font-medium bg-white/10 text-white/80 rounded-full">
                   {event.category}
                 </span>
+                {event.media_type === 'video' && (
+                  <span className="px-4 py-1.5 text-sm font-medium bg-blue-500/20 text-blue-300 rounded-full flex items-center gap-1.5">
+                    <Play size={12} fill="currentColor" />
+                    Video
+                  </span>
+                )}
               </div>
               <h2 className="font-display text-4xl sm:text-5xl text-white font-bold mb-2">
                 {event.title}
               </h2>
-              <p className="text-xl text-white/70">{event.subtitle}</p>
+              {event.subtitle && (
+                <p className="text-xl text-white/70">{event.subtitle}</p>
+              )}
             </div>
 
-            <p className="text-white/80 text-lg leading-relaxed">
-              {event.description}
-            </p>
+            {event.description && (
+              <p className="text-white/80 text-lg leading-relaxed">
+                {event.description}
+              </p>
+            )}
 
-            <div className="flex items-center gap-2 text-white/60">
-              <MapPin className="w-5 h-5" />
-              <span>{event.location}</span>
-            </div>
+            {event.location && (
+              <div className="flex items-center gap-2 text-white/60">
+                <MapPin className="w-5 h-5" />
+                <span>{event.location}</span>
+              </div>
+            )}
 
             {/* Highlights */}
-            <div>
-              <h3 className="text-lg font-bold text-white mb-3">Event Highlights</h3>
-              <div className="flex flex-wrap gap-2">
-                {event.highlights.map((highlight, i) => (
-                  <span
-                    key={i}
-                    className="px-4 py-2 text-sm font-medium text-white bg-white/10 rounded-xl border border-white/10"
-                  >
-                    {highlight}
-                  </span>
-                ))}
+            {event.highlights && event.highlights.length > 0 && (
+              <div>
+                <h3 className="text-lg font-bold text-white mb-3">Event Highlights</h3>
+                <div className="flex flex-wrap gap-2">
+                  {event.highlights.map((highlight, i) => (
+                    <span
+                      key={i}
+                      className="px-4 py-2 text-sm font-medium text-white bg-white/10 rounded-xl border border-white/10"
+                    >
+                      {highlight}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* CTA */}
             <Link
@@ -484,7 +488,7 @@ const MonthDots = ({
   activeIndex,
   onDotClick
 }: {
-  events: typeof ANNUAL_EVENTS
+  events: TimelineEvent[]
   activeIndex: number
   onDotClick: (index: number) => void
 }) => (
@@ -506,7 +510,7 @@ const MonthDots = ({
         {/* Tooltip */}
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
           <div className="bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-            {event.monthShort}
+            {event.month_short}
           </div>
         </div>
       </button>
@@ -515,9 +519,13 @@ const MonthDots = ({
 )
 
 // Main Timeline Component
-export function EventsTimeline() {
+interface EventsTimelineProps {
+  events: TimelineEvent[]
+}
+
+export function EventsTimeline({ events }: EventsTimelineProps) {
   const [activeIndex, setActiveIndex] = useState(0)
-  const [selectedEvent, setSelectedEvent] = useState<typeof ANNUAL_EVENTS[0] | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
@@ -571,9 +579,9 @@ export function EventsTimeline() {
   }, [activeIndex])
 
   const handleNext = useCallback(() => {
-    const newIndex = Math.min(ANNUAL_EVENTS.length - 1, activeIndex + 1)
+    const newIndex = Math.min(events.length - 1, activeIndex + 1)
     scrollToIndex(newIndex)
-  }, [activeIndex])
+  }, [activeIndex, events.length])
 
   // Mouse drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -604,6 +612,27 @@ export function EventsTimeline() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handlePrev, handleNext, selectedEvent])
+
+  // If no events, show empty state
+  if (!events || events.length === 0) {
+    return (
+      <section className="fixed inset-0 z-50 bg-gradient-to-br from-gray-900 via-emerald-950 to-gray-900 overflow-hidden">
+        <FloatingElements />
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-white">
+          <Calendar className="w-16 h-16 text-emerald-500/50 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">No Timeline Events</h2>
+          <p className="text-white/60 mb-6">Check back soon for annual events!</p>
+          <Link
+            href="/events"
+            className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors"
+          >
+            <ChevronLeft size={18} />
+            Back to Events
+          </Link>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="fixed inset-0 z-50 bg-gradient-to-br from-gray-900 via-emerald-950 to-gray-900 overflow-hidden">
@@ -643,7 +672,7 @@ export function EventsTimeline() {
             </motion.button>
             <motion.button
               onClick={handleNext}
-              disabled={activeIndex === ANNUAL_EVENTS.length - 1}
+              disabled={activeIndex === events.length - 1}
               className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/20 transition-all"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -664,7 +693,7 @@ export function EventsTimeline() {
           onMouseLeave={handleMouseUp}
           style={{ scrollSnapType: 'x mandatory' }}
         >
-          {ANNUAL_EVENTS.map((event, index) => (
+          {events.map((event, index) => (
             <div
               key={event.id}
               data-event-card
@@ -685,7 +714,7 @@ export function EventsTimeline() {
 
         {/* Month Navigation Dots */}
         <MonthDots
-          events={ANNUAL_EVENTS}
+          events={events}
           activeIndex={activeIndex}
           onDotClick={scrollToIndex}
         />

@@ -3,10 +3,12 @@ import { EventCategorySidebar } from '@/components/EventCategorySidebar'
 import { EventPageClient } from '@/components/EventPageClient'
 import { MobileEventCategoryDrawer } from '@/components/MobileEventCategoryDrawer'
 import { EventFilterPanel } from '@/components/EventFilterPanel'
+import { FeaturedEventsShowcase } from '@/components/FeaturedEventsShowcase'
 import { getEventCategoriesWithCounts } from '@/lib/category-counts'
-import { Calendar } from 'lucide-react'
+import { Calendar, Compass, Sparkles } from 'lucide-react'
 import { MobileEventFilterSheet } from '@/components/MobileEventFilterSheet'
 import { TimelineBanner } from '@/components/TimelineBanner'
+import Link from 'next/link'
 
 // Revalidate every 5 minutes
 export const revalidate = 300
@@ -38,6 +40,15 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
     .from('regions')
     .select('*')
     .order('name')
+
+  // Fetch timeline events for the banner preview
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: timelineEvents } = await (supabase as any)
+    .from('timeline_events')
+    .select('title, month_short, gradient_colors, media_type')
+    .eq('is_active', true)
+    .order('display_order', { ascending: true })
+    .limit(3)
 
   // Build the query for events
   let query = supabase
@@ -117,8 +128,17 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
     profiles: null as { name: string | null } | null
   }))
 
+  // Check if we should show the featured showcase (only on default view with no search)
+  const showFeaturedShowcase = !q && !category && !region && time === 'upcoming' && sort === 'featured'
+  const hasFeaturedEvents = events.some(e => e.is_featured)
+
+  // Filter out featured events from main grid if showing showcase
+  const gridEvents = showFeaturedShowcase && hasFeaturedEvents
+    ? events.filter(e => !e.is_featured)
+    : events
+
   return (
-    <div className="min-h-screen bg-gray-50 flex pb-0 lg:pb-0">
+    <div className="min-h-screen bg-gradient-to-b from-white via-emerald-50/20 to-white flex pb-0 lg:pb-0">
       {/* Desktop Event Category Sidebar */}
       <EventCategorySidebar categories={categoriesWithCount} />
 
@@ -126,9 +146,9 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
-          {/* Page Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">
+          {/* Page Header - Premium styling */}
+          <div className="mb-8 animate-fade-up">
+            <h1 className="font-display text-3xl lg:text-4xl font-semibold text-gray-900 mb-3">
               Events in Guyana
             </h1>
             <p className="text-lg text-gray-600 max-w-3xl">
@@ -137,10 +157,10 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
           </div>
 
           {/* Annual Events Timeline Banner */}
-          <TimelineBanner />
+          <TimelineBanner previewEvents={timelineEvents || undefined} />
 
           {/* Desktop Filter Panel - Sticky */}
-          <div className="hidden lg:block sticky top-0 z-30 mb-6">
+          <div className="hidden lg:block sticky top-0 z-30 mb-8 -mx-2 px-2 py-2 bg-gradient-to-b from-white via-white to-transparent">
             <EventFilterPanel
               regions={regions || []}
               currentFilters={{
@@ -152,20 +172,58 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
             />
           </div>
 
+          {/* Featured Events Showcase - Only show on default view */}
+          {showFeaturedShowcase && hasFeaturedEvents && (
+            <FeaturedEventsShowcase events={events} />
+          )}
+
+          {/* Section divider when showing featured */}
+          {showFeaturedShowcase && hasFeaturedEvents && gridEvents.length > 0 && (
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-200 to-transparent" />
+              <span className="text-sm font-medium text-gray-500 px-4">All Events</span>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-200 to-transparent" />
+            </div>
+          )}
+
           {/* Events Grid/Calendar with View Controls */}
           {events && events.length > 0 ? (
-            <EventPageClient events={events} searchParams={{ category, time, sort, q, region, view }} />
+            <EventPageClient events={gridEvents.length > 0 ? gridEvents : events} searchParams={{ category, time, sort, q, region, view }} />
           ) : (
-            <div className="text-center py-20 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 mb-6">
-                <Calendar className="w-10 h-10 text-purple-600" />
+            /* Premium Empty State */
+            <div className="text-center py-16 lg:py-24 animate-fade-in">
+              {/* Decorative background */}
+              <div className="relative inline-block mb-8">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-200/40 to-amber-200/40 rounded-full blur-2xl scale-150" />
+                <div className="relative inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-100 to-amber-50 border border-emerald-200/50 shadow-lg">
+                  <Calendar className="w-12 h-12 text-emerald-600" />
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                No events found
+
+              <h3 className="font-display text-2xl lg:text-3xl font-semibold text-gray-900 mb-4">
+                The stage is waiting...
               </h3>
-              <p className="text-gray-500 text-lg max-w-md mx-auto">
-                Try adjusting your filters or check back later for new events
+              <p className="text-gray-500 text-lg max-w-md mx-auto mb-8">
+                No events match your current filters. Try adjusting your search or explore other options.
               </p>
+
+              {/* Suggested actions */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link
+                  href="/events"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 hover:bg-emerald-700 transition-colors"
+                >
+                  <Compass className="w-5 h-5" />
+                  Browse All Events
+                </Link>
+                <Link
+                  href="/events/timeline"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-emerald-200 transition-colors"
+                >
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  View Annual Timeline
+                </Link>
+              </div>
             </div>
           )}
         </main>

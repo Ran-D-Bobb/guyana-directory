@@ -1,6 +1,7 @@
 'use client'
 
 import { Compass, MapPin, DollarSign, Phone, Info, Clock } from 'lucide-react'
+import type { LocationData } from '@/components/forms/inputs/LocationInput'
 import { MultiStepFormWrapper } from '@/components/forms/multistep/MultiStepFormWrapper'
 import { FormStepConfig } from '@/hooks/useMultiStepForm'
 import { BasicInfoStep } from './steps/BasicInfoStep'
@@ -23,6 +24,7 @@ interface TourismFormData {
   region_id: string
   location_details: string
   meeting_point: string
+  location: LocationData | null
   phone: string
   email: string
   website: string
@@ -64,6 +66,7 @@ const INITIAL_DATA: TourismFormData = {
   region_id: '',
   location_details: '',
   meeting_point: '',
+  location: null,
   phone: '',
   email: '',
   website: '',
@@ -188,7 +191,7 @@ export function TourismFormSteps({
     updateFormData: (data: Partial<TourismFormData>) => void,
     errors: Record<string, string>
   ) => {
-    const handleChange = (field: string, value: string | number | boolean | string[] | null) => {
+    const handleChange = (field: string, value: string | number | boolean | string[] | LocationData | null) => {
       updateFormData({ [field]: value } as Partial<TourismFormData>)
     }
 
@@ -233,6 +236,7 @@ export function TourismFormSteps({
               region_id: formData.region_id || '',
               location_details: formData.location_details || '',
               meeting_point: formData.meeting_point || '',
+              location: formData.location || null,
             }}
             errors={errors}
             onChange={handleChange}

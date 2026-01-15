@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, BadgeCheck, Sparkles, Phone, Star, ArrowRight, Search } from 'lucide-react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { MapPin, BadgeCheck, Sparkles, Star, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Database } from '@/types/supabase'
+import { SaveBusinessButton } from './SaveBusinessButton'
 
 type Business = Database['public']['Tables']['businesses']['Row'] & {
   categories: { name: string } | null
@@ -12,189 +13,101 @@ type Business = Database['public']['Tables']['businesses']['Row'] & {
   primary_photo?: string | null
 }
 
+interface PaginationInfo {
+  currentPage: number
+  totalPages: number
+  totalItems: number
+  hasNextPage: boolean
+  hasPrevPage: boolean
+}
+
 interface BusinessesPageClientProps {
   businesses: Business[]
+  pagination: PaginationInfo
+  userId?: string | null
+  savedBusinessIds?: string[]
 }
 
 const DEFAULT_BUSINESS_IMAGE = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80'
 
-// Editorial Hero Card - Large featured card
-function HeroBusinessCard({ business, index }: { business: Business; index: number }) {
+// Unified Business Card - clean, consistent, touch-friendly
+function BusinessCard({ business, userId, isSaved }: { business: Business; userId?: string | null; isSaved?: boolean }) {
   const imageUrl = business.primary_photo || DEFAULT_BUSINESS_IMAGE
-
-  const handlePhoneClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!business.phone) return
-    window.location.href = `tel:${business.phone}`
-  }
 
   return (
     <Link
       href={`/businesses/${business.slug}`}
-      className={`group relative block rounded-3xl overflow-hidden bg-white card-elevated animate-fade-up`}
-      style={{ animationDelay: `${index * 100}ms` }}
-    >
-      {/* Full-width image */}
-      <div className="relative aspect-[16/9] lg:aspect-[21/9] overflow-hidden">
-        <Image
-          src={imageUrl}
-          alt={business.name}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105 animate-ken-burns-slow"
-          sizes="(max-width: 768px) 100vw, 80vw"
-          priority={index === 0}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-
-        {/* Badges */}
-        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-          {business.is_featured && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[hsl(var(--gold-500))] text-[hsl(var(--jungle-900))] rounded-full shadow-lg">
-              <Sparkles className="w-3.5 h-3.5" />
-              Featured
-            </span>
-          )}
-          {business.is_verified && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[hsl(var(--jungle-500))] text-white rounded-full shadow-lg">
-              <BadgeCheck className="w-3.5 h-3.5" />
-              Verified
-            </span>
-          )}
-        </div>
-
-        {/* Content overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-            <div className="flex-1">
-              {business.categories && (
-                <div className="text-sm font-medium text-[hsl(var(--gold-400))] mb-2 uppercase tracking-wider">
-                  {business.categories.name}
-                </div>
-              )}
-              <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl text-white mb-3 group-hover:text-[hsl(var(--gold-300))] transition-colors">
-                {business.name}
-              </h3>
-              <div className="flex flex-wrap items-center gap-4">
-                {business.regions && (
-                  <span className="flex items-center gap-1.5 text-sm text-white/80">
-                    <MapPin className="w-4 h-4" />
-                    {business.regions.name}
-                  </span>
-                )}
-                {business.rating && business.rating > 0 && (
-                  <span className="flex items-center gap-1.5 text-sm text-white/80">
-                    <Star className="w-4 h-4 fill-[hsl(var(--gold-400))] text-[hsl(var(--gold-400))]" />
-                    {business.rating.toFixed(1)}
-                    {business.review_count && ` (${business.review_count})`}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* CTA buttons */}
-            <div className="flex items-center gap-3">
-              {business.phone && (
-                <button
-                  onClick={handlePhoneClick}
-                  className="btn-shine flex items-center gap-2 px-5 py-3 bg-[hsl(var(--jungle-500))] hover:bg-[hsl(var(--jungle-400))] text-white rounded-xl font-semibold shadow-lg transition-all"
-                >
-                  <Phone className="h-5 w-5" />
-                  <span>Call</span>
-                </button>
-              )}
-              <span className="flex items-center gap-1 px-5 py-3 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white rounded-xl font-semibold transition-all">
-                View Details
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Link>
-  )
-}
-
-// Editorial Standard Card
-function EditorialBusinessCard({ business, index }: { business: Business; index: number }) {
-  const imageUrl = business.primary_photo || DEFAULT_BUSINESS_IMAGE
-
-  const handlePhoneClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!business.phone) return
-    window.location.href = `tel:${business.phone}`
-  }
-
-  return (
-    <Link
-      href={`/businesses/${business.slug}`}
-      className="group block rounded-2xl overflow-hidden bg-white card-elevated animate-fade-up"
-      style={{ animationDelay: `${(index + 1) * 80}ms` }}
+      className="group block rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100"
     >
       {/* Image */}
-      <div className="relative overflow-hidden aspect-[4/3]">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
         <Image
           src={imageUrl}
           alt={business.name}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
 
-        {/* Badges */}
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+        {/* Save Button */}
+        <SaveBusinessButton
+          businessId={business.id}
+          initialIsSaved={isSaved || false}
+          userId={userId ?? null}
+          variant="overlay"
+          size="sm"
+        />
+
+        {/* Badges - top left */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
           {business.is_featured && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold bg-[hsl(var(--gold-500))] text-[hsl(var(--jungle-900))] rounded-full uppercase tracking-wide">
+            <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold bg-amber-400 text-amber-950 rounded-full uppercase tracking-wide">
               <Sparkles className="w-3 h-3" />
               Featured
             </span>
           )}
           {business.is_verified && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold bg-[hsl(var(--jungle-500))] text-white rounded-full uppercase tracking-wide">
+            <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold bg-emerald-500 text-white rounded-full uppercase tracking-wide">
               <BadgeCheck className="w-3 h-3" />
               Verified
             </span>
           )}
         </div>
 
-        {/* Rating */}
-        {business.rating && business.rating > 0 && (
+        {/* Rating - top right */}
+        {business.rating != null && business.rating > 0 && (
           <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-black/60 backdrop-blur-sm rounded-full">
-            <Star className="w-3.5 h-3.5 fill-[hsl(var(--gold-400))] text-[hsl(var(--gold-400))]" />
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             <span className="text-xs font-bold text-white">{business.rating.toFixed(1)}</span>
+            {business.review_count != null && business.review_count > 0 && (
+              <span className="text-[10px] text-white/70">({business.review_count})</span>
+            )}
           </div>
         )}
-
-        {/* Hover overlay with Phone */}
-        <div className="absolute inset-0 flex items-end justify-center p-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
-          {business.phone && (
-            <button
-              onClick={handlePhoneClick}
-              className="btn-shine flex items-center gap-2 px-5 py-2.5 bg-[hsl(var(--jungle-500))] hover:bg-[hsl(var(--jungle-400))] text-white rounded-xl font-semibold shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all"
-            >
-              <Phone className="h-4 w-4" />
-              <span>Call</span>
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Content */}
       <div className="p-4">
+        {/* Category */}
         {business.categories && (
-          <div className="text-xs font-semibold text-[hsl(var(--jungle-500))] mb-1 uppercase tracking-wider">
+          <div className="text-xs font-semibold text-emerald-600 mb-1 uppercase tracking-wider">
             {business.categories.name}
           </div>
         )}
-        <h3 className="font-display text-base lg:text-lg text-[hsl(var(--jungle-900))] mb-1 line-clamp-1 group-hover:text-[hsl(var(--jungle-600))] transition-colors">
+
+        {/* Name */}
+        <h3 className="font-semibold text-lg text-gray-900 mb-1.5 line-clamp-2 group-hover:text-emerald-600 transition-colors">
           {business.name}
         </h3>
+
+        {/* Location */}
         {business.regions && (
-          <div className="flex items-center gap-1.5 text-sm text-[hsl(var(--muted-foreground))]">
-            <MapPin className="w-3.5 h-3.5" />
-            <span>{business.regions.name}</span>
+          <div className="flex items-center gap-1.5 text-sm text-gray-500">
+            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="truncate">{business.regions.name}</span>
           </div>
         )}
       </div>
@@ -202,71 +115,147 @@ function EditorialBusinessCard({ business, index }: { business: Business; index:
   )
 }
 
-export function BusinessesPageClient({ businesses }: BusinessesPageClientProps) {
-  const [viewAll, setViewAll] = useState(false)
+// Pagination Component
+function Pagination({ pagination }: { pagination: PaginationInfo }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-  // Separate featured and regular businesses
-  const featuredBusinesses = businesses.filter(b => b.is_featured)
-  const regularBusinesses = businesses.filter(b => !b.is_featured)
+  const goToPage = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (page === 1) {
+      params.delete('page')
+    } else {
+      params.set('page', page.toString())
+    }
+    router.push(`${pathname}?${params.toString()}`)
+  }
 
-  // For display, show first featured as hero, rest in grid
-  const heroBusinesses = featuredBusinesses.slice(0, 1)
-  const gridBusinesses = viewAll
-    ? [...featuredBusinesses.slice(1), ...regularBusinesses]
-    : [...featuredBusinesses.slice(1), ...regularBusinesses].slice(0, 11)
+  if (pagination.totalPages <= 1) return null
 
-  const hasMore = [...featuredBusinesses.slice(1), ...regularBusinesses].length > 11
+  // Generate page numbers to show
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = []
+    const { currentPage, totalPages } = pagination
+
+    if (totalPages <= 7) {
+      // Show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      // Always show first page
+      pages.push(1)
+
+      if (currentPage > 3) {
+        pages.push('ellipsis')
+      }
+
+      // Show pages around current
+      const start = Math.max(2, currentPage - 1)
+      const end = Math.min(totalPages - 1, currentPage + 1)
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i)
+      }
+
+      if (currentPage < totalPages - 2) {
+        pages.push('ellipsis')
+      }
+
+      // Always show last page
+      pages.push(totalPages)
+    }
+
+    return pages
+  }
+
+  return (
+    <nav className="flex items-center justify-center gap-1 mt-8" aria-label="Pagination">
+      {/* Previous */}
+      <button
+        onClick={() => goToPage(pagination.currentPage - 1)}
+        disabled={!pagination.hasPrevPage}
+        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+        aria-label="Previous page"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        <span className="hidden sm:inline">Previous</span>
+      </button>
+
+      {/* Page numbers */}
+      <div className="flex items-center gap-1">
+        {getPageNumbers().map((page, index) =>
+          page === 'ellipsis' ? (
+            <span key={`ellipsis-${index}`} className="px-2 py-2 text-gray-400">
+              ...
+            </span>
+          ) : (
+            <button
+              key={page}
+              onClick={() => goToPage(page)}
+              className={`min-w-[40px] px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pagination.currentPage === page
+                  ? 'bg-emerald-500 text-white'
+                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+              }`}
+              aria-current={pagination.currentPage === page ? 'page' : undefined}
+            >
+              {page}
+            </button>
+          )
+        )}
+      </div>
+
+      {/* Next */}
+      <button
+        onClick={() => goToPage(pagination.currentPage + 1)}
+        disabled={!pagination.hasNextPage}
+        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+        aria-label="Next page"
+      >
+        <span className="hidden sm:inline">Next</span>
+        <ChevronRight className="w-4 h-4" />
+      </button>
+    </nav>
+  )
+}
+
+export function BusinessesPageClient({ businesses, pagination, userId, savedBusinessIds = [] }: BusinessesPageClientProps) {
+  const savedSet = new Set(savedBusinessIds)
 
   if (businesses.length === 0) {
     return (
-      <div className="text-center py-20 animate-fade-in">
-        <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-[hsl(var(--jungle-100))] to-[hsl(var(--jungle-200))] mb-6">
-          <Search className="w-10 h-10 text-[hsl(var(--jungle-500))]" />
+      <div className="text-center py-16">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-6">
+          <Search className="w-8 h-8 text-gray-400" />
         </div>
-        <h3 className="font-display text-2xl lg:text-3xl text-[hsl(var(--jungle-900))] mb-3">
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
           No businesses found
         </h3>
-        <p className="text-[hsl(var(--muted-foreground))] text-lg max-w-md mx-auto">
-          Try adjusting your filters or check back later for new listings
+        <p className="text-gray-500 max-w-md mx-auto">
+          Try adjusting your filters or search terms to find what you&apos;re looking for.
         </p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
-      {/* Hero Section - First featured business */}
-      {heroBusinesses.length > 0 && (
-        <section>
-          {heroBusinesses.map((business, index) => (
-            <HeroBusinessCard key={business.id} business={business} index={index} />
-          ))}
-        </section>
-      )}
-
-      {/* Editorial Grid */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6">
-        {gridBusinesses.map((business, index) => (
-          <EditorialBusinessCard
-            key={business.id}
-            business={business}
-            index={index}
-          />
+    <div className="relative z-0">
+      {/* Business Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {businesses.map((business) => (
+          <BusinessCard key={business.id} business={business} userId={userId} isSaved={savedSet.has(business.id)} />
         ))}
-      </section>
+      </div>
 
-      {/* Load More Button */}
-      {hasMore && !viewAll && (
-        <div className="flex justify-center pt-4">
-          <button
-            onClick={() => setViewAll(true)}
-            className="group flex items-center gap-2 px-8 py-4 bg-[hsl(var(--jungle-900))] hover:bg-[hsl(var(--jungle-800))] text-white rounded-2xl font-semibold shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5"
-          >
-            <span>View All Businesses</span>
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-      )}
+      {/* Pagination */}
+      <Pagination pagination={pagination} />
+
+      {/* Results summary */}
+      <div className="text-center text-sm text-gray-500 mt-4">
+        Showing {((pagination.currentPage - 1) * 24) + 1}-{Math.min(pagination.currentPage * 24, pagination.totalItems)} of {pagination.totalItems} businesses
+      </div>
     </div>
   )
 }

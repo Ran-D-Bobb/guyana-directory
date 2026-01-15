@@ -3,9 +3,27 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Sparkles, ArrowRight, Calendar } from 'lucide-react'
+import { Sparkles, ArrowRight, Calendar, Play } from 'lucide-react'
 
-export function TimelineBanner() {
+interface PreviewEvent {
+  month_short: string
+  title: string
+  gradient_colors: string
+  media_type?: 'image' | 'video'
+}
+
+interface TimelineBannerProps {
+  previewEvents?: PreviewEvent[]
+}
+
+export function TimelineBanner({ previewEvents }: TimelineBannerProps) {
+  // Default preview events if none provided
+  const events = previewEvents?.slice(0, 3) || [
+    { month_short: 'FEB', title: 'Mashramani', gradient_colors: 'from-orange-500 to-pink-500' },
+    { month_short: 'MAR', title: 'Phagwah', gradient_colors: 'from-pink-500 to-purple-500' },
+    { month_short: 'NOV', title: 'Diwali', gradient_colors: 'from-yellow-400 to-orange-500' },
+  ]
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -91,22 +109,21 @@ export function TimelineBanner() {
               <div className="hidden lg:flex items-center gap-4">
                 {/* Mini event cards */}
                 <div className="flex -space-x-3">
-                  {[
-                    { month: 'FEB', name: 'Mashramani', color: 'from-orange-500 to-pink-500' },
-                    { month: 'MAR', name: 'Phagwah', color: 'from-pink-500 to-purple-500' },
-                    { month: 'NOV', name: 'Diwali', color: 'from-yellow-400 to-orange-500' },
-                  ].map((event, i) => (
+                  {events.map((event, i) => (
                     <motion.div
-                      key={event.name}
-                      className={`relative w-16 h-20 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg bg-gradient-to-br ${event.color}`}
+                      key={event.title}
+                      className={`relative w-16 h-20 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg bg-gradient-to-br ${event.gradient_colors}`}
                       initial={{ x: 20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ delay: 0.2 + i * 0.1 }}
                       whileHover={{ y: -5, zIndex: 10 }}
                     >
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                        <span className="text-[10px] font-bold opacity-80">{event.month}</span>
-                        <span className="text-[8px] font-medium opacity-60 text-center px-1">{event.name}</span>
+                        <span className="text-[10px] font-bold opacity-80">{event.month_short}</span>
+                        <span className="text-[8px] font-medium opacity-60 text-center px-1 truncate w-full">{event.title}</span>
+                        {event.media_type === 'video' && (
+                          <Play size={10} className="mt-0.5 opacity-60" fill="currentColor" />
+                        )}
                       </div>
                     </motion.div>
                   ))}

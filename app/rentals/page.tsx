@@ -1,12 +1,14 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { RentalCard } from '@/components/RentalCard'
 import { RentalCategorySidebar } from '@/components/RentalCategorySidebar'
 import { MobileRentalCategoryDrawer } from '@/components/MobileRentalCategoryDrawer'
 import { MobileRentalFilterSheet } from '@/components/MobileRentalFilterSheet'
 import { RentalFilterPanel } from '@/components/RentalFilterPanel'
+import { FeaturedRentalsHero } from '@/components/rentals/FeaturedRentalsHero'
 import { getRentalCategoriesWithCounts } from '@/lib/category-counts'
-import { Home } from 'lucide-react'
+import { Home, Search, SlidersHorizontal } from 'lucide-react'
 
 // Revalidate every 5 minutes
 export const revalidate = 300
@@ -34,7 +36,46 @@ export default async function RentalsPage({
   const supabase = await createClient()
   const params = await searchParams
 
-  // Build query
+  // Check if any filters are applied
+  const hasFilters = params.q || params.category || params.beds || params.baths ||
+    params.price_min || params.price_max || params.region || params.amenities ||
+    (params.sort && params.sort !== 'newest')
+
+  // Build query for featured rentals (for hero - only when no filters)
+  let featuredRentals: Array<{
+    id: string
+    name: string
+    slug: string
+    description?: string | null
+    price_per_month?: number | null
+    price_per_night?: number | null
+    bedrooms?: number | null
+    bathrooms?: number | null
+    rating?: number | null
+    review_count?: number | null
+    rental_categories?: { name: string; slug?: string } | null
+    regions?: { name: string } | null
+    rental_photos?: Array<{ image_url: string; is_primary?: boolean | null; display_order?: number | null }>
+  }> = []
+  if (!hasFilters) {
+    const { data: featured } = await supabase
+      .from('rentals')
+      .select(`
+        id, name, slug, description, price_per_month, price_per_night,
+        bedrooms, bathrooms, rating, review_count,
+        rental_categories(name, slug),
+        regions(name),
+        rental_photos(image_url, is_primary, display_order)
+      `)
+      .eq('is_approved', true)
+      .eq('is_featured', true)
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    featuredRentals = featured || []
+  }
+
+  // Build main query
   let query = supabase
     .from('rentals')
     .select(`
@@ -45,12 +86,9 @@ export default async function RentalsPage({
     `)
     .eq('is_approved', true)
 
-  // Apply search filter - uses PostgreSQL full-text search index (idx_rentals_search)
-  // The index covers name, description, and location_details with to_tsvector
+  // Apply search filter
   if (params.q) {
     const searchTerm = params.q.trim()
-    // Use ilike as a fallback for partial matching since Supabase PostgREST doesn't expose
-    // to_tsquery directly, but PostgreSQL will still use the GIN index for optimization
     query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,location_details.ilike.%${searchTerm}%`)
   }
 
@@ -111,8 +149,6 @@ export default async function RentalsPage({
   // Apply amenities filter
   if (params.amenities) {
     const selectedAmenities = params.amenities.split(',').filter(Boolean)
-
-    // Map UI filter values to the lowercase database values
     const amenityToDbValue: Record<string, string> = {
       'WiFi': 'wifi',
       'Air Conditioning': 'ac',
@@ -135,13 +171,9 @@ export default async function RentalsPage({
       'Fire Extinguisher': 'fire_extinguisher',
       'First Aid Kit': 'first_aid_kit',
     }
-
-    // Convert all selected amenities to database values and filter
     const dbAmenities = selectedAmenities.map(amenity =>
       amenityToDbValue[amenity] || amenity.toLowerCase().replace(/\s+/g, '_')
     )
-
-    // Use contains with JSON array format for JSONB column
     query = query.contains('amenities', JSON.stringify(dbAmenities))
   }
 
@@ -166,16 +198,12 @@ export default async function RentalsPage({
       break
   }
 
-  // Limit to 20 per page (pagination can be added later)
-  query = query.limit(20)
+  query = query.limit(24)
 
   const { data: rentals, error } = await query
 
   if (error) {
     console.error('Error fetching rentals:', JSON.stringify(error, null, 2))
-    console.error('Error message:', error.message)
-    console.error('Error code:', error.code)
-    console.error('Error details:', error.details)
     return <div>Error loading rentals: {error.message || 'Unknown error'}</div>
   }
 
@@ -194,96 +222,146 @@ export default async function RentalsPage({
     : null
 
   return (
-    <div className="min-h-screen bg-gray-50 flex pb-0 lg:pb-0">
+    <div className="min-h-screen flex">
       {/* Desktop Category Sidebar */}
       <RentalCategorySidebar categories={categoriesWithCounts} />
 
-      {/* Main Content Area - scrollable on desktop */}
-      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 shadow-sm">
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                <Home className="h-5 w-5 text-white" strokeWidth={2.5} />
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col pb-20 lg:pb-0 lg:h-[calc(100vh-74px)] lg:overflow-y-auto">
+        {/* Hero Section - Only show when no filters applied */}
+        {!hasFilters && featuredRentals.length > 0 && (
+          <div className="flex-shrink-0 w-full">
+            <FeaturedRentalsHero rentals={featuredRentals} />
+          </div>
+        )}
+
+        {/* Search & Filters Section */}
+        <div className={`${hasFilters ? 'gradient-mesh-jungle' : 'bg-white/80 backdrop-blur-xl'} border-b border-gray-200/50 sticky top-0 z-30`}>
+          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            {/* Header Row */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                  <Home className="h-5 w-5 text-white" strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">
+                    {currentCategory?.name || 'All Rentals'}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {rentals?.length || 0} {(rentals?.length || 0) === 1 ? 'property' : 'properties'} found
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">
-                  {currentCategory?.name || 'All Rentals'}
-                </h2>
-                <p className="text-sm text-gray-600">
-                  {rentals?.length || 0} {(rentals?.length || 0) === 1 ? 'property' : 'properties'} found
-                </p>
+            </div>
+
+            {/* Search Bar */}
+            <form className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  name="q"
+                  defaultValue={params.q}
+                  placeholder="Search by location, property name, or description..."
+                  className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm text-gray-900 placeholder:text-gray-500 transition-all"
+                />
               </div>
+            </form>
+
+            {/* Desktop Filter Panel */}
+            <div className="hidden lg:block">
+              <RentalFilterPanel
+                regions={regions?.map(r => ({ name: r.name, slug: r.slug || r.id })) || []}
+                currentFilters={{
+                  beds: params.beds,
+                  baths: params.baths,
+                  price_min: params.price_min,
+                  price_max: params.price_max,
+                  region: params.region,
+                  sort: params.sort,
+                  amenities: params.amenities,
+                }}
+              />
             </div>
           </div>
         </div>
 
-        {/* Content Container */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
-          {/* Page Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">
-              Find Your Perfect Rental
-            </h1>
-            <p className="text-lg text-gray-600 max-w-3xl">
-              Browse apartments, houses, vacation homes, and more across Guyana. Contact property owners directly.
-            </p>
-          </div>
+        {/* Main Content with Gradient Background */}
+        <main className="flex-1 relative">
+          {/* Background Texture */}
+          <div className="absolute inset-0 gradient-mesh-jungle opacity-50" />
+          <div className="absolute inset-0 grain-overlay" />
 
-          {/* Search Bar */}
-          <form className="mb-6">
-            <input
-              type="text"
-              name="q"
-              defaultValue={params.q}
-              placeholder="Search by location, name, or description..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm"
-            />
-          </form>
-
-          {/* Desktop Filter Panel */}
-          <div className="hidden lg:block mb-6">
-            <RentalFilterPanel
-              regions={regions?.map(r => ({ name: r.name, slug: r.slug || r.id })) || []}
-              currentFilters={{
-                beds: params.beds,
-                baths: params.baths,
-                price_min: params.price_min,
-                price_max: params.price_max,
-                region: params.region,
-                sort: params.sort,
-                amenities: params.amenities,
-              }}
-            />
-          </div>
-
-          {/* Rentals Grid */}
-          {rentals && rentals.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 animate-fade-in">
-              {rentals.map((rental, index) => (
-                <div
-                  key={rental.id}
-                  className="animate-slide-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <RentalCard rental={rental} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 mb-6">
-                <Home className="w-10 h-10 text-emerald-600" />
+          <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-8 pb-24 lg:pb-8 max-w-screen-2xl mx-auto w-full">
+            {/* Section Header - Only show when there are filters */}
+            {hasFilters && (
+              <div className="mb-8 animate-fade-up">
+                <h1 className="font-display text-3xl lg:text-4xl text-gray-900 mb-2">
+                  {currentCategory?.name || 'Search Results'}
+                </h1>
+                <p className="text-gray-600 text-lg">
+                  {params.q ? `Results for "${params.q}"` : 'Filtered properties matching your criteria'}
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                No properties found
-              </h3>
-              <p className="text-gray-500 text-lg max-w-md mx-auto">
-                Try adjusting your filters or check back later for new listings
-              </p>
-            </div>
-          )}
+            )}
+
+            {/* Intro Section - Only when no filters */}
+            {!hasFilters && (
+              <div className="mb-10 animate-fade-up">
+                <h1 className="font-display text-3xl lg:text-4xl text-gray-900 mb-3">
+                  Discover Your Perfect Home
+                </h1>
+                <p className="text-gray-600 text-lg max-w-2xl">
+                  Browse our curated collection of apartments, houses, and vacation rentals across Guyana.
+                  Contact property owners directly to find your ideal space.
+                </p>
+              </div>
+            )}
+
+            {/* Rentals Grid */}
+            {rentals && rentals.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+                {rentals.map((rental, index) => (
+                  <div
+                    key={rental.id}
+                    className="animate-fade-up h-full"
+                    style={{ animationDelay: `${Math.min(index * 80, 800)}ms` }}
+                  >
+                    <RentalCard rental={rental} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 animate-fade-up">
+                <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-100 to-teal-100 mb-6 shadow-lg">
+                  <Home className="w-12 h-12 text-emerald-600" />
+                </div>
+                <h3 className="font-display text-2xl text-gray-900 mb-3">
+                  No properties found
+                </h3>
+                <p className="text-gray-500 text-lg max-w-md mx-auto mb-6">
+                  Try adjusting your filters or search terms to discover available rentals
+                </p>
+                <Link
+                  href="/rentals"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-full shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all hover:scale-105"
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                  Clear All Filters
+                </Link>
+              </div>
+            )}
+
+            {/* Load More Hint */}
+            {rentals && rentals.length >= 24 && (
+              <div className="mt-12 text-center animate-fade-up" style={{ animationDelay: '1000ms' }}>
+                <p className="text-gray-500 text-sm">
+                  Showing {rentals.length} properties. Refine your search to see more specific results.
+                </p>
+              </div>
+            )}
+          </div>
         </main>
       </div>
 

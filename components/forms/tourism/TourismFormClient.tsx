@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { TourismFormSteps } from './TourismFormSteps'
 import { toast } from 'sonner'
+import type { LocationData } from '@/components/forms/inputs/LocationInput'
 
 interface TourismFormData {
   name: string
@@ -18,6 +19,7 @@ interface TourismFormData {
   region_id: string
   location_details: string
   meeting_point: string
+  location: LocationData | null
   phone: string
   email: string
   website: string
@@ -89,6 +91,8 @@ export function TourismFormClient({
           region_id: data.region_id || null,
           location_details: data.location_details.trim() || null,
           meeting_point: data.meeting_point.trim() || null,
+          latitude: data.location?.latitude || null,
+          longitude: data.location?.longitude || null,
           phone: data.phone.trim() || null,
           email: data.email.trim() || null,
           website: data.website.trim() || null,

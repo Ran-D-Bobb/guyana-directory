@@ -21,7 +21,7 @@ type SpotlightItem = {
 
 const typeConfig = {
   business: {
-    label: 'Business',
+    label: 'Shop',
     gradient: 'from-amber-500 to-orange-500',
     glow: 'group-hover:shadow-amber-500/20',
   },
@@ -63,11 +63,11 @@ function SpotlightCard({ item, index }: { item: SpotlightItem; index: number }) 
   return (
     <Link
       href={href}
-      className={`group block flex-shrink-0 w-[300px] sm:w-[340px] md:w-[380px] snap-start animate-fade-up`}
+      className={`group block flex-shrink-0 w-[clamp(260px,75vw,340px)] sm:w-[300px] md:w-[340px] snap-start animate-fade-up touch-manipulation`}
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <div
-        className={`relative bg-white rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-2 card-elevated ${config.glow}`}
+        className={`relative bg-white rounded-2xl md:rounded-3xl overflow-hidden transition-shadow duration-300 card-elevated ${config.glow} active:scale-[0.99]`}
       >
         {/* Image container with overlay */}
         <div className="relative aspect-[4/3] overflow-hidden">
@@ -111,43 +111,45 @@ function SpotlightCard({ item, index }: { item: SpotlightItem; index: number }) 
           )}
         </div>
 
-        {/* Content */}
-        <div className="p-5">
-          {/* Category */}
-          {item.category && (
-            <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wider mb-2">
-              {item.category}
-            </p>
-          )}
+        {/* Content - fixed height for consistency, compact on mobile */}
+        <div className="p-3 md:p-5 flex flex-col h-[140px] md:h-[160px]">
+          {/* Category - always reserve space */}
+          <p className="text-[10px] md:text-xs text-emerald-600 font-semibold uppercase tracking-wider mb-1 md:mb-2 h-3 md:h-4">
+            {item.category || '\u00A0'}
+          </p>
 
           {/* Title */}
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1 group-hover:text-emerald-700 transition-colors font-display">
+          <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1 md:mb-2 line-clamp-2 group-hover:text-emerald-700 transition-colors font-display leading-tight">
             {item.name}
           </h3>
 
-          {/* Location */}
-          {item.location && (
-            <div className="flex items-center gap-1.5 text-sm text-gray-500">
-              <MapPin className="w-4 h-4 text-gray-400" />
-              <span className="line-clamp-1">{item.location}</span>
-            </div>
-          )}
+          {/* Location - always reserve space */}
+          <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm text-gray-500 h-4 md:h-5">
+            {item.location ? (
+              <>
+                <MapPin className="w-3 h-3 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
+                <span className="line-clamp-1">{item.location}</span>
+              </>
+            ) : (
+              <span>&nbsp;</span>
+            )}
+          </div>
 
-          {/* Bottom row */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+          {/* Bottom row - pushed to bottom */}
+          <div className="flex items-center justify-between mt-auto pt-2 md:pt-4 border-t border-gray-100">
             {item.rating > 0 ? (
-              <span className="text-xs text-gray-400">
+              <span className="text-[10px] md:text-xs text-gray-400">
                 {item.review_count} {item.review_count === 1 ? 'review' : 'reviews'}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-medium">
-                <Sparkles className="w-3 h-3" />
-                New listing
+              <span className="inline-flex items-center gap-1 text-[10px] md:text-xs text-amber-600 font-medium">
+                <Sparkles className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                New
               </span>
             )}
 
-            <span className="text-xs font-medium text-emerald-600 group-hover:text-emerald-700 transition-colors">
-              View details →
+            <span className="text-[10px] md:text-xs font-medium text-emerald-600 group-hover:text-emerald-700 transition-colors">
+              View →
             </span>
           </div>
         </div>
@@ -218,19 +220,19 @@ export function SpotlightSlider({ items }: { items: SpotlightItem[] }) {
   if (!items.length) return null
 
   return (
-    <section className="py-20 md:py-28 gradient-mesh-jungle noise-overlay relative">
+    <section className="py-10 md:py-20 lg:py-28 gradient-mesh-jungle noise-overlay relative">
       <div className="max-w-[1400px] mx-auto relative z-10">
         {/* Header */}
-        <div className="px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="px-4 md:px-6 mb-6 md:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
           <div className="animate-fade-up">
-            <span className="text-emerald-600 font-semibold text-sm uppercase tracking-wider mb-2 block">
+            <span className="text-emerald-600 font-semibold text-xs md:text-sm uppercase tracking-wider mb-1 md:mb-2 block">
               Handpicked for you
             </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display text-gray-900 mb-3">
+            <h2 className="text-2xl md:text-3xl lg:text-5xl font-display text-gray-900 mb-1 md:mb-3">
               Featured this week
             </h2>
-            <p className="text-gray-600 text-lg max-w-md">
-              The best businesses, experiences, and events across Guyana
+            <p className="text-gray-600 text-sm md:text-lg max-w-md">
+              The best spots, experiences, and events across Guyana
             </p>
           </div>
 
@@ -268,7 +270,7 @@ export function SpotlightSlider({ items }: { items: SpotlightItem[] }) {
           ref={scrollRef}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-6 pb-4"
+          className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 md:px-6 pb-4"
         >
           {items.map((item, index) => (
             <SpotlightCard key={`${item.type}-${item.id}`} item={item} index={index} />
@@ -276,11 +278,11 @@ export function SpotlightSlider({ items }: { items: SpotlightItem[] }) {
         </div>
 
         {/* Mobile hint */}
-        <div className="md:hidden flex justify-center mt-6 animate-fade-up delay-300">
-          <p className="text-sm text-gray-500 flex items-center gap-2">
-            <span className="w-8 h-0.5 bg-gray-300 rounded-full" />
+        <div className="md:hidden flex justify-center mt-4 animate-fade-up delay-300">
+          <p className="text-xs text-gray-500 flex items-center gap-2">
+            <span className="w-6 h-0.5 bg-gray-300 rounded-full" />
             Swipe to explore
-            <span className="w-8 h-0.5 bg-gray-300 rounded-full" />
+            <span className="w-6 h-0.5 bg-gray-300 rounded-full" />
           </p>
         </div>
       </div>

@@ -1,33 +1,77 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { X, Filter, MapPin, ArrowUpDown, Star, BadgeCheck, Sparkles } from 'lucide-react'
 
 interface MobileFilterSheetProps {
   regions: Array<{ id: string; name: string }>
+  currentFilters?: {
+    region?: string
+    sort?: string
+    rating?: string
+    verified?: string
+    featured?: string
+  }
 }
 
-export function MobileFilterSheet({ regions }: MobileFilterSheetProps) {
+export function MobileFilterSheet({ regions, currentFilters = {} }: MobileFilterSheetProps) {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const [localRegion, setLocalRegion] = useState(searchParams.get('region') || 'all')
-  const [localSort, setLocalSort] = useState(searchParams.get('sort') || 'featured')
-  const [localRating, setLocalRating] = useState(searchParams.get('rating') || 'all')
-  const [localVerified, setLocalVerified] = useState(searchParams.get('verified') === 'true')
-  const [localFeatured, setLocalFeatured] = useState(searchParams.get('featured') === 'true')
+  // Local state initialized from currentFilters (which come from URL via server)
+  const [localRegion, setLocalRegion] = useState(currentFilters.region || 'all')
+  const [localSort, setLocalSort] = useState(currentFilters.sort || 'featured')
+  const [localRating, setLocalRating] = useState(currentFilters.rating || 'all')
+  const [localVerified, setLocalVerified] = useState(currentFilters.verified === 'true')
+  const [localFeatured, setLocalFeatured] = useState(currentFilters.featured === 'true')
+
+  // Sync local state when URL changes (e.g., user navigates back)
+  useEffect(() => {
+    setLocalRegion(currentFilters.region || 'all')
+    setLocalSort(currentFilters.sort || 'featured')
+    setLocalRating(currentFilters.rating || 'all')
+    setLocalVerified(currentFilters.verified === 'true')
+    setLocalFeatured(currentFilters.featured === 'true')
+  }, [currentFilters])
 
   const applyFilters = () => {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams(searchParams.toString())
 
-    if (localRegion !== 'all') params.set('region', localRegion)
-    if (localSort !== 'featured') params.set('sort', localSort)
-    if (localRating !== 'all') params.set('rating', localRating)
-    if (localVerified) params.set('verified', 'true')
-    if (localFeatured) params.set('featured', 'true')
+    // Clear page when filters change
+    params.delete('page')
+
+    if (localRegion !== 'all') {
+      params.set('region', localRegion)
+    } else {
+      params.delete('region')
+    }
+
+    if (localSort !== 'featured') {
+      params.set('sort', localSort)
+    } else {
+      params.delete('sort')
+    }
+
+    if (localRating !== 'all') {
+      params.set('rating', localRating)
+    } else {
+      params.delete('rating')
+    }
+
+    if (localVerified) {
+      params.set('verified', 'true')
+    } else {
+      params.delete('verified')
+    }
+
+    if (localFeatured) {
+      params.set('featured', 'true')
+    } else {
+      params.delete('featured')
+    }
 
     router.push(`${pathname}?${params.toString()}`)
     setIsOpen(false)
@@ -43,11 +87,11 @@ export function MobileFilterSheet({ regions }: MobileFilterSheetProps) {
 
   // Count active filters based on URL params (for button badge)
   const activeFiltersCount = [
-    searchParams.get('region') && searchParams.get('region') !== 'all',
-    searchParams.get('sort') && searchParams.get('sort') !== 'featured',
-    searchParams.get('rating') && searchParams.get('rating') !== 'all',
-    searchParams.get('verified') === 'true',
-    searchParams.get('featured') === 'true'
+    currentFilters.region && currentFilters.region !== 'all',
+    currentFilters.sort && currentFilters.sort !== 'featured',
+    currentFilters.rating && currentFilters.rating !== 'all',
+    currentFilters.verified === 'true',
+    currentFilters.featured === 'true'
   ].filter(Boolean).length
 
   // Count local filters (for sheet display)
@@ -64,12 +108,12 @@ export function MobileFilterSheet({ regions }: MobileFilterSheetProps) {
       {/* Floating Filter Button - Mobile Only */}
       <button
         onClick={() => setIsOpen(true)}
-        className="lg:hidden fixed bottom-[5.5rem] right-4 z-[60] h-14 w-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center"
+        className="lg:hidden fixed bottom-[5.5rem] right-4 z-[60] h-14 w-14 rounded-full bg-emerald-500 text-white shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center"
         aria-label="Open filters"
       >
         <Filter className="h-5 w-5" strokeWidth={2.5} />
         {activeFiltersCount > 0 && (
-          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center h-5 w-5 rounded-full bg-white text-purple-600 text-[10px] font-bold shadow-md">
+          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center h-5 w-5 rounded-full bg-white text-emerald-600 text-[10px] font-bold shadow-md">
             {activeFiltersCount}
           </span>
         )}
@@ -170,18 +214,17 @@ export function MobileFilterSheet({ regions }: MobileFilterSheetProps) {
           {/* Sort By */}
           <div className="mb-6">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
-              <ArrowUpDown className="h-4 w-4 text-purple-600" />
+              <ArrowUpDown className="h-4 w-4 text-emerald-600" />
               Sort By
             </label>
             <select
               value={localSort}
               onChange={(e) => setLocalSort(e.target.value)}
-              className="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 font-medium"
+              className="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 font-medium"
             >
               <option value="featured">Featured First</option>
               <option value="rating">Highest Rated</option>
               <option value="newest">Newest</option>
-              <option value="popular">Most Popular</option>
             </select>
           </div>
 
@@ -220,7 +263,7 @@ export function MobileFilterSheet({ regions }: MobileFilterSheetProps) {
             </button>
             <button
               onClick={applyFilters}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-emerald-500/50 transition-all"
+              className="flex-1 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-semibold shadow-lg transition-all"
             >
               Apply Filters
               {localActiveFiltersCount > 0 && ` (${localActiveFiltersCount})`}

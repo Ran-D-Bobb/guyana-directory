@@ -10,6 +10,7 @@ import AmenitiesStep from './steps/AmenitiesStep'
 import ContactStep from './steps/ContactStep'
 import { createClient } from '@/lib/supabase/client'
 import { Building2, MapPin, Home, DollarSign, Sparkles, Phone } from 'lucide-react'
+import type { LocationData } from '@/components/forms/inputs/LocationInput'
 
 interface Region {
   id: string
@@ -27,6 +28,7 @@ interface RentalFormData {
   region_id: string
   address: string
   location_details: string
+  location: LocationData | null
 
   // Step 3: Property Details
   bedrooms: number
@@ -62,6 +64,7 @@ const INITIAL_DATA: RentalFormData = {
   region_id: '',
   address: '',
   location_details: '',
+  location: null,
   bedrooms: 1,
   bathrooms: 1,
   max_guests: 1,
@@ -106,8 +109,10 @@ export default function RentalFormSteps({
           description: data.description,
           property_type: data.property_type,
           region_id: data.region_id,
-          address: data.address || null,
+          address: data.location?.formatted_address || data.address || null,
           location_details: data.location_details || null,
+          latitude: data.location?.latitude || null,
+          longitude: data.location?.longitude || null,
           bedrooms: data.bedrooms,
           bathrooms: data.bathrooms,
           max_guests: data.max_guests,
@@ -152,6 +157,15 @@ export default function RentalFormSteps({
 
       case 1: // Location
         if (!data.region_id) errors.region_id = 'Please select a region'
+        if (!data.location) {
+          errors.location = 'Property location is required'
+        } else {
+          // Validate coordinates are within Guyana bounds
+          const { latitude, longitude } = data.location
+          if (latitude < 1.0 || latitude > 8.6 || longitude < -61.4 || longitude > -56.5) {
+            errors.location = 'Location must be within Guyana. Please select a valid address.'
+          }
+        }
         break
 
       case 2: // Property Details
@@ -240,7 +254,7 @@ export default function RentalFormSteps({
     updateFormData: (data: Partial<RentalFormData>) => void,
     errors: Record<string, string>
   ) => {
-    const handleChange = (field: string, value: string | number | string[] | null) => {
+    const handleChange = (field: string, value: string | number | string[] | LocationData | null) => {
       updateFormData({ [field]: value } as Partial<RentalFormData>)
     }
 
@@ -263,7 +277,8 @@ export default function RentalFormSteps({
             formData={{
               region_id: formData.region_id || '',
               address: formData.address || '',
-              location_details: formData.location_details || ''
+              location_details: formData.location_details || '',
+              location: formData.location || null
             }}
             errors={errors}
             onChange={handleChange}

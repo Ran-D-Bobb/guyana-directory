@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { X, MapPin, ChevronDown, SlidersHorizontal, Star, CalendarClock, Clock, History, CalendarDays, LayoutGrid, CalendarRange } from 'lucide-react'
+import { X, MapPin, ChevronDown, Sparkles, CalendarClock, Clock, History, CalendarDays, LayoutGrid, CalendarRange, TrendingUp } from 'lucide-react'
 
 interface EventFilterPanelProps {
   regions?: Array<{ id: string; name: string; slug?: string | null }>
@@ -22,9 +22,9 @@ const timeOptions = [
 ]
 
 const sortOptions = [
-  { value: 'featured', label: 'Featured', icon: Star },
+  { value: 'featured', label: 'Featured', icon: Sparkles },
   { value: 'date', label: 'Date', icon: CalendarDays },
-  { value: 'popular', label: 'Popular', icon: Star },
+  { value: 'popular', label: 'Popular', icon: TrendingUp },
 ]
 
 const viewOptions = [
@@ -32,7 +32,7 @@ const viewOptions = [
   { value: 'calendar', label: 'Calendar', icon: CalendarRange },
 ]
 
-// Dropdown component for consistent styling
+// Premium dropdown component with glass effect
 function FilterDropdown({
   label,
   icon: Icon,
@@ -66,19 +66,19 @@ function FilterDropdown({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={onToggle}
-        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
+        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
           hasValue
-            ? 'bg-gray-900 text-white border-gray-900'
-            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+            ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-md shadow-emerald-500/20'
+            : 'bg-white/60 text-gray-700 border border-gray-200/80 hover:border-emerald-300 hover:bg-white'
         }`}
       >
         <Icon className={`h-4 w-4 ${hasValue ? 'text-white' : iconColor}`} />
-        <span>{label}</span>
-        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isOpen ? 'rotate-180' : ''} ${hasValue ? 'text-white/70' : 'text-gray-400'}`} />
+        <span className="max-w-[100px] truncate">{label}</span>
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''} ${hasValue ? 'text-white/80' : 'text-gray-400'}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 z-[100] min-w-[200px] animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full left-0 mt-2 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-emerald-900/10 border border-emerald-100 p-2 z-[100] min-w-[220px] animate-in fade-in slide-in-from-top-2 duration-200">
           {children}
         </div>
       )}
@@ -130,19 +130,13 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
   }
 
   // Get display labels
-  const regionLabel = regions.find(r => r.id === currentFilters.region)?.name || 'Location'
+  const regionLabel = regions.find(r => r.id === currentFilters.region)?.name || 'All Locations'
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/80 p-3 relative z-40">
-      <div className="flex items-center gap-2 flex-wrap">
-        {/* Filter Icon & Label */}
-        <div className="flex items-center gap-2 pr-3 border-r border-gray-200">
-          <SlidersHorizontal className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-600">Filters</span>
-        </div>
-
-        {/* Time Filter Pills */}
-        <div className="flex items-center gap-1 pr-3 border-r border-gray-200">
+    <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg shadow-emerald-900/5 border border-white/80 p-4 relative z-40">
+      <div className="flex items-center gap-3 flex-wrap">
+        {/* Time Filter Pills - Primary filter group */}
+        <div className="flex items-center gap-1.5 p-1 bg-gray-100/80 rounded-xl">
           {timeOptions.map((option) => {
             const Icon = option.icon
             const isSelected = (currentFilters.time || 'upcoming') === option.value
@@ -150,48 +144,51 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
               <button
                 key={option.value}
                 onClick={() => updateFilters('time', option.value)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                   isSelected
-                    ? 'bg-purple-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-white text-emerald-700 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
-                <span className="hidden xl:inline">{option.label}</span>
+                <Icon className={`h-4 w-4 ${isSelected ? 'text-emerald-600' : ''}`} />
+                <span className="hidden sm:inline">{option.label}</span>
               </button>
             )
           })}
         </div>
+
+        {/* Divider */}
+        <div className="hidden lg:block h-8 w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent" />
 
         {/* Location Dropdown */}
         {regions.length > 0 && (
           <FilterDropdown
             label={regionLabel}
             icon={MapPin}
-            iconColor="text-red-500"
+            iconColor="text-amber-500"
             isOpen={openDropdown === 'region'}
             onToggle={() => toggleDropdown('region')}
             hasValue={!!currentFilters.region && currentFilters.region !== 'all'}
           >
-            <div className="max-h-[250px] overflow-y-auto space-y-1 min-w-[180px]">
+            <div className="max-h-[280px] overflow-y-auto space-y-1 scrollbar-thin">
               <button
                 onClick={() => { updateFilters('region', ''); setOpenDropdown(null) }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                   !currentFilters.region || currentFilters.region === 'all'
-                    ? 'bg-purple-500 text-white'
-                    : 'hover:bg-gray-100 text-gray-700'
+                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm'
+                    : 'hover:bg-emerald-50 text-gray-700'
                 }`}
               >
-                All Regions
+                All Locations
               </button>
               {regions.map((region) => (
                 <button
                   key={region.id}
                   onClick={() => { updateFilters('region', region.id); setOpenDropdown(null) }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                     currentFilters.region === region.id
-                      ? 'bg-purple-500 text-white'
-                      : 'hover:bg-gray-100 text-gray-700'
+                      ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm'
+                      : 'hover:bg-emerald-50 text-gray-700'
                   }`}
                 >
                   {region.name}
@@ -205,42 +202,47 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
         <div className="flex-1" />
 
         {/* View Toggle */}
-        <div className="flex items-center gap-1 pr-3 border-r border-gray-200">
+        <div className="flex items-center gap-1 p-1 bg-gray-100/80 rounded-xl">
           {viewOptions.map((option) => {
             const Icon = option.icon
+            const isSelected = (currentFilters.view || 'grid') === option.value
             return (
               <button
                 key={option.value}
                 onClick={() => updateFilters('view', option.value)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  (currentFilters.view || 'grid') === option.value
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  isSelected
+                    ? 'bg-gray-900 text-white shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
-                {option.label}
+                <Icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{option.label}</span>
               </button>
             )
           })}
         </div>
 
+        {/* Divider */}
+        <div className="hidden lg:block h-8 w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent" />
+
         {/* Sort Pills */}
-        <div className="flex items-center gap-1 pl-3 border-l border-gray-200">
+        <div className="flex items-center gap-1 p-1 bg-gray-100/80 rounded-xl">
           {sortOptions.map((option) => {
             const Icon = option.icon
+            const isSelected = (currentFilters.sort || 'featured') === option.value
             return (
               <button
                 key={option.value}
                 onClick={() => updateFilters('sort', option.value)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  (currentFilters.sort || 'featured') === option.value
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  isSelected
+                    ? 'bg-white text-amber-700 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
-                {option.label}
+                <Icon className={`h-4 w-4 ${isSelected ? 'text-amber-500' : ''}`} />
+                <span className="hidden sm:inline">{option.label}</span>
               </button>
             )
           })}
@@ -250,10 +252,13 @@ export function EventFilterPanel({ regions = [], currentFilters = {} }: EventFil
         {activeFilterCount > 0 && (
           <button
             onClick={clearFilters}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-red-600 hover:bg-red-50 rounded-lg text-xs font-medium transition-colors ml-2"
+            className="flex items-center gap-1.5 px-3 py-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl text-sm font-medium transition-all duration-200 ml-1"
           >
-            <X className="h-3.5 w-3.5" />
-            Clear ({activeFilterCount})
+            <X className="h-4 w-4" />
+            <span className="hidden sm:inline">Clear</span>
+            <span className="inline-flex items-center justify-center w-5 h-5 text-xs bg-red-100 text-red-600 rounded-full">
+              {activeFilterCount}
+            </span>
           </button>
         )}
       </div>

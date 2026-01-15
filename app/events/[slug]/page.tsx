@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { EventViewTracker } from '@/components/EventViewTracker'
 import { EventInterestButton } from '@/components/EventInterestButton'
+import { StaticMapCard } from '@/components/StaticMapCard'
+import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -104,6 +106,17 @@ export default async function EventPage({ params }: EventPageProps) {
       {/* Track event view */}
       <EventViewTracker eventId={event.id} />
 
+      {/* Track recently viewed */}
+      <RecentlyViewedTracker
+        type="event"
+        id={event.id}
+        slug={event.slug}
+        name={event.title}
+        image={event.image_url || DEFAULT_EVENT_IMAGE}
+        category={event.event_categories?.name}
+        location={event.location || undefined}
+      />
+
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-pink-50/20">
         {/* Header */}
         <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 shadow-sm">
@@ -206,6 +219,18 @@ export default async function EventPage({ params }: EventPageProps) {
                         <MapPin className="w-6 h-6 text-white" />
                       </div>
                       <p className="text-gray-900 font-semibold flex-1 leading-relaxed">{event.location}</p>
+                    </div>
+                  )}
+
+                  {/* Location Map */}
+                  {event.latitude && event.longitude && (
+                    <div className="mt-4">
+                      <StaticMapCard
+                        latitude={event.latitude}
+                        longitude={event.longitude}
+                        address={event.location}
+                        name={event.title}
+                      />
                     </div>
                   )}
                 </div>

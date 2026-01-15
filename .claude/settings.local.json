@@ -1,3 +1,15 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(supabase db push:*)",
+      "Bash(npx supabase:*)",
+      "WebSearch",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:techslides.com)",
+      "Bash(supabase migration:*)"
+    ]
+  },
   "outputStyle": "default"
 }

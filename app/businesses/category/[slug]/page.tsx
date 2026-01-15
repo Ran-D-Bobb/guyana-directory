@@ -4,6 +4,7 @@ import { CategorySidebar } from '@/components/CategorySidebar'
 import { CategoryPageClient } from '@/components/CategoryPageClient'
 import { MobileCategoryDrawer } from '@/components/MobileCategoryDrawer'
 import { MobileFilterSheet } from '@/components/MobileFilterSheet'
+import { FollowCategoryButton } from '@/components/FollowCategoryButton'
 import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
 
 interface CategoryPageProps {
@@ -24,6 +25,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const { region, sort = 'featured', rating, verified, featured } = await searchParams
   const supabase = await createClient()
 
+  // Fetch the current user
+  const { data: { user } } = await supabase.auth.getUser()
+
   // Fetch the category
   const { data: category } = await supabase
     .from('categories')
@@ -33,6 +37,18 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
   if (!category) {
     notFound()
+  }
+
+  // Check if user is following this category
+  let isFollowing = false
+  if (user) {
+    const { data: followData } = await supabase
+      .from('followed_categories')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('category_id', category.id)
+      .single()
+    isFollowing = !!followData
   }
 
   // Fetch all categories with business counts
@@ -110,32 +126,56 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       {/* Main Content Area - scrollable on desktop */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
         {/* Mobile Header - Sticky */}
-        <div className="lg:hidden sticky top-0 z-20 bg-white border-b border-gray-200 px-4 py-4 shadow-sm">
-          <h1 className="text-2xl font-extrabold text-gray-900 mb-1">
-            {category.name}
-          </h1>
-          {category.description && (
-            <p className="text-sm text-gray-600 line-clamp-2">
-              {category.description}
-            </p>
-          )}
-          <p className="text-sm text-gray-600 mt-2">
-            <span className="font-semibold text-gray-900">{businessesWithPhotos.length}</span> results
-          </p>
+        <div className="lg:hidden sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-4 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-extrabold text-gray-900 mb-1">
+                {category.name}
+              </h1>
+              {category.description && (
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {category.description}
+                </p>
+              )}
+              <p className="text-sm text-gray-600 mt-2">
+                <span className="font-semibold text-gray-900">{businessesWithPhotos.length}</span> results
+              </p>
+            </div>
+            <FollowCategoryButton
+              categoryId={category.id}
+              categoryName={category.name}
+              initialIsFollowing={isFollowing}
+              userId={user?.id ?? null}
+              variant="pill"
+              size="sm"
+            />
+          </div>
         </div>
 
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
           {/* Category Header - Desktop Only */}
           <div className="hidden lg:block mb-6">
-            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">
-              {category.name}
-            </h1>
-            {category.description && (
-              <p className="text-lg text-gray-600 max-w-3xl">
-                {category.description}
-              </p>
-            )}
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">
+                  {category.name}
+                </h1>
+                {category.description && (
+                  <p className="text-lg text-gray-600 max-w-3xl">
+                    {category.description}
+                  </p>
+                )}
+              </div>
+              <FollowCategoryButton
+                categoryId={category.id}
+                categoryName={category.name}
+                initialIsFollowing={isFollowing}
+                userId={user?.id ?? null}
+                variant="icon-label"
+                size="md"
+              />
+            </div>
           </div>
 
           {/* Business Grid with View Controls */}

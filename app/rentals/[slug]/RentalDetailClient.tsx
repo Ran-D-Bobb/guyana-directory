@@ -12,6 +12,7 @@ import {
   TrendingUp, Eye, ChevronDown, ChevronUp, Sparkles,
   MessageSquare, Crown, BadgeCheck
 } from 'lucide-react'
+import { StaticMapCard } from '@/components/StaticMapCard'
 
 const amenityIcons: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   'WiFi': Wifi,
@@ -48,6 +49,9 @@ interface RentalDetailClientProps {
     average_rating?: number | null
     view_count?: number | null
     location_details?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    address?: string | null
     rental_categories?: {
       name: string
       slug?: string
@@ -504,6 +508,24 @@ export function RentalDetailClient({
               </div>
               <p className="text-gray-700 leading-relaxed">{rental.description || ''}</p>
             </div>
+
+            {/* Location Map */}
+            {rental.latitude && rental.longitude && (
+              <div className="bg-white rounded-2xl p-6 border border-gray-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-pink-100 rounded-xl">
+                    <MapPin className="w-6 h-6 text-pink-600" />
+                  </div>
+                  <h2 className="text-2xl font-black text-gray-900">Location</h2>
+                </div>
+                <StaticMapCard
+                  latitude={rental.latitude}
+                  longitude={rental.longitude}
+                  address={rental.address || rental.location_details}
+                  name={rental.name}
+                />
+              </div>
+            )}
 
             {/* Quick Stats */}
             <div className="grid grid-cols-3 gap-3">

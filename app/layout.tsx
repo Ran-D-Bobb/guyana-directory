@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
@@ -18,12 +18,27 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
+export const viewport: Viewport = {
+  themeColor: '#0d5c4b',
+  width: 'device-width',
+  initialScale: 1,
+  // Note: Do NOT set maximumScale: 1 - it disables pinch-to-zoom accessibility
+}
+
 export const metadata: Metadata = {
   title: "Waypoint - Discover Guyana",
   description: "Explore local businesses, experiences, stays, and events across Guyana.",
   icons: {
-    icon: '/waypoint-logo.png',
-    apple: '/waypoint-logo.png',
+    icon: '/icons/icon-192x192.png',
+    apple: '/icons/icon-192x192.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Waypoint',
+  },
+  formatDetection: {
+    telephone: false,
   },
 };
 

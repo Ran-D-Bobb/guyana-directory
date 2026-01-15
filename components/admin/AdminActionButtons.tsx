@@ -660,3 +660,83 @@ export function ReviewActions({
     />
   )
 }
+
+// Timeline Event Actions Component
+interface TimelineActionsProps {
+  eventId: string
+  eventName?: string
+  isActive: boolean
+  onEdit: () => void
+  onUpdate?: () => void
+}
+
+export function TimelineActions({
+  eventId,
+  eventName,
+  isActive,
+  onEdit,
+  onUpdate,
+}: TimelineActionsProps) {
+  const [loading, setLoading] = useState<string | null>(null)
+  const router = useRouter()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createClient() as any
+
+  const handleToggleActive = async () => {
+    setLoading('active')
+    try {
+      const { error } = await supabase
+        .from('timeline_events')
+        .update({ is_active: !isActive })
+        .eq('id', eventId)
+
+      if (error) throw error
+      onUpdate?.()
+      router.refresh()
+    } catch (error) {
+      console.error('Error toggling active status:', error)
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const handleDelete = async () => {
+    const { error } = await supabase
+      .from('timeline_events')
+      .delete()
+      .eq('id', eventId)
+
+    if (error) throw error
+    router.refresh()
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <ActionButton
+        onClick={async () => onEdit()}
+        variant="primary"
+        size="sm"
+        icon={<Eye size={14} />}
+      >
+        Edit
+      </ActionButton>
+
+      <ActionButton
+        onClick={handleToggleActive}
+        loading={loading === 'active'}
+        variant={isActive ? 'default' : 'danger'}
+        size="sm"
+        icon={isActive ? <EyeOff size={14} /> : <Eye size={14} />}
+      >
+        {isActive ? 'Hide' : 'Show'}
+      </ActionButton>
+
+      <DeleteButton
+        onConfirm={handleDelete}
+        itemName={eventName}
+        itemType="timeline event"
+        size="sm"
+      />
+    </div>
+  )
+}

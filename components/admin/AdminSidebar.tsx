@@ -18,7 +18,8 @@ import {
   X,
   Users,
   Star,
-  Activity
+  Activity,
+  Clock
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -58,6 +59,7 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0 }: AdminSi
     { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { label: 'Businesses', href: '/admin/businesses', icon: Building2 },
     { label: 'Events', href: '/admin/events', icon: Calendar },
+    { label: 'Timeline', href: '/admin/timeline', icon: Clock },
     {
       label: 'Tourism',
       href: '/admin/tourism',

@@ -67,6 +67,7 @@ body {
 }
 
 /* Display typography - Playfair Display for headers */
+/* Using fluid typography with clamp() for smooth scaling */
 h1, h2, h3 {
   font-family: var(--font-playfair), Georgia, serif;
   font-weight: 600;
@@ -74,11 +75,33 @@ h1, h2, h3 {
   line-height: 1.1;
 }
 
+h1 {
+  font-size: clamp(1.875rem, 1.5rem + 2vw, 3.5rem);
+}
+
+h2 {
+  font-size: clamp(1.5rem, 1.25rem + 1.5vw, 2.5rem);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.875rem);
+}
+
 h4, h5, h6 {
   font-family: var(--font-dm-sans), sans-serif;
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.2;
+}
+
+h4 {
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
+}
+
+/* Body text fluid sizing */
+p {
+  font-size: clamp(0.9375rem, 0.875rem + 0.25vw, 1.125rem);
+  line-height: 1.6;
 }
 
 /* Font utility classes */
@@ -422,6 +445,69 @@ h4, h5, h6 {
 }
 
 /* =====================================================
+   REDUCED MOTION - Accessibility
+   Respects user preference for reduced motion
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-fade-up,
+  .animate-fade-in-scale,
+  .animate-slide-in-left,
+  .animate-slide-in-right,
+  .animate-blur-in,
+  .animate-float,
+  .animate-shimmer,
+  .animate-glow-pulse,
+  .animate-text-shimmer,
+  .animate-ken-burns-slow,
+  .animate-gradient-flow,
+  .animate-fade-in,
+  .animate-slide-in,
+  .animate-scale-in,
+  .animate-pulse-glow,
+  .animate-ken-burns,
+  .animate-gradient-shift,
+  .animate-bounce {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* =====================================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ===================================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets for touch devices */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Disable hover effects that don't work well on touch */
+  .card-elevated:hover {
+    transform: none;
+  }
+
+  /* Active states for touch feedback */
+  .touch-active:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+/* =====================================================
    GRADIENT MESH BACKGROUNDS
    ===================================================== */
 
@@ -522,6 +608,36 @@ h4, h5, h6 {
    UTILITY CLASSES
    ===================================================== */
 
+/* Fluid spacing utilities - scales with viewport */
+.space-fluid-sm {
+  gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+.space-fluid-md {
+  gap: clamp(1rem, 3vw, 2rem);
+}
+
+.space-fluid-lg {
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+
+.p-fluid-sm {
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.p-fluid-md {
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.p-fluid-lg {
+  padding: clamp(1.5rem, 5vw, 4rem);
+}
+
+.py-fluid-section {
+  padding-top: clamp(2rem, 6vw, 5rem);
+  padding-bottom: clamp(2rem, 6vw, 5rem);
+}
+
 .layout-transition {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -534,13 +650,57 @@ h4, h5, h6 {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Bottom nav safe area - adds padding for fixed bottom navigation on mobile */
+.pb-bottom-nav {
+  padding-bottom: 5rem; /* 80px for bottom nav */
+}
+
+@media (min-width: 1024px) {
+  .pb-bottom-nav {
+    padding-bottom: 0; /* No bottom nav on desktop */
+  }
+}
+
+/* Combined safe area + bottom nav padding */
+.pb-mobile-safe {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 1024px) {
+  .pb-mobile-safe {
+    padding-bottom: 0;
+  }
+}
+
 html {
-  scroll-padding-bottom: 5rem;
+  scroll-padding-bottom: 6rem; /* Increased for bottom nav */
   overflow-x: hidden;
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Focus visible - accessible keyboard navigation */
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Skip link for accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  padding: 8px 16px;
+  background: hsl(var(--jungle-900));
+  color: white;
+  z-index: 100;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
 }
 
 body {

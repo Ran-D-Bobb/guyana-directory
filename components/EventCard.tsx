@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Calendar, MapPin, Building2, Sparkles, User, Star } from 'lucide-react'
+import { Calendar, MapPin, Building2, Sparkles, User, Users } from 'lucide-react'
 import { Database } from '@/types/supabase'
 
 type Event = Database['public']['Tables']['events']['Row'] & {
@@ -16,12 +16,13 @@ type Event = Database['public']['Tables']['events']['Row'] & {
 
 interface EventCardProps {
   event: Event
+  variant?: 'default' | 'featured' | 'compact'
 }
 
 // Default event image from Unsplash
 const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80'
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, variant = 'default' }: EventCardProps) {
   // Format date range
   const startDate = new Date(event.start_date)
   const endDate = new Date(event.end_date)
@@ -51,75 +52,94 @@ export function EventCard({ event }: EventCardProps) {
   const now = new Date()
   const isOngoing = startDate <= now && endDate >= now
   const isPast = endDate < now
+  const isFeatured = event.is_featured
+
+  // Dynamic classes based on variant and featured status
+  const cardClasses = `
+    group block rounded-2xl overflow-hidden transition-all duration-500 ease-out
+    ${isFeatured && variant !== 'compact'
+      ? 'bg-gradient-to-br from-white via-white to-emerald-50/30 border border-emerald-200/60 shadow-lg shadow-emerald-900/5 hover:shadow-2xl hover:shadow-emerald-900/10 hover:-translate-y-2 hover:border-emerald-300/80'
+      : 'bg-white border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 hover:-translate-y-1'
+    }
+  `
 
   return (
-    <Link
-      href={`/events/${event.slug}`}
-      className="group block rounded-2xl border border-gray-100 overflow-hidden hover:border-purple-200 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-white"
-    >
+    <Link href={`/events/${event.slug}`} className={cardClasses}>
       {/* Event Image */}
-      <div className="relative w-full h-56 bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 overflow-hidden">
+      <div className="relative w-full h-56 bg-gradient-to-br from-emerald-100 via-amber-50/30 to-emerald-50 overflow-hidden">
         <Image
           src={event.image_url || DEFAULT_EVENT_IMAGE}
           alt={event.title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
 
-        {/* Gradient Overlay - appears on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Gradient Overlay - always visible, intensifies on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
-        {/* Status Badge */}
+        {/* Top gradient for badges */}
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/30 to-transparent" />
+
+        {/* Status Badge - Live indicator with glow instead of pulse */}
         {isOngoing && (
-          <div className="absolute top-4 left-4 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold rounded-full shadow-lg animate-pulse">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 bg-white rounded-full" />
-              Happening Now
+          <div className="absolute top-4 left-4 px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-full shadow-lg ring-2 ring-emerald-400/50 ring-offset-1 ring-offset-transparent">
+            <span className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+              </span>
+              Live Now
             </span>
           </div>
         )}
         {isPast && (
-          <div className="absolute top-4 left-4 px-3 py-1.5 bg-gray-600/90 backdrop-blur-sm text-white text-xs font-semibold rounded-full">
+          <div className="absolute top-4 left-4 px-3 py-1.5 bg-gray-900/70 backdrop-blur-sm text-white/90 text-xs font-medium rounded-full">
             Past Event
           </div>
         )}
-      </div>
 
-      <div className="p-5">
-        {/* Badges */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          {event.is_featured && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-full shadow-md">
+        {/* Featured badge on image */}
+        {isFeatured && (
+          <div className="absolute top-4 right-4 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 text-xs font-bold rounded-full shadow-lg shadow-amber-500/30">
+            <span className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
               Featured
             </span>
-          )}
-          {event.event_categories && (
-            <span className="px-3 py-1.5 text-xs font-semibold bg-purple-100 text-purple-700 rounded-full border border-purple-200">
+          </div>
+        )}
+
+        {/* Date overlay on image bottom */}
+        <div className="absolute bottom-0 inset-x-0 p-4">
+          <div className="flex items-center gap-2 text-white">
+            <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+              <Calendar className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-semibold drop-shadow-lg">{dateDisplay}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-5">
+        {/* Category Badge */}
+        {event.event_categories && (
+          <div className="mb-3">
+            <span className="inline-flex px-3 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100">
               {event.event_categories.name}
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Event title */}
-        <h3 className="font-bold text-xl text-gray-900 mb-3 line-clamp-2 group-hover:text-purple-600 transition-colors duration-300">
+        <h3 className="font-display font-semibold text-xl text-gray-900 mb-3 line-clamp-2 group-hover:text-emerald-700 transition-colors duration-300">
           {event.title}
         </h3>
-
-        {/* Date */}
-        <div className="flex items-start gap-2.5 mb-2.5">
-          <div className="p-1.5 bg-purple-100 rounded-lg">
-            <Calendar className="w-4 h-4 text-purple-600" />
-          </div>
-          <span className="text-sm text-gray-700 font-medium line-clamp-2 leading-relaxed">{dateDisplay}</span>
-        </div>
 
         {/* Location */}
         {event.location && (
           <div className="flex items-start gap-2.5 mb-4">
-            <div className="p-1.5 bg-pink-100 rounded-lg">
-              <MapPin className="w-4 h-4 text-pink-600" />
+            <div className="p-1.5 bg-amber-50 rounded-lg flex-shrink-0">
+              <MapPin className="w-4 h-4 text-amber-600" />
             </div>
             <span className="text-sm text-gray-600 line-clamp-1">{event.location}</span>
           </div>
@@ -130,16 +150,16 @@ export function EventCard({ event }: EventCardProps) {
           <div className="flex items-center gap-2 min-w-0 flex-1">
             {event.businesses ? (
               <>
-                <div className="p-1 bg-emerald-100 rounded">
+                <div className="p-1.5 bg-emerald-50 rounded-lg">
                   <Building2 className="w-3.5 h-3.5 text-emerald-600" />
                 </div>
-                <span className="text-sm text-emerald-600 font-semibold line-clamp-1 hover:underline">
+                <span className="text-sm text-emerald-700 font-medium line-clamp-1">
                   {event.businesses.name}
                 </span>
               </>
             ) : event.profiles?.name ? (
               <>
-                <div className="p-1 bg-gray-100 rounded">
+                <div className="p-1.5 bg-gray-100 rounded-lg">
                   <User className="w-3.5 h-3.5 text-gray-500" />
                 </div>
                 <span className="text-sm text-gray-600 font-medium line-clamp-1">
@@ -149,11 +169,11 @@ export function EventCard({ event }: EventCardProps) {
             ) : null}
           </div>
 
-          {/* Interest Count */}
+          {/* Interest Count - social proof */}
           {event.interest_count != null && event.interest_count > 0 && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 rounded-full">
-              <Star className="w-4 h-4 fill-purple-500 text-purple-500" />
-              <span className="text-sm font-bold text-purple-700">{event.interest_count}</span>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-amber-100/50 rounded-full border border-amber-200/50">
+              <Users className="w-3.5 h-3.5 text-amber-600" />
+              <span className="text-xs font-bold text-amber-700">{event.interest_count} interested</span>
             </div>
           )}
         </div>

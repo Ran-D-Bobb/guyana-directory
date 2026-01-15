@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { RentalDetailClient } from './RentalDetailClient'
+import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
 
 export async function generateMetadata({
   params,
@@ -90,13 +91,29 @@ export default async function RentalDetailPage({
   // Default image if no photos
   const defaultImage = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop'
 
+  // Get primary image for recently viewed
+  const primaryImage = photos[0]?.image_url || defaultImage
+
   return (
-    <RentalDetailClient
-      rental={rental}
-      photos={photos}
-      defaultImage={defaultImage}
-      reviews={reviews || []}
-      similarRentals={similarRentals || []}
-    />
+    <>
+      {/* Track recently viewed */}
+      <RecentlyViewedTracker
+        type="rental"
+        id={rental.id}
+        slug={rental.slug}
+        name={rental.name}
+        image={primaryImage}
+        category={rental.rental_categories?.name}
+        location={rental.regions?.name}
+      />
+
+      <RentalDetailClient
+        rental={rental}
+        photos={photos}
+        defaultImage={defaultImage}
+        reviews={reviews || []}
+        similarRentals={similarRentals || []}
+      />
+    </>
   )
 }

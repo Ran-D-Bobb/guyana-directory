@@ -87,9 +87,9 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
             )}
           </div>
 
-          {/* Rating */}
+          {/* Rating - hidden on hover when quick actions appear */}
           {business.rating && business.rating > 0 && (
-            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
+            <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg transition-opacity duration-300 group-hover:opacity-0 group-hover:pointer-events-none">
               <StarRating rating={business.rating} size="md" />
               <span className="text-sm font-bold text-gray-900">{business.rating.toFixed(1)}</span>
               {business.review_count && business.review_count > 0 && (
@@ -99,7 +99,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
           )}
 
           {/* Quick Actions - Visible on hover */}
-          <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
+          <div className="absolute inset-x-0 bottom-0 z-20 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
             <div className="flex items-center gap-2">
               {business.phone && (
                 <button

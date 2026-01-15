@@ -2,9 +2,12 @@ import { createClient } from '@/lib/supabase/server'
 import { PageViewTracker } from '@/components/PageViewTracker'
 import { ReviewForm } from '@/components/ReviewForm'
 import { RatingsBreakdown } from '@/components/RatingsBreakdown'
-import { ReviewItem } from '@/components/ReviewItem'
+import { ReviewList } from '@/components/ReviewList'
 import { BusinessResponseForm } from '@/components/BusinessResponseForm'
 import { CollapsibleHours } from '@/components/CollapsibleHours'
+import { StaticMapCard } from '@/components/StaticMapCard'
+import { SaveBusinessButton } from '@/components/SaveBusinessButton'
+import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -85,7 +88,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
         business_photos (id, image_url, is_primary, display_order),
         reviews (
           id, rating, comment, created_at, helpful_count, not_helpful_count, user_id,
-          profiles:user_id (name, photo)
+          profiles:user_id (name, photo, review_count)
         )
       `)
       .eq('slug', slug)
@@ -97,6 +100,18 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 
   if (!business) {
     notFound()
+  }
+
+  // Check if user has saved this business
+  let isSaved = false
+  if (user) {
+    const { data: savedBusiness } = await supabase
+      .from('saved_businesses')
+      .select('id')
+      .eq('business_id', business.id)
+      .eq('user_id', user.id)
+      .single()
+    isSaved = !!savedBusiness
   }
 
   // Extract photos and reviews from the combined query
@@ -140,12 +155,6 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
   // Fetch user's own review if logged in
   const userReview = user && reviews.find(review => review.user_id === user.id)
 
-  // Create a map of user votes for easy lookup
-  const userVotesMap = new Map(userVotes?.map(v => [v.review_id, v]) || [])
-
-  // Create a map of responses for easy lookup
-  const responsesMap = new Map(responses?.map(r => [r.review_id, r]) || [])
-
   // Calculate rating breakdown
   const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
   reviews.forEach(review => {
@@ -177,20 +186,32 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
       {/* Track page view */}
       <PageViewTracker businessId={business.id} />
 
+      {/* Track recently viewed */}
+      <RecentlyViewedTracker
+        type="business"
+        id={business.id}
+        slug={business.slug}
+        name={business.name}
+        image={heroImage}
+        category={business.categories?.name}
+        location={business.regions?.name}
+      />
+
       <div className="min-h-screen bg-[hsl(var(--jungle-50))]">
-        {/* Floating Back Button */}
-        <div className="fixed top-4 left-4 z-50 animate-fade-up">
+        {/* Floating Back Button - positioned below fixed header */}
+        {/* Mobile: top-[60px] (below 56px header), Desktop: top-[82px] (below 74px header + spacing) */}
+        <div className="fixed top-[60px] md:top-[82px] left-3 md:left-4 z-40 animate-fade-up">
           <Link
-            href="/"
-            className="glass flex items-center gap-2 px-4 py-2.5 rounded-full text-[hsl(var(--jungle-800))] hover:bg-white/90 transition-all duration-300 shadow-lg group"
+            href="/businesses"
+            className="glass flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-full text-[hsl(var(--jungle-800))] hover:bg-white/90 transition-all duration-300 shadow-lg group"
           >
             <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span className="text-sm font-medium">Back</span>
+            <span className="text-xs md:text-sm font-medium">Back</span>
           </Link>
         </div>
 
-        {/* Hero Section with Photo Gallery */}
-        <section className="relative h-[60vh] min-h-[500px] max-h-[700px] overflow-hidden">
+        {/* Hero Section with Photo Gallery - shorter on mobile */}
+        <section className="relative h-[50vh] md:h-[60vh] min-h-[350px] md:min-h-[450px] max-h-[600px] overflow-hidden">
           {/* Background gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-[hsl(var(--jungle-50))] z-10" />
 
@@ -210,10 +231,10 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
           <div className="absolute inset-0 bg-gradient-to-tr from-[hsl(var(--jungle-900))]/60 via-transparent to-[hsl(var(--gold-500))]/20 z-10" />
 
           {/* Hero content */}
-          <div className="absolute bottom-0 left-0 right-0 z-20 p-6 lg:p-12">
+          <div className="absolute bottom-0 left-0 right-0 z-20 p-4 md:p-6 lg:p-12">
             <div className="max-w-7xl mx-auto">
               {/* Badges */}
-              <div className="flex flex-wrap gap-2 mb-4 animate-fade-up">
+              <div className="flex flex-wrap gap-1.5 md:gap-2 mb-2 md:mb-4 animate-fade-up">
                 {business.is_featured && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[hsl(var(--gold-500))] text-[hsl(var(--jungle-900))] rounded-full shadow-lg">
                     <Sparkles className="w-3.5 h-3.5" />
@@ -243,21 +264,21 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
               {business.categories && (
                 <Link
                   href={`/businesses/category/${business.categories.slug}`}
-                  className="inline-block mb-3 animate-fade-up delay-100"
+                  className="inline-block mb-1.5 md:mb-3 animate-fade-up delay-100"
                 >
-                  <span className="text-sm font-medium text-white/90 hover:text-white transition-colors tracking-wide uppercase">
+                  <span className="text-xs md:text-sm font-medium text-white/90 hover:text-white transition-colors tracking-wide uppercase">
                     {business.categories.name}
                   </span>
                 </Link>
               )}
 
               {/* Title */}
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-white mb-4 animate-fade-up delay-200 drop-shadow-2xl">
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-2 md:mb-4 animate-fade-up delay-200 drop-shadow-2xl">
                 {business.name}
               </h1>
 
               {/* Rating & Location Row */}
-              <div className="flex flex-wrap items-center gap-4 text-white/90 animate-fade-up delay-300">
+              <div className="flex flex-wrap items-center gap-2 md:gap-4 text-sm md:text-base text-white/90 animate-fade-up delay-300">
                 {/* Rating */}
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
@@ -350,6 +371,16 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                         <span className="text-xs">Website</span>
                       </a>
                     )}
+                    <div className="flex flex-col items-center gap-1">
+                      <SaveBusinessButton
+                        businessId={business.id}
+                        initialIsSaved={isSaved}
+                        userId={user?.id ?? null}
+                        variant="icon"
+                        size="sm"
+                      />
+                      <span className="text-xs text-[hsl(var(--jungle-700))]">Save</span>
+                    </div>
                     <button className="flex flex-col items-center gap-1 text-[hsl(var(--jungle-700))]">
                       <Share2 className="w-5 h-5" />
                       <span className="text-xs">Share</span>
@@ -387,6 +418,21 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                     </div>
                   )}
                 </article>
+
+                {/* Location Map */}
+                {business.latitude && business.longitude && (
+                  <article className="card-elevated rounded-2xl p-6 lg:p-8 animate-fade-up delay-150">
+                    <h2 className="font-display text-2xl lg:text-3xl text-[hsl(var(--jungle-800))] mb-4">
+                      Location
+                    </h2>
+                    <StaticMapCard
+                      latitude={business.latitude}
+                      longitude={business.longitude}
+                      address={business.address}
+                      name={business.name}
+                    />
+                  </article>
+                )}
 
                 {/* Business Hours */}
                 {businessHours && (
@@ -505,60 +551,36 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 
                   {/* Existing Reviews */}
                   {reviews && reviews.length > 0 ? (
-                    <div className="space-y-6">
-                      <h3 className="text-lg font-semibold text-[hsl(var(--jungle-800))] border-b border-[hsl(var(--border))] pb-3">
-                        Customer Reviews
-                      </h3>
-                      {reviews
-                        .filter(review => review.user_id !== user?.id && review.created_at)
-                        .map((review) => (
-                          <div key={review.id} className="group">
-                            <ReviewItem
-                              review={{
-                                id: review.id,
-                                rating: review.rating,
-                                comment: review.comment,
-                                created_at: review.created_at!,
-                                helpful_count: review.helpful_count ?? 0,
-                                not_helpful_count: review.not_helpful_count ?? 0,
-                                profiles: review.profiles ? {
-                                  name: review.profiles.name ?? 'Anonymous',
-                                  photo: review.profiles.photo
-                                } : null
-                              }}
-                              user={user}
-                              userVote={userVotesMap.get(review.id)}
-                              businessResponse={(() => {
-                                const resp = responsesMap.get(review.id)
-                                if (!resp || !resp.created_at) return null
-                                return {
-                                  response: resp.response,
-                                  created_at: resp.created_at,
-                                  profiles: resp.profiles ? {
-                                    name: resp.profiles.name ?? 'Business Owner',
-                                    photo: resp.profiles.photo
-                                  } : null
-                                }
-                              })()}
-                            />
-                            {/* Business Response Form (only for business owner) */}
-                            {isBusinessOwner && (
-                              <div className="mt-3 ml-12">
-                                <BusinessResponseForm
-                                  reviewId={review.id}
-                                  businessId={business.id}
-                                  user={user}
-                                  isBusinessOwner={isBusinessOwner}
-                                  existingResponse={responsesMap.get(review.id) ? {
-                                    id: responsesMap.get(review.id)!.id,
-                                    response: responsesMap.get(review.id)!.response
-                                  } : null}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                    </div>
+                    <ReviewList
+                      reviews={reviews.map(r => ({
+                        id: r.id,
+                        rating: r.rating,
+                        comment: r.comment,
+                        created_at: r.created_at || '',
+                        helpful_count: r.helpful_count ?? 0,
+                        not_helpful_count: r.not_helpful_count ?? 0,
+                        user_id: r.user_id,
+                        profiles: r.profiles ? {
+                          name: r.profiles.name ?? 'Anonymous',
+                          photo: r.profiles.photo,
+                          review_count: r.profiles.review_count
+                        } : null
+                      }))}
+                      user={user}
+                      userVotes={userVotes}
+                      responses={responses?.map(r => ({
+                        review_id: r.review_id,
+                        response: r.response,
+                        created_at: r.created_at || '',
+                        profiles: r.profiles ? {
+                          name: r.profiles.name ?? 'Business Owner',
+                          photo: r.profiles.photo
+                        } : null
+                      })) || null}
+                      isBusinessOwner={isBusinessOwner || false}
+                      businessId={business.id}
+                      BusinessResponseForm={BusinessResponseForm}
+                    />
                   ) : (
                     <div className="text-center py-12">
                       <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[hsl(var(--jungle-100))] flex items-center justify-center">
@@ -660,6 +682,24 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                     </div>
                   </div>
 
+                  {/* Save Button Card */}
+                  <div className="card-elevated rounded-2xl p-6 animate-fade-up delay-250">
+                    <h3 className="font-semibold text-[hsl(var(--jungle-800))] mb-4">
+                      Save for later
+                    </h3>
+                    <SaveBusinessButton
+                      businessId={business.id}
+                      initialIsSaved={isSaved}
+                      userId={user?.id ?? null}
+                      variant="icon-label"
+                      size="md"
+                      className="w-full justify-center"
+                    />
+                    <p className="text-xs text-[hsl(var(--muted-foreground))] text-center mt-2">
+                      {user ? 'Save this business to find it easily later' : 'Sign in to save businesses'}
+                    </p>
+                  </div>
+
                   {/* Stats Card */}
                   <div className="card-elevated rounded-2xl p-6 animate-fade-up delay-300">
                     <h3 className="font-semibold text-[hsl(var(--jungle-800))] mb-4">
@@ -685,8 +725,8 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
           </div>
         </main>
 
-        {/* Bottom Spacing */}
-        <div className="h-24 lg:h-16" />
+        {/* Bottom Spacing - account for bottom nav on mobile */}
+        <div className="h-28 lg:h-16" />
       </div>
     </>
   )

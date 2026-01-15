@@ -1,220 +1,158 @@
 import { createClient } from '@/lib/supabase/server'
-import { HeroMinimal } from '@/components/HeroMinimal'
-import { SpotlightSlider } from '@/components/SpotlightSlider'
-import { CategoryPillars } from '@/components/CategoryPillars'
-import { FooterMinimal } from '@/components/FooterMinimal'
+import { HomeFeedClient } from '@/components/home'
+import type { FeedItem } from '@/components/home'
 
 export default async function Home() {
   const supabase = await createClient()
 
-  // Fetch top featured items across all types (limited to best 8)
-  const { data: featuredBusinesses } = await supabase
-    .from('businesses')
-    .select(`
-      id, name, slug, description, rating, review_count, phone,
-      categories:category_id (name),
-      regions:region_id (name),
-      business_photos (image_url, is_primary)
-    `)
-    .eq('is_featured', true)
-    .order('rating', { ascending: false, nullsFirst: false })
-    .limit(8)
+  // Fetch all items from each table in parallel (more items for the feed)
+  const [
+    { data: businesses },
+    { data: experiences },
+    { data: rentals },
+    { data: events },
+  ] = await Promise.all([
+    // Businesses - fetch for the feed
+    supabase
+      .from('businesses')
+      .select(`
+        id, name, slug, description, rating, review_count,
+        is_featured, is_verified,
+        categories:category_id (name),
+        regions:region_id (name),
+        business_photos (image_url, is_primary)
+      `)
+      .order('rating', { ascending: false, nullsFirst: false })
+      .limit(100),
 
-  const { data: featuredExperiences } = await supabase
-    .from('tourism_experiences')
-    .select(`
-      id, name, slug, description, rating, review_count, price_from, phone,
-      tourism_categories:tourism_category_id (name),
-      regions:region_id (name),
-      tourism_photos (image_url, is_primary)
-    `)
-    .eq('is_featured', true)
-    .eq('is_approved', true)
-    .order('rating', { ascending: false, nullsFirst: false })
-    .limit(8)
+    // Tourism experiences
+    supabase
+      .from('tourism_experiences')
+      .select(`
+        id, name, slug, description, rating, review_count, price_from,
+        is_featured, is_verified,
+        tourism_categories:tourism_category_id (name),
+        regions:region_id (name),
+        tourism_photos (image_url, is_primary)
+      `)
+      .eq('is_approved', true)
+      .order('rating', { ascending: false, nullsFirst: false })
+      .limit(100),
 
-  const { data: featuredRentals } = await supabase
-    .from('rentals')
-    .select(`
-      id, name, slug, description, rating, review_count, price_per_month, phone,
-      rental_categories:category_id (name),
-      regions:region_id (name),
-      rental_photos (image_url, is_primary)
-    `)
-    .eq('is_featured', true)
-    .eq('is_approved', true)
-    .order('rating', { ascending: false, nullsFirst: false })
-    .limit(8)
+    // Rentals
+    supabase
+      .from('rentals')
+      .select(`
+        id, name, slug, description, rating, review_count, price_per_month,
+        is_featured,
+        rental_categories:category_id (name),
+        regions:region_id (name),
+        rental_photos (image_url, is_primary)
+      `)
+      .eq('is_approved', true)
+      .order('rating', { ascending: false, nullsFirst: false })
+      .limit(100),
 
-  const now = new Date().toISOString()
-  const { data: featuredEvents } = await supabase
-    .from('events')
-    .select(`
-      id, title, slug, description, image_url, interest_count, location,
-      event_categories:category_id (name)
-    `)
-    .eq('is_featured', true)
-    .gt('start_date', now)
-    .order('interest_count', { ascending: false, nullsFirst: false })
-    .limit(8)
+    // Events - upcoming only
+    supabase
+      .from('events')
+      .select(`
+        id, title, slug, description, image_url, interest_count, location,
+        is_featured,
+        event_categories:category_id (name)
+      `)
+      .gte('end_date', new Date().toISOString())
+      .order('start_date', { ascending: true })
+      .limit(50),
+  ])
 
-  // Build spotlight items - mix of all types, sorted by quality
-  const spotlightItems = [
-    ...(featuredBusinesses || []).map(b => ({
+  // Helper to get primary image from photo array
+  const getPrimaryImage = (
+    photos: { image_url: string; is_primary: boolean }[] | null,
+    fallback: string
+  ): string => {
+    if (!photos || !Array.isArray(photos) || photos.length === 0) return fallback
+    const primary = photos.find((p) => p.is_primary)
+    return primary?.image_url || photos[0]?.image_url || fallback
+  }
+
+  // Transform to FeedItem format
+  const feedItems: FeedItem[] = [
+    // Businesses
+    ...(businesses || []).map((b): FeedItem => ({
       id: b.id,
+      type: 'business',
       name: b.name,
-      description: b.description || '',
-      image_url: Array.isArray(b.business_photos)
-        ? b.business_photos.find(p => p.is_primary)?.image_url || b.business_photos[0]?.image_url || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80'
-        : 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
-      rating: b.rating || 0,
-      review_count: b.review_count || 0,
-      location: b.regions?.name || '',
-      type: 'business' as const,
       slug: b.slug,
-      category: b.categories?.name,
+      description: b.description,
+      image_url: getPrimaryImage(
+        b.business_photos as { image_url: string; is_primary: boolean }[] | null,
+        'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80'
+      ),
+      rating: b.rating,
+      review_count: b.review_count || 0,
+      category_name: (b.categories as { name: string } | null)?.name || null,
+      is_featured: b.is_featured || false,
+      is_verified: b.is_verified || false,
+      location: (b.regions as { name: string } | null)?.name || null,
     })),
-    ...(featuredExperiences || []).map(exp => ({
+
+    // Tourism experiences
+    ...(experiences || []).map((exp): FeedItem => ({
       id: exp.id,
+      type: 'tourism',
       name: exp.name,
-      description: exp.description || '',
-      image_url: Array.isArray(exp.tourism_photos)
-        ? exp.tourism_photos.find(p => p.is_primary)?.image_url || exp.tourism_photos[0]?.image_url || 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80'
-        : 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80',
-      rating: exp.rating || 0,
-      review_count: exp.review_count || 0,
-      location: exp.regions?.name || '',
-      type: 'tourism' as const,
       slug: exp.slug,
-      category: exp.tourism_categories?.name,
-      price: exp.price_from ? `From GYD ${exp.price_from.toLocaleString()}` : undefined,
+      description: exp.description,
+      image_url: getPrimaryImage(
+        exp.tourism_photos as { image_url: string; is_primary: boolean }[] | null,
+        'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=600&q=80'
+      ),
+      rating: exp.rating,
+      review_count: exp.review_count || 0,
+      category_name: (exp.tourism_categories as { name: string } | null)?.name || null,
+      is_featured: exp.is_featured || false,
+      is_verified: exp.is_verified || false,
+      location: (exp.regions as { name: string } | null)?.name || null,
+      price_display: exp.price_from ? `From GYD ${exp.price_from.toLocaleString()}` : null,
     })),
-    ...(featuredRentals || []).map(rental => ({
-      id: rental.id,
-      name: rental.name,
-      description: rental.description || '',
-      image_url: Array.isArray(rental.rental_photos)
-        ? rental.rental_photos.find(p => p.is_primary)?.image_url || rental.rental_photos[0]?.image_url || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80'
-        : 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80',
-      rating: rental.rating || 0,
-      review_count: rental.review_count || 0,
-      location: rental.regions?.name || '',
-      type: 'rental' as const,
-      slug: rental.slug,
-      category: rental.rental_categories?.name,
-      price: rental.price_per_month ? `GYD ${rental.price_per_month.toLocaleString()}/mo` : undefined,
+
+    // Rentals
+    ...(rentals || []).map((r): FeedItem => ({
+      id: r.id,
+      type: 'rental',
+      name: r.name,
+      slug: r.slug,
+      description: r.description,
+      image_url: getPrimaryImage(
+        r.rental_photos as { image_url: string; is_primary: boolean }[] | null,
+        'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80'
+      ),
+      rating: r.rating,
+      review_count: r.review_count || 0,
+      category_name: (r.rental_categories as { name: string } | null)?.name || null,
+      is_featured: r.is_featured || false,
+      is_verified: false,
+      location: (r.regions as { name: string } | null)?.name || null,
+      price_display: r.price_per_month ? `GYD ${r.price_per_month.toLocaleString()}/mo` : null,
     })),
-    ...(featuredEvents || []).map(event => ({
-      id: event.id,
-      name: event.title,
-      description: event.description || '',
-      image_url: event.image_url || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80',
-      rating: 0,
-      review_count: event.interest_count || 0,
-      location: event.location || '',
-      type: 'event' as const,
-      slug: event.slug,
-      category: event.event_categories?.name,
+
+    // Events
+    ...(events || []).map((e): FeedItem => ({
+      id: e.id,
+      type: 'event',
+      name: e.title,
+      slug: e.slug,
+      description: e.description,
+      image_url: e.image_url || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
+      rating: null,
+      review_count: e.interest_count || 0,
+      category_name: (e.event_categories as { name: string } | null)?.name || null,
+      is_featured: e.is_featured || false,
+      is_verified: false,
+      location: e.location || null,
     })),
   ]
-    .sort((a, b) => (b.rating * 10 + b.review_count) - (a.rating * 10 + a.review_count))
-    .slice(0, 12)
 
-  // Get counts for category pillars
-  const { count: businessCount } = await supabase
-    .from('businesses')
-    .select('*', { count: 'exact', head: true })
-  const { count: experienceCount } = await supabase
-    .from('tourism_experiences')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_approved', true)
-  const { count: rentalCount } = await supabase
-    .from('rentals')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_approved', true)
-  const { count: eventCount } = await supabase
-    .from('events')
-    .select('*', { count: 'exact', head: true })
-
-  // Build search suggestions from categories with actual listings
-  const searchSuggestions: { label: string; href: string }[] = []
-
-  // Get top business category with listings
-  const { data: topBusinessCategory } = await supabase
-    .from('categories')
-    .select('name, slug, businesses:businesses(count)')
-    .limit(5)
-
-  const businessCatWithListings = topBusinessCategory?.find(
-    (cat) => cat.businesses && (cat.businesses as unknown as { count: number }[])[0]?.count > 0
-  )
-  if (businessCatWithListings) {
-    searchSuggestions.push({
-      label: businessCatWithListings.name,
-      href: `/businesses/category/${businessCatWithListings.slug}`,
-    })
-  }
-
-  // Get top tourism category with listings
-  const { data: topTourismCategory } = await supabase
-    .from('tourism_categories')
-    .select('name, slug, tourism_experiences:tourism_experiences(count)')
-    .limit(5)
-
-  const tourismCatWithListings = topTourismCategory?.find(
-    (cat) => cat.tourism_experiences && (cat.tourism_experiences as unknown as { count: number }[])[0]?.count > 0
-  )
-  if (tourismCatWithListings) {
-    searchSuggestions.push({
-      label: tourismCatWithListings.name,
-      href: `/tourism/category/${tourismCatWithListings.slug}`,
-    })
-  }
-
-  // Get top rental category with listings
-  const { data: topRentalCategory } = await supabase
-    .from('rental_categories')
-    .select('name, slug, rentals:rentals(count)')
-    .limit(5)
-
-  const rentalCatWithListings = topRentalCategory?.find(
-    (cat) => cat.rentals && (cat.rentals as unknown as { count: number }[])[0]?.count > 0
-  )
-  if (rentalCatWithListings) {
-    searchSuggestions.push({
-      label: rentalCatWithListings.name,
-      href: `/rentals/category/${rentalCatWithListings.slug}`,
-    })
-  }
-
-  // Add Events if there are any upcoming
-  if (eventCount && eventCount > 0) {
-    searchSuggestions.push({
-      label: 'Events',
-      href: '/events',
-    })
-  }
-
-  return (
-    <div className="min-h-screen">
-      {/* Hero - full viewport, single focus */}
-      <HeroMinimal suggestions={searchSuggestions} />
-
-      {/* Featured spotlight - horizontal slider */}
-      <SpotlightSlider items={spotlightItems} />
-
-      {/* Category pillars - clear navigation */}
-      <CategoryPillars
-        counts={{
-          businesses: businessCount || 0,
-          experiences: experienceCount || 0,
-          rentals: rentalCount || 0,
-          events: eventCount || 0,
-        }}
-      />
-
-      {/* Minimal footer */}
-      <FooterMinimal />
-    </div>
-  )
+  return <HomeFeedClient items={feedItems} />
 }

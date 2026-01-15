@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -81,8 +82,20 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
   const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || DEFAULT_TOURISM_IMAGE
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50/30 to-teal-50/20">
-      {/* Header */}
+    <>
+      {/* Track recently viewed */}
+      <RecentlyViewedTracker
+        type="tourism"
+        id={experience.id}
+        slug={experience.slug}
+        name={experience.name}
+        image={primaryPhoto}
+        category={experience.tourism_categories?.name}
+        location={experience.regions?.name}
+      />
+
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50/30 to-teal-50/20">
+        {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <Link
@@ -362,6 +375,7 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   )
 }

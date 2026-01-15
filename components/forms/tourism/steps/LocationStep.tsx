@@ -3,15 +3,17 @@
 import { TextInput } from '@/components/forms/inputs/TextInput'
 import { TextArea } from '@/components/forms/inputs/TextArea'
 import { Select } from '@/components/forms/inputs/Select'
+import { LocationInput, type LocationData } from '@/components/forms/inputs/LocationInput'
 
 interface LocationStepProps {
   formData: {
     region_id: string
     location_details: string
     meeting_point: string
+    location?: LocationData | null
   }
   errors: Record<string, string>
-  onChange: (field: string, value: string) => void
+  onChange: (field: string, value: string | LocationData | null) => void
   regions: Array<{ id: string; name: string; slug: string }>
 }
 
@@ -21,6 +23,8 @@ export function LocationStep({
   onChange,
   regions,
 }: LocationStepProps) {
+  const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
+
   return (
     <div className="space-y-5">
       {/* Region */}
@@ -37,6 +41,17 @@ export function LocationStep({
         error={errors.region_id}
         placeholder="Select a region"
         helperText="Which region of Guyana is this experience in?"
+      />
+
+      {/* Location Input with Map */}
+      <LocationInput
+        label="Experience Location"
+        name="location"
+        value={formData.location || null}
+        onChange={(value) => onChange('location', value)}
+        error={errors.location}
+        helperText="Search for the experience location. You can drag the marker to adjust the exact position."
+        apiKey={apiKey}
       />
 
       {/* Location Details */}

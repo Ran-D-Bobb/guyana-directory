@@ -2,13 +2,16 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { X, MapPin, ChevronDown, SlidersHorizontal, Star, Sparkles, Clock } from 'lucide-react'
+import { X, MapPin, ChevronDown, SlidersHorizontal, Star, Sparkles, Clock, BadgeCheck } from 'lucide-react'
 
 interface BusinessFilterPanelProps {
   regions?: Array<{ id: string; name: string; slug: string | null }>
   currentFilters?: {
     region?: string
     sort?: string
+    rating?: string
+    verified?: string
+    featured?: string
   }
 }
 
@@ -82,6 +85,9 @@ export function BusinessFilterPanel({ regions = [], currentFilters = {} }: Busin
   const activeFilterCount = [
     currentFilters.region && currentFilters.region !== 'all',
     currentFilters.sort && currentFilters.sort !== 'featured',
+    currentFilters.rating && currentFilters.rating !== 'all',
+    currentFilters.verified === 'true',
+    currentFilters.featured === 'true',
   ].filter(Boolean).length
 
   const updateFilters = (key: string, value: string) => {
@@ -98,6 +104,21 @@ export function BusinessFilterPanel({ regions = [], currentFilters = {} }: Busin
     const params = new URLSearchParams(searchParams.toString())
     params.delete('region')
     params.delete('sort')
+    params.delete('rating')
+    params.delete('verified')
+    params.delete('featured')
+    params.delete('page')
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  const toggleFilter = (key: string, currentValue: string | undefined) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (currentValue === 'true') {
+      params.delete(key)
+    } else {
+      params.set(key, 'true')
+    }
+    params.delete('page')
     router.push(`${pathname}?${params.toString()}`)
   }
 
@@ -154,6 +175,57 @@ export function BusinessFilterPanel({ regions = [], currentFilters = {} }: Busin
             </div>
           </FilterDropdown>
         )}
+
+        {/* Rating Dropdown */}
+        <FilterDropdown
+          label={currentFilters.rating && currentFilters.rating !== 'all' ? `${currentFilters.rating}+ Stars` : 'Rating'}
+          icon={Star}
+          iconColor="text-amber-500"
+          isOpen={openDropdown === 'rating'}
+          onToggle={() => toggleDropdown('rating')}
+          hasValue={!!currentFilters.rating && currentFilters.rating !== 'all'}
+        >
+          <div className="space-y-1 min-w-[140px]">
+            {['all', '2', '3', '4'].map((rating) => (
+              <button
+                key={rating}
+                onClick={() => { updateFilters('rating', rating === 'all' ? '' : rating); setOpenDropdown(null) }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  (currentFilters.rating || 'all') === rating
+                    ? 'bg-amber-500 text-white'
+                    : 'hover:bg-gray-100 text-gray-700'
+                }`}
+              >
+                {rating === 'all' ? 'Any Rating' : `${rating}+ Stars`}
+              </button>
+            ))}
+          </div>
+        </FilterDropdown>
+
+        {/* Quick Toggle Filters */}
+        <button
+          onClick={() => toggleFilter('verified', currentFilters.verified)}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+            currentFilters.verified === 'true'
+              ? 'bg-emerald-500 text-white'
+              : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          <BadgeCheck className="h-4 w-4" />
+          <span>Verified</span>
+        </button>
+
+        <button
+          onClick={() => toggleFilter('featured', currentFilters.featured)}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+            currentFilters.featured === 'true'
+              ? 'bg-amber-500 text-white'
+              : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          <Sparkles className="h-4 w-4" />
+          <span>Featured</span>
+        </button>
 
         {/* Spacer */}
         <div className="flex-1" />

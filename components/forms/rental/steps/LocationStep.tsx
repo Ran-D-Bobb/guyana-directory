@@ -2,15 +2,17 @@
 
 import { Select } from '@/components/forms/inputs/Select'
 import { TextInput } from '@/components/forms/inputs/TextInput'
+import { LocationInput, type LocationData } from '@/components/forms/inputs/LocationInput'
 
 interface LocationStepProps {
   formData: {
     region_id: string
     address: string
     location_details: string
+    location?: LocationData | null
   }
   errors: Record<string, string>
-  onChange: (field: string, value: string) => void
+  onChange: (field: string, value: string | LocationData | null) => void
   regions: Array<{ id: string; name: string; slug: string }>
 }
 
@@ -20,6 +22,8 @@ export default function LocationStep({
   onChange,
   regions
 }: LocationStepProps) {
+  const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''
+
   return (
     <div className="space-y-5">
       {/* Region Selection */}
@@ -33,26 +37,26 @@ export default function LocationStep({
         error={errors.region_id}
       />
 
-      {/* Address */}
-      <TextInput
-        label="Street Address"
-        name="address"
-        value={formData.address}
-        onChange={(value) => onChange('address', value)}
-        placeholder="e.g., 123 Main Street, Georgetown"
-        error={errors.address}
-        helperText="Optional, but helps renters know the exact location"
+      {/* Location Input with Map - three input methods: GPS, search, tap on map */}
+      <LocationInput
+        label="Property Location"
+        name="location"
+        value={formData.location || null}
+        onChange={(value) => onChange('location', value)}
+        required
+        error={errors.location}
+        apiKey={apiKey}
       />
 
       {/* Location Details */}
       <TextInput
-        label="Location Details"
+        label="Additional Location Details"
         name="location_details"
         value={formData.location_details}
         onChange={(value) => onChange('location_details', value)}
         placeholder="e.g., Near Stabroek Market, next to Republic Bank"
         error={errors.location_details}
-        helperText="Nearby landmarks or helpful directions"
+        helperText="Nearby landmarks or helpful directions for renters (optional)"
       />
 
       {/* Info box */}
@@ -65,7 +69,7 @@ export default function LocationStep({
           </div>
           <div className="text-sm text-blue-800">
             <p className="font-medium mb-1">Privacy tip</p>
-            <p>Your exact address will only be shared with confirmed renters. The general area will be shown on the listing.</p>
+            <p>Your exact coordinates help renters find your property. The precise location will only be shared with confirmed renters.</p>
           </div>
         </div>
       </div>
