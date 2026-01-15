@@ -16,9 +16,7 @@ import {
   ExternalLink,
   Eye,
   EyeOff,
-  Trash2,
   Pencil,
-  X,
   Check,
   Loader2,
   ArrowUp,
@@ -119,7 +117,7 @@ const defaultEvent: Partial<TimelineEvent> = {
 }
 
 export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps) {
-  const [events, setEvents] = useState<TimelineEvent[]>(initialEvents)
+  const [events, _setEvents] = useState<TimelineEvent[]>(initialEvents)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Partial<TimelineEvent> | null>(null)
   const [loading, setLoading] = useState<string | null>(null)
@@ -493,9 +491,9 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
 
       {/* Edit/Create Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
           <DialogHeader>
-            <DialogTitle className="text-xl">
+            <DialogTitle className="text-xl text-slate-900">
               {editingEvent?.id ? 'Edit Timeline Event' : 'Add New Timeline Event'}
             </DialogTitle>
           </DialogHeader>
@@ -513,7 +511,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                     value={editingEvent.title || ''}
                     onChange={(e) => updateField('title', e.target.value)}
                     placeholder="e.g., Mashramani"
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-400"
                   />
                 </div>
 
@@ -526,7 +524,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                     value={editingEvent.subtitle || ''}
                     onChange={(e) => updateField('subtitle', e.target.value)}
                     placeholder="e.g., Republic Day Celebrations"
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-400"
                   />
                 </div>
 
@@ -539,7 +537,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                     onChange={(e) => updateField('description', e.target.value)}
                     rows={3}
                     placeholder="Describe the event..."
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -553,7 +551,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                   <select
                     value={editingEvent.month || 'January'}
                     onChange={(e) => handleMonthChange(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   >
                     {MONTH_OPTIONS.map(month => (
                       <option key={month.short} value={month.full}>{month.full}</option>
@@ -570,7 +568,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                     value={editingEvent.day || ''}
                     onChange={(e) => updateField('day', e.target.value)}
                     placeholder="e.g., 23 or 1-30"
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-400"
                   />
                 </div>
 
@@ -583,7 +581,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                     value={editingEvent.location || ''}
                     onChange={(e) => updateField('location', e.target.value)}
                     placeholder="e.g., Georgetown"
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -631,7 +629,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                     value={editingEvent.media_url || ''}
                     onChange={(e) => updateField('media_url', e.target.value)}
                     placeholder={editingEvent.media_type === 'video' ? 'https://example.com/video.mp4' : 'https://example.com/image.jpg'}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-400"
                   />
                 </div>
 
@@ -645,7 +643,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                       value={editingEvent.thumbnail_url || ''}
                       onChange={(e) => updateField('thumbnail_url', e.target.value)}
                       placeholder="https://example.com/thumbnail.jpg"
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-400"
                     />
                   </div>
                 )}
@@ -680,7 +678,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                   <select
                     value={editingEvent.category || 'Cultural Festival'}
                     onChange={(e) => updateField('category', e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   >
                     {CATEGORY_OPTIONS.map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
@@ -695,7 +693,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                   <select
                     value={editingEvent.gradient_colors || GRADIENT_OPTIONS[0].value}
                     onChange={(e) => handleGradientChange(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   >
                     {GRADIENT_OPTIONS.map(gradient => (
                       <option key={gradient.value} value={gradient.value}>{gradient.label}</option>
@@ -720,7 +718,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                       value={editingEvent.highlights?.[index] || ''}
                       onChange={(e) => updateHighlight(index, e.target.value)}
                       placeholder={`Highlight ${index + 1}`}
-                      className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                      className="px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm placeholder:text-slate-400"
                     />
                   ))}
                 </div>

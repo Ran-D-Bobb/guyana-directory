@@ -3,6 +3,7 @@ import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Toaster } from "sonner";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -53,6 +54,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Toaster position="top-center" richColors />
+        <InstallPrompt />
       </body>
     </html>
   );
