@@ -675,6 +675,12 @@ p {
 html {
   scroll-padding-bottom: 6rem; /* Increased for bottom nav */
   overflow-x: hidden;
+  overflow-y: auto;
+  height: 100%;
+}
+
+html, body {
+  touch-action: pan-y pinch-zoom;
 }
 
 * {
@@ -705,7 +711,9 @@ html {
 
 body {
   min-height: 100%;
+  height: auto;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Form input text color fix */
