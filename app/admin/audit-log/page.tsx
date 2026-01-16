@@ -176,8 +176,33 @@ export default async function AdminAuditLogPage({
 
   const { data: logs, error, count } = await query
 
+  // Handle case where table doesn't exist yet
   if (error) {
     console.error('Error fetching audit logs:', error)
+
+    // If table doesn't exist, show setup message
+    if (error.code === '42P01' || error.message?.includes('does not exist')) {
+      return (
+        <div className="min-h-screen">
+          <AdminHeader
+            title="Audit Log"
+            subtitle="Track all admin actions for accountability"
+          />
+          <div className="px-4 lg:px-8 py-12">
+            <div className="max-w-md mx-auto text-center">
+              <ClipboardList className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-slate-900 mb-2">Audit Log Not Set Up</h2>
+              <p className="text-slate-600 mb-4">
+                The audit log table needs to be created in the database. Run the migration to enable this feature.
+              </p>
+              <code className="block bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm">
+                supabase db push
+              </code>
+            </div>
+          </div>
+        </div>
+      )
+    }
   }
 
   // Get admins for filter dropdown
