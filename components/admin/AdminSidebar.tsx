@@ -284,13 +284,11 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0, flaggedPh
       {/* Desktop Sidebar */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-white/5 transition-all duration-300 flex-shrink-0',
+          'hidden lg:flex flex-col h-screen sticky top-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-white/5 transition-all duration-300 flex-shrink-0 overflow-y-auto',
           collapsed ? 'w-20' : 'w-72'
         )}
       >
-        <div className="sticky top-0 h-screen overflow-y-auto">
-          <SidebarContent />
-        </div>
+        <SidebarContent />
       </aside>
     </>
   )
