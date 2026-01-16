@@ -370,6 +370,93 @@
 - Professional, directory-style layout
 - All event categories accessible from sidebar (10 categories: Concert, Workshop, Community, Festival, Sports, Business Networking, Food & Drink, Art & Culture, Charity, Other)
 
+### Comprehensive Caching Strategy (COMPLETE - Jan 16, 2026)
+**Goal:** Implement multi-layer caching for improved performance, reduced database queries, and better PWA offline support
+
+#### Phase 1: Server-Side Caching with `unstable_cache`
+- ✅ Wrapped all 4 category count functions with `unstable_cache`:
+  - `getBusinessCategoriesWithCounts()` - 5 min TTL, tags: business-categories, categories
+  - `getEventCategoriesWithCounts()` - 5 min TTL per time filter, tags: event-categories, categories
+  - `getTourismCategoriesWithCounts()` - 5 min TTL, tags: tourism-categories, categories
+  - `getRentalCategoriesWithCounts()` - 5 min TTL, tags: rental-categories, categories
+- ✅ Added `generateStaticParams` to pre-render top 50 most-viewed items at build time:
+  - `app/businesses/[slug]/page.tsx`
+  - `app/events/[slug]/page.tsx`
+  - `app/tourism/[slug]/page.tsx`
+  - `app/rentals/[slug]/page.tsx`
+- ✅ Set `revalidate = 120` (2 minutes) for all detail pages
+
+#### Phase 2: Client-Side Caching with TanStack Query
+- ✅ Installed `@tanstack/react-query` and `@tanstack/react-query-devtools`
+- ✅ Created `lib/query-client.ts` with optimized stale time configuration:
+  - Categories/Regions: 30 min (rarely changes)
+  - Category counts: 5 min (updates when items added)
+  - Listings: 2 min (acceptable for browsing)
+  - Detail pages: 1 min (users expect fresh data)
+  - User data: 0 (always fresh for security)
+  - Reviews: 30 sec (show new reviews quickly)
+- ✅ Created `lib/query-keys.ts` with organized query key factory
+- ✅ Created `components/providers/QueryProvider.tsx` client wrapper
+- ✅ Integrated QueryProvider in `app/layout.tsx`
+- ✅ React Query Devtools enabled in development mode
+
+#### Phase 3: Enhanced PWA Runtime Caching
+- ✅ Configured comprehensive `runtimeCaching` in `next.config.ts`:
+  - Static assets: CacheFirst (1 year)
+  - Images: CacheFirst (7 days)
+  - Supabase storage: StaleWhileRevalidate (7 days)
+  - Unsplash images: StaleWhileRevalidate (7 days)
+  - Google profile images: StaleWhileRevalidate (1 day)
+  - API routes: NetworkFirst with 10s timeout (5 min cache)
+  - Listing pages: StaleWhileRevalidate (5 min)
+  - Detail pages: StaleWhileRevalidate (2 min)
+  - Home page: NetworkFirst with 5s timeout (5 min)
+  - Google Fonts: CacheFirst/StaleWhileRevalidate (1 year)
+- ✅ Created `app/offline/page.tsx` for offline fallback
+- ✅ Configured PWA fallbacks: `{ document: '/offline' }`
+
+#### Phase 4: Cache Invalidation & Revalidation
+- ✅ Created `lib/revalidation.ts` with utility functions:
+  - `revalidateBusinesses()` - Clear business cache tags
+  - `revalidateSingleBusiness(slug)` - Targeted business invalidation
+  - `onBusinessMutation(slug?)` - Full business mutation handler
+  - `revalidateEvents()` - Clear event cache tags
+  - `revalidateSingleEvent(slug)` - Targeted event invalidation
+  - `onEventMutation(slug?)` - Full event mutation handler
+  - `revalidateTourism()` - Clear tourism cache tags
+  - `revalidateSingleTourism(slug)` - Targeted tourism invalidation
+  - `onTourismMutation(slug?)` - Full tourism mutation handler
+  - `revalidateRentals()` - Clear rental cache tags
+  - `revalidateSingleRental(slug)` - Targeted rental invalidation
+  - `onRentalMutation(slug?)` - Full rental mutation handler
+  - `revalidateCategories()` - Clear all category caches
+  - `revalidateAll()` - Full site revalidation
+
+#### Files Created
+- `lib/query-client.ts` - TanStack Query client configuration
+- `lib/query-keys.ts` - Query key factory
+- `lib/revalidation.ts` - Cache invalidation utilities
+- `lib/supabase/static.ts` - Build-time Supabase client (no cookies required)
+- `components/providers/QueryProvider.tsx` - React Query provider
+- `app/offline/page.tsx` - Offline fallback page (client component)
+
+#### Files Modified
+- `lib/category-counts.ts` - Added `unstable_cache` wrappers
+- `next.config.ts` - Added PWA runtime caching rules
+- `app/layout.tsx` - Added QueryProvider wrapper
+- `app/businesses/[slug]/page.tsx` - Added `generateStaticParams`, `revalidate`
+- `app/events/[slug]/page.tsx` - Added `generateStaticParams`, `revalidate`
+- `app/tourism/[slug]/page.tsx` - Added `generateStaticParams`, `revalidate`
+- `app/rentals/[slug]/page.tsx` - Added `generateStaticParams`, `revalidate`
+
+#### Verification Steps
+1. **Server caching**: Check Network tab - category counts should show `x-nextjs-cache: HIT`
+2. **Static generation**: Run `npm run build` and verify static pages in output
+3. **Client caching**: Use React Query devtools to inspect cache state
+4. **PWA caching**: Use Chrome DevTools → Application → Cache Storage
+5. **Offline support**: Toggle offline in DevTools, navigate to cached pages
+6. **Lighthouse**: Run audit targeting PWA score > 90
+
 ## Next Steps
 
 ### Phase 3: Tourism Integration (IN PROGRESS - Started Nov 16, 2024)
@@ -1965,3 +2052,27 @@ Following the frontend-design skill principles:
 
 ---
 
+
+
+## Performance Fixes (Jan 16, 2026)
+
+### RLS Performance Optimization
+- ✅ **Fixed auth_rls_initplan warnings** (68 policies)
+  - Wrapped `auth.uid()` in `(select auth.uid())` to prevent per-row re-evaluation
+  - Affected tables: profiles, businesses, business_photos, reviews, whatsapp_clicks, events, business_events, event_interests, tourism_experiences, tourism_photos, tourism_reviews, tourism_inquiry_clicks, tourist_profiles, tourism_saved_experiences, review_helpful_votes, review_responses, rentals, rental_photos, rental_reviews, rental_review_photos, rental_review_helpful_votes, rental_review_responses, rental_inquiry_clicks, rental_saved, rental_flags, saved_businesses, followed_categories, photo_flags
+
+- ✅ **Fixed multiple_permissive_policies warnings** (60 duplicates)
+  - Consolidated redundant SELECT policies that had both "viewable by everyone" and "admins can manage" policies
+  - Split `FOR ALL` admin policies into separate `FOR INSERT/UPDATE/DELETE` policies
+  - Affected tables: business_event_types, business_photos, event_categories, events, photo_flags, rental_categories, rental_photos, rental_review_photos, tourism_categories, tourism_photos
+
+- **Migration:** `20260116140000_fix_rls_performance.sql`
+  - Comprehensive migration that drops and recreates all affected policies
+  - Follows Supabase best practices for RLS performance
+
+### Performance Impact
+- Queries on tables with RLS policies will no longer call `auth.uid()` per row
+- Reduced policy evaluation overhead for SELECT queries on tables with public read access
+- Better query plan caching by PostgreSQL
+
+---

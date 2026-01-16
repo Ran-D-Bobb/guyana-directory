@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/static'
 import { PageViewTracker } from '@/components/PageViewTracker'
 import { ReviewForm } from '@/components/ReviewForm'
 import { RatingsBreakdown } from '@/components/RatingsBreakdown'
@@ -32,6 +33,24 @@ import {
 
 // Default business image from Unsplash
 const DEFAULT_BUSINESS_IMAGE = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1200&q=80'
+
+// Revalidate every 2 minutes
+export const revalidate = 120
+
+// Pre-render top 50 most-viewed businesses at build time
+export async function generateStaticParams() {
+  const supabase = createStaticClient()
+
+  const { data: businesses } = await supabase
+    .from('businesses')
+    .select('slug')
+    .order('view_count', { ascending: false })
+    .limit(50)
+
+  return (businesses || []).map((business) => ({
+    slug: business.slug,
+  }))
+}
 
 interface BusinessPageProps {
   params: Promise<{

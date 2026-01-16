@@ -18,12 +18,16 @@ interface TourismPageProps {
     sort?: string
     q?: string
     region?: string
+    page?: string
   }>
 }
 
+const ITEMS_PER_PAGE = 24
+
 export default async function TourismPage({ searchParams }: TourismPageProps) {
-  const { category, difficulty, duration, sort = 'featured', q, region } = await searchParams
+  const { category, difficulty, duration, sort = 'featured', q, region, page = '1' } = await searchParams
   const supabase = await createClient()
+  const currentPage = Math.max(1, parseInt(page) || 1)
 
   // Fetch all tourism categories with counts
   const categoriesWithCount = await getTourismCategoriesWithCounts()
@@ -103,7 +107,30 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
       break
   }
 
-  query = query.limit(24)
+  // Build count query with same filters
+  let countQuery = supabase
+    .from('tourism_experiences')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_approved', true)
+
+  if (category && category !== 'all') {
+    countQuery = countQuery.eq('tourism_category_id', category)
+  }
+  if (difficulty && difficulty !== 'all') {
+    countQuery = countQuery.eq('difficulty_level', difficulty)
+  }
+  if (region && region !== 'all') {
+    countQuery = countQuery.eq('region_id', region)
+  }
+  if (q && q.trim()) {
+    countQuery = countQuery.or(`name.ilike.%${q}%,description.ilike.%${q}%,location_details.ilike.%${q}%`)
+  }
+
+  const { count: totalCount } = await countQuery
+
+  // Apply pagination
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
+  query = query.range(offset, offset + ITEMS_PER_PAGE - 1)
 
   const { data: experiences, error } = await query
 
@@ -122,7 +149,8 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
     ? experiences || []
     : experiences?.filter(e => !featuredExperiences.includes(e)) || []
 
-  const totalExperiences = experiences?.length || 0
+  const totalExperiences = totalCount || 0
+  const totalPages = Math.ceil(totalExperiences / ITEMS_PER_PAGE)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
@@ -190,6 +218,13 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
           <TourismPageClientPremium
             experiences={gridExperiences}
             hasFilters={hasFilters}
+            pagination={{
+              currentPage,
+              totalPages,
+              totalItems: totalExperiences,
+              hasNextPage: currentPage < totalPages,
+              hasPrevPage: currentPage > 1,
+            }}
           />
         </section>
       </div>

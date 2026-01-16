@@ -1,8 +1,28 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/static'
 import { notFound } from 'next/navigation'
 import { RentalDetailClient } from './RentalDetailClient'
 import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
+
+// Revalidate every 2 minutes
+export const revalidate = 120
+
+// Pre-render top 50 most-viewed rentals at build time
+export async function generateStaticParams() {
+  const supabase = createStaticClient()
+
+  const { data: rentals } = await supabase
+    .from('rentals')
+    .select('slug')
+    .eq('is_approved', true)
+    .order('view_count', { ascending: false })
+    .limit(50)
+
+  return (rentals || []).map((rental) => ({
+    slug: rental.slug,
+  }))
+}
 
 export async function generateMetadata({
   params,

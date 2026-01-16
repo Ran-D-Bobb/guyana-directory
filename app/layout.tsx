@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { Toaster } from "sonner";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -51,10 +52,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`light ${playfair.variable} ${dmSans.variable}`}>
       <body className="antialiased font-sans">
-        <Header />
-        {children}
-        <Toaster position="top-center" richColors />
-        <InstallPrompt />
+        <QueryProvider>
+          <Header />
+          {children}
+          <Toaster position="top-center" richColors />
+          <InstallPrompt />
+        </QueryProvider>
       </body>
     </html>
   );

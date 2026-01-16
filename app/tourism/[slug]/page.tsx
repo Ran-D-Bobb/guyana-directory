@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/static'
 import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -20,6 +21,25 @@ import {
 
 // Default tourism experience image from Unsplash
 const DEFAULT_TOURISM_IMAGE = 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1200&q=80'
+
+// Revalidate every 2 minutes
+export const revalidate = 120
+
+// Pre-render top 50 most-viewed tourism experiences at build time
+export async function generateStaticParams() {
+  const supabase = createStaticClient()
+
+  const { data: experiences } = await supabase
+    .from('tourism_experiences')
+    .select('slug')
+    .eq('is_approved', true)
+    .order('view_count', { ascending: false })
+    .limit(50)
+
+  return (experiences || []).map((exp) => ({
+    slug: exp.slug,
+  }))
+}
 
 interface ExperiencePageProps {
   params: Promise<{

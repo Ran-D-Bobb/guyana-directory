@@ -21,12 +21,16 @@ interface EventsPageProps {
     q?: string
     region?: string
     view?: string
+    page?: string
   }>
 }
 
+const ITEMS_PER_PAGE = 24
+
 export default async function EventsPage({ searchParams }: EventsPageProps) {
-  const { category, time = 'upcoming', sort = 'featured', q, region, view = 'grid' } = await searchParams
+  const { category, time = 'upcoming', sort = 'featured', q, region, view = 'grid', page = '1' } = await searchParams
   const supabase = await createClient()
+  const currentPage = Math.max(1, parseInt(page) || 1)
 
   // Fetch all event categories with counts based on time filter
   const validTimeFilter = ['upcoming', 'ongoing', 'past', 'all'].includes(time) ? time as 'upcoming' | 'ongoing' | 'past' | 'all' : 'upcoming'
@@ -104,8 +108,38 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       break
   }
 
-  // Limit initial page load for performance
-  query = query.limit(24)
+  // Build count query with same filters
+  let countQuery = supabase
+    .from('events')
+    .select('*', { count: 'exact', head: true })
+
+  // Apply same time filter to count
+  switch (time) {
+    case 'upcoming':
+      countQuery = countQuery.gt('start_date', now)
+      break
+    case 'ongoing':
+      countQuery = countQuery.lte('start_date', now).gte('end_date', now)
+      break
+    case 'past':
+      countQuery = countQuery.lt('end_date', now)
+      break
+  }
+  if (category && category !== 'all') {
+    countQuery = countQuery.eq('category_id', category)
+  }
+  if (region && region !== 'all') {
+    countQuery = countQuery.eq('region_id', region)
+  }
+  if (q && q.trim()) {
+    countQuery = countQuery.or(`title.ilike.%${q}%,description.ilike.%${q}%,location.ilike.%${q}%`)
+  }
+
+  const { count: totalCount } = await countQuery
+
+  // Apply pagination
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
+  query = query.range(offset, offset + ITEMS_PER_PAGE - 1)
 
   const { data: rawEvents, error } = await query
 
@@ -136,6 +170,10 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const gridEvents = showFeaturedShowcase && hasFeaturedEvents
     ? events.filter(e => !e.is_featured)
     : events
+
+  // Pagination data
+  const totalEvents = totalCount || 0
+  const totalPages = Math.ceil(totalEvents / ITEMS_PER_PAGE)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-emerald-50/20 to-white flex pb-0 lg:pb-0">
@@ -188,7 +226,17 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
 
           {/* Events Grid/Calendar with View Controls */}
           {events && events.length > 0 ? (
-            <EventPageClient events={gridEvents.length > 0 ? gridEvents : events} searchParams={{ category, time, sort, q, region, view }} />
+            <EventPageClient
+              events={gridEvents.length > 0 ? gridEvents : events}
+              searchParams={{ category, time, sort, q, region, view }}
+              pagination={{
+                currentPage,
+                totalPages,
+                totalItems: totalEvents,
+                hasNextPage: currentPage < totalPages,
+                hasPrevPage: currentPage > 1,
+              }}
+            />
           ) : (
             /* Premium Empty State */
             <div className="text-center py-16 lg:py-24 animate-fade-in">

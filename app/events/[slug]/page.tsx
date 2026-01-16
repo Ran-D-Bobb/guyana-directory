@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/static'
 import { EventViewTracker } from '@/components/EventViewTracker'
 import { EventInterestButton } from '@/components/EventInterestButton'
 import { StaticMapCard } from '@/components/StaticMapCard'
@@ -10,6 +11,24 @@ import { ChevronLeft, Calendar, MapPin, Building2, Clock, Sparkles, Eye, User, P
 
 // Default event image from Unsplash
 const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80'
+
+// Revalidate every 2 minutes
+export const revalidate = 120
+
+// Pre-render top 50 most-viewed events at build time
+export async function generateStaticParams() {
+  const supabase = createStaticClient()
+
+  const { data: events } = await supabase
+    .from('events')
+    .select('slug')
+    .order('view_count', { ascending: false })
+    .limit(50)
+
+  return (events || []).map((event) => ({
+    slug: event.slug,
+  }))
+}
 
 interface EventPageProps {
   params: Promise<{

@@ -8,7 +8,7 @@ import { MobileRentalFilterSheet } from '@/components/MobileRentalFilterSheet'
 import { RentalFilterPanel } from '@/components/RentalFilterPanel'
 import { FeaturedRentalsHero } from '@/components/rentals/FeaturedRentalsHero'
 import { getRentalCategoriesWithCounts } from '@/lib/category-counts'
-import { Home, Search, SlidersHorizontal } from 'lucide-react'
+import { Home, Search, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
 
 // Revalidate every 5 minutes
 export const revalidate = 300
@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   title: 'Browse Rentals - Guyana Directory',
   description: 'Find apartments, houses, vacation homes, and more in Guyana',
 }
+
+const ITEMS_PER_PAGE = 24
 
 export default async function RentalsPage({
   searchParams,
@@ -31,10 +33,12 @@ export default async function RentalsPage({
     region?: string
     sort?: string
     amenities?: string
+    page?: string
   }>
 }) {
   const supabase = await createClient()
   const params = await searchParams
+  const currentPage = Math.max(1, parseInt(params.page || '1') || 1)
 
   // Check if any filters are applied
   const hasFilters = params.q || params.category || params.beds || params.baths ||
@@ -198,7 +202,64 @@ export default async function RentalsPage({
       break
   }
 
-  query = query.limit(24)
+  // Build count query with same filters
+  let countQuery = supabase
+    .from('rentals')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_approved', true)
+
+  if (params.q) {
+    const searchTerm = params.q.trim()
+    countQuery = countQuery.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,location_details.ilike.%${searchTerm}%`)
+  }
+  if (params.category) {
+    const { data: category } = await supabase
+      .from('rental_categories')
+      .select('id')
+      .eq('slug', params.category)
+      .single()
+    if (category) {
+      countQuery = countQuery.eq('category_id', category.id)
+    }
+  }
+  if (params.beds) {
+    const beds = params.beds === '4+' ? 4 : parseInt(params.beds)
+    if (params.beds === '4+') {
+      countQuery = countQuery.gte('bedrooms', beds)
+    } else {
+      countQuery = countQuery.eq('bedrooms', beds)
+    }
+  }
+  if (params.baths) {
+    const baths = params.baths === '3+' ? 3 : parseFloat(params.baths)
+    if (params.baths === '3+') {
+      countQuery = countQuery.gte('bathrooms', baths)
+    } else {
+      countQuery = countQuery.eq('bathrooms', baths)
+    }
+  }
+  if (params.price_min) {
+    countQuery = countQuery.gte('price_per_month', parseInt(params.price_min))
+  }
+  if (params.price_max) {
+    countQuery = countQuery.lte('price_per_month', parseInt(params.price_max))
+  }
+  if (params.region) {
+    const { data: region } = await supabase
+      .from('regions')
+      .select('id')
+      .eq('slug', params.region)
+      .single()
+    if (region) {
+      countQuery = countQuery.eq('region_id', region.id)
+    }
+  }
+
+  const { count: totalCount } = await countQuery
+
+  // Apply pagination
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
+  query = query.range(offset, offset + ITEMS_PER_PAGE - 1)
 
   const { data: rentals, error } = await query
 
@@ -249,7 +310,7 @@ export default async function RentalsPage({
                     {currentCategory?.name || 'All Rentals'}
                   </h2>
                   <p className="text-sm text-gray-600">
-                    {rentals?.length || 0} {(rentals?.length || 0) === 1 ? 'property' : 'properties'} found
+                    {totalCount || 0} {(totalCount || 0) === 1 ? 'property' : 'properties'} found
                   </p>
                 </div>
               </div>
@@ -353,14 +414,79 @@ export default async function RentalsPage({
               </div>
             )}
 
-            {/* Load More Hint */}
-            {rentals && rentals.length >= 24 && (
-              <div className="mt-12 text-center animate-fade-up" style={{ animationDelay: '1000ms' }}>
-                <p className="text-gray-500 text-sm">
-                  Showing {rentals.length} properties. Refine your search to see more specific results.
-                </p>
-              </div>
-            )}
+            {/* Pagination */}
+            {(() => {
+              const totalRentals = totalCount || 0
+              const totalPages = Math.ceil(totalRentals / ITEMS_PER_PAGE)
+
+              if (totalPages <= 1) return null
+
+              const goToPage = (page: number) => {
+                const urlParams = new URLSearchParams()
+                if (params.q) urlParams.set('q', params.q)
+                if (params.category) urlParams.set('category', params.category)
+                if (params.beds) urlParams.set('beds', params.beds)
+                if (params.baths) urlParams.set('baths', params.baths)
+                if (params.price_min) urlParams.set('price_min', params.price_min)
+                if (params.price_max) urlParams.set('price_max', params.price_max)
+                if (params.region) urlParams.set('region', params.region)
+                if (params.sort) urlParams.set('sort', params.sort)
+                if (params.amenities) urlParams.set('amenities', params.amenities)
+                urlParams.set('page', page.toString())
+                return `/rentals?${urlParams.toString()}`
+              }
+
+              return (
+                <div className="mt-12 animate-fade-up" style={{ animationDelay: '1000ms' }}>
+                  <nav className="flex items-center justify-center gap-1" aria-label="Pagination">
+                    <Link
+                      href={currentPage > 1 ? goToPage(currentPage - 1) : '#'}
+                      className={`p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 ${currentPage <= 1 ? 'opacity-50 pointer-events-none' : ''}`}
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </Link>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => {
+                        if (totalPages <= 7) return true
+                        if (page === 1 || page === totalPages) return true
+                        if (Math.abs(page - currentPage) <= 1) return true
+                        return false
+                      })
+                      .map((page, index, arr) => {
+                        const showEllipsis = index > 0 && page - arr[index - 1] > 1
+                        return (
+                          <span key={page} className="flex items-center">
+                            {showEllipsis && <span className="px-2 text-gray-400">...</span>}
+                            <Link
+                              href={goToPage(page)}
+                              className={`min-w-[40px] h-10 flex items-center justify-center rounded-lg font-medium transition-colors ${
+                                currentPage === page
+                                  ? 'bg-emerald-600 text-white'
+                                  : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                              }`}
+                              aria-current={currentPage === page ? 'page' : undefined}
+                            >
+                              {page}
+                            </Link>
+                          </span>
+                        )
+                      })}
+
+                    <Link
+                      href={currentPage < totalPages ? goToPage(currentPage + 1) : '#'}
+                      className={`p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 ${currentPage >= totalPages ? 'opacity-50 pointer-events-none' : ''}`}
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </Link>
+                  </nav>
+
+                  <p className="text-center text-sm text-gray-500 mt-4">
+                    Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, totalRentals)} of {totalRentals} properties
+                  </p>
+                </div>
+              )
+            })()}
           </div>
         </main>
       </div>
