@@ -140,13 +140,13 @@ export function NewInCategories() {
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-6">
+    <section className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
       {/* Section Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-          <Bell className="w-4 h-4 text-white" />
+      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+          <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
         </div>
-        <h2 className="text-xl font-bold text-gray-900">New in Your Categories</h2>
+        <h2 className="text-section-title-lg font-bold text-gray-900">New in Your Categories</h2>
       </div>
 
       {/* Categories with New Businesses */}
@@ -179,9 +179,48 @@ export function NewInCategories() {
                 </Link>
               </div>
 
-              {/* New Businesses */}
+              {/* New Businesses - Horizontal scroll on mobile */}
               <div className="p-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                {/* Mobile: Horizontal scroll */}
+                <div className="sm:hidden -mx-4 px-4">
+                  <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
+                    {category.businesses.map((business) => (
+                      <Link
+                        key={business.id}
+                        href={`/businesses/${business.slug}`}
+                        className="group flex-shrink-0 w-[140px] snap-start"
+                      >
+                        <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 mb-2">
+                          <Image
+                            src={business.image_url || DEFAULT_IMAGE}
+                            alt={business.name}
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            sizes="140px"
+                          />
+                          <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full uppercase">
+                            New
+                          </div>
+                        </div>
+                        <h4 className="font-medium text-sm text-gray-900 group-hover:text-emerald-600 line-clamp-1">
+                          {business.name}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {business.rating && (
+                            <div className="flex items-center gap-0.5">
+                              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                              <span className="text-xs font-medium text-gray-600">
+                                {business.rating.toFixed(1)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+                {/* Desktop: Grid */}
+                <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-3">
                   {category.businesses.map((business) => (
                     <Link
                       key={business.id}
@@ -194,9 +233,8 @@ export function NewInCategories() {
                           alt={business.name}
                           fill
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                          sizes="(max-width: 1024px) 33vw, 16vw"
                         />
-                        {/* NEW Badge */}
                         <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full uppercase">
                           New
                         </div>

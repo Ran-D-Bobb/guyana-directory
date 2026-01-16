@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/types/supabase'
+import { LocationInput, LocationData } from '@/components/forms/inputs/LocationInput'
 
 type TourismExperience = Database['public']['Tables']['tourism_experiences']['Row']
 
@@ -55,6 +56,17 @@ export function TourismExperienceEditForm({ experience, categories, regions }: T
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Initialize location from existing experience data
+  const [gpsLocation, setGpsLocation] = useState<LocationData | null>(
+    experience.latitude && experience.longitude
+      ? {
+          latitude: experience.latitude,
+          longitude: experience.longitude,
+          formatted_address: experience.meeting_point || experience.location_details || '',
+        }
+      : null
+  )
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -166,6 +178,8 @@ export function TourismExperienceEditForm({ experience, categories, regions }: T
           what_to_bring: whatToBringArray.length > 0 ? whatToBringArray : null,
           languages: languagesArray,
           tags: tagsArray.length > 0 ? tagsArray : null,
+          latitude: gpsLocation?.latitude || null,
+          longitude: gpsLocation?.longitude || null,
         })
         .eq('id', experience.id)
 
@@ -407,6 +421,18 @@ export function TourismExperienceEditForm({ experience, categories, regions }: T
             onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
             placeholder="Where tourists should meet the guide..."
+          />
+        </div>
+
+        {/* Precise GPS Location */}
+        <div className="pt-4 border-t mt-4">
+          <LocationInput
+            label="Precise Location (GPS)"
+            name="gps_location"
+            value={gpsLocation}
+            onChange={setGpsLocation}
+            apiKey={process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''}
+            helperText="Add GPS coordinates so tourists can navigate to the experience location"
           />
         </div>
       </div>

@@ -90,7 +90,9 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
               business_id: event.business_id,
               phone: event.whatsapp_number,
               email: event.email,
-              image_url: event.image_url
+              image_url: event.image_url,
+              latitude: event.latitude,
+              longitude: event.longitude,
             }}
             eventCategories={(eventCategories || []).map(cat => ({
               id: cat.id,

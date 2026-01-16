@@ -19,7 +19,12 @@ import {
   Users,
   Star,
   Activity,
-  Clock
+  Clock,
+  ClipboardList,
+  ImageIcon,
+  FolderOpen,
+  MapPin,
+  FileWarning,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -34,9 +39,10 @@ interface NavItem {
 interface AdminSidebarProps {
   pendingTourism?: number
   flaggedRentals?: number
+  flaggedPhotos?: number
 }
 
-export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0 }: AdminSidebarProps) {
+export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0, flaggedPhotos = 0 }: AdminSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
@@ -79,6 +85,17 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0 }: AdminSi
   const secondaryNavItems: NavItem[] = [
     { label: 'Users', href: '/admin/users', icon: Users },
     { label: 'Reviews', href: '/admin/reviews', icon: Star },
+    {
+      label: 'Photos',
+      href: '/admin/photos',
+      icon: ImageIcon,
+      badge: flaggedPhotos > 0 ? flaggedPhotos : undefined,
+      badgeColor: 'bg-orange-500'
+    },
+    { label: 'Categories', href: '/admin/categories', icon: FolderOpen },
+    { label: 'Regions', href: '/admin/regions', icon: MapPin },
+    { label: 'Data Quality', href: '/admin/data-quality', icon: FileWarning },
+    { label: 'Audit Log', href: '/admin/audit-log', icon: ClipboardList },
     { label: 'Analytics', href: '/admin/analytics', icon: Activity },
     { label: 'Settings', href: '/admin/settings', icon: Settings },
   ]
@@ -267,11 +284,13 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0 }: AdminSi
       {/* Desktop Sidebar */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-white/5 transition-all duration-300 sticky top-0',
+          'hidden lg:flex flex-col min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-white/5 transition-all duration-300 flex-shrink-0',
           collapsed ? 'w-20' : 'w-72'
         )}
       >
-        <SidebarContent />
+        <div className="sticky top-0 h-screen overflow-y-auto">
+          <SidebarContent />
+        </div>
       </aside>
     </>
   )

@@ -23,6 +23,7 @@ export default async function AdminLayout({
   const [
     { count: pendingTourism },
     { count: flaggedRentals },
+    { count: flaggedPhotos },
   ] = await Promise.all([
     supabase
       .from('tourism_experiences')
@@ -32,15 +33,21 @@ export default async function AdminLayout({
       .from('rentals')
       .select('*', { count: 'exact', head: true })
       .eq('is_flagged', true),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from('business_photos')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_flagged', true),
   ])
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 lg:flex">
       <AdminSidebar
         pendingTourism={pendingTourism || 0}
         flaggedRentals={flaggedRentals || 0}
+        flaggedPhotos={flaggedPhotos || 0}
       />
-      <main className="flex-1 min-w-0 overflow-auto">
+      <main className="flex-1 min-w-0 pt-16 lg:pt-0">
         {children}
       </main>
     </div>

@@ -103,17 +103,18 @@ export function UnifiedFeed({ items, isLoading }: UnifiedFeedProps) {
         </div>
       )}
 
-      {/* Load More Button */}
+      {/* Load More Button - 48px min height for touch */}
       {hasMore && !isLoading && (
         <div className="mt-8 text-center animate-fade-up">
           <button
             onClick={handleLoadMore}
             className={cn(
-              'inline-flex items-center gap-2 px-8 py-3.5 rounded-xl',
+              'inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl',
               'bg-white border border-gray-200 text-gray-700 font-semibold',
               'hover:bg-gray-50 hover:border-gray-300',
               'active:scale-[0.98] transition-all',
-              'shadow-sm hover:shadow-md'
+              'shadow-sm hover:shadow-md',
+              'min-h-[48px] min-w-[200px]'
             )}
           >
             <span>Load More</span>

@@ -2,6 +2,49 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { isAdmin } from '@/lib/admin'
 
+// Helper to check if user is blocked (suspended or banned)
+async function checkUserStatus(supabase: ReturnType<typeof createServerClient>, userId: string): Promise<{
+  isBlocked: boolean
+  status: 'active' | 'suspended' | 'banned'
+  reason: string | null
+  expiresAt: string | null
+}> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('status, status_reason, status_expires_at')
+    .eq('id', userId)
+    .single()
+
+  if (!profile) {
+    return { isBlocked: false, status: 'active', reason: null, expiresAt: null }
+  }
+
+  const status = (profile.status as 'active' | 'suspended' | 'banned') || 'active'
+
+  // Check if suspension has expired
+  if (status === 'suspended' && profile.status_expires_at) {
+    const expiresAt = new Date(profile.status_expires_at)
+    if (expiresAt < new Date()) {
+      // Suspension expired - user should be reactivated
+      // Note: actual reactivation happens via a scheduled job or on next login
+      // For now, we treat expired suspensions as still blocked to maintain consistency
+      return {
+        isBlocked: true,
+        status: 'suspended',
+        reason: profile.status_reason,
+        expiresAt: profile.status_expires_at
+      }
+    }
+  }
+
+  return {
+    isBlocked: status === 'suspended' || status === 'banned',
+    status,
+    reason: profile.status_reason,
+    expiresAt: profile.status_expires_at,
+  }
+}
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -38,6 +81,29 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  // Check user status for authenticated users on protected routes
+  // Skip check for blocked page to prevent redirect loops
+  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
+                           request.nextUrl.pathname.startsWith('/admin')
+  const isBlockedPage = request.nextUrl.pathname === '/blocked'
+
+  if (user && isProtectedRoute && !isBlockedPage) {
+    const userStatus = await checkUserStatus(supabase, user.id)
+
+    if (userStatus.isBlocked) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/blocked'
+      redirectUrl.searchParams.set('status', userStatus.status)
+      if (userStatus.reason) {
+        redirectUrl.searchParams.set('reason', userStatus.reason)
+      }
+      if (userStatus.expiresAt) {
+        redirectUrl.searchParams.set('expires', userStatus.expiresAt)
+      }
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
 
   // Protect dashboard routes
   if (request.nextUrl.pathname.startsWith('/dashboard')) {

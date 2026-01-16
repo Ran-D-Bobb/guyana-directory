@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Trash2 } from 'lucide-react'
+import { LocationInput, LocationData } from '@/components/forms/inputs/LocationInput'
 
 interface Region {
   id: string
@@ -32,6 +33,8 @@ interface Rental {
   house_rules: unknown
   phone: string | null
   email: string | null
+  latitude: number | null
+  longitude: number | null
 }
 
 interface RentalEditFormProps {
@@ -98,6 +101,17 @@ export default function RentalEditForm({ rental, regions }: RentalEditFormProps)
     email: rental.email || ''
   })
 
+  // Initialize location from existing rental data
+  const [location, setLocation] = useState<LocationData | null>(
+    rental.latitude && rental.longitude
+      ? {
+          latitude: rental.latitude,
+          longitude: rental.longitude,
+          formatted_address: rental.address || '',
+        }
+      : null
+  )
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -126,7 +140,9 @@ export default function RentalEditForm({ rental, regions }: RentalEditFormProps)
           utilities_included: JSON.parse(JSON.stringify(formData.utilities_included)),
           house_rules: JSON.parse(JSON.stringify(formData.house_rules)),
           phone: formData.phone || null,
-          email: formData.email || null
+          email: formData.email || null,
+          latitude: location?.latitude || null,
+          longitude: location?.longitude || null,
         })
         .eq('id', rental.id)
 
@@ -305,6 +321,18 @@ export default function RentalEditForm({ rental, regions }: RentalEditFormProps)
               onChange={(e) => setFormData({ ...formData, location_details: e.target.value })}
               placeholder="e.g., Near Stabroek Market"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
+            />
+          </div>
+
+          {/* Precise GPS Location */}
+          <div className="pt-4 border-t mt-4">
+            <LocationInput
+              label="Precise Location (GPS)"
+              name="location"
+              value={location}
+              onChange={setLocation}
+              apiKey={process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''}
+              helperText="Add GPS coordinates so renters can find the property easily"
             />
           </div>
         </div>

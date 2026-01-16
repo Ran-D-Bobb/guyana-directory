@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { LocationInput, LocationData } from '@/components/forms/inputs/LocationInput'
 
 interface BusinessHours {
   [day: string]: {
@@ -25,6 +26,9 @@ interface BusinessEditFormProps {
     category_id: string | null
     region_id: string | null
     hours: BusinessHours | null
+    latitude: number | null
+    longitude: number | null
+    formatted_address: string | null
   }
   categories: Array<{ id: string; name: string; slug: string }>
   regions: Array<{ id: string; name: string; slug: string }>
@@ -44,6 +48,17 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
     category_id: business.category_id || '',
     region_id: business.region_id || '',
   })
+
+  // Initialize location from existing business data
+  const [location, setLocation] = useState<LocationData | null>(
+    business.latitude && business.longitude
+      ? {
+          latitude: business.latitude,
+          longitude: business.longitude,
+          formatted_address: business.formatted_address || business.address || '',
+        }
+      : null
+  )
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -94,6 +109,9 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
           address: formData.address.trim() || null,
           category_id: formData.category_id || null,
           region_id: formData.region_id || null,
+          latitude: location?.latitude || null,
+          longitude: location?.longitude || null,
+          formatted_address: location?.formatted_address || null,
         })
         .eq('id', business.id)
 
@@ -261,10 +279,10 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
           />
         </div>
 
-        {/* Address */}
+        {/* Address - Text input for legacy compatibility */}
         <div>
           <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-            Physical Address
+            Address (Text)
           </label>
           <textarea
             id="address"
@@ -275,7 +293,27 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
             placeholder="123 Main Street, Georgetown"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            This is the display address. Use the location picker below for precise GPS coordinates.
+          </p>
         </div>
+      </div>
+
+      {/* Geolocation Section */}
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Precise Location</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Add GPS coordinates so customers can find you easily. Choose from three methods: use your current location, search for an address, or tap on the map.
+        </p>
+
+        <LocationInput
+          label="Business Location"
+          name="location"
+          value={location}
+          onChange={setLocation}
+          apiKey={process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''}
+          helperText="This helps customers navigate to your business"
+        />
       </div>
 
       {/* Submit Buttons */}

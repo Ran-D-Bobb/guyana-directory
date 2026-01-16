@@ -3,25 +3,14 @@ import { redirect } from 'next/navigation'
 import { isAdmin } from '@/lib/admin'
 import Link from 'next/link'
 import {
-  Home,
-  Eye,
-  MessageCircle,
-  Star,
-  Heart,
-  Flag,
   AlertTriangle,
-  Building2,
   Filter,
   Search,
-  ExternalLink,
-  Sparkles,
-  EyeOff,
   ArrowUpRight,
-  CheckCircle
 } from 'lucide-react'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { AdminStatCard } from '@/components/admin/AdminStatCard'
-import { RentalActions } from '@/components/admin/AdminActionButtons'
+import { RentalList, FlaggedRentalList } from '@/components/admin/RentalList'
 
 export const dynamic = 'force-dynamic'
 
@@ -104,7 +93,7 @@ export default async function AdminRentalsPage({
   const regularListings = filteredRentals?.filter(r => !r.is_flagged) || []
 
   // Check if any filter is active
-  const hasActiveFilters = params.category || params.featured || params.flagged || searchQuery
+  const hasActiveFilters = !!(params.category || params.featured || params.flagged || searchQuery)
 
   return (
     <div className="min-h-screen">
@@ -172,7 +161,7 @@ export default async function AdminRentalsPage({
           />
         </div>
 
-        {/* Flagged Listings Section */}
+        {/* Flagged Listings Section with Bulk Selection */}
         {flaggedListings.length > 0 && (
           <section className="space-y-4">
             <div className="flex items-center gap-2">
@@ -188,81 +177,7 @@ export default async function AdminRentalsPage({
                   These listings have been flagged by users. Properties with 5+ flags are auto-hidden.
                 </p>
               </div>
-              <div className="divide-y divide-red-100">
-                {flaggedListings.map((rental) => (
-                  <div
-                    key={rental.id}
-                    className="p-4 bg-white/50 hover:bg-white/80 transition-colors"
-                  >
-                    <div className="flex flex-col lg:flex-row lg:items-start gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-start gap-2 mb-2">
-                          <Link
-                            href={`/rentals/${rental.slug}`}
-                            target="_blank"
-                            className="group text-lg font-semibold text-slate-900 hover:text-blue-600 transition-colors inline-flex items-center gap-1.5"
-                          >
-                            {rental.name}
-                            <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </Link>
-
-                          <div className="flex flex-wrap gap-1.5">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded-full">
-                              <Flag size={12} />
-                              {rental.flag_count} flags
-                            </span>
-                            {!rental.is_approved && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-200 text-slate-700 text-xs font-medium rounded-full">
-                                <EyeOff size={12} />
-                                Hidden
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3">
-                          <span className="inline-flex items-center gap-1.5">
-                            <Building2 size={14} className="text-slate-400" />
-                            {rental.rental_categories?.name}
-                          </span>
-                          <span className="inline-flex items-center gap-1.5">
-                            <Eye size={14} className="text-slate-400" />
-                            {rental.view_count} views
-                          </span>
-                          <span className="inline-flex items-center gap-1.5">
-                            <MessageCircle size={14} className="text-slate-400" />
-                            {rental.inquiry_count} inquiries
-                          </span>
-                        </div>
-
-                        {/* Flag Reasons */}
-                        {rental.flag_reasons && Array.isArray(rental.flag_reasons) && rental.flag_reasons.length > 0 && (
-                          <div className="bg-red-100/50 border border-red-200 rounded-lg p-3 mb-3">
-                            <p className="text-xs font-semibold text-red-800 mb-2">Flag Reasons:</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {(rental.flag_reasons as string[]).map((reason, idx) => (
-                                <span key={idx} className="px-2 py-1 bg-red-200 text-red-800 text-xs rounded-full">
-                                  {reason}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <RentalActions
-                        rentalId={rental.id}
-                        rentalName={rental.name}
-                        isFeatured={rental.is_featured ?? false}
-                        isApproved={rental.is_approved ?? false}
-                        isFlagged={rental.is_flagged ?? false}
-                        flagCount={rental.flag_count ?? 0}
-                        flagReasons={rental.flag_reasons as string[] | null}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <FlaggedRentalList rentals={flaggedListings} />
             </div>
           </section>
         )}
@@ -346,106 +261,11 @@ export default async function AdminRentalsPage({
             </span>
           </div>
 
-          {/* Rental List */}
-          <div className="divide-y divide-slate-100">
-            {regularListings.length > 0 ? (
-              regularListings.map((rental) => (
-                <div
-                  key={rental.id}
-                  className="p-4 hover:bg-slate-50/50 transition-colors"
-                >
-                  <div className="flex flex-col lg:flex-row lg:items-start gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-start gap-2 mb-2">
-                        <Link
-                          href={`/rentals/${rental.slug}`}
-                          target="_blank"
-                          className="group text-lg font-semibold text-slate-900 hover:text-blue-600 transition-colors inline-flex items-center gap-1.5"
-                        >
-                          {rental.name}
-                          <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </Link>
-
-                        <div className="flex flex-wrap gap-1.5">
-                          {rental.is_featured && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
-                              <Sparkles size={12} />
-                              Featured
-                            </span>
-                          )}
-                          {rental.is_approved ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
-                              <CheckCircle size={12} />
-                              Visible
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-200 text-slate-700 text-xs font-medium rounded-full">
-                              <EyeOff size={12} />
-                              Hidden
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Meta Info */}
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-2">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Building2 size={14} className="text-slate-400" />
-                          {rental.rental_categories?.name}
-                        </span>
-                      </div>
-
-                      {/* Stats Row */}
-                      <div className="flex flex-wrap items-center gap-4 text-sm">
-                        <span className="inline-flex items-center gap-1.5 text-slate-500">
-                          <Eye size={14} className="text-slate-400" />
-                          <span className="font-medium text-slate-700">{rental.view_count || 0}</span>
-                          views
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 text-slate-500">
-                          <MessageCircle size={14} className="text-slate-400" />
-                          <span className="font-medium text-slate-700">{rental.inquiry_count || 0}</span>
-                          inquiries
-                        </span>
-                        {rental.rating && (
-                          <span className="inline-flex items-center gap-1.5 text-slate-500">
-                            <Star size={14} className="text-amber-400 fill-amber-400" />
-                            <span className="font-medium text-slate-700">{rental.rating.toFixed(1)}</span>
-                            ({rental.review_count || 0})
-                          </span>
-                        )}
-                        <span className="inline-flex items-center gap-1.5 text-slate-500">
-                          <Heart size={14} className="text-slate-400" />
-                          <span className="font-medium text-slate-700">{rental.save_count || 0}</span>
-                          saves
-                        </span>
-                      </div>
-                    </div>
-
-                    <RentalActions
-                      rentalId={rental.id}
-                      rentalName={rental.name}
-                      isFeatured={rental.is_featured ?? false}
-                      isApproved={rental.is_approved ?? false}
-                      isFlagged={rental.is_flagged ?? false}
-                      flagCount={rental.flag_count ?? 0}
-                      flagReasons={rental.flag_reasons as string[] | null}
-                    />
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="p-12 text-center">
-                <Home className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-slate-900 mb-1">No rentals found</h3>
-                <p className="text-slate-500">
-                  {hasActiveFilters
-                    ? 'Try adjusting your filters or search query'
-                    : 'Rental listings will appear here'}
-                </p>
-              </div>
-            )}
-          </div>
+          {/* Rental List with Bulk Selection */}
+          <RentalList
+            rentals={regularListings}
+            hasActiveFilters={hasActiveFilters}
+          />
         </div>
       </div>
     </div>

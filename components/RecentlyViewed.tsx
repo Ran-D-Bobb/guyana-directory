@@ -173,15 +173,15 @@ export function RecentlyViewed({
   }
 
   return (
-    <section className={`py-6 ${className}`}>
+    <section className={`py-4 sm:py-6 ${className}`}>
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-[hsl(var(--jungle-100))]">
-              <History className="w-5 h-5 text-[hsl(var(--jungle-600))]" />
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-[hsl(var(--jungle-100))]">
+              <History className="w-4 h-4 sm:w-5 sm:h-5 text-[hsl(var(--jungle-600))]" />
             </div>
-            <h2 className="font-display text-xl text-[hsl(var(--jungle-800))]">
+            <h2 className="font-display text-section-title-lg text-[hsl(var(--jungle-800))]">
               {title}
             </h2>
             <span className="text-sm text-[hsl(var(--muted-foreground))] bg-[hsl(var(--jungle-50))] px-2 py-0.5 rounded-full">
@@ -247,20 +247,20 @@ export function RecentlyViewed({
                 <Link
                   key={`${item.type}-${item.id}`}
                   href={config.href(item.slug)}
-                  className="group/card flex-shrink-0 w-[260px] snap-start"
+                  className="group/card flex-shrink-0 w-[220px] sm:w-[260px] snap-start"
                   style={{
                     animationDelay: `${index * 50}ms`,
                   }}
                 >
                   <div className="relative bg-white rounded-xl border border-[hsl(var(--border))] overflow-hidden shadow-sm hover:shadow-lg hover:border-[hsl(var(--jungle-200))] transition-all duration-300 hover:-translate-y-1">
                     {/* Image */}
-                    <div className="relative h-32 overflow-hidden">
+                    <div className="relative h-28 sm:h-32 overflow-hidden">
                       <Image
                         src={item.image}
                         alt={item.name}
                         fill
                         className="object-cover transition-transform duration-500 group-hover/card:scale-110"
-                        sizes="260px"
+                        sizes="(max-width: 640px) 220px, 260px"
                       />
                       {/* Gradient overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />

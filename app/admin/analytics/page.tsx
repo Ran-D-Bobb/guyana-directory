@@ -1,7 +1,41 @@
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { isAdmin } from '@/lib/admin'
 import { AdminHeader } from '@/components/admin/AdminHeader'
-import { BarChart3 } from 'lucide-react'
+import {
+  getAllAnalytics,
+  type TimePeriod
+} from '@/lib/analytics'
+import { AnalyticsClient } from './AnalyticsClient'
 
-export default function AdminAnalyticsPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function AdminAnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string }>
+}) {
+  const supabase = await createClient()
+
+  // Check authentication
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user || !isAdmin(user)) {
+    redirect('/admin')
+  }
+
+  const params = await searchParams
+  const period = (params.period || '30d') as TimePeriod
+
+  // Validate period
+  const validPeriods: TimePeriod[] = ['7d', '30d', '90d']
+  const safePeriod = validPeriods.includes(period) ? period : '30d'
+
+  // Fetch all analytics data
+  const analytics = await getAllAnalytics(safePeriod)
+
   return (
     <div className="min-h-screen">
       <AdminHeader
@@ -9,18 +43,17 @@ export default function AdminAnalyticsPage() {
         subtitle="View platform metrics and insights"
       />
 
-      <div className="px-4 lg:px-8 py-12">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-purple-100 flex items-center justify-center">
-            <BarChart3 className="w-8 h-8 text-purple-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
-            Analytics Coming Soon
-          </h2>
-          <p className="text-gray-600">
-            Platform analytics and insights will be available here. Track views, engagement, and growth metrics across all listings.
-          </p>
-        </div>
+      <div className="px-4 lg:px-8 py-6">
+        <AnalyticsClient
+          initialPeriod={safePeriod}
+          initialOverview={analytics.overview}
+          initialViewsData={analytics.views.data}
+          initialRegistrationsData={analytics.registrations.data}
+          initialReviewsData={analytics.reviews}
+          initialCategoriesData={analytics.categories}
+          initialRegionsData={analytics.regions}
+          initialContactsData={analytics.contacts}
+        />
       </div>
     </div>
   )

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { LocationInput, LocationData } from '@/components/forms/inputs/LocationInput'
 
 interface AdminBusinessEditFormProps {
   business: {
@@ -19,6 +20,9 @@ interface AdminBusinessEditFormProps {
     owner_id: string | null
     is_verified: boolean | null
     is_featured: boolean | null
+    latitude: number | null
+    longitude: number | null
+    formatted_address: string | null
   }
   categories: Array<{ id: string; name: string; slug: string }>
   regions: Array<{ id: string; name: string; slug: string }>
@@ -47,6 +51,17 @@ export function AdminBusinessEditForm({
     is_verified: business.is_verified || false,
     is_featured: business.is_featured || false,
   })
+
+  // Initialize location from existing business data
+  const [location, setLocation] = useState<LocationData | null>(
+    business.latitude && business.longitude
+      ? {
+          latitude: business.latitude,
+          longitude: business.longitude,
+          formatted_address: business.formatted_address || business.address || '',
+        }
+      : null
+  )
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -103,6 +118,9 @@ export function AdminBusinessEditForm({
           owner_id: formData.owner_id || null,
           is_verified: formData.is_verified,
           is_featured: formData.is_featured,
+          latitude: location?.latitude || null,
+          longitude: location?.longitude || null,
+          formatted_address: location?.formatted_address || null,
         })
         .eq('id', business.id)
 
@@ -320,10 +338,10 @@ export function AdminBusinessEditForm({
           />
         </div>
 
-        {/* Address */}
+        {/* Address - Text input */}
         <div>
           <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-            Physical Address
+            Address (Text)
           </label>
           <textarea
             id="address"
@@ -333,7 +351,27 @@ export function AdminBusinessEditForm({
             rows={2}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            This is the display address. Use the location picker below for precise GPS coordinates.
+          </p>
         </div>
+      </div>
+
+      {/* Geolocation Section */}
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Precise Location</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Add GPS coordinates so customers can find this business easily. Choose from three methods: use current location, search for an address, or tap on the map.
+        </p>
+
+        <LocationInput
+          label="Business Location"
+          name="location"
+          value={location}
+          onChange={setLocation}
+          apiKey={process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''}
+          helperText="This helps customers navigate to the business"
+        />
       </div>
 
       {/* Submit Buttons */}

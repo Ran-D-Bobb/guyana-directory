@@ -8,6 +8,7 @@ import { CollapsibleHours } from '@/components/CollapsibleHours'
 import { StaticMapCard } from '@/components/StaticMapCard'
 import { SaveBusinessButton } from '@/components/SaveBusinessButton'
 import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
+import { PhotoGallery, HeroPhotoFlagButton } from '@/components/PhotoGallery'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -102,16 +103,26 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
     notFound()
   }
 
-  // Check if user has saved this business
+  // Check if user has saved this business and get user's flagged photos
   let isSaved = false
+  let userFlaggedPhotoIds: string[] = []
   if (user) {
-    const { data: savedBusiness } = await supabase
-      .from('saved_businesses')
-      .select('id')
-      .eq('business_id', business.id)
-      .eq('user_id', user.id)
-      .single()
-    isSaved = !!savedBusiness
+    const [savedResult, flaggedResult] = await Promise.all([
+      supabase
+        .from('saved_businesses')
+        .select('id')
+        .eq('business_id', business.id)
+        .eq('user_id', user.id)
+        .single(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any)
+        .from('photo_flags')
+        .select('photo_id')
+        .eq('user_id', user.id)
+        .in('photo_id', (business.business_photos || []).map((p: { id: string }) => p.id))
+    ])
+    isSaved = !!savedResult.data
+    userFlaggedPhotoIds = (flaggedResult.data || []).map((f: { photo_id: string }) => f.photo_id)
   }
 
   // Extract photos and reviews from the combined query
@@ -316,28 +327,24 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             </div>
           </div>
 
+          {/* Hero Photo Flag Button */}
+          {primaryPhoto && (
+            <HeroPhotoFlagButton
+              photoId={primaryPhoto.id}
+              isAuthenticated={!!user}
+              hasFlagged={userFlaggedPhotoIds.includes(primaryPhoto.id)}
+            />
+          )}
+
           {/* Photo Gallery Thumbnails (if multiple photos) */}
           {galleryPhotos.length > 1 && (
-            <div className="absolute bottom-6 right-6 z-20 hidden lg:flex gap-2 animate-fade-up delay-400">
-              {galleryPhotos.slice(1, 4).map((photo, idx) => (
-                <div
-                  key={photo.id}
-                  className="w-20 h-20 rounded-xl overflow-hidden border-2 border-white/30 shadow-xl hover:border-white/60 transition-all duration-300 hover:scale-105"
-                >
-                  <Image
-                    src={photo.image_url}
-                    alt={`${business.name} photo ${idx + 2}`}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-              {galleryPhotos.length > 3 && (
-                <button className="w-20 h-20 rounded-xl bg-black/50 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center text-white font-semibold hover:bg-black/60 transition-all">
-                  +{galleryPhotos.length - 3}
-                </button>
-              )}
+            <div className="absolute bottom-6 right-6 z-20 hidden lg:block animate-fade-up delay-400">
+              <PhotoGallery
+                photos={galleryPhotos.slice(1)}
+                businessName={business.name}
+                isAuthenticated={!!user}
+                userFlaggedPhotos={userFlaggedPhotoIds}
+              />
             </div>
           )}
         </section>

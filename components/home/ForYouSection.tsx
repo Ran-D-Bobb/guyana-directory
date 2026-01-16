@@ -122,15 +122,15 @@ export function ForYouSection({ className }: ForYouSectionProps) {
   }
 
   return (
-    <section className={cn('max-w-7xl mx-auto px-4 py-6', className)}>
+    <section className={cn('max-w-7xl mx-auto px-4 py-4 sm:py-6', className)}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 text-white">
               <Sparkles className="w-4 h-4" />
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+            <h2 className="text-section-title-lg font-bold text-gray-900">
               Recommended for You
             </h2>
           </div>
@@ -183,8 +183,17 @@ export function ForYouSection({ className }: ForYouSectionProps) {
         </div>
       )}
 
-      {/* Recommendations Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+      {/* Recommendations - Horizontal scroll on mobile, grid on desktop */}
+      <div className="md:hidden -mx-4 px-4">
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
+          {recommendations.map((item, index) => (
+            <div key={item.id} className="flex-shrink-0 w-[280px] snap-start">
+              <FeedCard item={item} index={index} />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="hidden md:grid md:grid-cols-3 gap-4">
         {recommendations.map((item, index) => (
           <FeedCard key={item.id} item={item} index={index} />
         ))}

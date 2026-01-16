@@ -47,9 +47,9 @@ export function AdminHeader({
   const breadcrumbs = generateBreadcrumbs()
 
   const notifications = [
-    { id: 1, title: 'New business pending approval', time: '5 min ago', unread: true },
-    { id: 2, title: '3 new reviews submitted', time: '1 hour ago', unread: true },
-    { id: 3, title: 'Tourism experience flagged', time: '3 hours ago', unread: false },
+    { id: 1, title: 'New business pending approval', time: '5 min ago', unread: true, href: '/admin/businesses' },
+    { id: 2, title: '3 new reviews submitted', time: '1 hour ago', unread: true, href: '/admin/reviews' },
+    { id: 3, title: 'Tourism experience flagged', time: '3 hours ago', unread: false, href: '/admin/tourism' },
   ]
 
   return (
@@ -157,8 +157,10 @@ export function AdminHeader({
                     </div>
                     <div className="max-h-80 overflow-y-auto">
                       {notifications.map((notif) => (
-                        <button
+                        <Link
                           key={notif.id}
+                          href={notif.href}
+                          onClick={() => setNotificationsOpen(false)}
                           className={cn(
                             'w-full flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors text-left',
                             notif.unread && 'bg-emerald-50/50'
@@ -172,13 +174,8 @@ export function AdminHeader({
                             <p className="text-sm text-slate-900">{notif.title}</p>
                             <p className="text-xs text-slate-500 mt-0.5">{notif.time}</p>
                           </div>
-                        </button>
+                        </Link>
                       ))}
-                    </div>
-                    <div className="p-3 border-t border-slate-100">
-                      <button className="w-full py-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium">
-                        View all notifications
-                      </button>
                     </div>
                   </div>
                 </>

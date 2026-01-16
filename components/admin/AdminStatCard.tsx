@@ -26,6 +26,15 @@ import {
   Shield,
   ThumbsUp,
   AlertTriangle,
+  FileWarning,
+  ClipboardList,
+  Copy,
+  EyeOff,
+  Image,
+  FileText,
+  Phone,
+  Tag,
+  MapPin,
 } from 'lucide-react'
 
 // Map of icon names to components
@@ -49,6 +58,15 @@ const iconMap: Record<string, LucideIcon> = {
   Shield,
   ThumbsUp,
   AlertTriangle,
+  FileWarning,
+  ClipboardList,
+  Copy,
+  EyeOff,
+  Image,
+  FileText,
+  Phone,
+  Tag,
+  MapPin,
 }
 
 interface AdminStatCardProps {

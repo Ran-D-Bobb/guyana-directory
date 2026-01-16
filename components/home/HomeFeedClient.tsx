@@ -67,7 +67,7 @@ export function HomeFeedClient({ items }: HomeFeedClientProps) {
   }, [items]);
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--jungle-50))] pb-20 lg:pb-0">
+    <div className="min-h-screen bg-[hsl(var(--jungle-50))] pb-24 lg:pb-0">
       {/* Compact Banner with Search */}
       <CompactBanner />
 
@@ -80,17 +80,24 @@ export function HomeFeedClient({ items }: HomeFeedClientProps) {
         counts={counts}
       />
 
-      {/* Recently Viewed Section */}
-      <RecentlyViewed limit={10} />
+      {/* Content sections with improved spacing - 16px min on mobile */}
+      <div className="space-y-4 sm:space-y-6">
+        {/* Recently Viewed Section */}
+        <RecentlyViewed limit={10} />
 
-      {/* Personalized Recommendations */}
-      <ForYouSection />
+        {/* Personalized Recommendations */}
+        <ForYouSection />
 
-      {/* New in Followed Categories */}
-      <NewInCategories />
+        {/* New in Followed Categories */}
+        <NewInCategories />
+      </div>
 
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      {/* Main Content Area - Browse All */}
+      <main className="max-w-7xl mx-auto px-4 pt-4 pb-6 sm:pt-8">
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-section-title-lg font-bold text-gray-900">Browse All</h2>
+          <p className="text-small-fluid text-gray-500 mt-0.5">Discover more businesses and experiences</p>
+        </div>
         <UnifiedFeed items={sortedItems} />
       </main>
     </div>

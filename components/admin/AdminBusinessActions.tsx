@@ -4,15 +4,18 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { CheckCircle, XCircle, Star, StarOff, Trash2 } from 'lucide-react'
+import { logAdminAction } from '@/lib/audit'
 
 interface AdminBusinessActionsProps {
   businessId: string
+  businessName: string
   isVerified: boolean
   isFeatured: boolean
 }
 
 export function AdminBusinessActions({
   businessId,
+  businessName,
   isVerified,
   isFeatured,
 }: AdminBusinessActionsProps) {
@@ -23,12 +26,23 @@ export function AdminBusinessActions({
   const handleToggleVerified = async () => {
     setLoading(true)
     try {
+      const newVerified = !isVerified
       const { error } = await supabase
         .from('businesses')
-        .update({ is_verified: !isVerified })
+        .update({ is_verified: newVerified })
         .eq('id', businessId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newVerified ? 'verify' : 'unverify',
+        entity_type: 'business',
+        entity_id: businessId,
+        entity_name: businessName,
+        before_data: { is_verified: isVerified },
+        after_data: { is_verified: newVerified },
+      })
 
       router.refresh()
     } catch (error) {
@@ -42,12 +56,23 @@ export function AdminBusinessActions({
   const handleToggleFeatured = async () => {
     setLoading(true)
     try {
+      const newFeatured = !isFeatured
       const { error } = await supabase
         .from('businesses')
-        .update({ is_featured: !isFeatured })
+        .update({ is_featured: newFeatured })
         .eq('id', businessId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newFeatured ? 'feature' : 'unfeature',
+        entity_type: 'business',
+        entity_id: businessId,
+        entity_name: businessName,
+        before_data: { is_featured: isFeatured },
+        after_data: { is_featured: newFeatured },
+      })
 
       router.refresh()
     } catch (error) {
@@ -71,6 +96,14 @@ export function AdminBusinessActions({
         .eq('id', businessId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: 'delete',
+        entity_type: 'business',
+        entity_id: businessId,
+        entity_name: businessName,
+      })
 
       router.refresh()
     } catch (error) {

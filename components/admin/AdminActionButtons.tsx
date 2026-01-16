@@ -14,9 +14,13 @@ import {
   Flag,
   Shield,
   ShieldOff,
-  Loader2
+  Loader2,
+  Ban,
+  Clock,
+  UserCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { logAdminAction } from '@/lib/audit'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +32,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { suspendUser, banUser, reactivateUser, type UserStatus } from '@/lib/user-status'
+import { dismissPhotoFlags, deletePhoto } from '@/lib/photo-flag'
 
 // Types
 interface ActionButtonProps {
@@ -198,12 +213,24 @@ export function BusinessActions({
   const handleToggleVerified = async () => {
     setLoading('verify')
     try {
+      const newVerified = !isVerified
       const { error } = await supabase
         .from('businesses')
-        .update({ is_verified: !isVerified })
+        .update({ is_verified: newVerified })
         .eq('id', businessId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newVerified ? 'verify' : 'unverify',
+        entity_type: 'business',
+        entity_id: businessId,
+        entity_name: businessName || 'Unknown Business',
+        before_data: { is_verified: isVerified },
+        after_data: { is_verified: newVerified },
+      })
+
       onUpdate?.()
       router.refresh()
     } catch (error) {
@@ -216,12 +243,24 @@ export function BusinessActions({
   const handleToggleFeatured = async () => {
     setLoading('feature')
     try {
+      const newFeatured = !isFeatured
       const { error } = await supabase
         .from('businesses')
-        .update({ is_featured: !isFeatured })
+        .update({ is_featured: newFeatured })
         .eq('id', businessId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newFeatured ? 'feature' : 'unfeature',
+        entity_type: 'business',
+        entity_id: businessId,
+        entity_name: businessName || 'Unknown Business',
+        before_data: { is_featured: isFeatured },
+        after_data: { is_featured: newFeatured },
+      })
+
       onUpdate?.()
       router.refresh()
     } catch (error) {
@@ -238,6 +277,15 @@ export function BusinessActions({
       .eq('id', businessId)
 
     if (error) throw error
+
+    // Log the action
+    await logAdminAction({
+      action: 'delete',
+      entity_type: 'business',
+      entity_id: businessId,
+      entity_name: businessName || 'Unknown Business',
+    })
+
     router.refresh()
   }
 
@@ -296,12 +344,24 @@ export function TourismActions({
   const handleToggleApproved = async () => {
     setLoading('approve')
     try {
+      const newApproved = !isApproved
       const { error } = await supabase
         .from('tourism_experiences')
-        .update({ is_approved: !isApproved })
+        .update({ is_approved: newApproved })
         .eq('id', experienceId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newApproved ? 'approve' : 'unapprove',
+        entity_type: 'tourism',
+        entity_id: experienceId,
+        entity_name: experienceName || 'Unknown Experience',
+        before_data: { is_approved: isApproved },
+        after_data: { is_approved: newApproved },
+      })
+
       onUpdate?.()
       router.refresh()
     } catch (error) {
@@ -314,12 +374,24 @@ export function TourismActions({
   const handleToggleFeatured = async () => {
     setLoading('feature')
     try {
+      const newFeatured = !isFeatured
       const { error } = await supabase
         .from('tourism_experiences')
-        .update({ is_featured: !isFeatured })
+        .update({ is_featured: newFeatured })
         .eq('id', experienceId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newFeatured ? 'feature' : 'unfeature',
+        entity_type: 'tourism',
+        entity_id: experienceId,
+        entity_name: experienceName || 'Unknown Experience',
+        before_data: { is_featured: isFeatured },
+        after_data: { is_featured: newFeatured },
+      })
+
       onUpdate?.()
       router.refresh()
     } catch (error) {
@@ -336,6 +408,15 @@ export function TourismActions({
       .eq('id', experienceId)
 
     if (error) throw error
+
+    // Log the action
+    await logAdminAction({
+      action: 'delete',
+      entity_type: 'tourism',
+      entity_id: experienceId,
+      entity_name: experienceName || 'Unknown Experience',
+    })
+
     router.refresh()
   }
 
@@ -400,12 +481,24 @@ export function RentalActions({
   const handleToggleFeatured = async () => {
     setLoading('feature')
     try {
+      const newFeatured = !isFeatured
       const { error } = await supabase
         .from('rentals')
-        .update({ is_featured: !isFeatured })
+        .update({ is_featured: newFeatured })
         .eq('id', rentalId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newFeatured ? 'feature' : 'unfeature',
+        entity_type: 'rental',
+        entity_id: rentalId,
+        entity_name: rentalName || 'Unknown Rental',
+        before_data: { is_featured: isFeatured },
+        after_data: { is_featured: newFeatured },
+      })
+
       onUpdate?.()
       router.refresh()
     } catch (error) {
@@ -418,12 +511,24 @@ export function RentalActions({
   const handleToggleVisibility = async () => {
     setLoading('visibility')
     try {
+      const newApproved = !isApproved
       const { error } = await supabase
         .from('rentals')
-        .update({ is_approved: !isApproved })
+        .update({ is_approved: newApproved })
         .eq('id', rentalId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newApproved ? 'approve' : 'unapprove',
+        entity_type: 'rental',
+        entity_id: rentalId,
+        entity_name: rentalName || 'Unknown Rental',
+        before_data: { is_approved: isApproved },
+        after_data: { is_approved: newApproved },
+      })
+
       onUpdate?.()
       router.refresh()
     } catch (error) {
@@ -446,6 +551,17 @@ export function RentalActions({
         .eq('id', rentalId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: 'dismiss_flag',
+        entity_type: 'rental',
+        entity_id: rentalId,
+        entity_name: rentalName || 'Unknown Rental',
+        before_data: { is_flagged: true, flag_count: flagCount, flag_reasons: flagReasons },
+        after_data: { is_flagged: false, flag_count: 0, flag_reasons: [] },
+      })
+
       onUpdate?.()
       router.refresh()
     } catch (error) {
@@ -462,6 +578,15 @@ export function RentalActions({
       .eq('id', rentalId)
 
     if (error) throw error
+
+    // Log the action
+    await logAdminAction({
+      action: 'delete',
+      entity_type: 'rental',
+      entity_id: rentalId,
+      entity_name: rentalName || 'Unknown Rental',
+    })
+
     router.refresh()
   }
 
@@ -555,6 +680,7 @@ export function RentalActions({
 // Event Actions Component
 interface EventActionsProps {
   eventId: string
+  eventName?: string
   eventType: 'general' | 'business'
   isFeatured: boolean
   onUpdate?: () => void
@@ -562,6 +688,7 @@ interface EventActionsProps {
 
 export function EventActions({
   eventId,
+  eventName,
   eventType,
   isFeatured,
   onUpdate,
@@ -577,12 +704,24 @@ export function EventActions({
 
     setLoading('feature')
     try {
+      const newFeatured = !isFeatured
       const { error } = await supabase
         .from(tableName)
-        .update({ is_featured: !isFeatured })
+        .update({ is_featured: newFeatured })
         .eq('id', eventId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newFeatured ? 'feature' : 'unfeature',
+        entity_type: 'event',
+        entity_id: eventId,
+        entity_name: eventName || 'Unknown Event',
+        before_data: { is_featured: isFeatured },
+        after_data: { is_featured: newFeatured },
+      })
+
       onUpdate?.()
       router.refresh()
     } catch (error) {
@@ -599,6 +738,15 @@ export function EventActions({
       .eq('id', eventId)
 
     if (error) throw error
+
+    // Log the action
+    await logAdminAction({
+      action: 'delete',
+      entity_type: 'event',
+      entity_id: eventId,
+      entity_name: eventName || 'Unknown Event',
+    })
+
     router.refresh()
   }
 
@@ -629,12 +777,14 @@ export function EventActions({
 interface ReviewActionsProps {
   reviewId: string
   reviewerName?: string
+  businessName?: string
   onUpdate?: () => void
 }
 
 export function ReviewActions({
   reviewId,
   reviewerName,
+  businessName,
   onUpdate,
 }: ReviewActionsProps) {
   const router = useRouter()
@@ -647,6 +797,18 @@ export function ReviewActions({
       .eq('id', reviewId)
 
     if (error) throw error
+
+    // Log the action
+    const entityName = reviewerName
+      ? `Review by ${reviewerName}${businessName ? ` for ${businessName}` : ''}`
+      : 'Unknown Review'
+    await logAdminAction({
+      action: 'delete',
+      entity_type: 'review',
+      entity_id: reviewId,
+      entity_name: entityName,
+    })
+
     onUpdate?.()
     router.refresh()
   }
@@ -685,12 +847,24 @@ export function TimelineActions({
   const handleToggleActive = async () => {
     setLoading('active')
     try {
+      const newActive = !isActive
       const { error } = await supabase
         .from('timeline_events')
-        .update({ is_active: !isActive })
+        .update({ is_active: newActive })
         .eq('id', eventId)
 
       if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newActive ? 'approve' : 'unapprove',
+        entity_type: 'timeline',
+        entity_id: eventId,
+        entity_name: eventName || 'Unknown Timeline Event',
+        before_data: { is_active: isActive },
+        after_data: { is_active: newActive },
+      })
+
       onUpdate?.()
       router.refresh()
     } catch (error) {
@@ -707,6 +881,15 @@ export function TimelineActions({
       .eq('id', eventId)
 
     if (error) throw error
+
+    // Log the action
+    await logAdminAction({
+      action: 'delete',
+      entity_type: 'timeline',
+      entity_id: eventId,
+      entity_name: eventName || 'Unknown Timeline Event',
+    })
+
     router.refresh()
   }
 
@@ -735,6 +918,516 @@ export function TimelineActions({
         onConfirm={handleDelete}
         itemName={eventName}
         itemType="timeline event"
+        size="sm"
+      />
+    </div>
+  )
+}
+
+// User Status Badge Component
+interface UserStatusBadgeProps {
+  status: UserStatus
+  expiresAt?: string | null
+  className?: string
+}
+
+export function UserStatusBadge({ status, expiresAt, className }: UserStatusBadgeProps) {
+  if (status === 'active') {
+    return (
+      <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-700', className)}>
+        <CheckCircle size={12} />
+        Active
+      </span>
+    )
+  }
+
+  if (status === 'suspended') {
+    const expiry = expiresAt ? new Date(expiresAt) : null
+    const isExpired = expiry && expiry < new Date()
+    return (
+      <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-amber-100 text-amber-700', className)}>
+        <Clock size={12} />
+        {isExpired ? 'Expired Suspension' : 'Suspended'}
+      </span>
+    )
+  }
+
+  if (status === 'banned') {
+    return (
+      <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-700', className)}>
+        <Ban size={12} />
+        Banned
+      </span>
+    )
+  }
+
+  return null
+}
+
+// User Actions Component
+interface UserActionsProps {
+  userId: string
+  userName: string
+  userEmail?: string
+  status: UserStatus
+  statusReason?: string | null
+  statusExpiresAt?: string | null
+  isAdmin?: boolean
+  onUpdate?: () => void
+}
+
+export function UserActions({
+  userId,
+  userName,
+  userEmail,
+  status,
+  statusReason,
+  statusExpiresAt: _statusExpiresAt,
+  isAdmin = false,
+  onUpdate,
+}: UserActionsProps) {
+  const [loading, setLoading] = useState<string | null>(null)
+  const [suspendOpen, setSuspendOpen] = useState(false)
+  const [banOpen, setBanOpen] = useState(false)
+  const [suspendReason, setSuspendReason] = useState('')
+  const [suspendDuration, setSuspendDuration] = useState('7') // days
+  const [suspendIndefinite, setSuspendIndefinite] = useState(false)
+  const [banReason, setBanReason] = useState('')
+  const [banDeleteReviews, setBanDeleteReviews] = useState(false)
+  const [banRemoveOwnership, setBanRemoveOwnership] = useState(false)
+  const router = useRouter()
+
+  // Don't allow actions on admin users
+  if (isAdmin) {
+    return (
+      <span className="text-xs text-slate-500 italic">Admin</span>
+    )
+  }
+
+  const handleSuspend = async () => {
+    if (!suspendReason.trim()) return
+
+    setLoading('suspend')
+    try {
+      const expiresAt = suspendIndefinite
+        ? null
+        : new Date(Date.now() + parseInt(suspendDuration) * 24 * 60 * 60 * 1000)
+
+      const result = await suspendUser({
+        userId,
+        userName,
+        reason: suspendReason,
+        expiresAt,
+      })
+
+      if (result.success) {
+        setSuspendOpen(false)
+        setSuspendReason('')
+        setSuspendDuration('7')
+        setSuspendIndefinite(false)
+        onUpdate?.()
+        router.refresh()
+      } else {
+        console.error('Suspend failed:', result.error)
+      }
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const handleBan = async () => {
+    if (!banReason.trim()) return
+
+    setLoading('ban')
+    try {
+      const result = await banUser({
+        userId,
+        userName,
+        reason: banReason,
+        deleteReviews: banDeleteReviews,
+        removeBusinessOwnership: banRemoveOwnership,
+      })
+
+      if (result.success) {
+        setBanOpen(false)
+        setBanReason('')
+        setBanDeleteReviews(false)
+        setBanRemoveOwnership(false)
+        onUpdate?.()
+        router.refresh()
+      } else {
+        console.error('Ban failed:', result.error)
+      }
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const handleReactivate = async () => {
+    setLoading('reactivate')
+    try {
+      const result = await reactivateUser({
+        userId,
+        userName,
+      })
+
+      if (result.success) {
+        onUpdate?.()
+        router.refresh()
+      } else {
+        console.error('Reactivate failed:', result.error)
+      }
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      {/* Reactivate button for suspended/banned users */}
+      {(status === 'suspended' || status === 'banned') && (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button
+              className={cn(
+                'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200',
+                'bg-green-100 text-green-700 hover:bg-green-200',
+                'px-2.5 py-1.5 text-xs gap-1.5'
+              )}
+            >
+              <UserCheck size={14} />
+              Reactivate
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="rounded-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-xl">Reactivate user?</AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-600">
+                <span className="block font-medium text-slate-900 mb-2">{userName}</span>
+                {userEmail && <span className="block text-sm text-slate-500 mb-3">{userEmail}</span>}
+                {statusReason && (
+                  <span className="block bg-slate-100 rounded-lg p-3 text-sm mb-3">
+                    <span className="font-medium">Current {status === 'banned' ? 'ban' : 'suspension'} reason:</span> {statusReason}
+                  </span>
+                )}
+                This will restore the user&apos;s access to the platform.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-3">
+              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleReactivate}
+                disabled={loading === 'reactivate'}
+                className="bg-green-600 hover:bg-green-700 text-white rounded-lg"
+              >
+                {loading === 'reactivate' ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Reactivating...
+                  </>
+                ) : (
+                  'Reactivate'
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+
+      {/* Suspend button for active users */}
+      {status === 'active' && (
+        <Dialog open={suspendOpen} onOpenChange={setSuspendOpen}>
+          <DialogTrigger asChild>
+            <button
+              className={cn(
+                'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200',
+                'bg-amber-100 text-amber-700 hover:bg-amber-200',
+                'px-2.5 py-1.5 text-xs gap-1.5'
+              )}
+            >
+              <Clock size={14} />
+              Suspend
+            </button>
+          </DialogTrigger>
+          <DialogContent className="rounded-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl">Suspend User</DialogTitle>
+              <DialogDescription className="text-slate-600">
+                <span className="block font-medium text-slate-900">{userName}</span>
+                {userEmail && <span className="block text-sm text-slate-500">{userEmail}</span>}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Reason for suspension <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={suspendReason}
+                  onChange={(e) => setSuspendReason(e.target.value)}
+                  placeholder="Enter reason..."
+                  className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Duration
+                </label>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={suspendDuration}
+                    onChange={(e) => setSuspendDuration(e.target.value)}
+                    disabled={suspendIndefinite}
+                    className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50"
+                  >
+                    <option value="1">1 day</option>
+                    <option value="3">3 days</option>
+                    <option value="7">7 days</option>
+                    <option value="14">14 days</option>
+                    <option value="30">30 days</option>
+                    <option value="90">90 days</option>
+                  </select>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={suspendIndefinite}
+                      onChange={(e) => setSuspendIndefinite(e.target.checked)}
+                      className="rounded"
+                    />
+                    Indefinite
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-3">
+              <button
+                onClick={() => setSuspendOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSuspend}
+                disabled={loading === 'suspend' || !suspendReason.trim()}
+                className="px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading === 'suspend' ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Suspending...
+                  </>
+                ) : (
+                  'Suspend User'
+                )}
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Ban button for active or suspended users */}
+      {status !== 'banned' && (
+        <Dialog open={banOpen} onOpenChange={setBanOpen}>
+          <DialogTrigger asChild>
+            <button
+              className={cn(
+                'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200',
+                'bg-red-100 text-red-700 hover:bg-red-200',
+                'px-2.5 py-1.5 text-xs gap-1.5'
+              )}
+            >
+              <Ban size={14} />
+              Ban
+            </button>
+          </DialogTrigger>
+          <DialogContent className="rounded-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl text-red-700">Ban User Permanently</DialogTitle>
+              <DialogDescription className="text-slate-600">
+                <span className="block font-medium text-slate-900">{userName}</span>
+                {userEmail && <span className="block text-sm text-slate-500">{userEmail}</span>}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                <strong>Warning:</strong> Banning is permanent. The user will lose access to the platform indefinitely.
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Reason for ban <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={banReason}
+                  onChange={(e) => setBanReason(e.target.value)}
+                  placeholder="Enter reason..."
+                  className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-slate-700">
+                  Content removal options
+                </label>
+                <label className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
+                  <input
+                    type="checkbox"
+                    checked={banDeleteReviews}
+                    onChange={(e) => setBanDeleteReviews(e.target.checked)}
+                    className="rounded mt-0.5"
+                  />
+                  <div>
+                    <span className="block text-sm font-medium text-slate-700">Delete all reviews</span>
+                    <span className="block text-xs text-slate-500">Remove all reviews this user has written</span>
+                  </div>
+                </label>
+                <label className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
+                  <input
+                    type="checkbox"
+                    checked={banRemoveOwnership}
+                    onChange={(e) => setBanRemoveOwnership(e.target.checked)}
+                    className="rounded mt-0.5"
+                  />
+                  <div>
+                    <span className="block text-sm font-medium text-slate-700">Remove business ownership</span>
+                    <span className="block text-xs text-slate-500">Unlink any businesses owned by this user</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-3">
+              <button
+                onClick={() => setBanOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBan}
+                disabled={loading === 'ban' || !banReason.trim()}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading === 'ban' ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Banning...
+                  </>
+                ) : (
+                  'Ban User'
+                )}
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  )
+}
+
+// Photo Actions Component
+interface PhotoActionsProps {
+  photoId: string
+  businessName: string
+  imageUrl: string
+  flagCount: number
+  onUpdate?: () => void
+}
+
+export function PhotoActions({
+  photoId,
+  businessName,
+  imageUrl,
+  flagCount,
+  onUpdate,
+}: PhotoActionsProps) {
+  const [loading, setLoading] = useState<string | null>(null)
+  const router = useRouter()
+
+  const handleDismiss = async () => {
+    setLoading('dismiss')
+    try {
+      const result = await dismissPhotoFlags(photoId, { businessName, imageUrl })
+      if (result.success) {
+        onUpdate?.()
+        router.refresh()
+      } else {
+        console.error('Dismiss failed:', result.error)
+      }
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const handleDelete = async () => {
+    const result = await deletePhoto(photoId, { businessName, imageUrl })
+    if (result.success) {
+      onUpdate?.()
+      router.refresh()
+    } else {
+      console.error('Delete failed:', result.error)
+      throw new Error(result.error)
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <button
+            className={cn(
+              'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200',
+              'bg-orange-100 text-orange-700 hover:bg-orange-200',
+              'px-2.5 py-1.5 text-xs gap-1.5'
+            )}
+          >
+            <Flag size={14} />
+            Dismiss ({flagCount})
+          </button>
+        </AlertDialogTrigger>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl">Dismiss photo flags?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600">
+              <span className="block mb-3">
+                This will clear all {flagCount} flag{flagCount !== 1 ? 's' : ''} from this photo and mark it as reviewed.
+              </span>
+              <span className="block text-sm text-slate-500">
+                The photo will remain visible to users.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3">
+            <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDismiss}
+              disabled={loading === 'dismiss'}
+              className="bg-orange-600 hover:bg-orange-700 text-white rounded-lg"
+            >
+              {loading === 'dismiss' ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Dismissing...
+                </>
+              ) : (
+                'Dismiss Flags'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <DeleteButton
+        onConfirm={handleDelete}
+        itemName={`photo for ${businessName}`}
+        itemType="photo"
+        warningMessage="This will permanently delete the photo and remove it from the business listing. This action cannot be undone."
         size="sm"
       />
     </div>

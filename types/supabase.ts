@@ -281,6 +281,7 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          display_order: number | null
           icon: string
           id: string
           name: string
@@ -289,6 +290,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           description?: string | null
+          display_order?: number | null
           icon: string
           id?: string
           name: string
@@ -297,6 +299,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           description?: string | null
+          display_order?: number | null
           icon?: string
           id?: string
           name?: string
@@ -529,6 +532,7 @@ export type Database = {
       regions: {
         Row: {
           created_at: string | null
+          display_order: number | null
           id: string
           latitude: number | null
           longitude: number | null
@@ -539,6 +543,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          display_order?: number | null
           id?: string
           latitude?: number | null
           longitude?: number | null
@@ -549,6 +554,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          display_order?: number | null
           id?: string
           latitude?: number | null
           longitude?: number | null

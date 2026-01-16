@@ -215,6 +215,7 @@ export default async function AdminEventsPage() {
                         <div className="flex items-center gap-2">
                           <EventActions
                             eventId={event.id}
+                            eventName={event.title}
                             eventType="general"
                             isFeatured={event.is_featured ?? false}
                           />
@@ -312,6 +313,7 @@ export default async function AdminEventsPage() {
                         <div className="flex items-center gap-2">
                           <EventActions
                             eventId={event.id}
+                            eventName={event.title}
                             eventType="business"
                             isFeatured={false}
                           />

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { LocationInput, LocationData } from '@/components/forms/inputs/LocationInput'
 
 interface AdminBusinessCreateFormProps {
   categories: Array<{ id: string; name: string; slug: string }>
@@ -32,6 +33,7 @@ export function AdminBusinessCreateForm({
     is_featured: false,
   })
 
+  const [location, setLocation] = useState<LocationData | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -97,6 +99,9 @@ export function AdminBusinessCreateForm({
         region_id: formData.region_id || null,
         is_verified: formData.is_verified,
         is_featured: formData.is_featured,
+        latitude: location?.latitude || null,
+        longitude: location?.longitude || null,
+        formatted_address: location?.formatted_address || null,
       })
 
       if (createError) {
@@ -312,7 +317,7 @@ export function AdminBusinessCreateForm({
         {/* Address */}
         <div>
           <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-            Physical Address
+            Address (Text)
           </label>
           <textarea
             id="address"
@@ -323,7 +328,27 @@ export function AdminBusinessCreateForm({
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
             placeholder="123 Main Street, Georgetown, Guyana"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            This is the display address. Use the location picker below for precise GPS coordinates.
+          </p>
         </div>
+      </div>
+
+      {/* Geolocation Section */}
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Precise Location</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Add GPS coordinates so customers can find this business easily. Choose from three methods: use current location, search for an address, or tap on the map.
+        </p>
+
+        <LocationInput
+          label="Business Location"
+          name="location"
+          value={location}
+          onChange={setLocation}
+          apiKey={process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''}
+          helperText="This helps customers navigate to the business"
+        />
       </div>
 
       {/* Submit Buttons */}

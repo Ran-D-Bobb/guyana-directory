@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Calendar, MapPin, Type, FileText, Building2, MessageCircle } from 'lucide-react'
 import { EventPhotoUpload } from './EventPhotoUpload'
+import { LocationInput, LocationData } from '@/components/forms/inputs/LocationInput'
 
 interface EventEditFormProps {
   event: {
@@ -19,6 +20,8 @@ interface EventEditFormProps {
     phone: string | null
     email: string | null
     image_url: string | null
+    latitude: number | null
+    longitude: number | null
   }
   eventCategories: Array<{
     id: string
@@ -36,6 +39,17 @@ export function EventEditForm({ event, eventCategories, userBusinesses }: EventE
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Initialize location from existing event data
+  const [gpsLocation, setGpsLocation] = useState<LocationData | null>(
+    event.latitude && event.longitude
+      ? {
+          latitude: event.latitude,
+          longitude: event.longitude,
+          formatted_address: event.location || '',
+        }
+      : null
+  )
 
   // Parse start and end dates
   const startDateTime = new Date(event.start_date)
@@ -105,6 +119,8 @@ export function EventEditForm({ event, eventCategories, userBusinesses }: EventE
         business_id: businessId || null,
         phone: phone || null,
         email: email || null,
+        latitude: gpsLocation?.latitude || null,
+        longitude: gpsLocation?.longitude || null,
       })
       .eq('id', event.id)
 
@@ -266,7 +282,7 @@ export function EventEditForm({ event, eventCategories, userBusinesses }: EventE
       {/* Location */}
       <div>
         <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-          Location
+          Location (Text)
         </label>
         <div className="relative">
           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -280,6 +296,19 @@ export function EventEditForm({ event, eventCategories, userBusinesses }: EventE
             placeholder="e.g., Georgetown City Hall or Online"
           />
         </div>
+        <p className="text-sm text-gray-500 mt-1">Display location name. Add precise GPS below for navigation.</p>
+      </div>
+
+      {/* Precise GPS Location */}
+      <div className="border-t border-gray-200 pt-4">
+        <LocationInput
+          label="Precise Location (GPS)"
+          name="gps_location"
+          value={gpsLocation}
+          onChange={setGpsLocation}
+          apiKey={process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || ''}
+          helperText="Add GPS coordinates so attendees can navigate to the event"
+        />
       </div>
 
       {/* Optional Business Association */}

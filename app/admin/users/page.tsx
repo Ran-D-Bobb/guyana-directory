@@ -12,17 +12,34 @@ import {
   Building2,
   Star,
   User,
-  Shield
+  Shield,
 } from 'lucide-react'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { AdminStatCard } from '@/components/admin/AdminStatCard'
+import { UserActions, UserStatusBadge } from '@/components/admin/AdminActionButtons'
+import type { UserStatus } from '@/lib/user-status'
+
+// Extended profile type with status fields (pending migration)
+interface ProfileWithStatus {
+  id: string
+  created_at: string | null
+  email: string | null
+  name: string | null
+  phone: string | null
+  photo: string | null
+  review_count: number | null
+  updated_at: string | null
+  status?: UserStatus
+  status_reason?: string | null
+  status_expires_at?: string | null
+}
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; role?: string }>
+  searchParams: Promise<{ q?: string; role?: string; status?: string }>
 }) {
   const supabase = await createClient()
 
@@ -38,12 +55,17 @@ export default async function AdminUsersPage({
   const params = await searchParams
   const searchQuery = params.q
   const roleFilter = params.role
+  const statusFilter = params.status
 
-  // Get all users with their activity counts
-  const { data: profiles, error } = await supabase
+  // Get all users with their activity counts and status
+  // Note: After applying migration 20260116110000_user_status.sql, run: supabase gen types typescript --local > types/supabase.ts
+  const { data: profilesData, error } = await supabase
     .from('profiles')
     .select('*')
     .order('created_at', { ascending: false })
+
+  // Cast to extended type that includes status fields
+  const profiles = profilesData as ProfileWithStatus[] | null
 
   if (error) {
     console.error('Error fetching profiles:', error)
@@ -96,15 +118,26 @@ export default async function AdminUsersPage({
     )
   }
 
+  // Apply status filter
+  if (statusFilter === 'active') {
+    filteredProfiles = filteredProfiles.filter(p => !p.status || p.status === 'active')
+  } else if (statusFilter === 'suspended') {
+    filteredProfiles = filteredProfiles.filter(p => p.status === 'suspended')
+  } else if (statusFilter === 'banned') {
+    filteredProfiles = filteredProfiles.filter(p => p.status === 'banned')
+  }
+
   // Calculate stats
   const totalUsers = profiles?.length || 0
   const adminCount = profiles?.filter(p => adminEmailSet.has(p.email || '')).length || 0
   const businessOwnerCount = businessOwnerIds.size
   const totalReviews = reviewCounts?.length || 0
   const usersWithReviews = new Set(reviewCounts?.map(r => r.user_id) || []).size
+  const suspendedCount = profiles?.filter(p => p.status === 'suspended').length || 0
+  const bannedCount = profiles?.filter(p => p.status === 'banned').length || 0
 
   // Check if any filter is active
-  const hasActiveFilters = searchQuery || roleFilter
+  const hasActiveFilters = searchQuery || roleFilter || statusFilter
 
   // Format date
   const formatDate = (dateString: string | null) => {
@@ -125,7 +158,7 @@ export default async function AdminUsersPage({
 
       <div className="px-4 lg:px-8 py-6 space-y-6">
         {/* Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <AdminStatCard
             label="Total Users"
             value={totalUsers}
@@ -161,6 +194,20 @@ export default async function AdminUsersPage({
             color="cyan"
             size="sm"
           />
+          <AdminStatCard
+            label="Suspended"
+            value={suspendedCount}
+            icon="Clock"
+            color="yellow"
+            size="sm"
+          />
+          <AdminStatCard
+            label="Banned"
+            value={bannedCount}
+            icon="AlertTriangle"
+            color="red"
+            size="sm"
+          />
         </div>
 
         {/* Filters & User List */}
@@ -183,12 +230,24 @@ export default async function AdminUsersPage({
               <select
                 name="role"
                 defaultValue={roleFilter || ''}
-                className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-purple-300 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all min-w-[180px]"
+                className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-purple-300 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all min-w-[150px]"
               >
                 <option value="">All Roles</option>
                 <option value="admin">Admins</option>
                 <option value="business_owner">Business Owners</option>
                 <option value="user">Regular Users</option>
+              </select>
+
+              {/* Status Filter */}
+              <select
+                name="status"
+                defaultValue={statusFilter || ''}
+                className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-purple-300 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all min-w-[150px]"
+              >
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+                <option value="banned">Banned</option>
               </select>
 
               <div className="flex items-center gap-2">
@@ -267,6 +326,12 @@ export default async function AdminUsersPage({
                                 Business Owner
                               </span>
                             )}
+
+                            {/* Status Badge */}
+                            <UserStatusBadge
+                              status={(profile.status as UserStatus) || 'active'}
+                              expiresAt={profile.status_expires_at}
+                            />
                           </div>
 
                           {/* Contact Info */}
@@ -300,6 +365,19 @@ export default async function AdminUsersPage({
                           <Calendar size={12} />
                           Joined {formatDate(profile.created_at)}
                         </span>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center">
+                        <UserActions
+                          userId={profile.id}
+                          userName={profile.name || 'Unknown User'}
+                          userEmail={profile.email || undefined}
+                          status={(profile.status as UserStatus) || 'active'}
+                          statusReason={profile.status_reason}
+                          statusExpiresAt={profile.status_expires_at}
+                          isAdmin={isUserAdmin}
+                        />
                       </div>
                     </div>
                   </div>
