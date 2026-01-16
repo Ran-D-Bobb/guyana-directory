@@ -206,16 +206,25 @@ export default async function AdminAuditLogPage({
   }
 
   // Get admins for filter dropdown
-  const { data: admins } = await supabase
+  const { data: admins, error: adminsError } = await supabase
     .from('admin_emails')
     .select('email')
 
+  if (adminsError) {
+    console.error('Error fetching admin emails:', adminsError)
+  }
+
   // Get admin profiles
   const adminEmails = admins?.map(a => a.email) || []
-  const { data: adminProfiles } = await supabase
-    .from('profiles')
-    .select('id, name, email')
-    .in('email', adminEmails)
+  let adminProfiles: { id: string; name: string | null; email: string | null }[] = []
+
+  if (adminEmails.length > 0) {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .in('email', adminEmails)
+    adminProfiles = profiles || []
+  }
 
   // Calculate stats for current filters
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
