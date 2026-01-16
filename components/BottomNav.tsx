@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, ShoppingBag, Compass, Calendar, Navigation } from 'lucide-react'
+import { Home, ShoppingBag, Compass, Calendar, Navigation, Key } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface BottomNavProps {
@@ -58,6 +58,12 @@ export function BottomNav({}: BottomNavProps) {
       icon: Calendar,
       isActive: pathname.startsWith('/events') && !pathname.includes('my-events'),
     },
+    {
+      name: 'Stays',
+      href: '/rentals',
+      icon: Key,
+      isActive: pathname.startsWith('/rentals'),
+    },
   ]
 
   return (
@@ -73,8 +79,8 @@ export function BottomNav({}: BottomNavProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 py-2.5 px-3 rounded-xl transition-colors',
-                'min-w-[56px] min-h-[52px] active:scale-95 touch-manipulation',
+                'flex flex-col items-center justify-center gap-0.5 py-2 px-2 rounded-xl transition-colors',
+                'min-w-[48px] min-h-[48px] active:scale-95 touch-manipulation',
                 isActive
                   ? isHighlight
                     ? 'text-amber-600 bg-amber-50'
