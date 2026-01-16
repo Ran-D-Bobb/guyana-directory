@@ -90,13 +90,13 @@ export function SaveBusinessButton({
 
   const loading = isLoading || isPending
 
-  // Overlay variant - positioned absolutely in parent
+  // Overlay variant - positioned absolutely in parent (bottom-right)
   if (variant === 'overlay') {
     return (
       <button
         onClick={handleToggleSave}
         disabled={loading}
-        className={`absolute top-2 right-2 sm:top-3 sm:right-3 z-10 ${sizeClasses[size]} rounded-full flex items-center justify-center transition-all duration-200 shadow-lg ${
+        className={`absolute bottom-2 right-2 sm:bottom-3 sm:right-3 z-10 ${sizeClasses[size]} rounded-full flex items-center justify-center transition-all duration-200 shadow-lg ${
           isSaved
             ? 'bg-rose-500 text-white hover:bg-rose-600'
             : 'bg-white/90 backdrop-blur-sm text-gray-600 hover:bg-white hover:text-rose-500'
