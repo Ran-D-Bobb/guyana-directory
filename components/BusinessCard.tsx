@@ -68,7 +68,7 @@ export function BusinessCard({ business, primaryPhoto, userId, isSaved = false }
 
         {/* Rating Badge - Floating on Image */}
         {business.rating != null && business.rating > 0 && (
-          <div className="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
+          <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg">
             <StarRating rating={business.rating} size="sm" />
             <span className="text-xs sm:text-sm font-bold text-gray-900">
               {business.rating.toFixed(1)}
