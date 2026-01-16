@@ -41,7 +41,7 @@ export default async function AdminLayout({
   ])
 
   return (
-    <div className="h-screen bg-slate-50 lg:flex overflow-hidden">
+    <div className="h-[calc(100vh-56px)] md:h-[calc(100vh-74px)] bg-slate-50 lg:flex overflow-hidden">
       <AdminSidebar
         pendingTourism={pendingTourism || 0}
         flaggedRentals={flaggedRentals || 0}

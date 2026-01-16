@@ -48,9 +48,9 @@ export function ContactInfoStep({
         name="website"
         value={data.website}
         onChange={value => onChange({ website: value })}
-        type="url"
+        type="text"
         icon={<Globe className="w-5 h-5" />}
-        placeholder="https://www.yourbusiness.com"
+        placeholder="www.yourbusiness.com"
         helperText="Your business website or social media page"
       />
     </div>

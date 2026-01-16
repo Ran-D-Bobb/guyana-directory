@@ -12,7 +12,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Settings,
-  Bell,
   Search,
   Menu,
   X,
@@ -166,20 +165,32 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0, flaggedPh
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      {/* Logo Section */}
+      {/* Logo Section with Collapse Toggle */}
       <div className={cn(
         'flex items-center gap-3 px-4 py-6 border-b border-white/10',
-        collapsed && 'justify-center px-2'
+        collapsed && 'flex-col gap-4 px-2'
       )}>
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/30">
-          <Building2 className="text-white" size={22} />
-        </div>
-        {!collapsed && (
-          <div className="flex flex-col">
-            <span className="font-bold text-white tracking-tight">Guyana</span>
-            <span className="text-xs text-slate-400">Admin Panel</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/30">
+            <Building2 className="text-white" size={22} />
           </div>
-        )}
+          {!collapsed && (
+            <div className="flex flex-col">
+              <span className="font-bold text-white tracking-tight">Guyana</span>
+              <span className="text-xs text-slate-400">Admin Panel</span>
+            </div>
+          )}
+        </div>
+        {/* Collapse Toggle */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className={cn(
+            'flex items-center justify-center w-8 h-8 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors',
+            !collapsed && 'ml-auto'
+          )}
+        >
+          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </button>
       </div>
 
       {/* Quick Search */}
@@ -193,7 +204,7 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0, flaggedPh
         </div>
       )}
 
-      {/* Main Navigation */}
+      {/* Main Navigation - Fully Scrollable */}
       <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
         <div className={cn('mb-4', !collapsed && 'px-1')}>
           {!collapsed && (
@@ -217,33 +228,6 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0, flaggedPh
           <NavLink key={item.href} item={item} />
         ))}
       </nav>
-
-      {/* Bottom Section */}
-      <div className="p-3 border-t border-white/10">
-        {/* Notifications */}
-        {!collapsed && (
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors mb-2">
-            <div className="relative">
-              <Bell size={20} />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-            </div>
-            <span className="font-medium">Notifications</span>
-            <span className="ml-auto px-2 py-0.5 text-xs bg-white/10 rounded-full">3</span>
-          </button>
-        )}
-
-        {/* Collapse Toggle */}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className={cn(
-            'w-full flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors',
-            collapsed && 'justify-center'
-          )}
-        >
-          {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-          {!collapsed && <span className="font-medium">Collapse</span>}
-        </button>
-      </div>
     </div>
   )
 
@@ -284,7 +268,7 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0, flaggedPh
       {/* Desktop Sidebar */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col h-screen sticky top-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-white/5 transition-all duration-300 flex-shrink-0 overflow-y-auto',
+          'hidden lg:flex flex-col h-full bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-white/5 transition-all duration-300 flex-shrink-0 overflow-y-auto',
           collapsed ? 'w-20' : 'w-72'
         )}
       >

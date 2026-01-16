@@ -304,13 +304,13 @@ export function AdminBusinessCreateForm({
             Website
           </label>
           <input
-            type="url"
+            type="text"
             id="website"
             name="website"
             value={formData.website}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-500"
-            placeholder="https://www.business.com"
+            placeholder="www.business.com"
           />
         </div>
 
