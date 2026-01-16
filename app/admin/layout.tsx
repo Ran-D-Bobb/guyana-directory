@@ -41,13 +41,13 @@ export default async function AdminLayout({
   ])
 
   return (
-    <div className="h-[calc(100vh-56px)] md:h-[calc(100vh-74px)] bg-slate-50 lg:flex overflow-hidden">
+    <div className="min-h-[calc(100vh-56px)] md:min-h-[calc(100vh-74px)] lg:h-[calc(100vh-74px)] bg-slate-50 lg:flex lg:overflow-hidden">
       <AdminSidebar
         pendingTourism={pendingTourism || 0}
         flaggedRentals={flaggedRentals || 0}
         flaggedPhotos={flaggedPhotos || 0}
       />
-      <main className="flex-1 min-w-0 pt-16 lg:pt-0 overflow-y-auto">
+      <main className="flex-1 min-w-0 pt-16 lg:pt-0 lg:overflow-y-auto pb-20 lg:pb-0">
         {children}
       </main>
     </div>
