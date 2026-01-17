@@ -434,9 +434,9 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
 
       {/* Edit/Create Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg bg-white text-gray-900">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-gray-900">
               {editingVideo?.id ? 'Edit Video' : 'Add New Video'}
             </DialogTitle>
           </DialogHeader>
@@ -453,7 +453,7 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
                   value={editingVideo.title || ''}
                   onChange={(e) => updateField('title', e.target.value)}
                   placeholder="e.g., Kaieteur Falls"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-400"
                 />
               </div>
 
@@ -558,7 +558,7 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
                     value={editingVideo.video_url || ''}
                     onChange={(e) => updateField('video_url', e.target.value)}
                     placeholder="https://example.com/video.mp4"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-400"
                   />
                   {editingVideo.video_url && (
                     <div className="mt-3">
@@ -581,7 +581,7 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
               )}
 
               {/* Active Toggle */}
-              <div className="flex items-center justify-between py-3 border-t">
+              <div className="flex items-center justify-between py-3 border-t border-gray-200">
                 <div>
                   <p className="font-medium text-gray-900">Active</p>
                   <p className="text-sm text-gray-500">Show this video in the hero carousel</p>
@@ -604,11 +604,11 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
               </div>
 
               {/* Save Button */}
-              <div className="flex gap-3 pt-4 border-t">
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
