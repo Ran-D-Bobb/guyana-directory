@@ -176,7 +176,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const totalPages = Math.ceil(totalEvents / ITEMS_PER_PAGE)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-emerald-50/20 to-white flex pb-0 lg:pb-0">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-gradient-to-b from-white via-emerald-50/20 to-white flex pb-0 lg:pb-0">
       {/* Desktop Event Category Sidebar */}
       <EventCategorySidebar categories={categoriesWithCount} />
 

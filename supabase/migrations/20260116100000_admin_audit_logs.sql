@@ -63,30 +63,14 @@ CREATE POLICY "Admins can view audit logs"
   ON admin_audit_logs
   FOR SELECT
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.email = ANY(string_to_array(current_setting('app.admin_emails', true), ','))
-    )
-    OR
-    is_admin(auth.uid())
-  );
+  USING (is_admin());
 
 -- Only admins can insert audit logs
 CREATE POLICY "Admins can insert audit logs"
   ON admin_audit_logs
   FOR INSERT
   TO authenticated
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.email = ANY(string_to_array(current_setting('app.admin_emails', true), ','))
-    )
-    OR
-    is_admin(auth.uid())
-  );
+  WITH CHECK (is_admin());
 
 -- Comment on table for documentation
 COMMENT ON TABLE admin_audit_logs IS 'Tracks all admin actions for accountability and audit purposes';

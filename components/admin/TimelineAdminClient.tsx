@@ -21,7 +21,10 @@ import {
   Loader2,
   ArrowUp,
   ArrowDown,
-  Sparkles
+  Sparkles,
+  Upload,
+  X,
+  Link as LinkIcon
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
@@ -122,9 +125,168 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
   const [editingEvent, setEditingEvent] = useState<Partial<TimelineEvent> | null>(null)
   const [loading, setLoading] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [uploadMode, setUploadMode] = useState<'url' | 'upload'>('upload')
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const router = useRouter()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabase = createClient() as any
+
+  const handleImageUpload = async (file: File) => {
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please upload an image file')
+      return
+    }
+
+    // Validate file size (10MB max for timeline images)
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('Image must be less than 10MB')
+      return
+    }
+
+    setUploading(true)
+    setUploadError(null)
+
+    try {
+      // Create unique filename
+      const fileExt = file.name.split('.').pop()
+      const fileName = `timeline-${Date.now()}.${fileExt}`
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('timeline-photos')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        })
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        setUploadError(`Upload failed: ${uploadError.message}`)
+        return
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('timeline-photos')
+        .getPublicUrl(fileName)
+
+      // Update the editing event with the new URL
+      updateField('media_url', publicUrl)
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setUploadError('An unexpected error occurred during upload')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleVideoUpload = async (file: File) => {
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('video/')) {
+      setUploadError('Please upload a video file')
+      return
+    }
+
+    // Validate file size (50MB max for videos)
+    if (file.size > 50 * 1024 * 1024) {
+      setUploadError('Video must be less than 50MB')
+      return
+    }
+
+    setUploading(true)
+    setUploadError(null)
+
+    try {
+      // Create unique filename
+      const fileExt = file.name.split('.').pop()
+      const fileName = `timeline-video-${Date.now()}.${fileExt}`
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('timeline-photos')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        })
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        setUploadError(`Upload failed: ${uploadError.message}`)
+        return
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('timeline-photos')
+        .getPublicUrl(fileName)
+
+      // Update the editing event with the new URL
+      updateField('media_url', publicUrl)
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setUploadError('An unexpected error occurred during upload')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleThumbnailUpload = async (file: File) => {
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please upload an image file for thumbnail')
+      return
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('Thumbnail must be less than 5MB')
+      return
+    }
+
+    setUploading(true)
+    setUploadError(null)
+
+    try {
+      // Create unique filename
+      const fileExt = file.name.split('.').pop()
+      const fileName = `thumbnail-${Date.now()}.${fileExt}`
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('timeline-photos')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        })
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        setUploadError(`Upload failed: ${uploadError.message}`)
+        return
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('timeline-photos')
+        .getPublicUrl(fileName)
+
+      // Update the editing event with the new URL
+      updateField('thumbnail_url', publicUrl)
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setUploadError('An unexpected error occurred during upload')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleOpenCreate = () => {
     setEditingEvent({ ...defaultEvent, display_order: events.length + 1 })
@@ -142,6 +304,8 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingEvent(null)
+    setUploadMode('upload')
+    setUploadError(null)
   }
 
   const handleSave = async () => {
@@ -599,7 +763,10 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                         name="media_type"
                         value="image"
                         checked={editingEvent.media_type === 'image'}
-                        onChange={() => updateField('media_type', 'image')}
+                        onChange={() => {
+                          updateField('media_type', 'image')
+                          updateField('media_url', '')
+                        }}
                         className="text-emerald-600 focus:ring-emerald-500"
                       />
                       <ImageIcon size={16} className="text-slate-500" />
@@ -611,7 +778,10 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                         name="media_type"
                         value="video"
                         checked={editingEvent.media_type === 'video'}
-                        onChange={() => updateField('media_type', 'video')}
+                        onChange={() => {
+                          updateField('media_type', 'video')
+                          updateField('media_url', '')
+                        }}
                         className="text-emerald-600 focus:ring-emerald-500"
                       />
                       <Video size={16} className="text-slate-500" />
@@ -620,36 +790,193 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {editingEvent.media_type === 'video' ? 'Video URL *' : 'Image URL *'}
-                  </label>
-                  <input
-                    type="url"
-                    value={editingEvent.media_url || ''}
-                    onChange={(e) => updateField('media_url', e.target.value)}
-                    placeholder={editingEvent.media_type === 'video' ? 'https://example.com/video.mp4' : 'https://example.com/image.jpg'}
-                    className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-400"
-                  />
+                {/* Upload Mode Toggle */}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setUploadMode('upload')}
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors',
+                      uploadMode === 'upload'
+                        ? 'bg-emerald-100 text-emerald-700 font-medium'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    )}
+                  >
+                    <Upload size={16} />
+                    Upload File
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUploadMode('url')}
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors',
+                      uploadMode === 'url'
+                        ? 'bg-emerald-100 text-emerald-700 font-medium'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    )}
+                  >
+                    <LinkIcon size={16} />
+                    Use URL
+                  </button>
                 </div>
 
-                {editingEvent.media_type === 'video' && (
+                {/* Upload Error */}
+                {uploadError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-600">{uploadError}</p>
+                  </div>
+                )}
+
+                {uploadMode === 'upload' ? (
+                  /* File Upload */
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Thumbnail URL (optional)
+                      {editingEvent.media_type === 'video' ? 'Upload Video *' : 'Upload Image *'}
+                    </label>
+                    {editingEvent.media_url ? (
+                      <div className="relative">
+                        <div className="relative w-full h-48 rounded-xl overflow-hidden bg-slate-100">
+                          {editingEvent.media_type === 'video' ? (
+                            <video
+                              src={editingEvent.media_url}
+                              className="w-full h-full object-cover"
+                              controls
+                            />
+                          ) : (
+                            <Image
+                              src={editingEvent.media_url}
+                              alt="Preview"
+                              fill
+                              className="object-cover"
+                            />
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => updateField('media_url', '')}
+                          className="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label
+                        className={cn(
+                          'flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer transition-colors',
+                          uploading
+                            ? 'bg-slate-100 border-slate-300 cursor-not-allowed'
+                            : 'bg-slate-50 border-slate-300 hover:bg-slate-100 hover:border-emerald-400'
+                        )}
+                      >
+                        <input
+                          type="file"
+                          accept={editingEvent.media_type === 'video' ? 'video/*' : 'image/*'}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              if (editingEvent.media_type === 'video') {
+                                handleVideoUpload(file)
+                              } else {
+                                handleImageUpload(file)
+                              }
+                            }
+                          }}
+                          disabled={uploading}
+                          className="hidden"
+                        />
+                        {uploading ? (
+                          <div className="flex flex-col items-center gap-2">
+                            <Loader2 size={32} className="text-emerald-600 animate-spin" />
+                            <span className="text-sm text-slate-600">Uploading...</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                              <Upload size={24} className="text-emerald-600" />
+                            </div>
+                            <span className="text-sm font-medium text-slate-700">
+                              Click to upload {editingEvent.media_type === 'video' ? 'video' : 'image'}
+                            </span>
+                            <span className="text-xs text-slate-500">
+                              {editingEvent.media_type === 'video'
+                                ? 'MP4, WebM up to 50MB'
+                                : 'JPG, PNG, WebP up to 10MB'}
+                            </span>
+                          </div>
+                        )}
+                      </label>
+                    )}
+                  </div>
+                ) : (
+                  /* URL Input */
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      {editingEvent.media_type === 'video' ? 'Video URL *' : 'Image URL *'}
                     </label>
                     <input
                       type="url"
-                      value={editingEvent.thumbnail_url || ''}
-                      onChange={(e) => updateField('thumbnail_url', e.target.value)}
-                      placeholder="https://example.com/thumbnail.jpg"
+                      value={editingEvent.media_url || ''}
+                      onChange={(e) => updateField('media_url', e.target.value)}
+                      placeholder={editingEvent.media_type === 'video' ? 'https://example.com/video.mp4' : 'https://example.com/image.jpg'}
                       className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-400"
                     />
                   </div>
                 )}
 
-                {/* Media Preview */}
-                {editingEvent.media_url && (
+                {editingEvent.media_type === 'video' && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Thumbnail {uploadMode === 'upload' ? '(Upload)' : '(URL)'} - optional
+                    </label>
+                    {uploadMode === 'upload' ? (
+                      editingEvent.thumbnail_url ? (
+                        <div className="relative w-32 h-32">
+                          <Image
+                            src={editingEvent.thumbnail_url}
+                            alt="Thumbnail"
+                            fill
+                            className="object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => updateField('thumbnail_url', '')}
+                            className="absolute -top-2 -right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer bg-slate-50 border-slate-300 hover:bg-slate-100 hover:border-emerald-400 transition-colors">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                handleThumbnailUpload(file)
+                              }
+                            }}
+                            disabled={uploading}
+                            className="hidden"
+                          />
+                          <Upload size={20} className="text-slate-400 mb-1" />
+                          <span className="text-xs text-slate-500">Thumbnail</span>
+                        </label>
+                      )
+                    ) : (
+                      <input
+                        type="url"
+                        value={editingEvent.thumbnail_url || ''}
+                        onChange={(e) => updateField('thumbnail_url', e.target.value)}
+                        placeholder="https://example.com/thumbnail.jpg"
+                        className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-400"
+                      />
+                    )}
+                  </div>
+                )}
+
+                {/* Media Preview for URL mode */}
+                {uploadMode === 'url' && editingEvent.media_url && (
                   <div className="relative w-full h-48 rounded-xl overflow-hidden bg-slate-100">
                     {editingEvent.media_type === 'video' ? (
                       <video
