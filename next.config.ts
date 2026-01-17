@@ -47,6 +47,7 @@ const pwaConfig = withPWA({
   disable: false, // Set to true to disable PWA in development for faster builds
   fallbacks: {
     document: '/offline',
+    image: '/icons/icon-192x192.png',
   },
   runtimeCaching: [
     // Static assets - cache first (immutable)
@@ -180,6 +181,19 @@ const pwaConfig = withPWA({
         expiration: {
           maxEntries: 30,
           maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
+        },
+      },
+    },
+    // Catch-all for other pages - network first with offline fallback
+    {
+      urlPattern: ({ request }: { request: Request }) => request.mode === 'navigate',
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'pages',
+        networkTimeoutSeconds: 10,
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 5 * 60, // 5 minutes
         },
       },
     },
