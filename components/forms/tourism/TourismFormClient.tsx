@@ -44,12 +44,14 @@ interface TourismFormClientProps {
   userId: string
   categories: Array<{ id: string; name: string; slug: string }>
   regions: Array<{ id: string; name: string; slug: string }>
+  redirectPath?: string
 }
 
 export function TourismFormClient({
   userId,
   categories,
   regions,
+  redirectPath,
 }: TourismFormClientProps) {
   const router = useRouter()
   const supabase = createClient()
@@ -125,11 +127,13 @@ export function TourismFormClient({
 
       // Show success message
       toast.success('Tourism experience created successfully!', {
-        description: 'You can now add photos and manage your listing from the dashboard.',
+        description: redirectPath
+          ? 'The experience has been created.'
+          : 'You can now add photos and manage your listing from the dashboard.',
       })
 
-      // Redirect to photos page
-      router.push(`/dashboard/my-tourism/${experience.id}/photos`)
+      // Redirect to specified path or default to photos page
+      router.push(redirectPath || `/dashboard/my-tourism/${experience.id}/photos`)
       router.refresh()
     } catch (error) {
       console.error('Error in handleSubmit:', error)

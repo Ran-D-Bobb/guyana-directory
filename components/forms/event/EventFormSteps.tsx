@@ -42,6 +42,7 @@ interface EventFormStepsProps {
     slug: string
   }>
   initialData?: Partial<EventFormData>
+  redirectPath?: string
 }
 
 export function EventFormSteps({
@@ -49,6 +50,7 @@ export function EventFormSteps({
   eventCategories,
   userBusinesses,
   initialData = {},
+  redirectPath = '/dashboard/my-events',
 }: EventFormStepsProps) {
   const router = useRouter()
 
@@ -228,11 +230,11 @@ export function EventFormSteps({
         }
       }
 
-      // Redirect to my events page
-      router.push('/dashboard/my-events')
+      // Redirect to specified path
+      router.push(redirectPath)
       router.refresh()
     },
-    [userId, router]
+    [userId, router, redirectPath]
   )
 
   // Render steps
