@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Calendar, MapPin, Sparkles, ArrowRight, X, Play, Volume2, VolumeX } from 'lucide-react'
+import { isYouTubeUrl, getYouTubeEmbedUrl } from '@/lib/youtube'
 
 // Timeline Event Type
 export interface TimelineEvent {
@@ -118,6 +119,19 @@ const VideoBackground = ({
       }
     }
   }, [isActive, isHovered])
+
+  // Handle YouTube URLs
+  if (isYouTubeUrl(src)) {
+    return (
+      <iframe
+        src={getYouTubeEmbedUrl(src) || ''}
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        style={{ border: 0, width: '100%', height: '100%', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', minWidth: '177.77%', minHeight: '100%' }}
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+      />
+    )
+  }
 
   return (
     <video
@@ -379,26 +393,38 @@ const EventModal = ({
           <div className="relative h-64 sm:h-80">
             {event.media_type === 'video' ? (
               <>
-                <video
-                  ref={videoRef}
-                  src={event.media_url}
-                  autoPlay
-                  loop
-                  muted={isMuted}
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-                {/* Mute toggle */}
-                <button
-                  onClick={toggleMute}
-                  className="absolute bottom-4 right-4 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
-                >
-                  {isMuted ? (
-                    <VolumeX className="w-5 h-5 text-white" />
-                  ) : (
-                    <Volume2 className="w-5 h-5 text-white" />
-                  )}
-                </button>
+                {isYouTubeUrl(event.media_url) ? (
+                  <iframe
+                    src={getYouTubeEmbedUrl(event.media_url, { controls: true }) || ''}
+                    className="w-full h-full"
+                    style={{ border: 0 }}
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                  />
+                ) : (
+                  <>
+                    <video
+                      ref={videoRef}
+                      src={event.media_url}
+                      autoPlay
+                      loop
+                      muted={isMuted}
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Mute toggle - only for non-YouTube videos */}
+                    <button
+                      onClick={toggleMute}
+                      className="absolute bottom-4 right-4 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                    >
+                      {isMuted ? (
+                        <VolumeX className="w-5 h-5 text-white" />
+                      ) : (
+                        <Volume2 className="w-5 h-5 text-white" />
+                      )}
+                    </button>
+                  </>
+                )}
               </>
             ) : (
               <Image

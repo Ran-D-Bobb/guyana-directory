@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, Sparkles } from 'lucide-react'
+import { isYouTubeUrl, getYouTubeEmbedUrl } from '@/lib/youtube'
 
 // Fallback videos if none are in the database
 const fallbackVideos = [
@@ -138,34 +139,59 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
       {/* Background Container */}
       <div className="absolute inset-0 bg-emerald-900">
         {/* Video A */}
-        <video
-          ref={videoARef}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-            showVideoA ? 'opacity-100' : 'opacity-0'
-          }`}
-          src={heroVideos[videoAIndex].video_url}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          crossOrigin="anonymous"
-          onCanPlayThrough={handleInitialLoad}
-        />
+        {isYouTubeUrl(heroVideos[videoAIndex].video_url) ? (
+          <iframe
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out pointer-events-none ${
+              showVideoA ? 'opacity-100' : 'opacity-0'
+            }`}
+            src={getYouTubeEmbedUrl(heroVideos[videoAIndex].video_url) || ''}
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+            style={{ border: 0, width: '100vw', height: '56.25vw', minHeight: '100%', minWidth: '177.77vh', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+            onLoad={() => { if (!hasLoaded) { setHasLoaded(true) } }}
+          />
+        ) : (
+          <video
+            ref={videoARef}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+              showVideoA ? 'opacity-100' : 'opacity-0'
+            }`}
+            src={heroVideos[videoAIndex].video_url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            crossOrigin="anonymous"
+            onCanPlayThrough={handleInitialLoad}
+          />
+        )}
 
         {/* Video B */}
-        <video
-          ref={videoBRef}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-            showVideoA ? 'opacity-0' : 'opacity-100'
-          }`}
-          src={heroVideos[videoBIndex].video_url}
-          muted
-          loop
-          playsInline
-          preload="auto"
-          crossOrigin="anonymous"
-        />
+        {isYouTubeUrl(heroVideos[videoBIndex].video_url) ? (
+          <iframe
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out pointer-events-none ${
+              showVideoA ? 'opacity-0' : 'opacity-100'
+            }`}
+            src={getYouTubeEmbedUrl(heroVideos[videoBIndex].video_url) || ''}
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+            style={{ border: 0, width: '100vw', height: '56.25vw', minHeight: '100%', minWidth: '177.77vh', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+          />
+        ) : (
+          <video
+            ref={videoBRef}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+              showVideoA ? 'opacity-0' : 'opacity-100'
+            }`}
+            src={heroVideos[videoBIndex].video_url}
+            muted
+            loop
+            playsInline
+            preload="auto"
+            crossOrigin="anonymous"
+          />
+        )}
       </div>
 
       {/* Gradient Overlays - minimal for text readability */}

@@ -34,6 +34,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { DeleteButton } from './AdminActionButtons'
+import { isYouTubeUrl, getYouTubeEmbedUrl, getYouTubeThumbnail } from '@/lib/youtube'
 
 interface TimelineEvent {
   id: string
@@ -520,6 +521,12 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                               fill
                               className="object-cover"
                             />
+                          ) : isYouTubeUrl(event.media_url) ? (
+                            <img
+                              src={getYouTubeThumbnail(event.media_url) || ''}
+                              alt={event.title}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-slate-200">
                               <Video size={32} className="text-slate-400" />
@@ -837,11 +844,21 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                       <div className="relative">
                         <div className="relative w-full h-48 rounded-xl overflow-hidden bg-slate-100">
                           {editingEvent.media_type === 'video' ? (
-                            <video
-                              src={editingEvent.media_url}
-                              className="w-full h-full object-cover"
-                              controls
-                            />
+                            isYouTubeUrl(editingEvent.media_url) ? (
+                              <iframe
+                                src={getYouTubeEmbedUrl(editingEvent.media_url, { controls: true }) || ''}
+                                className="w-full h-full"
+                                style={{ border: 0 }}
+                                allow="autoplay; encrypted-media"
+                                allowFullScreen
+                              />
+                            ) : (
+                              <video
+                                src={editingEvent.media_url}
+                                className="w-full h-full object-cover"
+                                controls
+                              />
+                            )
                           ) : (
                             <Image
                               src={editingEvent.media_url}
@@ -979,11 +996,21 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                 {uploadMode === 'url' && editingEvent.media_url && (
                   <div className="relative w-full h-48 rounded-xl overflow-hidden bg-slate-100">
                     {editingEvent.media_type === 'video' ? (
-                      <video
-                        src={editingEvent.media_url}
-                        className="w-full h-full object-cover"
-                        controls
-                      />
+                      isYouTubeUrl(editingEvent.media_url) ? (
+                        <iframe
+                          src={getYouTubeEmbedUrl(editingEvent.media_url, { controls: true }) || ''}
+                          className="w-full h-full"
+                          style={{ border: 0 }}
+                          allow="autoplay; encrypted-media"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <video
+                          src={editingEvent.media_url}
+                          className="w-full h-full object-cover"
+                          controls
+                        />
+                      )
                     ) : (
                       <Image
                         src={editingEvent.media_url}

@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { isYouTubeUrl, getYouTubeEmbedUrl, getYouTubeThumbnail } from '@/lib/youtube'
 
 interface HeroVideo {
   id: string
@@ -351,12 +352,20 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
 
                 {/* Video Preview */}
                 <div className="w-32 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
-                  <video
-                    src={video.video_url}
-                    className="w-full h-full object-cover"
-                    muted
-                    preload="metadata"
-                  />
+                  {isYouTubeUrl(video.video_url) ? (
+                    <img
+                      src={getYouTubeThumbnail(video.video_url) || ''}
+                      alt={video.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <video
+                      src={video.video_url}
+                      className="w-full h-full object-cover"
+                      muted
+                      preload="metadata"
+                    />
+                  )}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                     <Video className="w-6 h-6 text-white" />
                   </div>
@@ -512,12 +521,22 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
                       </div>
                     ) : editingVideo.video_url ? (
                       <div className="space-y-3">
-                        <video
-                          src={editingVideo.video_url}
-                          className="w-full max-h-40 object-contain rounded-lg"
-                          controls
-                          muted
-                        />
+                        {isYouTubeUrl(editingVideo.video_url) ? (
+                          <iframe
+                            src={getYouTubeEmbedUrl(editingVideo.video_url, { controls: true }) || ''}
+                            className="w-full h-40 rounded-lg"
+                            style={{ border: 0 }}
+                            allow="autoplay; encrypted-media"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <video
+                            src={editingVideo.video_url}
+                            className="w-full max-h-40 object-contain rounded-lg"
+                            controls
+                            muted
+                          />
+                        )}
                         <button
                           type="button"
                           onClick={() => updateField('video_url', '')}
@@ -562,12 +581,22 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
                   />
                   {editingVideo.video_url && (
                     <div className="mt-3">
-                      <video
-                        src={editingVideo.video_url}
-                        className="w-full max-h-40 object-contain rounded-lg bg-gray-100"
-                        controls
-                        muted
-                      />
+                      {isYouTubeUrl(editingVideo.video_url) ? (
+                        <iframe
+                          src={getYouTubeEmbedUrl(editingVideo.video_url, { controls: true }) || ''}
+                          className="w-full h-40 rounded-lg"
+                          style={{ border: 0 }}
+                          allow="autoplay; encrypted-media"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <video
+                          src={editingVideo.video_url}
+                          className="w-full max-h-40 object-contain rounded-lg bg-gray-100"
+                          controls
+                          muted
+                        />
+                      )}
                     </div>
                   )}
                 </div>
