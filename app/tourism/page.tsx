@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { TourismHero } from '@/components/tourism/TourismHero'
+import { TourismHero, HeroVideo } from '@/components/tourism/TourismHero'
 import { TourismCategoryPills } from '@/components/tourism/TourismCategoryPills'
 import { FeaturedExperiences } from '@/components/tourism/FeaturedExperiences'
 import { TourismFilterBarPremium } from '@/components/tourism/TourismFilterBarPremium'
@@ -31,6 +31,16 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
 
   // Fetch all tourism categories with counts
   const categoriesWithCount = await getTourismCategoriesWithCounts()
+
+  // Fetch hero videos
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: heroVideosData } = await (supabase as any)
+    .from('tourism_hero_videos')
+    .select('*')
+    .eq('is_active', true)
+    .order('display_order', { ascending: true })
+
+  const heroVideos: HeroVideo[] = heroVideosData || []
 
   // Fetch all regions for filters
   const { data: regions } = await supabase
@@ -156,7 +166,7 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
     <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
       {/* Hero Section - Only show when no search/filters */}
       {!hasFilters && (
-        <TourismHero totalExperiences={totalExperiences} />
+        <TourismHero totalExperiences={totalExperiences} videos={heroVideos} />
       )}
 
       {/* Main Content */}

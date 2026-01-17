@@ -4,35 +4,29 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, Sparkles } from 'lucide-react'
 
-// Guaranteed working video URLs from Google's public test video bucket
-const heroVideos = [
+// Fallback videos if none are in the database
+const fallbackVideos = [
   {
-    url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    video_url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     title: 'Natural Paradise'
-  },
-  {
-    url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    title: 'Dream Adventure'
-  },
-  {
-    url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-    title: 'Epic Journey'
-  },
-  {
-    url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-    title: 'Steel Adventure'
-  },
-  {
-    url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    title: 'Great Escapes'
   }
 ]
 
-interface TourismHeroProps {
-  totalExperiences?: number
+export interface HeroVideo {
+  id?: string
+  title: string
+  video_url: string
+  thumbnail_url?: string | null
+  display_order?: number
+  is_active?: boolean
 }
 
-export function TourismHero({ totalExperiences = 0 }: TourismHeroProps) {
+interface TourismHeroProps {
+  totalExperiences?: number
+  videos?: HeroVideo[]
+}
+
+export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
@@ -44,6 +38,9 @@ export function TourismHero({ totalExperiences = 0 }: TourismHeroProps) {
 
   const videoARef = useRef<HTMLVideoElement>(null)
   const videoBRef = useRef<HTMLVideoElement>(null)
+
+  // Use provided videos or fallback
+  const heroVideos = videos && videos.length > 0 ? videos : fallbackVideos
 
   // Play video helper
   const playVideo = useCallback((videoEl: HTMLVideoElement | null) => {
@@ -136,8 +133,6 @@ export function TourismHero({ totalExperiences = 0 }: TourismHeroProps) {
     router.push(`/tourism?${params.toString()}`)
   }
 
-  const currentVideo = heroVideos[activeIndex]
-
   return (
     <section className="relative h-[75vh] min-h-[550px] max-h-[850px] overflow-hidden">
       {/* Background Container */}
@@ -148,7 +143,7 @@ export function TourismHero({ totalExperiences = 0 }: TourismHeroProps) {
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
             showVideoA ? 'opacity-100' : 'opacity-0'
           }`}
-          src={heroVideos[videoAIndex].url}
+          src={heroVideos[videoAIndex].video_url}
           autoPlay
           muted
           loop
@@ -164,7 +159,7 @@ export function TourismHero({ totalExperiences = 0 }: TourismHeroProps) {
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
             showVideoA ? 'opacity-0' : 'opacity-100'
           }`}
-          src={heroVideos[videoBIndex].url}
+          src={heroVideos[videoBIndex].video_url}
           muted
           loop
           playsInline
@@ -250,13 +245,6 @@ export function TourismHero({ totalExperiences = 0 }: TourismHeroProps) {
 
       </div>
 
-      {/* Video Title */}
-      <div className="absolute bottom-6 right-6 hidden lg:block">
-        <div className="px-4 py-2 bg-black/40 backdrop-blur-sm rounded-lg">
-          <p className="text-xs text-white/60 uppercase tracking-wider">Now showing</p>
-          <p className="text-sm text-white font-medium">{currentVideo.title}</p>
-        </div>
-      </div>
     </section>
   )
 }

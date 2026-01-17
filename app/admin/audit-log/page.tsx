@@ -113,6 +113,32 @@ function formatRelativeTime(dateString: string) {
   })
 }
 
+// Error component for when things go wrong
+function AuditLogError({ message }: { message?: string }) {
+  return (
+    <div className="min-h-screen">
+      <AdminHeader
+        title="Audit Log"
+        subtitle="Track all admin actions for accountability"
+      />
+      <div className="px-4 lg:px-8 py-12">
+        <div className="max-w-md mx-auto text-center">
+          <ClipboardList className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-slate-900 mb-2">
+            Unable to Load Audit Logs
+          </h2>
+          <p className="text-slate-600 mb-4">
+            {message || 'There was an error loading the audit logs. Please ensure database migrations are up to date.'}
+          </p>
+          <code className="block bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm">
+            supabase db push
+          </code>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default async function AdminAuditLogPage({
   searchParams,
 }: {
@@ -126,140 +152,117 @@ export default async function AdminAuditLogPage({
     page?: string
   }>
 }) {
-  const supabase = await createClient()
-  const params = await searchParams
-
-  // Parse parameters
-  const adminFilter = params.admin
-  const actionFilter = params.action as AdminAction | undefined
-  const entityFilter = params.entity as EntityType | undefined
-  const searchQuery = params.q
-  const fromDate = params.from
-  const toDate = params.to
-  const currentPage = parseInt(params.page || '1')
-  const pageSize = 25
-
-  // Build query - using type assertion since admin_audit_logs table types aren't generated yet
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase as any)
-    .from('admin_audit_logs')
-    .select(`
-      *,
-      admin:profiles!admin_id (name, email, photo)
-    `, { count: 'exact' })
-    .order('created_at', { ascending: false })
-
-  // Apply filters
-  if (adminFilter) {
-    query = query.eq('admin_id', adminFilter)
-  }
-  if (actionFilter) {
-    query = query.eq('action', actionFilter)
-  }
-  if (entityFilter) {
-    query = query.eq('entity_type', entityFilter)
-  }
-  if (fromDate) {
-    query = query.gte('created_at', `${fromDate}T00:00:00`)
-  }
-  if (toDate) {
-    query = query.lte('created_at', `${toDate}T23:59:59`)
-  }
-  if (searchQuery) {
-    query = query.ilike('entity_name', `%${searchQuery}%`)
-  }
-
-  // Apply pagination
-  const from = (currentPage - 1) * pageSize
-  const to = from + pageSize - 1
-  query = query.range(from, to)
-
-  const { data: logs, error, count } = await query
-
-  // Handle case where table doesn't exist or other errors
-  if (error) {
-    console.error('Error fetching audit logs:', error)
-
-    // Show setup/error message for any database error
-    return (
-      <div className="min-h-screen">
-        <AdminHeader
-          title="Audit Log"
-          subtitle="Track all admin actions for accountability"
-        />
-        <div className="px-4 lg:px-8 py-12">
-          <div className="max-w-md mx-auto text-center">
-            <ClipboardList className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">
-              {error.code === '42P01' || error.message?.includes('does not exist')
-                ? 'Audit Log Not Set Up'
-                : 'Unable to Load Audit Logs'}
-            </h2>
-            <p className="text-slate-600 mb-4">
-              {error.code === '42P01' || error.message?.includes('does not exist')
-                ? 'The audit log table needs to be created in the database. Run the migration to enable this feature.'
-                : 'There was an error loading the audit logs. Please ensure database migrations are up to date.'}
-            </p>
-            <code className="block bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm">
-              supabase db push
-            </code>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Get admins for filter dropdown - wrap in try-catch for resilience
-  let adminProfiles: { id: string; name: string | null; email: string | null }[] = []
-
   try {
-    const { data: admins } = await supabase
-      .from('admin_emails')
-      .select('email')
+    const supabase = await createClient()
+    const params = await searchParams
 
-    const adminEmails = admins?.map(a => a.email) || []
+    // Parse parameters
+    const adminFilter = params.admin
+    const actionFilter = params.action as AdminAction | undefined
+    const entityFilter = params.entity as EntityType | undefined
+    const searchQuery = params.q
+    const fromDate = params.from
+    const toDate = params.to
+    const currentPage = parseInt(params.page || '1')
+    const pageSize = 25
 
-    if (adminEmails.length > 0) {
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, name, email')
-        .in('email', adminEmails)
-      adminProfiles = profiles || []
+    // Build query - using type assertion since admin_audit_logs table types aren't generated yet
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query = (supabase as any)
+      .from('admin_audit_logs')
+      .select(`
+        *,
+        admin:profiles!admin_id (name, email, photo)
+      `, { count: 'exact' })
+      .order('created_at', { ascending: false })
+
+    // Apply filters
+    if (adminFilter) {
+      query = query.eq('admin_id', adminFilter)
     }
-  } catch (e) {
-    console.error('Error fetching admin profiles:', e)
-    // Continue with empty adminProfiles
-  }
+    if (actionFilter) {
+      query = query.eq('action', actionFilter)
+    }
+    if (entityFilter) {
+      query = query.eq('entity_type', entityFilter)
+    }
+    if (fromDate) {
+      query = query.gte('created_at', `${fromDate}T00:00:00`)
+    }
+    if (toDate) {
+      query = query.lte('created_at', `${toDate}T23:59:59`)
+    }
+    if (searchQuery) {
+      query = query.ilike('entity_name', `%${searchQuery}%`)
+    }
 
-  // Calculate stats for current filters - with error handling
-  let totalActions = 0
-  let todayActions = 0
-  let deleteActions = 0
+    // Apply pagination
+    const from = (currentPage - 1) * pageSize
+    const to = from + pageSize - 1
+    query = query.range(from, to)
 
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { count: total } = await (supabase as any)
-      .from('admin_audit_logs')
-      .select('*', { count: 'exact', head: true })
-    totalActions = total || 0
+    const { data: logs, error, count } = await query
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { count: today } = await (supabase as any)
-      .from('admin_audit_logs')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', new Date().toISOString().split('T')[0])
-    todayActions = today || 0
+    // Handle case where table doesn't exist or other errors
+    if (error) {
+      console.error('Error fetching audit logs:', error)
+      const message = error.code === '42P01' || error.message?.includes('does not exist')
+        ? 'The audit log table needs to be created in the database. Run the migration to enable this feature.'
+        : 'There was an error loading the audit logs. Please ensure database migrations are up to date.'
+      return <AuditLogError message={message} />
+    }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { count: deletes } = await (supabase as any)
-      .from('admin_audit_logs')
-      .select('*', { count: 'exact', head: true })
-      .eq('action', 'delete')
-    deleteActions = deletes || 0
-  } catch (e) {
-    console.error('Error fetching audit stats:', e)
-    // Continue with zero stats
-  }
+    // Get admins for filter dropdown - wrap in try-catch for resilience
+    let adminProfiles: { id: string; name: string | null; email: string | null }[] = []
+
+    try {
+      const { data: admins } = await supabase
+        .from('admin_emails')
+        .select('email')
+
+      const adminEmails = admins?.map(a => a.email) || []
+
+      if (adminEmails.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, name, email')
+          .in('email', adminEmails)
+        adminProfiles = profiles || []
+      }
+    } catch (e) {
+      console.error('Error fetching admin profiles:', e)
+      // Continue with empty adminProfiles
+    }
+
+    // Calculate stats for current filters - with error handling
+    let totalActions = 0
+    let todayActions = 0
+    let deleteActions = 0
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { count: total } = await (supabase as any)
+        .from('admin_audit_logs')
+        .select('*', { count: 'exact', head: true })
+      totalActions = total || 0
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { count: today } = await (supabase as any)
+        .from('admin_audit_logs')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', new Date().toISOString().split('T')[0])
+      todayActions = today || 0
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { count: deletes } = await (supabase as any)
+        .from('admin_audit_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('action', 'delete')
+      deleteActions = deletes || 0
+    } catch (e) {
+      console.error('Error fetching audit stats:', e)
+      // Continue with zero stats
+    }
 
   // Check if any filter is active
   const hasActiveFilters = adminFilter || actionFilter || entityFilter || searchQuery || fromDate || toDate
@@ -593,5 +596,9 @@ export default async function AdminAuditLogPage({
         </div>
       </div>
     </div>
-  )
+    )
+  } catch (e) {
+    console.error('Unexpected error in audit log page:', e)
+    return <AuditLogError />
+  }
 }

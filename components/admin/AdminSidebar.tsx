@@ -24,6 +24,7 @@ import {
   FolderOpen,
   MapPin,
   FileWarning,
+  Video,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -72,6 +73,7 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0, flaggedPh
       badge: pendingTourism > 0 ? pendingTourism : undefined,
       badgeColor: 'bg-orange-500'
     },
+    { label: 'Tourism Videos', href: '/admin/tourism-videos', icon: Video },
     {
       label: 'Rentals',
       href: '/admin/rentals',
