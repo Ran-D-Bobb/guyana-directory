@@ -34,7 +34,7 @@ export function BusinessFormClient({
   const handleSubmit = async (data: BusinessFormData) => {
     try {
       // Create slug from name
-      const slug = data.name
+      const slug = (data.name || '')
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '')
@@ -55,12 +55,12 @@ export function BusinessFormClient({
         .from('businesses')
         .insert({
           owner_id: userId,
-          name: data.name.trim(),
+          name: (data.name || '').trim(),
           slug: slug,
-          description: data.description.trim() || null,
-          phone: data.phone.trim() || null,
-          email: data.email.trim() || null,
-          website: data.website.trim() || null,
+          description: (data.description || '').trim() || null,
+          phone: (data.phone || '').trim() || null,
+          email: (data.email || '').trim() || null,
+          website: (data.website || '').trim() || null,
           // Location data
           latitude: data.location?.latitude || null,
           longitude: data.location?.longitude || null,
