@@ -8,7 +8,12 @@
       "WebSearch",
       "WebFetch(domain:gist.github.com)",
       "WebFetch(domain:techslides.com)",
-      "Bash(supabase migration:*)"
+      "Bash(supabase migration:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(dir \"C:\\\\Users\\\\hollo\\\\Documents\\\\New folder\\\\app\")",
+      "Bash(findstr:*)"
     ]
   },
   "outputStyle": "default"

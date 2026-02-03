@@ -287,7 +287,7 @@ export default async function RentalsPage({
       <RentalCategorySidebar categories={categoriesWithCounts} />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col pb-20 lg:pb-0 lg:h-[calc(100vh-74px)] lg:overflow-y-auto">
+      <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-0 lg:h-[calc(100vh-74px)] lg:overflow-y-auto">
         {/* Hero Section - Only show when no filters applied */}
         {!hasFilters && featuredRentals.length > 0 && (
           <div className="flex-shrink-0 w-full">

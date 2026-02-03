@@ -207,7 +207,7 @@ export default async function RentalCategoryPage({
       />
 
       {/* Main Content - scrollable on desktop */}
-      <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
           {/* Mobile Category & Filter Bar */}
           <MobileRentalCategoryFilterBar
             categories={categoriesWithCounts.map(cat => ({ ...cat, listing_count: cat.count }))}
