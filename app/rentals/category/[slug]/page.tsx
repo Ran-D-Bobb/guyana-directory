@@ -3,8 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { RentalCard } from '@/components/RentalCard'
 import { RentalCategorySidebar } from '@/components/RentalCategorySidebar'
-import { MobileRentalCategoryDrawer } from '@/components/MobileRentalCategoryDrawer'
-import { MobileRentalFilterSheet } from '@/components/MobileRentalFilterSheet'
+import { MobileRentalCategoryFilterBar } from '@/components/MobileRentalCategoryFilterBar'
 import { RentalFilterPanel } from '@/components/RentalFilterPanel'
 import { getRentalCategoriesWithCounts } from '@/lib/category-counts'
 
@@ -209,6 +208,13 @@ export default async function RentalCategoryPage({
 
       {/* Main Content - scrollable on desktop */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
+          {/* Mobile Category & Filter Bar */}
+          <MobileRentalCategoryFilterBar
+            categories={categoriesWithCounts.map(cat => ({ ...cat, listing_count: cat.count }))}
+            currentCategorySlug={slug}
+            regions={regions?.map(r => ({ name: r.name, slug: r.slug || r.id })) || []}
+          />
+
           {/* Category Header */}
           <div className="bg-white border-b">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -284,15 +290,6 @@ export default async function RentalCategoryPage({
             )}
           </div>
         </div>
-
-      {/* Mobile Rental Category Drawer */}
-      <MobileRentalCategoryDrawer
-        categories={categoriesWithCounts.map(cat => ({ ...cat, listing_count: cat.count }))}
-        currentCategorySlug={slug}
-      />
-
-      {/* Mobile Rental Filter Sheet */}
-      <MobileRentalFilterSheet regions={regions?.map(r => ({ name: r.name, slug: r.slug || r.id })) || []} />
     </div>
   )
 }

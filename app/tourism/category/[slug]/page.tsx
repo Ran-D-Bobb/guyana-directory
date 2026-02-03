@@ -2,8 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { TourismCategorySidebar } from '@/components/TourismCategorySidebar'
 import { TourismPageClient } from '@/components/TourismPageClient'
-import { MobileTourismCategoryDrawer } from '@/components/MobileTourismCategoryDrawer'
-import { MobileTourismFilterSheet } from '@/components/MobileTourismFilterSheet'
+import { MobileTourismCategoryFilterBar } from '@/components/MobileTourismCategoryFilterBar'
 import { getTourismCategoriesWithCounts } from '@/lib/category-counts'
 
 interface TourismCategoryPageProps {
@@ -125,7 +124,7 @@ export default async function TourismCategoryPage({ params, searchParams }: Tour
       {/* Main Content Area - scrollable on desktop */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
         {/* Mobile Header - Sticky */}
-        <div className="lg:hidden sticky top-0 z-20 bg-white border-b border-gray-200 px-4 py-4 shadow-sm">
+        <div className="lg:hidden sticky top-0 z-40 bg-white border-b-0 px-4 py-4 shadow-sm">
           <h1 className="text-2xl font-extrabold text-gray-900 mb-1">
             {category.name}
           </h1>
@@ -138,6 +137,13 @@ export default async function TourismCategoryPage({ params, searchParams }: Tour
             <span className="font-semibold text-gray-900">{experiences?.length || 0}</span> results
           </p>
         </div>
+
+        {/* Mobile Category & Filter Bar */}
+        <MobileTourismCategoryFilterBar
+          categories={categoriesWithCount}
+          currentCategorySlug={slug}
+          regions={regions || []}
+        />
 
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
@@ -171,12 +177,6 @@ export default async function TourismCategoryPage({ params, searchParams }: Tour
           )}
         </main>
       </div>
-
-      {/* Mobile Tourism Category Drawer */}
-      <MobileTourismCategoryDrawer categories={categoriesWithCount} currentCategorySlug={slug} />
-
-      {/* Mobile Tourism Filter Sheet */}
-      <MobileTourismFilterSheet regions={regions || []} />
     </div>
   )
 }

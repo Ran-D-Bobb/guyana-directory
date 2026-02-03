@@ -4,7 +4,7 @@ import { TourismCategoryPills } from '@/components/tourism/TourismCategoryPills'
 import { FeaturedExperiences } from '@/components/tourism/FeaturedExperiences'
 import { TourismFilterBarPremium } from '@/components/tourism/TourismFilterBarPremium'
 import { TourismPageClientPremium } from '@/components/tourism/TourismPageClientPremium'
-import { MobileTourismFilterSheet } from '@/components/MobileTourismFilterSheet'
+import { MobileTourismCategoryFilterBar } from '@/components/MobileTourismCategoryFilterBar'
 import { getTourismCategoriesWithCounts } from '@/lib/category-counts'
 
 // Revalidate every 5 minutes
@@ -175,8 +175,14 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
 
       {/* Main Content */}
       <div id="tourism-content" className="pb-24 lg:pb-12">
-        {/* Category Pills Section */}
-        <section className={`bg-white border-b border-gray-100 sticky top-0 z-30 ${hasFilters ? 'pt-4' : ''}`}>
+        {/* Mobile Category & Filter Bar */}
+        <MobileTourismCategoryFilterBar
+          categories={categoriesWithCount}
+          regions={regions || []}
+        />
+
+        {/* Category Pills Section - Desktop */}
+        <section className={`hidden lg:block bg-white border-b border-gray-100 sticky top-0 z-30 ${hasFilters ? 'pt-4' : ''}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <TourismCategoryPills
               categories={categoriesWithCount}
@@ -242,9 +248,6 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
           />
         </section>
       </div>
-
-      {/* Mobile Filter Sheet */}
-      <MobileTourismFilterSheet regions={regions || []} />
     </div>
   )
 }

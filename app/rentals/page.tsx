@@ -3,8 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { RentalCard } from '@/components/RentalCard'
 import { RentalCategorySidebar } from '@/components/RentalCategorySidebar'
-import { MobileRentalCategoryDrawer } from '@/components/MobileRentalCategoryDrawer'
-import { MobileRentalFilterSheet } from '@/components/MobileRentalFilterSheet'
+import { MobileRentalCategoryFilterBar } from '@/components/MobileRentalCategoryFilterBar'
 import { RentalFilterPanel } from '@/components/RentalFilterPanel'
 import { FeaturedRentalsHero } from '@/components/rentals/FeaturedRentalsHero'
 import { getRentalCategoriesWithCounts } from '@/lib/category-counts'
@@ -348,6 +347,12 @@ export default async function RentalsPage({
           </div>
         </div>
 
+        {/* Mobile Category & Filter Bar */}
+        <MobileRentalCategoryFilterBar
+          categories={categoriesWithCounts.map(cat => ({ ...cat, listing_count: cat.count }))}
+          regions={regions?.map(r => ({ name: r.name, slug: r.slug || r.id })) || []}
+        />
+
         {/* Main Content with Gradient Background */}
         <main className="flex-1 relative">
           {/* Background Texture */}
@@ -490,12 +495,6 @@ export default async function RentalsPage({
           </div>
         </main>
       </div>
-
-      {/* Mobile Rental Category Drawer */}
-      <MobileRentalCategoryDrawer categories={categoriesWithCounts.map(cat => ({ ...cat, listing_count: cat.count }))} />
-
-      {/* Mobile Rental Filter Sheet */}
-      <MobileRentalFilterSheet regions={regions?.map(r => ({ name: r.name, slug: r.slug || r.id })) || []} />
     </div>
   )
 }

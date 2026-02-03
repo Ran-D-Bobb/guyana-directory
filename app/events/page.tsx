@@ -1,12 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { EventCategorySidebar } from '@/components/EventCategorySidebar'
 import { EventPageClient } from '@/components/EventPageClient'
-import { MobileEventCategoryDrawer } from '@/components/MobileEventCategoryDrawer'
+import { MobileEventCategoryFilterBar } from '@/components/MobileEventCategoryFilterBar'
 import { EventFilterPanel } from '@/components/EventFilterPanel'
 import { FeaturedEventsShowcase } from '@/components/FeaturedEventsShowcase'
 import { getEventCategoriesWithCounts } from '@/lib/category-counts'
 import { Calendar, Compass, Sparkles } from 'lucide-react'
-import { MobileEventFilterSheet } from '@/components/MobileEventFilterSheet'
 import { TimelineBanner } from '@/components/TimelineBanner'
 import Link from 'next/link'
 
@@ -193,7 +192,15 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
               Discover local events, workshops, festivals, and community gatherings across Guyana
             </p>
           </div>
+        </main>
 
+        {/* Mobile Category & Filter Bar */}
+        <MobileEventCategoryFilterBar
+          categories={categoriesWithCount}
+          regions={regions || []}
+        />
+
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
           {/* Annual Events Timeline Banner */}
           <TimelineBanner previewEvents={timelineEvents || undefined} />
 
@@ -277,10 +284,6 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
         </main>
       </div>
 
-      {/* Mobile Event Category Drawer */}
-      <MobileEventCategoryDrawer categories={categoriesWithCount} />
-      {/* Mobile Event Filter Sheet */}
-      <MobileEventFilterSheet regions={regions || []} />
     </div>
   )
 }
