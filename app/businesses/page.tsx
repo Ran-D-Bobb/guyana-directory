@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { CategorySidebar } from '@/components/CategorySidebar'
 import { BusinessesPageClient } from '@/components/BusinessesPageClient'
-import { MobileCategoryDrawer } from '@/components/MobileCategoryDrawer'
-import { MobileFilterSheet } from '@/components/MobileFilterSheet'
+import { MobileCategoryFilterBar } from '@/components/MobileCategoryFilterBar'
 import { BusinessFilterPanel } from '@/components/BusinessFilterPanel'
 import { BusinessSearch } from '@/components/BusinessSearch'
 import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
@@ -216,7 +215,7 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
 
         {/* Compact Header with Search */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <header className="bg-white border-b border-gray-200 lg:border-b sticky top-0 z-40">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               {/* Title and count */}
@@ -234,6 +233,15 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
             </div>
           </div>
         </header>
+
+        {/* Mobile Category & Filter Bar */}
+        <MobileCategoryFilterBar
+          categories={categoriesWithCount}
+          regions={regions || []}
+          currentFilters={{ region, sort, rating, verified, featured }}
+          basePath="/businesses"
+          categoryPath="/businesses/category"
+        />
 
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
@@ -268,11 +276,6 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
         </main>
       </div>
 
-      {/* Mobile Category Drawer */}
-      <MobileCategoryDrawer categories={categoriesWithCount} />
-
-      {/* Mobile Filter Sheet */}
-      <MobileFilterSheet regions={regions || []} currentFilters={{ region, sort, rating, verified, featured }} />
     </div>
   )
 }

@@ -2,8 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { CategorySidebar } from '@/components/CategorySidebar'
 import { CategoryPageClient } from '@/components/CategoryPageClient'
-import { MobileCategoryDrawer } from '@/components/MobileCategoryDrawer'
-import { MobileFilterSheet } from '@/components/MobileFilterSheet'
+import { MobileCategoryFilterBar } from '@/components/MobileCategoryFilterBar'
 import { FollowCategoryButton } from '@/components/FollowCategoryButton'
 import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
 
@@ -126,7 +125,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       {/* Main Content Area - scrollable on desktop */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
         {/* Mobile Header - Sticky */}
-        <div className="lg:hidden sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-4 shadow-sm">
+        <div className="lg:hidden sticky top-0 z-40 bg-white border-b-0 px-4 py-4 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-extrabold text-gray-900 mb-1">
@@ -151,6 +150,16 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             />
           </div>
         </div>
+
+        {/* Mobile Category & Filter Bar */}
+        <MobileCategoryFilterBar
+          categories={categoriesWithCount}
+          currentCategorySlug={slug}
+          regions={regions || []}
+          currentFilters={{ region, sort, rating, verified, featured }}
+          basePath="/businesses"
+          categoryPath="/businesses/category"
+        />
 
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
@@ -183,9 +192,6 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         </main>
       </div>
 
-      {/* Mobile Drawers */}
-      <MobileFilterSheet regions={regions || []} />
-      <MobileCategoryDrawer categories={categoriesWithCount} currentCategorySlug={slug} />
     </div>
   )
 }
