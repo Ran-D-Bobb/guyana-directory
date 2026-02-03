@@ -34,7 +34,7 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
   const [activeIndex, setActiveIndex] = useState(0)
   const [showVideoA, setShowVideoA] = useState(true) // Toggle between video A and B
   const [videoAIndex, setVideoAIndex] = useState(0)
-  const [videoBIndex, setVideoBIndex] = useState(1)
+  const [videoBIndex, setVideoBIndex] = useState(0) // Will be set properly after heroVideos is known
   const [hasLoaded, setHasLoaded] = useState(false)
 
   const videoARef = useRef<HTMLVideoElement>(null)
@@ -42,6 +42,7 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
 
   // Use provided videos or fallback
   const heroVideos = videos && videos.length > 0 ? videos : fallbackVideos
+  const hasMultipleVideos = heroVideos.length > 1
 
   // Play video helper
   const playVideo = useCallback((videoEl: HTMLVideoElement | null) => {
@@ -167,30 +168,32 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
           />
         )}
 
-        {/* Video B */}
-        {isYouTubeUrl(heroVideos[videoBIndex].video_url) ? (
-          <iframe
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out pointer-events-none ${
-              showVideoA ? 'opacity-0' : 'opacity-100'
-            }`}
-            src={getYouTubeEmbedUrl(heroVideos[videoBIndex].video_url) || ''}
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-            style={{ border: 0, width: '100vw', height: '56.25vw', minHeight: '100%', minWidth: '177.77vh', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
-          />
-        ) : (
-          <video
-            ref={videoBRef}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-              showVideoA ? 'opacity-0' : 'opacity-100'
-            }`}
-            src={heroVideos[videoBIndex].video_url}
-            muted
-            loop
-            playsInline
-            preload="auto"
-            crossOrigin="anonymous"
-          />
+        {/* Video B - only rendered if there are multiple videos to cycle */}
+        {hasMultipleVideos && heroVideos[videoBIndex] && (
+          isYouTubeUrl(heroVideos[videoBIndex].video_url) ? (
+            <iframe
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out pointer-events-none ${
+                showVideoA ? 'opacity-0' : 'opacity-100'
+              }`}
+              src={getYouTubeEmbedUrl(heroVideos[videoBIndex].video_url) || ''}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+              style={{ border: 0, width: '100vw', height: '56.25vw', minHeight: '100%', minWidth: '177.77vh', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+            />
+          ) : (
+            <video
+              ref={videoBRef}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+                showVideoA ? 'opacity-0' : 'opacity-100'
+              }`}
+              src={heroVideos[videoBIndex].video_url}
+              muted
+              loop
+              playsInline
+              preload="auto"
+              crossOrigin="anonymous"
+            />
+          )
         )}
       </div>
 

@@ -18,7 +18,10 @@ export async function Header() {
   return (
     <>
       {/* Top Header - Mobile: 56px, Desktop: 72px */}
-      <header className="bg-white/95 backdrop-blur-xl shadow-md fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50">
+      <header
+        className="bg-white/95 backdrop-blur-xl shadow-md fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      >
         <nav className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
           <div className="flex items-center justify-between h-14 md:h-[72px]">
             {/* Logo Section - Compact on mobile */}

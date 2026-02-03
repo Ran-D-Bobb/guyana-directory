@@ -145,7 +145,11 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
   const { data: experiences, error } = await query
 
   if (error) {
-    console.error('Tourism experiences query error:', error)
+    // Only log if there's actual error content
+    const errorMessage = error.message || error.code || JSON.stringify(error)
+    if (errorMessage && errorMessage !== '{}') {
+      console.error('Tourism experiences query error:', errorMessage)
+    }
   }
 
   // Get featured experiences for the carousel (only if no filters applied)

@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { Toaster } from "sonner";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { PushProvider } from "@/components/providers/PushProvider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -24,6 +25,7 @@ export const viewport: Viewport = {
   themeColor: '#0d5c4b',
   width: 'device-width',
   initialScale: 1,
+  viewportFit: 'cover', // Enable safe area insets for notches/status bars
   // Note: Do NOT set maximumScale: 1 - it disables pinch-to-zoom accessibility
 }
 
@@ -53,10 +55,12 @@ export default function RootLayout({
     <html lang="en" className={`light ${playfair.variable} ${dmSans.variable}`}>
       <body className="antialiased font-sans">
         <QueryProvider>
-          <Header />
-          {children}
-          <Toaster position="top-center" richColors />
-          <InstallPrompt />
+          <PushProvider>
+            <Header />
+            {children}
+            <Toaster position="top-center" richColors />
+            <InstallPrompt />
+          </PushProvider>
         </QueryProvider>
       </body>
     </html>
