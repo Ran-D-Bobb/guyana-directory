@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { Mail, Loader2, ArrowLeft } from 'lucide-react'
+import { getAuthRedirectUrl } from '@/lib/utils'
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams()
@@ -26,7 +27,7 @@ function VerifyEmailContent() {
         type: 'signup',
         email: email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?type=signup`,
+          emailRedirectTo: getAuthRedirectUrl('/auth/callback?type=signup'),
         },
       })
 

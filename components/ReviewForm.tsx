@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Star, Trash2, Edit2 } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
+import { getAuthRedirectUrl } from '@/lib/utils'
 
 interface ReviewFormProps {
   businessId: string
@@ -142,7 +143,7 @@ export function ReviewForm({ businessId, businessName, user, existingReview }: R
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: getAuthRedirectUrl('/auth/callback'),
       },
     })
 

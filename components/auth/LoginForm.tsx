@@ -11,6 +11,7 @@ import { SocialAuthButtons } from './SocialAuthButtons'
 import { AuthDivider } from './AuthDivider'
 import { toast } from 'sonner'
 import { Loader2, AlertTriangle } from 'lucide-react'
+import { getAuthRedirectUrl } from '@/lib/utils'
 
 export function LoginForm() {
   const supabase = createClient()
@@ -100,7 +101,7 @@ export function LoginForm() {
         type: 'signup',
         email: unverifiedEmail,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?type=signup`,
+          emailRedirectTo: getAuthRedirectUrl('/auth/callback?type=signup'),
         },
       })
 

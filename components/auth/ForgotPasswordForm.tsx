@@ -8,6 +8,7 @@ import { TextInput } from '@/components/forms/inputs/TextInput'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { Loader2, Mail, ArrowLeft } from 'lucide-react'
+import { getAuthRedirectUrl } from '@/lib/utils'
 
 export function ForgotPasswordForm() {
   const supabase = createClient()
@@ -46,7 +47,7 @@ export function ForgotPasswordForm() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
-        redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
+        redirectTo: getAuthRedirectUrl('/auth/callback?type=recovery'),
       })
 
       if (error) {
@@ -74,7 +75,7 @@ export function ForgotPasswordForm() {
     setIsLoading(true)
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(sentToEmail, {
-        redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
+        redirectTo: getAuthRedirectUrl('/auth/callback?type=recovery'),
       })
 
       if (error) {

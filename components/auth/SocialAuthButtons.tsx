@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
+import { getAuthRedirectUrl } from '@/lib/utils'
 
 interface SocialAuthButtonsProps {
   mode?: 'signin' | 'signup'
@@ -18,7 +19,7 @@ export function SocialAuthButtons({ mode = 'signin' }: SocialAuthButtonsProps) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: getAuthRedirectUrl('/auth/callback'),
       },
     })
 

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { User } from '@supabase/supabase-js'
 import { Button } from '@/components/ui/button'
+import { getAuthRedirectUrl } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +27,7 @@ export function AuthButton({ user }: AuthButtonProps) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: getAuthRedirectUrl('/auth/callback'),
       },
     })
 
