@@ -123,8 +123,8 @@ export default async function TourismCategoryPage({ params, searchParams }: Tour
 
       {/* Main Content Area - scrollable on desktop */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
-        {/* Mobile Header - Sticky */}
-        <div className="lg:hidden sticky top-0 z-40 bg-white border-b-0 px-4 py-4 shadow-sm">
+        {/* Mobile Header - Scrolls away, filter bar below is sticky */}
+        <div className="lg:hidden bg-white border-b border-gray-100 px-4 py-4">
           <h1 className="text-2xl font-extrabold text-gray-900 mb-1">
             {category.name}
           </h1>

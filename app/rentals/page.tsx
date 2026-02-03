@@ -295,8 +295,8 @@ export default async function RentalsPage({
           </div>
         )}
 
-        {/* Search & Filters Section */}
-        <div className={`${hasFilters ? 'gradient-mesh-jungle' : 'bg-white/80 backdrop-blur-xl'} border-b border-gray-200/50 sticky top-0 z-30`}>
+        {/* Search & Filters Section - sticky on desktop only */}
+        <div className={`${hasFilters ? 'gradient-mesh-jungle' : 'bg-white/80 backdrop-blur-xl'} border-b border-gray-200/50 lg:sticky lg:top-0 lg:z-30`}>
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             {/* Header Row */}
             <div className="flex items-center justify-between mb-4">
