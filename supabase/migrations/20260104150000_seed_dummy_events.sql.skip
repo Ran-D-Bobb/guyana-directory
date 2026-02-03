@@ -19,6 +19,8 @@ DECLARE
   demerara_region_id UUID;
 BEGIN
   -- Get event category IDs
+
+  
   SELECT id INTO concert_cat_id FROM event_categories WHERE slug = 'concert' LIMIT 1;
   SELECT id INTO workshop_cat_id FROM event_categories WHERE slug = 'workshop' LIMIT 1;
   SELECT id INTO community_cat_id FROM event_categories WHERE slug = 'community' LIMIT 1;

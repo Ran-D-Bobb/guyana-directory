@@ -5,7 +5,8 @@ import { Header } from "@/components/Header";
 import { Toaster } from "sonner";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { QueryProvider } from "@/components/providers/QueryProvider";
-import { PushProvider } from "@/components/providers/PushProvider";
+// TODO: Re-enable when push notifications are fully configured
+// import { PushProvider } from "@/components/providers/PushProvider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -55,12 +56,10 @@ export default function RootLayout({
     <html lang="en" className={`light ${playfair.variable} ${dmSans.variable}`}>
       <body className="antialiased font-sans">
         <QueryProvider>
-          <PushProvider>
-            <Header />
-            {children}
-            <Toaster position="top-center" richColors />
-            <InstallPrompt />
-          </PushProvider>
+          <Header />
+          {children}
+          <Toaster position="top-center" richColors />
+          <InstallPrompt />
         </QueryProvider>
       </body>
     </html>
