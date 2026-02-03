@@ -165,8 +165,8 @@ export function MobileRentalCategoryFilterBar({
 
   return (
     <>
-      {/* Category Pills Bar - Mobile Only */}
-      <div className="lg:hidden sticky top-14 z-30 bg-white border-b border-gray-100 shadow-sm">
+      {/* Category Pills Bar - Mobile Only - Using fixed instead of sticky due to body overflow-x:hidden breaking sticky */}
+      <div className="lg:hidden fixed top-14 left-0 right-0 z-30 bg-white border-b border-gray-100 shadow-sm">
         <div
           ref={scrollRef}
           className="flex items-center gap-2 px-4 py-3 overflow-x-auto scrollbar-hide"
@@ -237,6 +237,8 @@ export function MobileRentalCategoryFilterBar({
           })}
         </div>
       </div>
+      {/* Spacer for fixed filter bar on mobile */}
+      <div className="lg:hidden h-[52px]" />
 
       {/* Filter Sheet Backdrop */}
       {isFilterOpen && (

@@ -647,7 +647,7 @@ p {
 }
 
 .safe-area-inset-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Bottom nav safe area - adds padding for fixed bottom navigation on mobile */
