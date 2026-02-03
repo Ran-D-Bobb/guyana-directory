@@ -98,12 +98,14 @@ export function MobileEventCategoryFilterBar({
     setSearchQuery('')
   }
 
-  // Scroll active category into view
+  // Scroll active category into view (within container only)
   useEffect(() => {
     if (scrollRef.current && currentCategorySlug) {
-      const activeEl = scrollRef.current.querySelector('[data-active="true"]')
+      const activeEl = scrollRef.current.querySelector('[data-active="true"]') as HTMLElement
       if (activeEl) {
-        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+        const container = scrollRef.current
+        const scrollLeft = activeEl.offsetLeft - container.offsetWidth / 2 + activeEl.offsetWidth / 2
+        container.scrollTo({ left: scrollLeft, behavior: 'smooth' })
       }
     }
   }, [currentCategorySlug])
