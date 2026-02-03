@@ -214,8 +214,8 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
 
-        {/* Compact Header with Search - sticky on desktop only */}
-        <header className="bg-white border-b border-gray-200 lg:sticky lg:top-0 lg:z-40">
+        {/* Compact Header with Search */}
+        <header className="bg-white border-b border-gray-200 lg:border-b sticky top-0 z-40">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               {/* Title and count */}
