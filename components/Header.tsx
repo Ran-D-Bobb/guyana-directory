@@ -129,8 +129,11 @@ export async function Header() {
       </header>
 
       {/* Spacer to prevent content from going under fixed header */}
-      {/* Mobile: 56px (h-14), Desktop: 74px (72px + 2px gradient bar) */}
-      <div className="h-14 md:h-[74px]" />
+      {/* Mobile: 56px + safe area, Desktop: 74px (72px + 2px gradient bar) */}
+      <div
+        className="h-14 md:h-[74px]"
+        style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
+      />
 
       {/* Bottom Navigation - Mobile Only (All Users) */}
       <BottomNav isAdmin={userIsAdmin} />

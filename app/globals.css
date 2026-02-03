@@ -674,11 +674,17 @@ p {
 html {
   scroll-padding-bottom: 6rem; /* Increased for bottom nav */
   overflow-x: hidden;
+  /* Extend background to fill entire viewport including safe areas */
+  background-color: hsl(var(--jungle-50));
+  min-height: 100%;
 }
 
 html, body {
   touch-action: manipulation;
   -webkit-overflow-scrolling: touch;
+  /* Ensure full viewport coverage on mobile PWA */
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 * {

@@ -54,7 +54,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`light ${playfair.variable} ${dmSans.variable}`}>
-      <body className="antialiased font-sans">
+      <body className="antialiased font-sans min-h-screen min-h-dvh">
         <QueryProvider>
           <Header />
           {children}
