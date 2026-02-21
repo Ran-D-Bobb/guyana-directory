@@ -118,8 +118,16 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 pt-6 mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-sm">
-            © 2025 Waypoint. All rights reserved.
+            © {new Date().getFullYear()} Waypoint. All rights reserved.
           </p>
+          <div className="flex items-center gap-4 text-gray-500 text-sm">
+            <Link href="/privacy" className="hover:text-emerald-400 transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-emerald-400 transition-colors">
+              Terms of Service
+            </Link>
+          </div>
           <p className="text-gray-500 text-sm">
             Made with love in Guyana
           </p>

@@ -106,6 +106,14 @@ export function FooterMinimal() {
           <p className="text-gray-500 text-xs md:text-sm">
             © {new Date().getFullYear()} Waypoint. All rights reserved.
           </p>
+          <div className="flex items-center gap-4 text-gray-500 text-xs md:text-sm">
+            <Link href="/privacy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms of Service
+            </Link>
+          </div>
           <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm">
             <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-emerald-500 rounded-full animate-pulse" />
             <span>Made with pride in Guyana</span>

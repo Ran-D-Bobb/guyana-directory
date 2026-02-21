@@ -8,6 +8,7 @@ import { type FeedItem } from './FeedCard';
 import { ForYouSection } from './ForYouSection';
 import { NewInCategories } from './NewInCategories';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
+import { FooterMinimal } from '@/components/FooterMinimal';
 
 interface HomeFeedClientProps {
   items: FeedItem[];
@@ -100,6 +101,9 @@ export function HomeFeedClient({ items }: HomeFeedClientProps) {
         </div>
         <UnifiedFeed items={sortedItems} />
       </main>
+
+      {/* Footer */}
+      <FooterMinimal />
     </div>
   );
 }
