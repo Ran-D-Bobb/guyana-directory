@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { createStaticClient } from '@/lib/supabase/static'
 import { PageViewTracker } from '@/components/PageViewTracker'
@@ -50,6 +51,38 @@ export async function generateStaticParams() {
   return (businesses || []).map((business) => ({
     slug: business.slug,
   }))
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = createStaticClient()
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('name, description, categories:category_id (name), regions:region_id (name), business_photos (image_url, is_primary)')
+    .eq('slug', slug)
+    .single()
+
+  if (!business) return { title: 'Business Not Found' }
+
+  const photo = Array.isArray(business.business_photos)
+    ? business.business_photos.find(p => p.is_primary)?.image_url || business.business_photos[0]?.image_url
+    : null
+  const categoryName = (business.categories as { name: string } | null)?.name || ''
+  const regionName = (business.regions as { name: string } | null)?.name || ''
+  const description = business.description
+    ? business.description.slice(0, 155)
+    : `${business.name} - ${categoryName} in ${regionName}, Guyana. Contact details, reviews, and hours.`
+
+  return {
+    title: `${business.name} - ${categoryName} in ${regionName}`,
+    description,
+    alternates: { canonical: `/businesses/${slug}` },
+    openGraph: {
+      title: `${business.name} | Waypoint`,
+      description,
+      ...(photo ? { images: [{ url: photo, width: 1200, height: 630, alt: business.name }] } : {}),
+    },
+  }
 }
 
 interface BusinessPageProps {
@@ -211,8 +244,61 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
   const heroImage = primaryPhoto?.image_url || DEFAULT_BUSINESS_IMAGE
   const galleryPhotos = sortedPhotos.slice(0, 4)
 
+  // JSON-LD structured data for LocalBusiness
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: business.name,
+    description: business.description || undefined,
+    url: `https://waypointgy.com/businesses/${business.slug}`,
+    image: heroImage,
+    telephone: business.phone || undefined,
+    email: business.email || undefined,
+    ...(business.website ? { sameAs: [business.website] } : {}),
+    ...(business.address ? {
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: business.address,
+        addressRegion: business.regions?.name,
+        addressCountry: 'GY',
+      },
+    } : {}),
+    ...(business.latitude && business.longitude ? {
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: business.latitude,
+        longitude: business.longitude,
+      },
+    } : {}),
+    ...((business.rating ?? 0) > 0 && (business.review_count ?? 0) > 0 ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: business.rating,
+        reviewCount: business.review_count,
+        bestRating: 5,
+        worstRating: 1,
+      },
+    } : {}),
+    ...(businessHours ? {
+      openingHoursSpecification: Object.entries(businessHours)
+        .filter(([, hours]) => hours && !hours.closed && hours.open && hours.close)
+        .map(([day, hours]) => ({
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: day.charAt(0).toUpperCase() + day.slice(1),
+          opens: hours.open,
+          closes: hours.close,
+        })),
+    } : {}),
+  }
+
   return (
     <>
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Track page view */}
       <PageViewTracker businessId={business.id} />
 

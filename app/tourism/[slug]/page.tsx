@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { createStaticClient } from '@/lib/supabase/static'
 import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
@@ -39,6 +40,38 @@ export async function generateStaticParams() {
   return (experiences || []).map((exp) => ({
     slug: exp.slug,
   }))
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = createStaticClient()
+  const { data: experience } = await supabase
+    .from('tourism_experiences')
+    .select('name, description, tourism_categories:tourism_category_id (name), regions:region_id (name), tourism_photos (image_url, is_primary)')
+    .eq('slug', slug)
+    .single()
+
+  if (!experience) return { title: 'Experience Not Found' }
+
+  const photo = Array.isArray(experience.tourism_photos)
+    ? experience.tourism_photos.find(p => p.is_primary)?.image_url || experience.tourism_photos[0]?.image_url
+    : null
+  const categoryName = (experience.tourism_categories as { name: string } | null)?.name || ''
+  const regionName = (experience.regions as { name: string } | null)?.name || ''
+  const description = experience.description
+    ? experience.description.slice(0, 155)
+    : `${experience.name} - ${categoryName} experience in ${regionName}, Guyana.`
+
+  return {
+    title: `${experience.name} - Guyana Tourism`,
+    description,
+    alternates: { canonical: `/tourism/${slug}` },
+    openGraph: {
+      title: `${experience.name} | Waypoint`,
+      description,
+      ...(photo ? { images: [{ url: photo, width: 1200, height: 630, alt: experience.name }] } : {}),
+    },
+  }
 }
 
 interface ExperiencePageProps {
@@ -101,8 +134,40 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
   const photos = Array.isArray(experience.tourism_photos) ? experience.tourism_photos : []
   const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || DEFAULT_TOURISM_IMAGE
 
+  // JSON-LD structured data for TouristAttraction
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristAttraction',
+    name: experience.name,
+    description: experience.description || undefined,
+    url: `https://waypointgy.com/tourism/${experience.slug}`,
+    image: primaryPhoto,
+    ...(experience.regions ? {
+      address: {
+        '@type': 'PostalAddress',
+        addressRegion: (experience.regions as { name: string }).name,
+        addressCountry: 'GY',
+      },
+    } : {}),
+    ...(experience.price_from ? {
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'GYD',
+        price: experience.price_from,
+        availability: 'https://schema.org/InStock',
+      },
+    } : {}),
+    ...(experience.duration ? { timeRequired: experience.duration } : {}),
+  }
+
   return (
     <>
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Track recently viewed */}
       <RecentlyViewedTracker
         type="tourism"

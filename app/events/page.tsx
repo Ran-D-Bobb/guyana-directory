@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { EventCategorySidebar } from '@/components/EventCategorySidebar'
 import { EventPageClient } from '@/components/EventPageClient'
@@ -8,6 +9,16 @@ import { getEventCategoriesWithCounts } from '@/lib/category-counts'
 import { Calendar, Compass, Sparkles } from 'lucide-react'
 import { TimelineBanner } from '@/components/TimelineBanner'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Events & Festivals in Guyana',
+  description: 'Discover upcoming events, festivals, workshops, and community gatherings across Guyana. From Mashramani to local concerts.',
+  alternates: { canonical: '/events' },
+  openGraph: {
+    title: 'Events & Festivals in Guyana | Waypoint',
+    description: 'Discover upcoming events, festivals, workshops, and community gatherings across Guyana.',
+  },
+}
 
 // Revalidate every 5 minutes
 export const revalidate = 300

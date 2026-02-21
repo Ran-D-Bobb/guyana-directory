@@ -1,6 +1,13 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { HomeFeedClient } from '@/components/home'
 import type { FeedItem } from '@/components/home'
+
+export const metadata: Metadata = {
+  title: 'Waypoint - Discover Local Businesses in Guyana',
+  description: 'Find restaurants, shops, tourism experiences, events, and rentals across Guyana. Your guide to local businesses in the Land of Many Waters.',
+  alternates: { canonical: '/' },
+}
 
 export default async function Home() {
   const supabase = await createClient()
@@ -154,5 +161,37 @@ export default async function Home() {
     })),
   ]
 
-  return <HomeFeedClient items={feedItems} />
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        name: 'Waypoint',
+        url: 'https://waypointgy.com',
+        description: 'Discover local businesses, tourism experiences, events, and rentals across Guyana.',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: 'https://waypointgy.com/search?q={search_term_string}',
+          'query-input': 'required name=search_term_string',
+        },
+      },
+      {
+        '@type': 'Organization',
+        name: 'Waypoint',
+        url: 'https://waypointgy.com',
+        logo: 'https://waypointgy.com/icons/icon-512x512.png',
+        description: 'Discover local businesses, tourism experiences, events, and rentals across Guyana.',
+      },
+    ],
+  }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <HomeFeedClient items={feedItems} />
+    </>
+  )
 }

@@ -1,7 +1,14 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { UnifiedSearchResults } from '@/components/UnifiedSearchResults'
 import Link from 'next/link'
 import { ArrowLeft, Search } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Search',
+  description: 'Search for businesses, tourism experiences, events, and rentals across Guyana.',
+  alternates: { canonical: '/search' },
+}
 
 interface SearchPageProps {
   searchParams: Promise<{

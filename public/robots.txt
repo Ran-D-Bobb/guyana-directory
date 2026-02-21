@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /auth/
+Disallow: /api/
+Disallow: /kiosk/
+Disallow: /offline
+Disallow: /blocked
+
+Sitemap: https://waypointgy.com/sitemap.xml

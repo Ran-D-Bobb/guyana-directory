@@ -1,9 +1,27 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/static'
 import { notFound } from 'next/navigation'
 import { EventCategorySidebar } from '@/components/EventCategorySidebar'
 import { EventPageClient } from '@/components/EventPageClient'
 import { MobileEventCategoryFilterBar } from '@/components/MobileEventCategoryFilterBar'
 import { getEventCategoriesWithCounts } from '@/lib/category-counts'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = createStaticClient()
+  const { data: category } = await supabase.from('event_categories').select('name').eq('slug', slug).single()
+  if (!category) return { title: 'Category Not Found' }
+  return {
+    title: `${category.name} Events in Guyana`,
+    description: `Find ${category.name} events in Guyana. Browse upcoming festivals, workshops, concerts, and community gatherings.`,
+    alternates: { canonical: `/events/category/${slug}` },
+    openGraph: {
+      title: `${category.name} Events in Guyana | Waypoint`,
+      description: `Find ${category.name} events in Guyana. Browse upcoming festivals, workshops, and gatherings.`,
+    },
+  }
+}
 
 interface EventCategoryPageProps {
   params: Promise<{

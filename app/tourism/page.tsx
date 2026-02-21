@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { TourismHero, HeroVideo } from '@/components/tourism/TourismHero'
 import { TourismCategoryPills } from '@/components/tourism/TourismCategoryPills'
@@ -6,6 +7,16 @@ import { TourismFilterBarPremium } from '@/components/tourism/TourismFilterBarPr
 import { TourismPageClientPremium } from '@/components/tourism/TourismPageClientPremium'
 import { MobileTourismCategoryFilterBar } from '@/components/MobileTourismCategoryFilterBar'
 import { getTourismCategoriesWithCounts } from '@/lib/category-counts'
+
+export const metadata: Metadata = {
+  title: 'Tourism Experiences in Guyana',
+  description: 'Discover guided tours, adventures, and cultural experiences across Guyana. From Kaieteur Falls to Rupununi safaris, find your next adventure.',
+  alternates: { canonical: '/tourism' },
+  openGraph: {
+    title: 'Tourism Experiences in Guyana | Waypoint',
+    description: 'Discover guided tours, adventures, and cultural experiences across Guyana. From Kaieteur Falls to Rupununi safaris.',
+  },
+}
 
 // Revalidate every 5 minutes
 export const revalidate = 300

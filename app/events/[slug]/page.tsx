@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { createStaticClient } from '@/lib/supabase/static'
 import { EventViewTracker } from '@/components/EventViewTracker'
@@ -28,6 +29,35 @@ export async function generateStaticParams() {
   return (events || []).map((event) => ({
     slug: event.slug,
   }))
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = createStaticClient()
+  const { data: event } = await supabase
+    .from('events')
+    .select('title, description, event_categories:category_id (name), image_url, start_date')
+    .eq('slug', slug)
+    .single()
+
+  if (!event) return { title: 'Event Not Found' }
+
+  const categoryName = (event.event_categories as { name: string } | null)?.name || ''
+  const dateStr = event.start_date ? new Date(event.start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''
+  const description = event.description
+    ? event.description.slice(0, 155)
+    : `${event.title} - ${categoryName} event in Guyana${dateStr ? ` on ${dateStr}` : ''}.`
+
+  return {
+    title: `${event.title}${dateStr ? ` - ${dateStr}` : ''}`,
+    description,
+    alternates: { canonical: `/events/${slug}` },
+    openGraph: {
+      title: `${event.title} | Waypoint`,
+      description,
+      ...(event.image_url ? { images: [{ url: event.image_url, width: 1200, height: 630, alt: event.title }] } : {}),
+    },
+  }
 }
 
 interface EventPageProps {
@@ -120,8 +150,50 @@ export default async function EventPage({ params }: EventPageProps) {
   const isOngoing = startDate <= now && endDate >= now
   const isPast = endDate < now
 
+  // JSON-LD structured data for Event
+  const eventBusiness = event.businesses as { name: string; address: string; regions: { name: string } | null } | null
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.title,
+    description: event.description || undefined,
+    url: `https://waypointgy.com/events/${event.slug}`,
+    image: event.image_url || undefined,
+    startDate: event.start_date,
+    endDate: event.end_date,
+    eventStatus: isPast ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    ...(event.location || eventBusiness ? {
+      location: {
+        '@type': 'Place',
+        name: event.location || eventBusiness?.name,
+        ...(eventBusiness?.address ? {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: eventBusiness.address,
+            addressRegion: eventBusiness.regions?.name,
+            addressCountry: 'GY',
+          },
+        } : {}),
+      },
+    } : {}),
+    ...(eventBusiness ? {
+      organizer: {
+        '@type': 'Organization',
+        name: eventBusiness.name,
+        url: `https://waypointgy.com/businesses/${(event.businesses as { slug: string }).slug}`,
+      },
+    } : {}),
+  }
+
   return (
     <>
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Track event view */}
       <EventViewTracker eventId={event.id} />
 

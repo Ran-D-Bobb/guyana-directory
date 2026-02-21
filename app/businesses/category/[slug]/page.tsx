@@ -1,10 +1,29 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/static'
 import { notFound } from 'next/navigation'
 import { CategorySidebar } from '@/components/CategorySidebar'
 import { CategoryPageClient } from '@/components/CategoryPageClient'
 import { MobileCategoryFilterBar } from '@/components/MobileCategoryFilterBar'
 import { FollowCategoryButton } from '@/components/FollowCategoryButton'
 import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = createStaticClient()
+  const { data: category } = await supabase.from('categories').select('name, description').eq('slug', slug).single()
+  if (!category) return { title: 'Category Not Found' }
+  const description = category.description || `Find the best ${category.name} businesses in Guyana. Browse listings with reviews, hours, and contact information.`
+  return {
+    title: `${category.name} Businesses in Guyana`,
+    description: description.slice(0, 160),
+    alternates: { canonical: `/businesses/category/${slug}` },
+    openGraph: {
+      title: `${category.name} Businesses in Guyana | Waypoint`,
+      description: description.slice(0, 160),
+    },
+  }
+}
 
 interface CategoryPageProps {
   params: Promise<{

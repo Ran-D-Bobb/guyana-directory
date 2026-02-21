@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { CategorySidebar } from '@/components/CategorySidebar'
 import { BusinessesPageClient } from '@/components/BusinessesPageClient'
@@ -5,6 +6,16 @@ import { MobileCategoryFilterBar } from '@/components/MobileCategoryFilterBar'
 import { BusinessFilterPanel } from '@/components/BusinessFilterPanel'
 import { BusinessSearch } from '@/components/BusinessSearch'
 import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
+
+export const metadata: Metadata = {
+  title: 'Local Businesses in Guyana',
+  description: 'Browse verified local businesses in Guyana. Find restaurants, shops, services, and more with reviews, hours, and contact information.',
+  alternates: { canonical: '/businesses' },
+  openGraph: {
+    title: 'Local Businesses in Guyana | Waypoint',
+    description: 'Browse verified local businesses in Guyana. Find restaurants, shops, services, and more with reviews, hours, and contact information.',
+  },
+}
 
 // Revalidate every 5 minutes - categories and regions don't change often
 export const revalidate = 300

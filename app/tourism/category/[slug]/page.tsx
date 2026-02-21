@@ -1,9 +1,28 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/static'
 import { notFound } from 'next/navigation'
 import { TourismCategorySidebar } from '@/components/TourismCategorySidebar'
 import { TourismPageClient } from '@/components/TourismPageClient'
 import { MobileTourismCategoryFilterBar } from '@/components/MobileTourismCategoryFilterBar'
 import { getTourismCategoriesWithCounts } from '@/lib/category-counts'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = createStaticClient()
+  const { data: category } = await supabase.from('tourism_categories').select('name, description').eq('slug', slug).single()
+  if (!category) return { title: 'Category Not Found' }
+  const description = category.description || `Browse ${category.name} tourism experiences in Guyana. Find tours, activities, and adventures.`
+  return {
+    title: `${category.name} Experiences in Guyana`,
+    description: description.slice(0, 160),
+    alternates: { canonical: `/tourism/category/${slug}` },
+    openGraph: {
+      title: `${category.name} Experiences in Guyana | Waypoint`,
+      description: description.slice(0, 160),
+    },
+  }
+}
 
 interface TourismCategoryPageProps {
   params: Promise<{
