@@ -39,6 +39,7 @@ public/sw.js
 public/sw.js.map
 public/workbox-*.js
 public/workbox-*.js.map
+public/fallback-*.js
 
 # supabase
 supabase/.branches
@@ -51,3 +52,7 @@ playwright/.cache
 nul
 tmpclaude-*
 plugins/luxor-frontend-essentials
+
+# markdown docs
+*.md
+!CLAUDE.md
