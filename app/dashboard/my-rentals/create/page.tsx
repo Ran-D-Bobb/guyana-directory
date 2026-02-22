@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requireBusinessAccount } from '@/lib/account-type'
 import RentalFormSteps from '@/components/forms/rental/RentalFormSteps'
 
 export default async function CreateRentalPage() {
@@ -8,8 +9,10 @@ export default async function CreateRentalPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/signin')
+    redirect('/auth/login')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Check if user has reached free tier limit (1 listing)
   const { data: existingRentals, error: rentalError } = await supabase

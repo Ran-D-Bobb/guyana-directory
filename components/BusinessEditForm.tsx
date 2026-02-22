@@ -32,9 +32,11 @@ interface BusinessEditFormProps {
   }
   categories: Array<{ id: string; name: string; slug: string }>
   regions: Array<{ id: string; name: string; slug: string }>
+  tags?: Array<{ id: string; name: string; slug: string; category_id: string }>
+  currentTagIds?: string[]
 }
 
-export function BusinessEditForm({ business, categories, regions }: BusinessEditFormProps) {
+export function BusinessEditForm({ business, categories, regions, tags = [], currentTagIds = [] }: BusinessEditFormProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -60,15 +62,33 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
       : null
   )
 
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(currentTagIds)
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
+  // Filter tags for the selected category
+  const filteredTags = formData.category_id
+    ? tags.filter(tag => tag.category_id === formData.category_id)
+    : []
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTagIds(prev =>
+      prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
+    )
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     })
+    // Clear tags when category changes
+    if (name === 'category_id') {
+      setSelectedTagIds([])
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,11 +111,26 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
         return
       }
 
-      // Create slug from name (simple version)
-      const slug = formData.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
+      // Only regenerate slug if name changed
+      const slug = formData.name !== business.name
+        ? formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+        : business.slug
+
+      // Check slug uniqueness if it changed
+      if (slug !== business.slug) {
+        const { data: existingBusiness } = await supabase
+          .from('businesses')
+          .select('id')
+          .eq('slug', slug)
+          .neq('id', business.id)
+          .single()
+
+        if (existingBusiness) {
+          setError('A business with this name already exists. Please choose a different name.')
+          setIsSubmitting(false)
+          return
+        }
+      }
 
       const { error: updateError } = await supabase
         .from('businesses')
@@ -119,6 +154,26 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
         console.error('Error updating business:', updateError)
         setError(`Failed to update business: ${updateError.message}`)
       } else {
+        // Sync business tags: delete existing and insert new
+        await supabase
+          .from('business_tags')
+          .delete()
+          .eq('business_id', business.id)
+
+        if (selectedTagIds.length > 0) {
+          const { error: tagError } = await supabase
+            .from('business_tags')
+            .insert(
+              selectedTagIds.map(tagId => ({
+                business_id: business.id,
+                tag_id: tagId,
+              }))
+            )
+          if (tagError) {
+            console.error('Error syncing tags:', tagError)
+          }
+        }
+
         setSuccess(true)
         setTimeout(() => {
           router.push('/dashboard/my-business')
@@ -204,6 +259,32 @@ export function BusinessEditForm({ business, categories, regions }: BusinessEdit
           ))}
         </select>
       </div>
+
+      {/* Tags */}
+      {filteredTags.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Tags <span className="text-gray-400 font-normal">(optional)</span>
+          </label>
+          <p className="text-xs text-gray-500 mb-2">Select tags that describe your business</p>
+          <div className="flex flex-wrap gap-2">
+            {filteredTags.map(tag => (
+              <button
+                key={tag.id}
+                type="button"
+                onClick={() => toggleTag(tag.id)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  selectedTagIds.includes(tag.id)
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {tag.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Region */}
       <div>

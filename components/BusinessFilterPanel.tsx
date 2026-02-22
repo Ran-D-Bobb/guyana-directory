@@ -13,6 +13,8 @@ interface BusinessFilterPanelProps {
     verified?: string
     featured?: string
   }
+  categoryTags?: Array<{ id: string; name: string; slug: string }>
+  selectedTags?: string[]
 }
 
 const sortOptions = [
@@ -75,7 +77,7 @@ function FilterDropdown({
   )
 }
 
-export function BusinessFilterPanel({ regions = [], currentFilters = {} }: BusinessFilterPanelProps) {
+export function BusinessFilterPanel({ regions = [], currentFilters = {}, categoryTags = [], selectedTags = [] }: BusinessFilterPanelProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -87,8 +89,23 @@ export function BusinessFilterPanel({ regions = [], currentFilters = {} }: Busin
     currentFilters.sort && currentFilters.sort !== 'featured',
     currentFilters.rating && currentFilters.rating !== 'all',
     currentFilters.verified === 'true',
-    currentFilters.featured === 'true',
+    selectedTags.length > 0,
   ].filter(Boolean).length
+
+  const toggleTagFilter = (slug: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    const currentTags = params.get('tags')?.split(',').filter(Boolean) || []
+    const newTags = currentTags.includes(slug)
+      ? currentTags.filter(s => s !== slug)
+      : [...currentTags, slug]
+    if (newTags.length > 0) {
+      params.set('tags', newTags.join(','))
+    } else {
+      params.delete('tags')
+    }
+    params.delete('page')
+    router.push(`${pathname}?${params.toString()}`)
+  }
 
   const updateFilters = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -106,7 +123,7 @@ export function BusinessFilterPanel({ regions = [], currentFilters = {} }: Busin
     params.delete('sort')
     params.delete('rating')
     params.delete('verified')
-    params.delete('featured')
+    params.delete('tags')
     params.delete('page')
     router.push(`${pathname}?${params.toString()}`)
   }
@@ -215,17 +232,25 @@ export function BusinessFilterPanel({ regions = [], currentFilters = {} }: Busin
           <span>Verified</span>
         </button>
 
-        <button
-          onClick={() => toggleFilter('featured', currentFilters.featured)}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-            currentFilters.featured === 'true'
-              ? 'bg-amber-500 text-white'
-              : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-          }`}
-        >
-          <Sparkles className="h-4 w-4" />
-          <span>Featured</span>
-        </button>
+        {/* Tag Chips */}
+        {categoryTags.length > 0 && (
+          <>
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            {categoryTags.map((tag) => (
+              <button
+                key={tag.id}
+                onClick={() => toggleTagFilter(tag.slug)}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+                  selectedTags.includes(tag.slug)
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {tag.name}
+              </button>
+            ))}
+          </>
+        )}
 
         {/* Spacer */}
         <div className="flex-1" />

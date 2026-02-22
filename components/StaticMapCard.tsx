@@ -18,7 +18,7 @@ export function StaticMapCard({ latitude, longitude, address, name, className = 
   const embedUrl = `https://www.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`
 
   return (
-    <div className={`rounded-2xl overflow-hidden border border-gray-200 bg-white ${className}`}>
+    <div className={`rounded-2xl overflow-hidden border border-[hsl(var(--border))] bg-white ${className}`}>
       {/* Map Embed */}
       <div className="relative w-full h-48">
         <iframe
@@ -35,18 +35,18 @@ export function StaticMapCard({ latitude, longitude, address, name, className = 
       </div>
 
       {/* Footer with address and link */}
-      <div className="p-4 bg-gray-50 border-t border-gray-100">
+      <div className="p-4 bg-[hsl(var(--jungle-50))] border-t border-[hsl(var(--border))]">
         {address && (
           <div className="flex items-start gap-2 mb-3">
-            <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-gray-700 leading-relaxed">{address}</p>
+            <MapPin className="w-4 h-4 text-[hsl(var(--muted-foreground))] mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-[hsl(var(--jungle-700))] leading-relaxed">{address}</p>
           </div>
         )}
         <a
           href={googleMapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all"
+          className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white border border-[hsl(var(--border))] rounded-xl text-sm font-semibold text-[hsl(var(--jungle-700))] hover:bg-[hsl(var(--jungle-50))] hover:border-[hsl(var(--jungle-300))] transition-all"
         >
           <ExternalLink className="w-4 h-4" />
           Open in Google Maps

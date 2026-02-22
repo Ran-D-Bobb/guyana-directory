@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export async function POST(request: NextRequest) {
   try {
     const { eventId } = await request.json()
 
-    if (!eventId) {
+    if (!eventId || !UUID_RE.test(eventId)) {
       return NextResponse.json(
-        { error: 'Event ID is required' },
+        { error: 'Valid Event ID is required' },
         { status: 400 }
       )
     }

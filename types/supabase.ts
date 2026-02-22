@@ -34,6 +34,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_logs: {
+        Row: {
+          action: Database["public"]["Enums"]["admin_action"]
+          admin_id: string
+          after_data: Json | null
+          before_data: Json | null
+          created_at: string
+          entity_id: string
+          entity_name: string
+          entity_type: Database["public"]["Enums"]["admin_entity_type"]
+          id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["admin_action"]
+          admin_id: string
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          entity_id: string
+          entity_name: string
+          entity_type: Database["public"]["Enums"]["admin_entity_type"]
+          id?: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["admin_action"]
+          admin_id?: string
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          entity_id?: string
+          entity_name?: string
+          entity_type?: Database["public"]["Enums"]["admin_entity_type"]
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_audit_logs_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_emails: {
         Row: {
           created_at: string | null
@@ -87,7 +131,12 @@ export type Database = {
           end_date: string
           event_type_id: string | null
           id: string
+          image_url: string | null
           is_active: boolean | null
+          is_recurring: boolean | null
+          recurrence_pattern: string | null
+          recurrence_days: number[] | null
+          recurrence_end_date: string | null
           slug: string
           start_date: string
           title: string
@@ -101,7 +150,12 @@ export type Database = {
           end_date: string
           event_type_id?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
+          is_recurring?: boolean | null
+          recurrence_pattern?: string | null
+          recurrence_days?: number[] | null
+          recurrence_end_date?: string | null
           slug: string
           start_date: string
           title: string
@@ -115,7 +169,12 @@ export type Database = {
           end_date?: string
           event_type_id?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
+          is_recurring?: boolean | null
+          recurrence_pattern?: string | null
+          recurrence_days?: number[] | null
+          recurrence_end_date?: string | null
           slug?: string
           start_date?: string
           title?: string
@@ -144,24 +203,30 @@ export type Database = {
           business_id: string
           created_at: string | null
           display_order: number | null
+          flag_count: number | null
           id: string
           image_url: string
+          is_flagged: boolean | null
           is_primary: boolean | null
         }
         Insert: {
           business_id: string
           created_at?: string | null
           display_order?: number | null
+          flag_count?: number | null
           id?: string
           image_url: string
+          is_flagged?: boolean | null
           is_primary?: boolean | null
         }
         Update: {
           business_id?: string
           created_at?: string | null
           display_order?: number | null
+          flag_count?: number | null
           id?: string
           image_url?: string
+          is_flagged?: boolean | null
           is_primary?: boolean | null
         }
         Relationships: [
@@ -170,6 +235,42 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_tags: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_tags_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "category_tags"
             referencedColumns: ["id"]
           },
         ]
@@ -307,6 +408,41 @@ export type Database = {
         }
         Relationships: []
       }
+      category_tags: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          display_order: number | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_tags_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_categories: {
         Row: {
           created_at: string | null
@@ -356,42 +492,6 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      followed_categories: {
-        Row: {
-          id: string
-          user_id: string
-          category_id: string
-          created_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          category_id: string
-          created_at?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          category_id?: string
-          created_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "followed_categories_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "followed_categories_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
         ]
@@ -496,8 +596,81 @@ export type Database = {
           },
         ]
       }
+      followed_categories: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followed_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "followed_categories_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photo_flags: {
+        Row: {
+          created_at: string
+          id: string
+          photo_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          photo_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          photo_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_flags_photo_id_fkey"
+            columns: ["photo_id"]
+            isOneToOne: false
+            referencedRelation: "business_photos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_flags_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          account_type: string
           created_at: string | null
           email: string | null
           id: string
@@ -505,9 +678,15 @@ export type Database = {
           phone: string | null
           photo: string | null
           review_count: number | null
+          status: Database["public"]["Enums"]["user_status"]
+          status_expires_at: string | null
+          status_reason: string | null
+          status_updated_at: string | null
+          status_updated_by: string | null
           updated_at: string | null
         }
         Insert: {
+          account_type?: string
           created_at?: string | null
           email?: string | null
           id: string
@@ -515,9 +694,15 @@ export type Database = {
           phone?: string | null
           photo?: string | null
           review_count?: number | null
+          status?: Database["public"]["Enums"]["user_status"]
+          status_expires_at?: string | null
+          status_reason?: string | null
+          status_updated_at?: string | null
+          status_updated_by?: string | null
           updated_at?: string | null
         }
         Update: {
+          account_type?: string
           created_at?: string | null
           email?: string | null
           id?: string
@@ -525,9 +710,22 @@ export type Database = {
           phone?: string | null
           photo?: string | null
           review_count?: number | null
+          status?: Database["public"]["Enums"]["user_status"]
+          status_expires_at?: string | null
+          status_reason?: string | null
+          status_updated_at?: string | null
+          status_updated_by?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_status_updated_by_fkey"
+            columns: ["status_updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       regions: {
         Row: {
@@ -1220,31 +1418,24 @@ export type Database = {
       }
       saved_businesses: {
         Row: {
-          id: string
-          user_id: string
           business_id: string
           created_at: string | null
+          id: string
+          user_id: string
         }
         Insert: {
-          id?: string
-          user_id: string
           business_id: string
           created_at?: string | null
+          id?: string
+          user_id: string
         }
         Update: {
-          id?: string
-          user_id?: string
           business_id?: string
           created_at?: string | null
+          id?: string
+          user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "saved_businesses_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "saved_businesses_business_id_fkey"
             columns: ["business_id"]
@@ -1252,7 +1443,80 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "saved_businesses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      timeline_events: {
+        Row: {
+          accent_color: string
+          category: string
+          created_at: string
+          day: string
+          description: string | null
+          display_order: number
+          gradient_colors: string
+          highlights: string[] | null
+          id: string
+          is_active: boolean
+          location: string | null
+          media_type: string
+          media_url: string
+          month: string
+          month_short: string
+          subtitle: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          category?: string
+          created_at?: string
+          day: string
+          description?: string | null
+          display_order?: number
+          gradient_colors?: string
+          highlights?: string[] | null
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          media_type?: string
+          media_url: string
+          month: string
+          month_short: string
+          subtitle?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          category?: string
+          created_at?: string
+          day?: string
+          description?: string | null
+          display_order?: number
+          gradient_colors?: string
+          highlights?: string[] | null
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          media_type?: string
+          media_url?: string
+          month?: string
+          month_short?: string
+          subtitle?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       tourism_categories: {
         Row: {
@@ -1467,6 +1731,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tourism_hero_videos: {
+        Row: {
+          created_at: string
+          cycle_duration: number | null
+          display_order: number
+          id: string
+          is_active: boolean
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_duration?: number | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          cycle_duration?: number | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+        }
+        Relationships: []
       }
       tourism_inquiry_clicks: {
         Row: {
@@ -1761,14 +2061,66 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      all_events: {
+        Row: {
+          business_id: string | null
+          business_name: string | null
+          business_slug: string | null
+          category_icon: string | null
+          category_id: string | null
+          category_name: string | null
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          event_type_icon: string | null
+          event_type_name: string | null
+          id: string | null
+          image_url: string | null
+          interest_count: number | null
+          is_featured: boolean | null
+          location: string | null
+          region_id: string | null
+          slug: string | null
+          source_type: string | null
+          start_date: string | null
+          title: string | null
+          user_id: string | null
+          view_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      dismiss_photo_flags: { Args: { p_photo_id: string }; Returns: Json }
+      flag_photo: { Args: { p_photo_id: string }; Returns: Json }
+      get_followed_categories_with_counts: {
+        Args: { p_user_id: string }
+        Returns: {
+          category_icon: string
+          category_id: string
+          category_name: string
+          category_slug: string
+          followed_at: string
+          new_this_week: number
+        }[]
+      }
+      get_new_businesses_this_week: {
+        Args: { p_category_id: string }
+        Returns: number
+      }
       get_region_with_children: {
         Args: { region_id: string }
         Returns: {
           id: string
         }[]
+      }
+      get_reviewer_badge: {
+        Args: { p_review_count: number }
+        Returns: Database["public"]["Enums"]["reviewer_badge"]
+      }
+      get_reviews_to_next_badge: {
+        Args: { p_review_count: number }
+        Returns: Json
       }
       increment_business_event_views: {
         Args: { business_event_id: string }
@@ -1792,24 +2144,48 @@ export type Database = {
         Returns: undefined
       }
       is_admin: { Args: never; Returns: boolean }
-      get_new_businesses_this_week: {
-        Args: { p_category_id: string }
-        Returns: number
+      reorder_category: {
+        Args: { category_id: string; new_order: number }
+        Returns: undefined
       }
-      get_followed_categories_with_counts: {
-        Args: { p_user_id: string }
-        Returns: {
-          category_id: string
-          category_name: string
-          category_slug: string
-          category_icon: string
-          new_this_week: number
-          followed_at: string
-        }[]
+      reorder_region: {
+        Args: { new_order: number; region_id: string }
+        Returns: undefined
       }
     }
     Enums: {
-      [_ in never]: never
+      admin_action:
+        | "create"
+        | "update"
+        | "delete"
+        | "verify"
+        | "unverify"
+        | "feature"
+        | "unfeature"
+        | "approve"
+        | "unapprove"
+        | "suspend"
+        | "ban"
+        | "reactivate"
+        | "dismiss_flag"
+        | "flag"
+      admin_entity_type:
+        | "business"
+        | "review"
+        | "event"
+        | "tourism"
+        | "rental"
+        | "user"
+        | "photo"
+        | "category"
+        | "region"
+        | "timeline"
+      reviewer_badge:
+        | "newcomer"
+        | "contributor"
+        | "local_expert"
+        | "top_reviewer"
+      user_status: "active" | "suspended" | "banned"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1939,6 +2315,42 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      admin_action: [
+        "create",
+        "update",
+        "delete",
+        "verify",
+        "unverify",
+        "feature",
+        "unfeature",
+        "approve",
+        "unapprove",
+        "suspend",
+        "ban",
+        "reactivate",
+        "dismiss_flag",
+        "flag",
+      ],
+      admin_entity_type: [
+        "business",
+        "review",
+        "event",
+        "tourism",
+        "rental",
+        "user",
+        "photo",
+        "category",
+        "region",
+        "timeline",
+      ],
+      reviewer_badge: [
+        "newcomer",
+        "contributor",
+        "local_expert",
+        "top_reviewer",
+      ],
+      user_status: ["active", "suspended", "banned"],
+    },
   },
 } as const

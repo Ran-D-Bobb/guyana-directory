@@ -14,6 +14,12 @@ export function PageViewTracker({ businessId }: PageViewTrackerProps) {
     if (hasTracked.current) return
     hasTracked.current = true
 
+    // Deduplicate within the same session
+    const sessionKey = `viewed_business_${businessId}`
+    if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey)) {
+      return
+    }
+
     const trackView = async () => {
       try {
         await fetch('/api/track-page-view', {
@@ -23,6 +29,9 @@ export function PageViewTracker({ businessId }: PageViewTrackerProps) {
           },
           body: JSON.stringify({ businessId }),
         })
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(sessionKey, '1')
+        }
       } catch (error) {
         console.error('Failed to track page view:', error)
       }

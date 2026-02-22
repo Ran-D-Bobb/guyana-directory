@@ -206,6 +206,7 @@ function MapContent({
       mapRef.current = null
       markerRef.current = null
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [L]) // Only depend on L to prevent re-initialization
 
   // Update marker position when props change
@@ -238,6 +239,7 @@ function MapContent({
 
       mapRef.current.setView(newLatLng, currentZoom < 14 ? 15 : currentZoom)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latitude, longitude])
 
   // Zoom controls

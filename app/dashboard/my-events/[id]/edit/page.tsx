@@ -20,10 +20,10 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
-  // Fetch the event
+  // Fetch the event with ownership filter (prevents IDOR)
   const { data: event } = await supabase
     .from('events')
     .select(`
@@ -32,15 +32,11 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
       businesses:business_id (name, slug)
     `)
     .eq('id', id)
+    .eq('user_id', user.id)
     .single()
 
   if (!event) {
     notFound()
-  }
-
-  // Check if user owns this event
-  if (event.user_id !== user.id) {
-    redirect('/dashboard/my-events')
   }
 
   // Fetch event categories

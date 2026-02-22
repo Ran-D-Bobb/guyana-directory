@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requirePersonalAccount } from '@/lib/account-type'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Heart, ChevronLeft, MapPin, Star, Building2, Sparkles, BadgeCheck, Search } from 'lucide-react'
@@ -23,6 +24,8 @@ export default async function FavoritesPage() {
   if (!user) {
     redirect('/')
   }
+
+  await requirePersonalAccount(user.id)
 
   // Fetch user's saved businesses
   const { data: savedBusinessesData, error } = await supabase

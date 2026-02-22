@@ -103,9 +103,10 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
     query = query.eq('region_id', region)
   }
 
-  // Apply search filter if query exists
-  if (q && q.trim()) {
-    query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%,location_details.ilike.%${q}%`)
+  // Apply search filter using full-text search on name + ILIKE fallback
+  const safeQ = q ? q.replace(/[%_(),.*]/g, ' ').trim() : ''
+  if (safeQ) {
+    query = query.or(`name.plfts.${safeQ},description.ilike.%${safeQ}%,location_details.ilike.%${safeQ}%`)
   }
 
   // Apply sorting
@@ -143,8 +144,25 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
   if (region && region !== 'all') {
     countQuery = countQuery.eq('region_id', region)
   }
-  if (q && q.trim()) {
-    countQuery = countQuery.or(`name.ilike.%${q}%,description.ilike.%${q}%,location_details.ilike.%${q}%`)
+  // Apply duration filter to count query (must match data query)
+  if (duration && duration !== 'all') {
+    switch (duration) {
+      case 'quick':
+        countQuery = countQuery.or('duration.ilike.%hour%,duration.ilike.%1%,duration.ilike.%2%')
+        break
+      case 'half_day':
+        countQuery = countQuery.ilike('duration', '%half%')
+        break
+      case 'full_day':
+        countQuery = countQuery.ilike('duration', '%full%')
+        break
+      case 'multi_day':
+        countQuery = countQuery.or('duration.ilike.%day%,duration.ilike.%week%,duration.ilike.%multi%')
+        break
+    }
+  }
+  if (safeQ) {
+    countQuery = countQuery.or(`name.plfts.${safeQ},description.ilike.%${safeQ}%,location_details.ilike.%${safeQ}%`)
   }
 
   const { count: totalCount } = await countQuery

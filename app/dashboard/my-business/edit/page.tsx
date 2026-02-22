@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { BusinessEditForm } from '@/components/BusinessEditForm'
+import { requireBusinessAccount } from '@/lib/account-type'
 
 export default async function EditBusinessPage() {
   const supabase = await createClient()
@@ -13,6 +14,8 @@ export default async function EditBusinessPage() {
   if (!user) {
     redirect('/')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Fetch user's business
   const { data: business, error: businessError } = await supabase
@@ -37,6 +40,20 @@ export default async function EditBusinessPage() {
     .from('regions')
     .select('id, name, slug')
     .order('name', { ascending: true })
+
+  // Fetch all category tags
+  const { data: tags } = await supabase
+    .from('category_tags')
+    .select('id, name, slug, category_id')
+    .order('display_order', { ascending: true })
+
+  // Fetch business's current tags
+  const { data: businessTags } = await supabase
+    .from('business_tags')
+    .select('tag_id')
+    .eq('business_id', business.id)
+
+  const currentTagIds = businessTags?.map(bt => bt.tag_id) || []
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -67,6 +84,8 @@ export default async function EditBusinessPage() {
             }}
             categories={categories || []}
             regions={regions || []}
+            tags={tags || []}
+            currentTagIds={currentTagIds}
           />
         </div>
       </div>

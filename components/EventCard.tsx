@@ -1,17 +1,23 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Calendar, MapPin, Building2, Sparkles, User, Users } from 'lucide-react'
-import { Database } from '@/types/supabase'
+import { Calendar, MapPin, Building2, Sparkles, User, Users, Tag } from 'lucide-react'
 
-type Event = Database['public']['Tables']['events']['Row'] & {
+type Event = {
+  id: string
+  title: string
+  slug: string
+  start_date: string
+  end_date: string
+  image_url: string | null
+  location: string | null
+  is_featured: boolean | null
+  view_count: number | null
+  interest_count: number | null
   event_categories: { name: string; icon: string | null } | null
-  businesses: {
-    name: string
-    slug: string
-  } | null
-  profiles?: {
-    name: string | null
-  } | null
+  businesses: { name: string; slug: string } | null
+  profiles?: { name: string | null } | null
+  source_type?: 'community' | 'business'
+  business_slug?: string | null
 }
 
 interface EventCardProps {
@@ -53,6 +59,12 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
   const isOngoing = startDate <= now && endDate >= now
   const isPast = endDate < now
   const isFeatured = event.is_featured
+  const isBusinessEvent = event.source_type === 'business'
+
+  // Business events link to the business page, community events link to the event detail page
+  const href = isBusinessEvent && event.business_slug
+    ? `/businesses/${event.business_slug}`
+    : `/events/${event.slug}`
 
   // Dynamic classes based on variant and featured status
   const cardClasses = `
@@ -64,7 +76,7 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
   `
 
   return (
-    <Link href={`/events/${event.slug}`} className={cardClasses}>
+    <Link href={href} className={cardClasses}>
       {/* Event Image */}
       <div className="relative w-full h-56 bg-gradient-to-br from-emerald-100 via-amber-50/30 to-emerald-50 overflow-hidden">
         <Image
@@ -109,6 +121,16 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
           </div>
         )}
 
+        {/* Promotion badge for business events */}
+        {isBusinessEvent && !isFeatured && (
+          <div className="absolute top-4 right-4 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-bold rounded-full shadow-lg shadow-purple-500/30">
+            <span className="flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5" />
+              Promotion
+            </span>
+          </div>
+        )}
+
         {/* Date overlay on image bottom */}
         <div className="absolute bottom-0 inset-x-0 p-4">
           <div className="flex items-center gap-2 text-white">
@@ -124,7 +146,11 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
         {/* Category Badge */}
         {event.event_categories && (
           <div className="mb-3">
-            <span className="inline-flex px-3 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100">
+            <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${
+              isBusinessEvent
+                ? 'bg-purple-50 text-purple-700 border-purple-100'
+                : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+            }`}>
               {event.event_categories.name}
             </span>
           </div>

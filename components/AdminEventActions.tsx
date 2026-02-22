@@ -8,7 +8,7 @@ import { Star, Trash2 } from 'lucide-react'
 interface AdminEventActionsProps {
   eventId: string
   isFeatured: boolean
-  eventType: 'general' | 'business'
+  eventType: 'general' | 'promotion'
 }
 
 export function AdminEventActions({ eventId, isFeatured, eventType }: AdminEventActionsProps) {

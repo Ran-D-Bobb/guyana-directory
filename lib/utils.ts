@@ -15,20 +15,20 @@ export function getAuthRedirectUrl(path: string = '/auth/callback'): string {
   const PRODUCTION_URL = 'https://waypointgy.com'
 
   if (typeof window === 'undefined') {
-    return `${PRODUCTION_URL}${path}`
+    const serverUrl = process.env.NEXT_PUBLIC_APP_URL || PRODUCTION_URL
+    return `${serverUrl}${path}`
   }
 
   // Check if running in Capacitor (native app)
   const isCapacitor = !!(window as typeof window & { Capacitor?: unknown }).Capacitor
 
-  // In Capacitor or if origin contains localhost/capacitor, use production URL
+  // In Capacitor, use production URL so OAuth works
   if (isCapacitor ||
-      window.location.origin.includes('localhost') ||
       window.location.origin.includes('capacitor://') ||
       window.location.origin.includes('10.0.2.2')) {
     return `${PRODUCTION_URL}${path}`
   }
 
-  // Otherwise use current origin (for web)
+  // For local dev and web, use current origin
   return `${window.location.origin}${path}`
 }

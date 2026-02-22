@@ -10,7 +10,6 @@ import {
   ArrowUpDown,
   Star,
   BadgeCheck,
-  Sparkles,
   Check,
   Store,
   ShoppingBag,
@@ -54,6 +53,8 @@ interface MobileCategoryFilterBarProps {
   }
   basePath?: string // e.g., '/businesses' or '/rentals'
   categoryPath?: string // e.g., '/businesses/category' or '/rentals/category'
+  categoryTags?: Array<{ id: string; name: string; slug: string }>
+  selectedTags?: string[]
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -67,7 +68,9 @@ export function MobileCategoryFilterBar({
   regions,
   currentFilters = {},
   basePath = '/businesses',
-  categoryPath = '/businesses/category'
+  categoryPath = '/businesses/category',
+  categoryTags = [],
+  selectedTags = [],
 }: MobileCategoryFilterBarProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -80,16 +83,22 @@ export function MobileCategoryFilterBar({
   const [localSort, setLocalSort] = useState(currentFilters.sort || 'featured')
   const [localRating, setLocalRating] = useState(currentFilters.rating || 'all')
   const [localVerified, setLocalVerified] = useState(currentFilters.verified === 'true')
-  const [localFeatured, setLocalFeatured] = useState(currentFilters.featured === 'true')
+  const [localTags, setLocalTags] = useState<string[]>(selectedTags)
 
   // Sync local state when URL changes
+  const filterRegion = currentFilters.region
+  const filterSort = currentFilters.sort
+  const filterRating = currentFilters.rating
+  const filterVerified = currentFilters.verified
+  const tagsKey = selectedTags.join(',')
+
   useEffect(() => {
-    setLocalRegion(currentFilters.region || 'all')
-    setLocalSort(currentFilters.sort || 'featured')
-    setLocalRating(currentFilters.rating || 'all')
-    setLocalVerified(currentFilters.verified === 'true')
-    setLocalFeatured(currentFilters.featured === 'true')
-  }, [currentFilters])
+    setLocalRegion(filterRegion || 'all')
+    setLocalSort(filterSort || 'featured')
+    setLocalRating(filterRating || 'all')
+    setLocalVerified(filterVerified === 'true')
+    setLocalTags(tagsKey ? tagsKey.split(',') : [])
+  }, [filterRegion, filterSort, filterRating, filterVerified, tagsKey])
 
   // Count active filters
   const activeFiltersCount = [
@@ -97,7 +106,7 @@ export function MobileCategoryFilterBar({
     currentFilters.sort && currentFilters.sort !== 'featured',
     currentFilters.rating && currentFilters.rating !== 'all',
     currentFilters.verified === 'true',
-    currentFilters.featured === 'true'
+    selectedTags.length > 0,
   ].filter(Boolean).length
 
   const localActiveFiltersCount = [
@@ -105,7 +114,7 @@ export function MobileCategoryFilterBar({
     localSort !== 'featured',
     localRating !== 'all',
     localVerified,
-    localFeatured
+    localTags.length > 0,
   ].filter(Boolean).length
 
   const applyFilters = () => {
@@ -136,10 +145,10 @@ export function MobileCategoryFilterBar({
       params.delete('verified')
     }
 
-    if (localFeatured) {
-      params.set('featured', 'true')
+    if (localTags.length > 0) {
+      params.set('tags', localTags.join(','))
     } else {
-      params.delete('featured')
+      params.delete('tags')
     }
 
     router.push(`${pathname}?${params.toString()}`)
@@ -151,7 +160,7 @@ export function MobileCategoryFilterBar({
     setLocalSort('featured')
     setLocalRating('all')
     setLocalVerified(false)
-    setLocalFeatured(false)
+    setLocalTags([])
   }
 
   // Scroll active category into view (within container only)
@@ -171,6 +180,7 @@ export function MobileCategoryFilterBar({
     const params = new URLSearchParams(searchParams.toString())
     params.delete('page') // Reset page on category change
     params.delete('category') // Remove category param since it's in the path
+    params.delete('tags') // Clear stale tags from previous category
     const queryString = params.toString()
 
     if (!categorySlug) {
@@ -314,19 +324,36 @@ export function MobileCategoryFilterBar({
                 Verified Only
               </button>
 
-              <button
-                onClick={() => setLocalFeatured(!localFeatured)}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  localFeatured
-                    ? 'bg-amber-500 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700'
-                }`}
-              >
-                <Sparkles className="h-4 w-4" />
-                Featured Only
-              </button>
             </div>
           </div>
+
+          {/* Tags */}
+          {categoryTags.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Tags</h3>
+              <div className="flex flex-wrap gap-2">
+                {categoryTags.map((tag) => (
+                  <button
+                    key={tag.id}
+                    onClick={() => {
+                      setLocalTags(prev =>
+                        prev.includes(tag.slug)
+                          ? prev.filter(s => s !== tag.slug)
+                          : [...prev, tag.slug]
+                      )
+                    }}
+                    className={`inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+                      localTags.includes(tag.slug)
+                        ? 'bg-emerald-500 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    {tag.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Location */}
           <div className="mb-6">
@@ -341,7 +368,7 @@ export function MobileCategoryFilterBar({
             >
               <option value="all">All Locations</option>
               {regions.map((r) => (
-                <option key={r.id} value={r.slug || r.id}>
+                <option key={r.id} value={r.id}>
                   {r.name}
                 </option>
               ))}

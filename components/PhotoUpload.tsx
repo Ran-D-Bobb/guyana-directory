@@ -41,9 +41,10 @@ export function PhotoUpload({ businessId, existingPhotos }: PhotoUploadProps) {
     try {
       const file = files[0]
 
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError('Please upload an image file')
+      // Validate file type - only formats supported by Supabase Storage
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+      if (!allowedTypes.includes(file.type)) {
+        setError('Please upload a JPG, PNG, or WebP image')
         setUploading(false)
         return
       }
@@ -157,10 +158,15 @@ export function PhotoUpload({ businessId, existingPhotos }: PhotoUploadProps) {
   const handleSetPrimary = async (photoId: string) => {
     try {
       // Unset all primary photos first
-      await supabase
+      const { error: clearError } = await supabase
         .from('business_photos')
         .update({ is_primary: false })
         .eq('business_id', businessId)
+
+      if (clearError) {
+        setError('Failed to update primary photo')
+        return
+      }
 
       // Set the selected photo as primary
       const { error: updateError } = await supabase
@@ -212,7 +218,7 @@ export function PhotoUpload({ businessId, existingPhotos }: PhotoUploadProps) {
           <input
             id="photo-upload"
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             onChange={handleUpload}
             disabled={uploading}
             className="hidden"

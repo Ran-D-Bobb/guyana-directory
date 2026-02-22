@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export async function POST(request: NextRequest) {
   try {
     const { businessId } = await request.json()
 
-    if (!businessId) {
+    if (!businessId || !UUID_RE.test(businessId)) {
       return NextResponse.json(
-        { error: 'Business ID is required' },
+        { error: 'Valid Business ID is required' },
         { status: 400 }
       )
     }

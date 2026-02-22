@@ -105,7 +105,10 @@ export default async function TourismCategoryPage({ params, searchParams }: Tour
 
   // Apply search filter if query exists
   if (q && q.trim()) {
-    query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,location.ilike.%${q}%`)
+    const safeQ = q.replace(/[%_(),.*]/g, ' ').trim()
+    if (safeQ) {
+      query = query.or(`title.ilike.%${safeQ}%,description.ilike.%${safeQ}%,location.ilike.%${safeQ}%`)
+    }
   }
 
   // Apply sorting

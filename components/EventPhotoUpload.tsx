@@ -1,9 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
+
+function extractStoragePath(url: string, bucket: string): string | null {
+  try {
+    const urlObj = new URL(url)
+    const parts = urlObj.pathname.split(`${bucket}/`)
+    return parts.length > 1 ? parts[1] : null
+  } catch {
+    return url.split('/').pop() || null
+  }
+}
 
 interface EventPhotoUploadProps {
   eventId?: string // Optional for create form (won't upload until event is created)
@@ -26,13 +36,23 @@ export function EventPhotoUpload({
   const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Clean up blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl])
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file')
+    // Validate file type - only formats supported by Supabase Storage
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      setError('Please upload a JPG, PNG, or WebP image')
       return
     }
 
@@ -70,11 +90,11 @@ export function EventPhotoUpload({
 
       // Delete old image if exists
       if (imageUrl) {
-        const oldPath = imageUrl.split('/').pop()
+        const oldPath = extractStoragePath(imageUrl, 'event-photos')
         if (oldPath) {
           await supabase.storage
             .from('event-photos')
-            .remove([`${eventId}/${oldPath}`])
+            .remove([oldPath])
         }
       }
 
@@ -128,11 +148,11 @@ export function EventPhotoUpload({
       const supabase = createClient()
 
       // Delete from storage
-      const path = imageUrl.split('/').pop()
+      const path = extractStoragePath(imageUrl, 'event-photos')
       if (path) {
         const { error: deleteError } = await supabase.storage
           .from('event-photos')
-          .remove([`${eventId}/${path}`])
+          .remove([path])
 
         if (deleteError) throw deleteError
       }
@@ -222,7 +242,7 @@ export function EventPhotoUpload({
         >
           <input
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             onChange={handleFileSelect}
             disabled={disabled || isUploading}
             className="hidden"

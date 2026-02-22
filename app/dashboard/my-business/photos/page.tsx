@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { PhotoUpload } from '@/components/PhotoUpload'
+import { requireBusinessAccount } from '@/lib/account-type'
 
 export default async function BusinessPhotosPage() {
   const supabase = await createClient()
@@ -13,6 +14,8 @@ export default async function BusinessPhotosPage() {
   if (!user) {
     redirect('/')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Fetch user's business
   const { data: business, error: businessError } = await supabase

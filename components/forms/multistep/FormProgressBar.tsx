@@ -31,12 +31,12 @@ export function FormProgressBar({
       <div className={cn('w-full', className)}>
         {/* Step counter inline with progress */}
         <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
+          <span className="text-xs font-medium text-[hsl(var(--jungle-600))] whitespace-nowrap tabular-nums">
             {currentStep + 1}/{totalSteps}
           </span>
 
           {/* Progress bar with segments */}
-          <div className="flex w-full flex-row items-center gap-1">
+          <div className="flex w-full flex-row items-center gap-1.5">
             {Array.from({ length: totalSteps }, (_, index) => {
               const isCompleted = completedSteps.has(index) || index < currentStep
               const isCurrent = index === currentStep
@@ -45,10 +45,10 @@ export function FormProgressBar({
                 <div
                   key={index}
                   className={cn(
-                    'h-1.5 flex-1 rounded-full transition-all duration-300',
-                    isCurrent && 'bg-emerald-600',
-                    isCompleted && !isCurrent && 'bg-emerald-600',
-                    !isCurrent && !isCompleted && 'bg-gray-200'
+                    'h-1.5 flex-1 rounded-full transition-all duration-500',
+                    isCurrent && 'bg-[hsl(var(--jungle-500))]',
+                    isCompleted && !isCurrent && 'bg-[hsl(var(--jungle-500))]',
+                    !isCurrent && !isCompleted && 'bg-[hsl(var(--jungle-200))]'
                   )}
                 />
               )
@@ -75,10 +75,10 @@ export function FormProgressBar({
             >
               <div
                 className={cn(
-                  'h-2 w-full rounded-full transition-all duration-300',
-                  isCurrent && 'bg-emerald-600 ring-2 ring-emerald-100 ring-offset-1',
-                  isCompleted && !isCurrent && 'bg-emerald-600',
-                  !isCurrent && !isCompleted && 'bg-gray-200'
+                  'h-2 w-full rounded-full transition-all duration-500',
+                  isCurrent && 'bg-[hsl(var(--jungle-500))] ring-2 ring-[hsl(var(--jungle-100))] ring-offset-1',
+                  isCompleted && !isCurrent && 'bg-[hsl(var(--jungle-500))]',
+                  !isCurrent && !isCompleted && 'bg-[hsl(var(--jungle-200))]'
                 )}
               />
               {/* Checkmark for completed steps */}

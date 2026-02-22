@@ -56,9 +56,10 @@ export default function RentalPhotoUpload({ rentalId, existingPhotos }: RentalPh
           continue
         }
 
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          setUploadError(`${file.name} is not an image file.`)
+        // Validate file type - only formats supported by Supabase Storage
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+        if (!allowedTypes.includes(file.type)) {
+          setUploadError(`${file.name} is not a supported image file. Please upload JPG, PNG, or WebP.`)
           continue
         }
 
@@ -144,10 +145,15 @@ export default function RentalPhotoUpload({ rentalId, existingPhotos }: RentalPh
   const handleSetPrimary = async (photoId: string) => {
     try {
       // Unset all primary flags
-      await supabase
+      const { error: clearError } = await supabase
         .from('rental_photos')
         .update({ is_primary: false })
         .eq('rental_id', rentalId)
+
+      if (clearError) {
+        setUploadError('Failed to update primary photo')
+        return
+      }
 
       // Set new primary
       const { error } = await supabase
@@ -222,7 +228,7 @@ export default function RentalPhotoUpload({ rentalId, existingPhotos }: RentalPh
             <input
               type="file"
               className="hidden"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               multiple
               onChange={handleFileSelect}
               disabled={isUploading || photos.length >= MAX_PHOTOS}

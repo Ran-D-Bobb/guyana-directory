@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requireBusinessAccount } from '@/lib/account-type'
 import { TourismFormClient } from '@/components/forms/tourism/TourismFormClient'
 
 export default async function CreateTourismExperiencePage() {
@@ -11,6 +12,8 @@ export default async function CreateTourismExperiencePage() {
   if (!user) {
     redirect('/')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Fetch all tourism categories
   const { data: categories } = await supabase

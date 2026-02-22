@@ -21,16 +21,18 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q = '', type = 'all' } = await searchParams
   const supabase = await createClient()
 
-  const searchTerm = q.trim()
+  const searchTerm = q.trim().replace(/[%_(),.*]/g, ' ').trim()
 
-  // Search across all content types in parallel
+  // Run all search queries in parallel using full-text search on name/title
+  // and tag matching in a single batch to minimize round trips
   const [
-    { data: businesses },
+    businessResult,
+    tagMatchResult,
     { data: experiences },
     { data: rentals },
     { data: events },
   ] = await Promise.all([
-    // Businesses
+    // Business full-text search (plfts = plainto_tsquery for word stemming)
     searchTerm
       ? supabase
           .from('businesses')
@@ -38,15 +40,27 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             id, name, slug, description, rating, review_count,
             categories:category_id (name),
             regions:region_id (name),
-            business_photos (image_url, is_primary)
+            business_photos (image_url, is_primary),
+            business_tags (
+              tag_id,
+              category_tags:tag_id (name, slug)
+            )
           `)
-          .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+          .or(`name.plfts.${searchTerm},description.ilike.%${searchTerm}%`)
           .order('is_featured', { ascending: false })
           .order('rating', { ascending: false, nullsFirst: false })
           .limit(20)
       : Promise.resolve({ data: null }),
 
-    // Tourism experiences
+    // Tag-matching: get matching tag IDs in single query
+    searchTerm
+      ? supabase
+          .from('category_tags')
+          .select('id')
+          .ilike('name', `%${searchTerm}%`)
+      : Promise.resolve({ data: null }),
+
+    // Tourism experiences full-text search
     searchTerm
       ? supabase
           .from('tourism_experiences')
@@ -57,13 +71,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             tourism_photos (image_url, is_primary)
           `)
           .eq('is_approved', true)
-          .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+          .or(`name.plfts.${searchTerm},description.ilike.%${searchTerm}%`)
           .order('is_featured', { ascending: false })
           .order('rating', { ascending: false, nullsFirst: false })
           .limit(20)
       : Promise.resolve({ data: null }),
 
-    // Rentals
+    // Rentals full-text search
     searchTerm
       ? supabase
           .from('rentals')
@@ -74,13 +88,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             rental_photos (image_url, is_primary)
           `)
           .eq('is_approved', true)
-          .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+          .or(`name.plfts.${searchTerm},description.ilike.%${searchTerm}%`)
           .order('is_featured', { ascending: false })
           .order('rating', { ascending: false, nullsFirst: false })
           .limit(20)
       : Promise.resolve({ data: null }),
 
-    // Events
+    // Events full-text search
     searchTerm
       ? supabase
           .from('events')
@@ -89,12 +103,48 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             event_categories:category_id (name)
           `)
           .gt('start_date', new Date().toISOString())
-          .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+          .or(`title.plfts.${searchTerm},description.ilike.%${searchTerm}%`)
           .order('is_featured', { ascending: false })
           .order('start_date', { ascending: true })
           .limit(20)
       : Promise.resolve({ data: null }),
   ])
+
+  let businesses = businessResult.data
+
+  // Merge tag-matched businesses (single additional query instead of 3 sequential)
+  const tagMatches = tagMatchResult.data
+  if (tagMatches && tagMatches.length > 0) {
+    const tagIds = tagMatches.map((t) => t.id)
+    const { data: businessTagMatches } = await supabase
+      .from('business_tags')
+      .select('business_id')
+      .in('tag_id', tagIds)
+
+    const existingIds = new Set((businesses || []).map((b) => b.id))
+    const missingIds = [...new Set(
+      (businessTagMatches?.map((bt) => bt.business_id) || [])
+        .filter((id) => !existingIds.has(id))
+    )]
+
+    if (missingIds.length > 0) {
+      const { data: tagBusinesses } = await supabase
+        .from('businesses')
+        .select(`
+          id, name, slug, description, rating, review_count,
+          categories:category_id (name),
+          regions:region_id (name),
+          business_photos (image_url, is_primary),
+          business_tags (tag_id, category_tags:tag_id (name, slug))
+        `)
+        .in('id', missingIds)
+        .limit(10)
+
+      if (tagBusinesses) {
+        businesses = [...(businesses || []), ...tagBusinesses]
+      }
+    }
+  }
 
   // Transform results into unified format
   const results = {

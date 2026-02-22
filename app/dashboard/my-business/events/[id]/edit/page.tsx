@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, Calendar } from 'lucide-react'
 import { BusinessEventEditForm } from '@/components/BusinessEventEditForm'
+import { requireBusinessAccount } from '@/lib/account-type'
 
 interface EditBusinessEventPageProps {
   params: Promise<{
@@ -20,8 +21,10 @@ export default async function EditBusinessEventPage({ params }: EditBusinessEven
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Get user's business
   const { data: business } = await supabase
@@ -34,7 +37,7 @@ export default async function EditBusinessEventPage({ params }: EditBusinessEven
     redirect('/dashboard/my-business')
   }
 
-  // Fetch the event
+  // Fetch the event (scoped to user's business)
   const { data: event } = await supabase
     .from('business_events')
     .select(`
@@ -42,15 +45,11 @@ export default async function EditBusinessEventPage({ params }: EditBusinessEven
       business_event_types:event_type_id (name, icon)
     `)
     .eq('id', id)
+    .eq('business_id', business.id)
     .single()
 
   if (!event) {
     notFound()
-  }
-
-  // Check if event belongs to user's business
-  if (event.business_id !== business.id) {
-    redirect('/dashboard/my-business/events')
   }
 
   // Fetch business event types
@@ -69,13 +68,13 @@ export default async function EditBusinessEventPage({ params }: EditBusinessEven
             className="inline-flex items-center gap-2 text-purple-100 hover:text-white mb-4"
           >
             <ChevronLeft className="w-5 h-5" />
-            Back to Events
+            Back to Promotions
           </Link>
           <div className="flex items-center gap-3 mb-2">
             <Calendar className="w-8 h-8" />
-            <h1 className="text-4xl font-bold">Edit Business Event</h1>
+            <h1 className="text-4xl font-bold">Edit Promotion</h1>
           </div>
-          <p className="text-purple-100 text-lg">Update your promotional event details</p>
+          <p className="text-purple-100 text-lg">Update your promotion details</p>
         </div>
       </header>
 

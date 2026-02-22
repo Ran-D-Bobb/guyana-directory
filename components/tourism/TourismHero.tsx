@@ -5,14 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, Sparkles } from 'lucide-react'
 import { isYouTubeUrl, getYouTubeEmbedUrl } from '@/lib/youtube'
 
-// Fallback videos if none are in the database
-const fallbackVideos = [
-  {
-    video_url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    title: 'Natural Paradise'
-  }
-]
-
 export interface HeroVideo {
   id?: string
   title: string
@@ -20,7 +12,16 @@ export interface HeroVideo {
   thumbnail_url?: string | null
   display_order?: number
   is_active?: boolean
+  cycle_duration?: number | null
 }
+
+// Fallback videos if none are in the database
+const fallbackVideos: HeroVideo[] = [
+  {
+    video_url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    title: 'Natural Paradise'
+  }
+]
 
 interface TourismHeroProps {
   totalExperiences?: number
@@ -59,42 +60,62 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
     }
   }, [hasLoaded, playVideo])
 
-  // Auto-cycle videos
+  // Advance to next video
+  const advanceToNext = useCallback(() => {
+    const nextIndex = (activeIndex + 1) % heroVideos.length
+
+    if (showVideoA) {
+      setVideoBIndex(nextIndex)
+      setTimeout(() => {
+        const videoB = videoBRef.current
+        if (videoB) {
+          videoB.currentTime = 0
+          playVideo(videoB)
+        }
+        setShowVideoA(false)
+      }, 100)
+    } else {
+      setVideoAIndex(nextIndex)
+      setTimeout(() => {
+        const videoA = videoARef.current
+        if (videoA) {
+          videoA.currentTime = 0
+          playVideo(videoA)
+        }
+        setShowVideoA(true)
+      }, 100)
+    }
+    setActiveIndex(nextIndex)
+  }, [activeIndex, showVideoA, playVideo, heroVideos.length])
+
+  // Auto-cycle: use admin-set duration, or wait for video to finish
   useEffect(() => {
-    if (!hasLoaded) return
+    if (!hasLoaded || !hasMultipleVideos) return
 
-    const cycleInterval = setInterval(() => {
-      const nextIndex = (activeIndex + 1) % heroVideos.length
+    const currentVideoData = showVideoA ? heroVideos[videoAIndex] : heroVideos[videoBIndex]
+    const currentVideo = showVideoA ? videoARef.current : videoBRef.current
+    const isYT = isYouTubeUrl(currentVideoData.video_url)
+    const cycleDuration = currentVideoData.cycle_duration
 
-      if (showVideoA) {
-        // Video A is showing, prepare B and fade to it
-        setVideoBIndex(nextIndex)
-        // Small delay to let src load
-        setTimeout(() => {
-          const videoB = videoBRef.current
-          if (videoB) {
-            videoB.currentTime = 0
-            playVideo(videoB)
-          }
-          setShowVideoA(false)
-        }, 100)
-      } else {
-        // Video B is showing, prepare A and fade to it
-        setVideoAIndex(nextIndex)
-        setTimeout(() => {
-          const videoA = videoARef.current
-          if (videoA) {
-            videoA.currentTime = 0
-            playVideo(videoA)
-          }
-          setShowVideoA(true)
-        }, 100)
-      }
-      setActiveIndex(nextIndex)
-    }, 10000)
+    // If admin set a specific duration, use that as a timer
+    if (cycleDuration && cycleDuration > 0) {
+      const timer = setTimeout(advanceToNext, cycleDuration * 1000)
+      return () => clearTimeout(timer)
+    }
 
-    return () => clearInterval(cycleInterval)
-  }, [hasLoaded, activeIndex, showVideoA, playVideo])
+    // No explicit duration set — wait for video to finish
+    if (isYT) {
+      // YouTube iframes can't fire ended events easily — use a fallback timer
+      const timer = setTimeout(advanceToNext, 30000)
+      return () => clearTimeout(timer)
+    }
+
+    if (currentVideo) {
+      const onEnded = () => advanceToNext()
+      currentVideo.addEventListener('ended', onEnded)
+      return () => currentVideo.removeEventListener('ended', onEnded)
+    }
+  }, [hasLoaded, hasMultipleVideos, showVideoA, videoAIndex, videoBIndex, heroVideos, advanceToNext])
 
   // Manual video switch
   const switchToVideo = useCallback((index: number) => {
@@ -160,7 +181,7 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
             src={heroVideos[videoAIndex].video_url}
             autoPlay
             muted
-            loop
+            loop={!hasMultipleVideos}
             playsInline
             preload="auto"
             crossOrigin="anonymous"
@@ -188,7 +209,6 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
               }`}
               src={heroVideos[videoBIndex].video_url}
               muted
-              loop
               playsInline
               preload="auto"
               crossOrigin="anonymous"

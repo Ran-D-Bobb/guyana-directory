@@ -2,46 +2,59 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { isAdmin } from '@/lib/admin'
 
+// Allowed reason codes to prevent forwarding arbitrary text in URLs
+const ALLOWED_REASON_CODES = new Set([
+  'spam', 'harassment', 'fraud', 'tos_violation', 'inappropriate_content', 'other'
+])
+
 // Helper to check if user is blocked (suspended or banned)
-async function checkUserStatus(supabase: ReturnType<typeof createServerClient>, userId: string): Promise<{
+// failClosed: if true, DB errors result in isBlocked: true (used for admin routes)
+async function checkUserStatus(supabase: ReturnType<typeof createServerClient>, userId: string, failClosed = false): Promise<{
   isBlocked: boolean
   status: 'active' | 'suspended' | 'banned'
   reason: string | null
   expiresAt: string | null
 }> {
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('status, status_reason, status_expires_at')
-    .eq('id', userId)
-    .single()
+  try {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('status, status_reason, status_expires_at')
+      .eq('id', userId)
+      .single()
 
-  if (!profile) {
-    return { isBlocked: false, status: 'active', reason: null, expiresAt: null }
-  }
+    if (error) {
+      console.error('Error fetching user profile status:', error)
+      return { isBlocked: failClosed, status: 'active', reason: null, expiresAt: null }
+    }
 
-  const status = (profile.status as 'active' | 'suspended' | 'banned') || 'active'
+    if (!profile) {
+      console.error('No profile found for user:', userId)
+      return { isBlocked: failClosed, status: 'active', reason: null, expiresAt: null }
+    }
 
-  // Check if suspension has expired
-  if (status === 'suspended' && profile.status_expires_at) {
-    const expiresAt = new Date(profile.status_expires_at)
-    if (expiresAt < new Date()) {
-      // Suspension expired - user should be reactivated
-      // Note: actual reactivation happens via a scheduled job or on next login
-      // For now, we treat expired suspensions as still blocked to maintain consistency
-      return {
-        isBlocked: true,
-        status: 'suspended',
-        reason: profile.status_reason,
-        expiresAt: profile.status_expires_at
+    const status = (profile.status as 'active' | 'suspended' | 'banned') || 'active'
+
+    // Check if suspension has expired
+    if (status === 'suspended' && profile.status_expires_at) {
+      const expiresAt = new Date(profile.status_expires_at)
+      if (expiresAt < new Date()) {
+        // Suspension expired - allow access
+        return { isBlocked: false, status: 'active', reason: null, expiresAt: null }
       }
     }
-  }
 
-  return {
-    isBlocked: status === 'suspended' || status === 'banned',
-    status,
-    reason: profile.status_reason,
-    expiresAt: profile.status_expires_at,
+    // Sanitize reason to only allow predefined codes
+    const reason = ALLOWED_REASON_CODES.has(profile.status_reason) ? profile.status_reason : null
+
+    return {
+      isBlocked: status === 'suspended' || status === 'banned',
+      status,
+      reason,
+      expiresAt: profile.status_expires_at,
+    }
+  } catch (err) {
+    console.error('Unexpected error checking user status:', err)
+    return { isBlocked: failClosed, status: 'active', reason: null, expiresAt: null }
   }
 }
 
@@ -62,14 +75,20 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
           // Preserve pathname header after recreating response
           supabaseResponse.headers.set('x-pathname', request.nextUrl.pathname)
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, {
+              ...options,
+              // Ensure cookies work properly on mobile browsers during OAuth
+              sameSite: 'lax',
+              secure: process.env.NODE_ENV === 'production',
+              path: '/',
+            })
           )
         },
       },
@@ -89,7 +108,8 @@ export async function middleware(request: NextRequest) {
   const isBlockedPage = request.nextUrl.pathname === '/blocked'
 
   if (user && isProtectedRoute && !isBlockedPage) {
-    const userStatus = await checkUserStatus(supabase, user.id)
+    const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
+    const userStatus = await checkUserStatus(supabase, user.id, isAdminRoute)
 
     if (userStatus.isBlocked) {
       const redirectUrl = request.nextUrl.clone()
@@ -99,7 +119,10 @@ export async function middleware(request: NextRequest) {
         redirectUrl.searchParams.set('reason', userStatus.reason)
       }
       if (userStatus.expiresAt) {
-        redirectUrl.searchParams.set('expires', userStatus.expiresAt)
+        const expiryDate = new Date(userStatus.expiresAt)
+        if (!isNaN(expiryDate.getTime())) {
+          redirectUrl.searchParams.set('expires', expiryDate.toISOString())
+        }
       }
       return NextResponse.redirect(redirectUrl)
     }
@@ -115,7 +138,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Check if email is verified for email/password users
-    // OAuth users (google, facebook) are automatically verified
+    // OAuth users (google) are automatically verified
     const provider = user.app_metadata?.provider
     const isEmailProvider = provider === 'email'
     const emailConfirmed = user.email_confirmed_at

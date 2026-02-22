@@ -38,9 +38,9 @@ export function FormNavigation({
   return (
     <footer className={cn(
       'fixed bottom-0 left-0 right-0 z-50',
-      'bg-white',
-      'border-t border-gray-200',
-      'shadow-lg',
+      'bg-white/95 backdrop-blur-lg',
+      'border-t border-[hsl(var(--border))]/60',
+      'shadow-lg shadow-black/[0.05]',
       className
     )}>
       <div className="flex flex-col gap-3 p-4 max-w-screen-2xl mx-auto">
@@ -52,11 +52,11 @@ export function FormNavigation({
             disabled={isSubmitting}
             className={cn(
               'h-10 w-full rounded-lg text-sm font-medium',
-              'text-gray-500 hover:text-gray-700',
+              'text-[hsl(var(--jungle-600))] hover:text-[hsl(var(--jungle-700))]',
               'disabled:opacity-50 disabled:cursor-not-allowed',
               'transition-all duration-200',
               'flex items-center justify-center gap-2',
-              'hover:bg-gray-50'
+              'hover:bg-[hsl(var(--jungle-50))]'
             )}
           >
             <SkipForward className="w-4 h-4" />
@@ -65,19 +65,19 @@ export function FormNavigation({
         )}
 
         {/* Main navigation buttons */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onBack}
             disabled={!canGoBack || isSubmitting}
             className={cn(
               'h-12 w-full rounded-xl text-base font-semibold',
-              'bg-gray-100',
-              'text-gray-700',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
+              'bg-[hsl(var(--jungle-50))]',
+              'text-[hsl(var(--jungle-700))]',
+              'disabled:opacity-40 disabled:cursor-not-allowed',
               'transition-all duration-200',
-              'hover:bg-gray-200 active:scale-[0.98]',
-              'border border-gray-200'
+              'hover:bg-[hsl(var(--jungle-100))] active:scale-[0.98]',
+              'border border-[hsl(var(--border))]'
             )}
           >
             {backLabel}
@@ -89,11 +89,12 @@ export function FormNavigation({
             disabled={isSubmitting}
             className={cn(
               'h-12 w-full rounded-xl text-base font-semibold',
-              'bg-emerald-600 text-white',
-              'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300',
+              'bg-[hsl(var(--jungle-600))] text-white',
+              'disabled:opacity-40 disabled:cursor-not-allowed',
               'transition-all duration-200',
-              'hover:bg-emerald-700 active:scale-[0.98]',
-              'flex items-center justify-center gap-2'
+              'hover:bg-[hsl(var(--jungle-700))] active:scale-[0.98]',
+              'flex items-center justify-center gap-2',
+              'shadow-sm shadow-[hsl(var(--jungle-600))]/20'
             )}
           >
             {isSubmitting ? (

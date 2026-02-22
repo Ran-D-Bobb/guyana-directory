@@ -121,7 +121,7 @@ const defaultEvent: Partial<TimelineEvent> = {
 }
 
 export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps) {
-  const [events, _setEvents] = useState<TimelineEvent[]>(initialEvents)
+  const [events] = useState<TimelineEvent[]>(initialEvents)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Partial<TimelineEvent> | null>(null)
   const [loading, setLoading] = useState<string | null>(null)
@@ -189,8 +189,9 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
     if (!file) return
 
     // Validate file type
-    if (!file.type.startsWith('video/')) {
-      setUploadError('Please upload a video file')
+    const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime']
+    if (!allowedVideoTypes.includes(file.type)) {
+      setUploadError('Please upload an MP4, WebM, or QuickTime video')
       return
     }
 
@@ -522,10 +523,11 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                               className="object-cover"
                             />
                           ) : isYouTubeUrl(event.media_url) ? (
-                            <img
+                            <Image
                               src={getYouTubeThumbnail(event.media_url) || ''}
                               alt={event.title}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-slate-200">
@@ -966,7 +968,7 @@ export function TimelineAdminClient({ initialEvents }: TimelineAdminClientProps)
                         <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer bg-slate-50 border-slate-300 hover:bg-slate-100 hover:border-emerald-400 transition-colors">
                           <input
                             type="file"
-                            accept="image/*"
+                            accept="image/jpeg,image/png,image/webp"
                             onChange={(e) => {
                               const file = e.target.files?.[0]
                               if (file) {

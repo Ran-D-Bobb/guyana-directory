@@ -3,12 +3,21 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, MapPin, Sparkles, ArrowRight, Users } from 'lucide-react'
-import { Database } from '@/types/supabase'
 
-type Event = Database['public']['Tables']['events']['Row'] & {
+type Event = {
+  id: string
+  title: string
+  slug: string
+  start_date: string
+  end_date: string
+  image_url: string | null
+  location: string | null
+  is_featured: boolean | null
+  interest_count: number | null
   event_categories: { name: string; icon: string | null } | null
   businesses: { name: string; slug: string } | null
-  profiles?: { name: string | null } | null
+  source_type?: 'community' | 'business'
+  business_slug?: string | null
 }
 
 interface FeaturedEventsShowcaseProps {
@@ -33,6 +42,11 @@ export function FeaturedEventsShowcase({ events }: FeaturedEventsShowcaseProps) 
 
   const heroEvent = featuredEvents[0]
   const sideEvents = featuredEvents.slice(1, 3)
+
+  const getEventHref = (event: Event) =>
+    event.source_type === 'business' && event.business_slug
+      ? `/businesses/${event.business_slug}`
+      : `/events/${event.slug}`
 
   return (
     <section className="mb-10">
@@ -60,7 +74,7 @@ export function FeaturedEventsShowcase({ events }: FeaturedEventsShowcaseProps) 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Hero Featured Event - Large Card */}
         <Link
-          href={`/events/${heroEvent.slug}`}
+          href={getEventHref(heroEvent)}
           className="lg:col-span-2 lg:row-span-2 group relative rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-100 via-amber-50/30 to-emerald-50 min-h-[320px] lg:min-h-[420px]"
         >
           <Image
@@ -130,7 +144,7 @@ export function FeaturedEventsShowcase({ events }: FeaturedEventsShowcaseProps) 
         {sideEvents.map((event) => (
           <Link
             key={event.id}
-            href={`/events/${event.slug}`}
+            href={getEventHref(event)}
             className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-100 via-amber-50/30 to-emerald-50 min-h-[200px] lg:min-h-0"
           >
             <Image

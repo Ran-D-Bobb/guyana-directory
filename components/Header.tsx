@@ -15,6 +15,17 @@ export async function Header() {
 
   const userIsAdmin = isAdmin(user)
 
+  // Fetch account type for authenticated users
+  let accountType: string | null = null
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('account_type')
+      .eq('id', user.id)
+      .single()
+    accountType = profile?.account_type ?? null
+  }
+
   return (
     <>
       {/* Top Header - Mobile: 56px, Desktop: 72px */}
@@ -117,7 +128,7 @@ export async function Header() {
                       <span>Admin</span>
                     </div>
                   )}
-                  <UserMenu user={user} isAdmin={userIsAdmin} />
+                  <UserMenu user={user} isAdmin={userIsAdmin} accountType={accountType} />
                 </>
               )}
             </div>

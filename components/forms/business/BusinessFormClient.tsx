@@ -15,18 +15,21 @@ interface BusinessFormData {
   phone: string
   email: string
   website: string
+  tag_ids: string[]
 }
 
 interface BusinessFormClientProps {
   userId: string
   categories: Array<{ id: string; name: string; slug: string }>
   regions: Array<{ id: string; name: string; slug: string }>
+  tags?: Array<{ id: string; name: string; slug: string; category_id: string }>
 }
 
 export function BusinessFormClient({
   userId,
   categories,
   regions,
+  tags = [],
 }: BusinessFormClientProps) {
   const router = useRouter()
   const supabase = createClient()
@@ -44,14 +47,14 @@ export function BusinessFormClient({
         .from('businesses')
         .select('id')
         .eq('slug', slug)
-        .single()
+        .maybeSingle()
 
       if (existingBusiness) {
         throw new Error('A business with this name already exists. Please choose a different name.')
       }
 
       // Insert the business
-      const { error: createError } = await supabase
+      const { data: newBusiness, error: createError } = await supabase
         .from('businesses')
         .insert({
           owner_id: userId,
@@ -70,11 +73,27 @@ export function BusinessFormClient({
           is_verified: false,
           is_featured: false,
         })
-        .select()
+        .select('id')
+        .single()
 
       if (createError) {
         console.error('Error creating business:', createError)
         throw new Error(`Failed to create business: ${createError.message}`)
+      }
+
+      // Insert business tags
+      if (newBusiness && data.tag_ids && data.tag_ids.length > 0) {
+        const { error: tagError } = await supabase
+          .from('business_tags')
+          .insert(
+            data.tag_ids.map(tagId => ({
+              business_id: newBusiness.id,
+              tag_id: tagId,
+            }))
+          )
+        if (tagError) {
+          console.error('Error adding tags:', tagError)
+        }
       }
 
       // Show success message
@@ -97,6 +116,7 @@ export function BusinessFormClient({
       userId={userId}
       categories={categories}
       regions={regions}
+      tags={tags}
       onSubmit={handleSubmit}
     />
   )

@@ -121,7 +121,7 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
   }
 
   return (
-    <div className="border-b border-gray-200 pb-6 last:border-0">
+    <div className="border-b border-[hsl(var(--border))] pb-6 last:border-0">
       {/* Review Header */}
       <div className="flex items-start gap-3 mb-3">
         {review.profiles?.photo ? (
@@ -135,8 +135,8 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
             />
           </div>
         ) : (
-          <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-600 font-medium text-lg">
+          <div className="w-12 h-12 rounded-full bg-[hsl(var(--jungle-100))] flex items-center justify-center">
+            <span className="text-[hsl(var(--jungle-600))] font-medium text-lg">
               {review.profiles?.name?.charAt(0) || 'U'}
             </span>
           </div>
@@ -145,7 +145,7 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">
             <div className="flex items-center gap-2">
-              <p className="font-semibold text-gray-900">
+              <p className="font-semibold text-[hsl(var(--jungle-900))]">
                 {review.profiles?.name || 'Anonymous'}
               </p>
               <ReviewerBadge
@@ -153,7 +153,7 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
                 size="sm"
               />
             </div>
-            <span className="text-sm text-gray-500 whitespace-nowrap">
+            <span className="text-sm text-[hsl(var(--muted-foreground))] whitespace-nowrap">
               {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
             </span>
           </div>
@@ -166,7 +166,7 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
                 className={`w-4 h-4 ${
                   star <= review.rating
                     ? 'fill-amber-400 text-amber-400'
-                    : 'text-gray-300'
+                    : 'text-[hsl(var(--border))]'
                 }`}
               />
             ))}
@@ -176,7 +176,7 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
 
       {/* Review Comment */}
       {review.comment && (
-        <p className="text-gray-700 mb-4 ml-15">{review.comment}</p>
+        <p className="text-[hsl(var(--jungle-700))] mb-4 ml-15">{review.comment}</p>
       )}
 
       {/* Helpful Votes */}
@@ -189,7 +189,7 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
         )}
 
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">Was this helpful?</span>
+          <span className="text-sm text-[hsl(var(--jungle-600))]">Was this helpful?</span>
 
           <button
             onClick={() => handleVote(true)}
@@ -197,7 +197,7 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors ${
               currentVote === true
                 ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
-                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                : 'bg-white border-[hsl(var(--border))] text-[hsl(var(--jungle-700))] hover:bg-[hsl(var(--jungle-50))]'
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <ThumbsUp className="w-4 h-4" />
@@ -210,7 +210,7 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors ${
               currentVote === false
                 ? 'bg-red-50 border-red-500 text-red-700'
-                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                : 'bg-white border-[hsl(var(--border))] text-[hsl(var(--jungle-700))] hover:bg-[hsl(var(--jungle-50))]'
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <ThumbsDown className="w-4 h-4" />
@@ -221,7 +221,7 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
 
       {/* Business Response */}
       {businessResponse && (
-        <div className="mt-4 ml-15 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-4">
+        <div className="mt-4 ml-15 bg-[hsl(var(--jungle-50))] border-l-4 border-[hsl(var(--jungle-500))] rounded-r-lg p-4">
           <div className="flex items-center gap-2 mb-2">
             {businessResponse.profiles?.photo ? (
               <div className="relative w-8 h-8 rounded-full overflow-hidden">
@@ -234,22 +234,22 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
                 />
               </div>
             ) : (
-              <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center">
-                <span className="text-blue-700 font-medium text-sm">
+              <div className="w-8 h-8 rounded-full bg-[hsl(var(--jungle-200))] flex items-center justify-center">
+                <span className="text-[hsl(var(--jungle-700))] font-medium text-sm">
                   {businessResponse.profiles?.name?.charAt(0) || 'B'}
                 </span>
               </div>
             )}
             <div>
-              <p className="text-sm font-semibold text-blue-900">
+              <p className="text-sm font-semibold text-[hsl(var(--jungle-900))]">
                 Response from {businessResponse.profiles?.name || 'Business Owner'}
               </p>
-              <p className="text-xs text-blue-700">
+              <p className="text-xs text-[hsl(var(--jungle-700))]">
                 {formatDistanceToNow(new Date(businessResponse.created_at), { addSuffix: true })}
               </p>
             </div>
           </div>
-          <p className="text-sm text-gray-800">{businessResponse.response}</p>
+          <p className="text-sm text-[hsl(var(--jungle-800))]">{businessResponse.response}</p>
         </div>
       )}
 
@@ -267,14 +267,14 @@ export function ReviewItem({ review, user, userVote, businessResponse }: ReviewI
           </DialogHeader>
           <div className="flex flex-col gap-3 mt-4">
             <button
-              onClick={() => router.push('/')}
+              onClick={() => router.push('/auth/login')}
               className="w-full bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))] text-white font-medium py-3 px-4 rounded-xl transition-colors"
             >
               Sign in
             </button>
             <button
               onClick={() => setShowSignInDialog(false)}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl transition-colors"
+              className="w-full bg-[hsl(var(--jungle-50))] hover:bg-[hsl(var(--jungle-100))] text-[hsl(var(--jungle-700))] font-medium py-3 px-4 rounded-xl transition-colors"
             >
               Maybe later
             </button>

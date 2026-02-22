@@ -77,8 +77,10 @@ export default async function RentalCategoryPage({
 
   // Apply search filter - uses PostgreSQL full-text search index (idx_rentals_search)
   if (filters.q) {
-    const searchTerm = filters.q.trim()
-    query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,location_details.ilike.%${searchTerm}%`)
+    const searchTerm = filters.q.replace(/[%_(),.*]/g, ' ').trim()
+    if (searchTerm) {
+      query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,location_details.ilike.%${searchTerm}%`)
+    }
   }
 
   // Apply bedrooms filter

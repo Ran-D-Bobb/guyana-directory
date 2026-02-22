@@ -21,6 +21,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate interaction_type against allowlist
+    const allowedTypes = ['view', 'qr_scan', 'whatsapp_click', 'category_view']
+    if (!allowedTypes.includes(interaction_type)) {
+      return NextResponse.json(
+        { error: 'Invalid interaction type' },
+        { status: 400 }
+      )
+    }
+
+    // Validate experience_id as UUID if provided
+    if (experience_id) {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      if (!uuidRegex.test(experience_id)) {
+        return NextResponse.json(
+          { error: 'Invalid experience ID' },
+          { status: 400 }
+        )
+      }
+    }
+
     // For experience-specific interactions
     if (experience_id) {
       // Track tourism inquiry click (for WhatsApp clicks)

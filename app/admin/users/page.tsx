@@ -36,10 +36,12 @@ interface ProfileWithStatus {
 
 export const dynamic = 'force-dynamic'
 
+const ITEMS_PER_PAGE = 50
+
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; role?: string; status?: string }>
+  searchParams: Promise<{ q?: string; role?: string; status?: string; page?: string }>
 }) {
   const supabase = await createClient()
 
@@ -56,13 +58,36 @@ export default async function AdminUsersPage({
   const searchQuery = params.q
   const roleFilter = params.role
   const statusFilter = params.status
+  const currentPage = Math.max(1, parseInt(params.page || '1') || 1)
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
 
-  // Get all users with their activity counts and status
-  // Note: After applying migration 20260116110000_user_status.sql, run: supabase gen types typescript --local > types/supabase.ts
-  const { data: profilesData, error } = await supabase
+  // Sanitize search query for DB
+  const safeQ = searchQuery ? searchQuery.replace(/[%_(),.*]/g, ' ').trim() : ''
+
+  // Build profiles query with server-side search and pagination
+  let profilesQuery = supabase
     .from('profiles')
-    .select('*')
+    .select('*', { count: 'exact' })
     .order('created_at', { ascending: false })
+
+  // Apply search filter at DB level
+  if (safeQ) {
+    profilesQuery = profilesQuery.or(`name.ilike.%${safeQ}%,email.ilike.%${safeQ}%`)
+  }
+
+  // Apply status filter at DB level
+  if (statusFilter === 'active') {
+    profilesQuery = profilesQuery.or('status.is.null,status.eq.active')
+  } else if (statusFilter === 'suspended') {
+    profilesQuery = profilesQuery.eq('status', 'suspended')
+  } else if (statusFilter === 'banned') {
+    profilesQuery = profilesQuery.eq('status', 'banned')
+  }
+
+  // Apply pagination
+  profilesQuery = profilesQuery.range(offset, offset + ITEMS_PER_PAGE - 1)
+
+  const { data: profilesData, count: totalFilteredCount, error } = await profilesQuery
 
   // Cast to extended type that includes status fields
   const profiles = profilesData as ProfileWithStatus[] | null
@@ -78,10 +103,13 @@ export default async function AdminUsersPage({
 
   const adminEmailSet = new Set(adminEmails?.map(a => a.email) || [])
 
-  // Get user activity counts
-  const { data: reviewCounts } = await supabase
-    .from('reviews')
-    .select('user_id')
+  // Get profile IDs for scoped activity queries
+  const profileIds = profiles?.map(p => p.id) || []
+
+  // Get user activity counts scoped to current page
+  const { data: reviewCounts } = profileIds.length > 0
+    ? await supabase.from('reviews').select('user_id').in('user_id', profileIds)
+    : { data: [] as { user_id: string }[] }
 
   const { data: businessOwners } = await supabase
     .from('businesses')
@@ -97,17 +125,9 @@ export default async function AdminUsersPage({
   // Get business owners set
   const businessOwnerIds = new Set(businessOwners?.map(b => b.owner_id) || [])
 
-  // Apply search filter
+  // Apply role filter in JS (small dataset after pagination)
   let filteredProfiles = profiles || []
 
-  if (searchQuery) {
-    filteredProfiles = filteredProfiles.filter(p =>
-      p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.email?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }
-
-  // Apply role filter
   if (roleFilter === 'admin') {
     filteredProfiles = filteredProfiles.filter(p => adminEmailSet.has(p.email || ''))
   } else if (roleFilter === 'business_owner') {
@@ -118,23 +138,15 @@ export default async function AdminUsersPage({
     )
   }
 
-  // Apply status filter
-  if (statusFilter === 'active') {
-    filteredProfiles = filteredProfiles.filter(p => !p.status || p.status === 'active')
-  } else if (statusFilter === 'suspended') {
-    filteredProfiles = filteredProfiles.filter(p => p.status === 'suspended')
-  } else if (statusFilter === 'banned') {
-    filteredProfiles = filteredProfiles.filter(p => p.status === 'banned')
-  }
-
-  // Calculate stats
-  const totalUsers = profiles?.length || 0
+  // Get total counts for stats (separate lightweight query)
+  const { count: totalUsers } = await supabase.from('profiles').select('id', { count: 'exact', head: true })
   const adminCount = profiles?.filter(p => adminEmailSet.has(p.email || '')).length || 0
   const businessOwnerCount = businessOwnerIds.size
   const totalReviews = reviewCounts?.length || 0
   const usersWithReviews = new Set(reviewCounts?.map(r => r.user_id) || []).size
   const suspendedCount = profiles?.filter(p => p.status === 'suspended').length || 0
   const bannedCount = profiles?.filter(p => p.status === 'banned').length || 0
+  const totalPages = Math.ceil((totalFilteredCount || 0) / ITEMS_PER_PAGE)
 
   // Check if any filter is active
   const hasActiveFilters = searchQuery || roleFilter || statusFilter
@@ -153,7 +165,7 @@ export default async function AdminUsersPage({
     <div className="min-h-screen">
       <AdminHeader
         title="Users"
-        subtitle={`Manage ${totalUsers} registered users`}
+        subtitle={`Manage ${totalUsers || 0} registered users`}
       />
 
       <div className="px-4 lg:px-8 py-6 space-y-6">
@@ -161,7 +173,7 @@ export default async function AdminUsersPage({
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <AdminStatCard
             label="Total Users"
-            value={totalUsers}
+            value={totalUsers || 0}
             icon="Users"
             color="purple"
             size="sm"
@@ -273,9 +285,42 @@ export default async function AdminUsersPage({
           {/* Results Count */}
           <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
             <span className="text-sm text-slate-600">
-              Showing {filteredProfiles.length} users
+              Showing {filteredProfiles.length} of {totalFilteredCount || 0} users
               {hasActiveFilters && ' (filtered)'}
             </span>
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                {currentPage > 1 && (
+                  <Link
+                    href={`/admin/users?${new URLSearchParams({
+                      ...(searchQuery ? { q: searchQuery } : {}),
+                      ...(roleFilter ? { role: roleFilter } : {}),
+                      ...(statusFilter ? { status: statusFilter } : {}),
+                      page: String(currentPage - 1),
+                    }).toString()}`}
+                    className="px-3 py-1 text-sm bg-white border border-slate-200 rounded-lg hover:bg-slate-50"
+                  >
+                    Previous
+                  </Link>
+                )}
+                <span className="text-sm text-slate-500">
+                  Page {currentPage} of {totalPages}
+                </span>
+                {currentPage < totalPages && (
+                  <Link
+                    href={`/admin/users?${new URLSearchParams({
+                      ...(searchQuery ? { q: searchQuery } : {}),
+                      ...(roleFilter ? { role: roleFilter } : {}),
+                      ...(statusFilter ? { status: statusFilter } : {}),
+                      page: String(currentPage + 1),
+                    }).toString()}`}
+                    className="px-3 py-1 text-sm bg-white border border-slate-200 rounded-lg hover:bg-slate-50"
+                  >
+                    Next
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
 
           {/* User List */}

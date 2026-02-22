@@ -32,7 +32,7 @@ export function SaveBusinessButton({
     e.stopPropagation()
 
     if (!userId) {
-      router.push('/')
+      router.push('/auth/login')
       return
     }
 

@@ -16,13 +16,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { data: rentals },
     { data: rentalCategories },
   ] = await Promise.all([
-    supabase.from('businesses').select('slug, updated_at').order('updated_at', { ascending: false }),
+    supabase.from('businesses').select('slug, updated_at').order('updated_at', { ascending: false }).limit(5000),
     supabase.from('categories').select('slug'),
-    supabase.from('tourism_experiences').select('slug, updated_at').eq('is_approved', true).order('updated_at', { ascending: false }),
+    supabase.from('tourism_experiences').select('slug, updated_at').eq('is_approved', true).order('updated_at', { ascending: false }).limit(5000),
     supabase.from('tourism_categories').select('slug'),
-    supabase.from('events').select('slug, updated_at').order('updated_at', { ascending: false }),
+    supabase.from('events').select('slug, updated_at').gte('end_date', new Date().toISOString()).order('updated_at', { ascending: false }).limit(5000),
     supabase.from('event_categories').select('slug'),
-    supabase.from('rentals').select('slug, updated_at').order('updated_at', { ascending: false }),
+    supabase.from('rentals').select('slug, updated_at').order('updated_at', { ascending: false }).limit(5000),
     supabase.from('rental_categories').select('slug'),
   ])
 

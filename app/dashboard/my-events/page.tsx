@@ -13,7 +13,7 @@ export default async function MyEventsPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   // Fetch user's events

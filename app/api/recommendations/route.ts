@@ -11,7 +11,9 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json()
-    const { recentlyViewedCategories = [], limit = 6 } = body
+    const rawLimit = body.limit ?? 6
+    const limit = Math.min(Math.max(1, Number(rawLimit) || 6), 20)
+    const recentlyViewedCategories = (body.recentlyViewedCategories || []).slice(0, 10)
 
     // Get recommendations
     const result = await getRecommendations(supabase, {
@@ -23,18 +25,24 @@ export async function POST(request: NextRequest) {
     // If no activity or no results, get fallback recommendations
     if (!result.hasActivity || result.items.length === 0) {
       const fallback = await getFallbackRecommendations(supabase, limit)
-      return NextResponse.json({
+      const response = NextResponse.json({
         items: fallback,
         basedOn: null,
         hasActivity: false,
         isFallback: true,
       })
+      // Unauthenticated fallback responses can be cached publicly
+      response.headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300')
+      return response
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       ...result,
       isFallback: false,
     })
+    // Authenticated responses are private with shorter cache
+    response.headers.set('Cache-Control', 'private, max-age=30')
+    return response
   } catch (error) {
     console.error('Error getting recommendations:', error)
     return NextResponse.json(

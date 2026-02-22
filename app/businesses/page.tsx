@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { CategorySidebar } from '@/components/CategorySidebar'
 import { BusinessesPageClient } from '@/components/BusinessesPageClient'
@@ -29,6 +30,7 @@ interface BusinessesPageProps {
     rating?: string
     verified?: string
     featured?: string
+    tags?: string
     page?: string
   }>
 }
@@ -36,9 +38,10 @@ interface BusinessesPageProps {
 const ITEMS_PER_PAGE = 24
 
 export default async function BusinessesPage({ searchParams }: BusinessesPageProps) {
-  const { category, region, sort = 'featured', q, rating, verified, featured, page = '1' } = await searchParams
+  const { category, region, sort = 'featured', q, rating, verified, featured, tags: tagsParam, page = '1' } = await searchParams
   const supabase = await createClient()
   const currentPage = Math.max(1, parseInt(page) || 1)
+  const selectedTags = tagsParam ? tagsParam.split(',') : []
 
   // Fetch user for saved businesses
   const { data: { user } } = await supabase.auth.getUser()
@@ -80,6 +83,39 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
     }
   }
 
+  // Fetch category tags when a category is selected
+  let categoryTags: Array<{ id: string; name: string; slug: string }> = []
+  let businessIdFilter: string[] | null = null
+  if (categoryId) {
+    const { data: tags } = await supabase
+      .from('category_tags')
+      .select('id, name, slug')
+      .eq('category_id', categoryId)
+      .order('display_order', { ascending: true })
+    categoryTags = tags || []
+
+    // Resolve tag filter to business IDs
+    if (selectedTags.length > 0) {
+      const { data: tagRows } = await supabase
+        .from('category_tags')
+        .select('id')
+        .eq('category_id', categoryId)
+        .in('slug', selectedTags)
+
+      const tagIds = tagRows?.map(t => t.id) || []
+      if (tagIds.length > 0) {
+        const { data: matchingBT } = await supabase
+          .from('business_tags')
+          .select('business_id')
+          .in('tag_id', tagIds)
+
+        businessIdFilter = [...new Set(matchingBT?.map(bt => bt.business_id) || [])]
+      } else {
+        businessIdFilter = []
+      }
+    }
+  }
+
   // Resolve region slug to ID if needed
   let regionId: string | null = null
   if (region && region !== 'all') {
@@ -107,6 +143,10 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
       business_photos (
         image_url,
         is_primary
+      ),
+      business_tags (
+        tag_id,
+        category_tags:tag_id (name, slug)
       )
     `)
 
@@ -120,9 +160,12 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
     query = query.eq('region_id', regionId)
   }
 
-  // Apply search filter if query exists
+  // Apply search filter using full-text search on name + ILIKE fallback
   if (q && q.trim()) {
-    query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%,address.ilike.%${q}%`)
+    const safeQ = q.replace(/[%_(),.*]/g, ' ').trim()
+    if (safeQ) {
+      query = query.or(`name.plfts.${safeQ},description.ilike.%${safeQ}%,address.ilike.%${safeQ}%`)
+    }
   }
 
   // Apply rating filter
@@ -141,6 +184,15 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
   // Apply featured filter
   if (featured === 'true') {
     query = query.eq('is_featured', true)
+  }
+
+  // Apply tag filter
+  if (businessIdFilter !== null) {
+    if (businessIdFilter.length > 0) {
+      query = query.in('id', businessIdFilter)
+    } else {
+      query = query.in('id', ['00000000-0000-0000-0000-000000000000'])
+    }
   }
 
   // Apply sorting
@@ -170,7 +222,10 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
     countQuery = countQuery.eq('region_id', regionId)
   }
   if (q && q.trim()) {
-    countQuery = countQuery.or(`name.ilike.%${q}%,description.ilike.%${q}%,address.ilike.%${q}%`)
+    const safeQ = q.replace(/[%_(),.*]/g, ' ').trim()
+    if (safeQ) {
+      countQuery = countQuery.or(`name.plfts.${safeQ},description.ilike.%${safeQ}%,address.ilike.%${safeQ}%`)
+    }
   }
   if (rating && rating !== 'all') {
     const minRating = parseFloat(rating)
@@ -183,6 +238,13 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
   }
   if (featured === 'true') {
     countQuery = countQuery.eq('is_featured', true)
+  }
+  if (businessIdFilter !== null) {
+    if (businessIdFilter.length > 0) {
+      countQuery = countQuery.in('id', businessIdFilter)
+    } else {
+      countQuery = countQuery.in('id', ['00000000-0000-0000-0000-000000000000'])
+    }
   }
 
   const { count: totalCount } = await countQuery
@@ -246,29 +308,37 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
         </header>
 
         {/* Mobile Category & Filter Bar */}
-        <MobileCategoryFilterBar
-          categories={categoriesWithCount}
-          regions={regions || []}
-          currentFilters={{ region, sort, rating, verified, featured }}
-          basePath="/businesses"
-          categoryPath="/businesses/category"
-        />
+        <Suspense fallback={null}>
+          <MobileCategoryFilterBar
+            categories={categoriesWithCount}
+            regions={regions || []}
+            currentFilters={{ region, sort, rating, verified, featured }}
+            basePath="/businesses"
+            categoryPath="/businesses/category"
+            categoryTags={categoryTags}
+            selectedTags={selectedTags}
+          />
+        </Suspense>
 
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
 
           {/* Desktop Filter Panel */}
           <div className="hidden lg:block mb-6 relative z-20">
-            <BusinessFilterPanel
-              regions={regions || []}
-              currentFilters={{
-                region,
-                sort,
-                rating,
-                verified,
-                featured,
-              }}
-            />
+            <Suspense fallback={null}>
+              <BusinessFilterPanel
+                regions={regions || []}
+                currentFilters={{
+                  region,
+                  sort,
+                  rating,
+                  verified,
+                  featured,
+                }}
+                categoryTags={categoryTags}
+                selectedTags={selectedTags}
+              />
+            </Suspense>
           </div>
 
           {/* Business Grid */}

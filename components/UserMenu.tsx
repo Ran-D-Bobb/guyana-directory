@@ -10,16 +10,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { LayoutGrid, Heart, Shield, LogOut, ChevronRight } from 'lucide-react'
+import { LayoutGrid, Heart, Shield, LogOut, ChevronRight, Building2, Star, BarChart3 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 interface UserMenuProps {
   user: User
   isAdmin: boolean
+  accountType?: string | null
 }
 
-export function UserMenu({ user, isAdmin }: UserMenuProps) {
+export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -40,6 +41,7 @@ export function UserMenu({ user, isAdmin }: UserMenuProps) {
 
   const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
   const userAvatar = user.user_metadata?.avatar_url
+  const isBusiness = accountType === 'business'
 
   return (
     <DropdownMenu>
@@ -75,44 +77,102 @@ export function UserMenu({ user, isAdmin }: UserMenuProps) {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-900 truncate">{userName}</p>
-                <p className="text-xs text-[hsl(var(--jungle-600))] font-medium">View profile</p>
+                <div className="flex items-center gap-1.5">
+                  {accountType === 'business' && (
+                    <Building2 className="w-3 h-3 text-[hsl(var(--jungle-600))]" />
+                  )}
+                  <p className="text-xs text-[hsl(var(--jungle-600))] font-medium">
+                    {accountType === 'business' ? 'Business Account' : 'Personal Account'}
+                  </p>
+                </div>
               </div>
               <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-[hsl(var(--jungle-600))] group-hover:translate-x-0.5 transition-all" />
             </div>
           </Link>
         </DropdownMenuItem>
 
-        {/* Main Navigation - Compact */}
+        {/* Navigation - account type specific */}
         <div className="space-y-1">
-          <DropdownMenuItem asChild>
-            <Link
-              href="/dashboard/saved"
-              className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-50 transition-colors group"
-            >
-              <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <Heart className="h-4.5 w-4.5 text-rose-500" />
-              </div>
-              <div className="flex-1">
-                <span className="font-medium text-gray-700 group-hover:text-gray-900">Saved</span>
-                <p className="text-xs text-gray-400">Favorites & interested</p>
-              </div>
-            </Link>
-          </DropdownMenuItem>
+          {isBusiness ? (
+            <>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/dashboard/my-business"
+                  className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[hsl(var(--jungle-50))] transition-colors group"
+                >
+                  <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-[hsl(var(--jungle-100))] to-emerald-100 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Building2 className="h-4.5 w-4.5 text-[hsl(var(--jungle-600))]" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-700 group-hover:text-gray-900">My Business</span>
+                    <p className="text-xs text-gray-400">Manage your listing</p>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
 
-          <DropdownMenuItem asChild>
-            <Link
-              href="/dashboard/listings"
-              className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[hsl(var(--jungle-50))] transition-colors group"
-            >
-              <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-[hsl(var(--jungle-100))] to-emerald-100 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <LayoutGrid className="h-4.5 w-4.5 text-[hsl(var(--jungle-600))]" />
-              </div>
-              <div className="flex-1">
-                <span className="font-medium text-gray-700 group-hover:text-gray-900">My Listings</span>
-                <p className="text-xs text-gray-400">Business, events & more</p>
-              </div>
-            </Link>
-          </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/dashboard/listings"
+                  className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-blue-50 transition-colors group"
+                >
+                  <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <LayoutGrid className="h-4.5 w-4.5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-700 group-hover:text-gray-900">All Listings</span>
+                    <p className="text-xs text-gray-400">Business, events & more</p>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/dashboard/my-business/analytics"
+                  className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50 transition-colors group"
+                >
+                  <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <BarChart3 className="h-4.5 w-4.5 text-amber-600" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-700 group-hover:text-gray-900">Dashboard</span>
+                    <p className="text-xs text-gray-400">Analytics & insights</p>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+            </>
+          ) : (
+            <>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/dashboard/saved"
+                  className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-50 transition-colors group"
+                >
+                  <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Heart className="h-4.5 w-4.5 text-rose-500" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-700 group-hover:text-gray-900">Saved</span>
+                    <p className="text-xs text-gray-400">Favorites & interested</p>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/dashboard/profile"
+                  className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-50 transition-colors group"
+                >
+                  <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Star className="h-4.5 w-4.5 text-amber-500" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-700 group-hover:text-gray-900">My Reviews</span>
+                    <p className="text-xs text-gray-400">Your ratings & feedback</p>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+            </>
+          )}
         </div>
 
         {/* Admin Section */}

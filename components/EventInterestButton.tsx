@@ -31,41 +31,46 @@ export function EventInterestButton({
     }
 
     setIsLoading(true)
-    const supabase = createClient()
+    try {
+      const supabase = createClient()
 
-    if (isInterested) {
-      // Remove interest
-      const { error } = await supabase
-        .from('event_interests')
-        .delete()
-        .eq('event_id', eventId)
-        .eq('user_id', userId)
+      if (isInterested) {
+        // Remove interest
+        const { error } = await supabase
+          .from('event_interests')
+          .delete()
+          .eq('event_id', eventId)
+          .eq('user_id', userId)
 
-      if (!error) {
-        setIsInterested(false)
-        setInterestCount((prev) => Math.max(prev - 1, 0))
+        if (!error) {
+          setIsInterested(false)
+          setInterestCount((prev) => Math.max(prev - 1, 0))
+        } else {
+          console.error('Error removing interest:', error)
+        }
       } else {
-        console.error('Error removing interest:', error)
-      }
-    } else {
-      // Add interest
-      const { error } = await supabase
-        .from('event_interests')
-        .insert({
-          event_id: eventId,
-          user_id: userId,
-        })
+        // Add interest
+        const { error } = await supabase
+          .from('event_interests')
+          .insert({
+            event_id: eventId,
+            user_id: userId,
+          })
 
-      if (!error) {
-        setIsInterested(true)
-        setInterestCount((prev) => prev + 1)
-      } else {
-        console.error('Error adding interest:', error)
+        if (!error) {
+          setIsInterested(true)
+          setInterestCount((prev) => prev + 1)
+        } else {
+          console.error('Error adding interest:', error)
+        }
       }
+
+      router.refresh()
+    } catch (err) {
+      console.error('Error toggling interest:', err)
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
-    router.refresh()
   }
 
   return (

@@ -26,12 +26,16 @@ export default async function AdminEditBusinessPage({
     notFound()
   }
 
-  // Get categories, regions, and users for form
-  const [{ data: categories }, { data: regions }, { data: users }] = await Promise.all([
+  // Get categories, regions, users, and tags for form
+  const [{ data: categories }, { data: regions }, { data: users }, { data: tags }, { data: businessTags }] = await Promise.all([
     supabase.from('categories').select('*').order('name'),
     supabase.from('regions').select('*').order('name'),
     supabase.from('profiles').select('id, name, email').order('name'),
+    supabase.from('category_tags').select('id, name, slug, category_id').order('display_order'),
+    supabase.from('business_tags').select('tag_id').eq('business_id', id),
   ])
+
+  const currentTagIds = businessTags?.map(bt => bt.tag_id) || []
 
   // Filter users with valid emails
   const validUsers = (users || []).filter((user): user is { id: string; name: string | null; email: string } =>
@@ -50,6 +54,8 @@ export default async function AdminEditBusinessPage({
         categories={categories || []}
         regions={regions || []}
         users={validUsers}
+        tags={tags || []}
+        currentTagIds={currentTagIds}
       />
     </div>
   )

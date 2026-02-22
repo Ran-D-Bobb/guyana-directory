@@ -8,18 +8,26 @@ import { getAuthRedirectUrl } from '@/lib/utils'
 
 interface SocialAuthButtonsProps {
   mode?: 'signin' | 'signup'
+  accountType?: 'personal' | 'business' | null
 }
 
-export function SocialAuthButtons({ mode = 'signin' }: SocialAuthButtonsProps) {
+export function SocialAuthButtons({ mode = 'signin', accountType }: SocialAuthButtonsProps) {
   const supabase = createClient()
-  const [isLoading, setIsLoading] = useState<'google' | 'facebook' | null>(null)
+  const [isLoading, setIsLoading] = useState<'google' | null>(null)
 
-  const handleOAuthSignIn = async (provider: 'google' | 'facebook') => {
+  const handleOAuthSignIn = async (provider: 'google') => {
     setIsLoading(provider)
+
+    // For signup, pass account_type through the callback URL
+    let callbackPath = '/auth/callback'
+    if (mode === 'signup' && accountType) {
+      callbackPath = `/auth/callback?account_type=${accountType}`
+    }
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: getAuthRedirectUrl('/auth/callback'),
+        redirectTo: getAuthRedirectUrl(callbackPath),
       },
     })
 
@@ -38,7 +46,7 @@ export function SocialAuthButtons({ mode = 'signin' }: SocialAuthButtonsProps) {
         variant="outline"
         onClick={() => handleOAuthSignIn('google')}
         disabled={isLoading !== null}
-        className="w-full h-12 border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"
+        className="w-full h-12 border-[hsl(var(--border))] hover:bg-[hsl(var(--jungle-50))] hover:border-[hsl(var(--jungle-300))] transition-all duration-200 text-[hsl(var(--jungle-800))] font-medium"
       >
         {isLoading === 'google' ? (
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -67,18 +75,6 @@ export function SocialAuthButtons({ mode = 'signin' }: SocialAuthButtonsProps) {
         )}
       </Button>
 
-      <Button
-        type="button"
-        variant="outline"
-        disabled={true}
-        className="w-full h-12 border-gray-200 bg-gray-50 cursor-not-allowed"
-      >
-        <svg className="w-5 h-5 mr-3 opacity-50" fill="#1877F2" viewBox="0 0 24 24">
-          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-        </svg>
-        <span className="text-gray-400">{actionText} with Facebook</span>
-        <span className="ml-2 text-xs text-gray-400">(Coming soon)</span>
-      </Button>
     </div>
   )
 }

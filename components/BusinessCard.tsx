@@ -8,6 +8,7 @@ import { SaveBusinessButton } from './SaveBusinessButton'
 type Business = Database['public']['Tables']['businesses']['Row'] & {
   categories: { name: string } | null
   regions: { name: string } | null
+  business_tags?: Array<{ category_tags: { name: string; slug: string } | null }>
 }
 
 interface BusinessCardProps {
@@ -92,6 +93,27 @@ export function BusinessCard({ business, primaryPhoto, userId, isSaved = false }
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 flex-shrink-0"></span>
             <span className="truncate">{business.categories.name}</span>
           </p>
+        )}
+
+        {/* Tags */}
+        {business.business_tags && business.business_tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2">
+            {business.business_tags.slice(0, 3).map((bt, i) => (
+              bt.category_tags && (
+                <span
+                  key={i}
+                  className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-gray-100 text-gray-600"
+                >
+                  {bt.category_tags.name}
+                </span>
+              )
+            ))}
+            {business.business_tags.length > 3 && (
+              <span className="text-[10px] sm:text-xs text-gray-400">
+                +{business.business_tags.length - 3}
+              </span>
+            )}
+          </div>
         )}
 
         {/* Location */}

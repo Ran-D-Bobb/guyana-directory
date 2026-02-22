@@ -4,11 +4,12 @@ import { AdminBusinessCreateForm } from '@/components/admin/AdminBusinessCreateF
 export default async function AdminCreateBusinessPage() {
   const supabase = await createClient()
 
-  // Get categories and regions for form
-  const [{ data: categories }, { data: regions }, { data: users }] = await Promise.all([
+  // Get categories, regions, users, and tags for form
+  const [{ data: categories }, { data: regions }, { data: users }, { data: tags }] = await Promise.all([
     supabase.from('categories').select('*').order('name'),
     supabase.from('regions').select('*').order('name'),
     supabase.from('profiles').select('id, name, email').order('name'),
+    supabase.from('category_tags').select('id, name, slug, category_id').order('display_order'),
   ])
 
   return (
@@ -22,6 +23,7 @@ export default async function AdminCreateBusinessPage() {
         categories={categories || []}
         regions={regions || []}
         users={users || []}
+        tags={tags || []}
       />
     </div>
   )

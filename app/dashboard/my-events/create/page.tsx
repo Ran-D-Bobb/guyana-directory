@@ -11,7 +11,7 @@ export default async function CreateEventPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   // Fetch event categories

@@ -1,7 +1,11 @@
 /**
  * Geolocation utilities for the Discover feature
  * Provides location request, distance calculation, and human-friendly formatting
+ * Uses Capacitor Geolocation plugin for native apps, falls back to browser API
  */
+
+import { Geolocation } from '@capacitor/geolocation';
+import { Capacitor } from '@capacitor/core';
 
 export interface Coordinates {
   lat: number;
@@ -24,9 +28,46 @@ export const GUYANA_CENTER: Coordinates = {
 
 /**
  * Request user's current location
+ * Uses Capacitor plugin on native platforms, browser API on web
  * Returns coordinates or an error message
  */
 export async function requestLocation(): Promise<LocationResult> {
+  // Use Capacitor Geolocation on native platforms
+  if (Capacitor.isNativePlatform()) {
+    try {
+      // Request permissions first on native
+      const permissionStatus = await Geolocation.requestPermissions();
+
+      if (permissionStatus.location !== 'granted' && permissionStatus.coarseLocation !== 'granted') {
+        return {
+          success: false,
+          error: 'Location permission denied',
+        };
+      }
+
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000, // 5 minutes cache
+      });
+
+      return {
+        success: true,
+        coords: {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        },
+      };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unable to get your location';
+      return {
+        success: false,
+        error: errorMessage.includes('denied') ? 'Location permission denied' : errorMessage,
+      };
+    }
+  }
+
+  // Fall back to browser API on web
   if (!navigator.geolocation) {
     return {
       success: false,
@@ -196,9 +237,13 @@ export function getDistanceTierStyles(tier: DistanceTier): {
 }
 
 /**
- * Check if geolocation is available in this browser
+ * Check if geolocation is available
+ * Returns true on native platforms (Capacitor) or if browser supports it
  */
 export function isGeolocationAvailable(): boolean {
+  if (Capacitor.isNativePlatform()) {
+    return true;
+  }
   return typeof navigator !== 'undefined' && 'geolocation' in navigator;
 }
 

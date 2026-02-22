@@ -90,9 +90,9 @@ export default async function RentalsPage({
     .eq('is_approved', true)
 
   // Apply search filter
-  if (params.q) {
-    const searchTerm = params.q.trim()
-    query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,location_details.ilike.%${searchTerm}%`)
+  const safeSearchTerm = params.q ? params.q.replace(/[%_(),.*]/g, ' ').trim() : ''
+  if (safeSearchTerm) {
+    query = query.or(`name.ilike.%${safeSearchTerm}%,description.ilike.%${safeSearchTerm}%,location_details.ilike.%${safeSearchTerm}%`)
   }
 
   // Apply category filter
@@ -207,9 +207,8 @@ export default async function RentalsPage({
     .select('*', { count: 'exact', head: true })
     .eq('is_approved', true)
 
-  if (params.q) {
-    const searchTerm = params.q.trim()
-    countQuery = countQuery.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,location_details.ilike.%${searchTerm}%`)
+  if (safeSearchTerm) {
+    countQuery = countQuery.or(`name.ilike.%${safeSearchTerm}%,description.ilike.%${safeSearchTerm}%,location_details.ilike.%${safeSearchTerm}%`)
   }
   if (params.category) {
     const { data: category } = await supabase

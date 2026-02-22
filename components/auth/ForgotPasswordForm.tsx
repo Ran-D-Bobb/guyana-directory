@@ -98,8 +98,8 @@ export function ForgotPasswordForm() {
   if (emailSent) {
     return (
       <div className="text-center py-8">
-        <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
-          <Mail className="w-8 h-8 text-emerald-600" />
+        <div className="mx-auto w-16 h-16 bg-[hsl(var(--jungle-100))] rounded-full flex items-center justify-center mb-4">
+          <Mail className="w-8 h-8 text-[hsl(var(--jungle-500))]" />
         </div>
         <h2 className="text-2xl font-semibold text-gray-900 mb-2">Check your email</h2>
         <p className="text-gray-600 mb-6">
@@ -150,7 +150,7 @@ export function ForgotPasswordForm() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+          className="w-full h-12 bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))] text-white font-medium transition-all"
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -161,7 +161,7 @@ export function ForgotPasswordForm() {
       </form>
 
       <p className="mt-6 text-center text-sm text-gray-600">
-        <Link href="/auth/login" className="font-medium text-emerald-600 hover:text-emerald-700 inline-flex items-center gap-1">
+        <Link href="/auth/login" className="font-medium text-[hsl(var(--jungle-500))] hover:text-[hsl(var(--jungle-700))] inline-flex items-center gap-1 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Back to sign in
         </Link>

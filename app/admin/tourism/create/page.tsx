@@ -14,7 +14,7 @@ export default async function AdminCreateTourismPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   // Fetch all tourism categories

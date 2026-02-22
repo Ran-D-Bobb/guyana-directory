@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, Calendar } from 'lucide-react'
 import { BusinessEventCreateForm } from '@/components/BusinessEventCreateForm'
+import { requireBusinessAccount } from '@/lib/account-type'
 
 export default async function CreateBusinessEventPage() {
   const supabase = await createClient()
@@ -13,8 +14,10 @@ export default async function CreateBusinessEventPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Get user's business
   const { data: business } = await supabase
@@ -43,14 +46,14 @@ export default async function CreateBusinessEventPage() {
             className="inline-flex items-center gap-2 text-purple-100 hover:text-white mb-4"
           >
             <ChevronLeft className="w-5 h-5" />
-            Back to Events
+            Back to Promotions
           </Link>
           <div className="flex items-center gap-3 mb-2">
             <Calendar className="w-8 h-8" />
-            <h1 className="text-4xl font-bold">Create Business Event</h1>
+            <h1 className="text-4xl font-bold">Create Promotion</h1>
           </div>
           <p className="text-purple-100 text-lg">
-            Promote a sale, discount, happy hour, or special offer
+            Create a sale, discount, happy hour, or special offer
           </p>
         </div>
       </header>

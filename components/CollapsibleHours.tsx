@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Clock, ChevronDown } from 'lucide-react'
+import { BusinessStatusBadge } from './BusinessStatusBadge'
 
 interface BusinessHours {
   [day: string]: {
@@ -13,13 +14,13 @@ interface BusinessHours {
 
 interface CollapsibleHoursProps {
   businessHours: BusinessHours
-  isOpen: boolean
-  statusText: string
+  isOpen?: boolean
+  statusText?: string
 }
 
 const DAYS_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
-export function CollapsibleHours({ businessHours, isOpen, statusText }: CollapsibleHoursProps) {
+export function CollapsibleHours({ businessHours }: CollapsibleHoursProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()
@@ -40,14 +41,8 @@ export function CollapsibleHours({ businessHours, isOpen, statusText }: Collapsi
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Status Badge */}
-          <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${
-            isOpen
-              ? 'bg-emerald-100 text-emerald-700'
-              : 'bg-gray-100 text-gray-600'
-          }`}>
-            {statusText}
-          </span>
+          {/* Client-side real-time status badge */}
+          <BusinessStatusBadge hours={businessHours} variant="inline" />
 
           {/* Today's hours preview when collapsed */}
           {!isExpanded && todayHours && !todayHours.closed && todayHours.open && todayHours.close && (

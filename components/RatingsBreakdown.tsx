@@ -50,11 +50,11 @@ export function RatingsBreakdown({ reviews, ratingCounts: propRatingCounts, tota
   }
 
   return (
-    <div className="bg-gray-50 rounded-lg p-6 mb-6">
+    <div className="bg-[hsl(var(--jungle-50))] rounded-lg p-6 mb-6">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left side - Overall rating */}
-        <div className="flex flex-col items-center justify-center md:w-1/3 pb-6 md:pb-0 md:border-r border-gray-200">
-          <div className="text-5xl font-bold text-gray-900 mb-2">
+        <div className="flex flex-col items-center justify-center md:w-1/3 pb-6 md:pb-0 md:border-r border-[hsl(var(--border))]">
+          <div className="text-5xl font-bold text-[hsl(var(--jungle-900))] mb-2">
             {averageRating.toFixed(1)}
           </div>
           <div className="flex items-center gap-1 mb-2">
@@ -69,7 +69,7 @@ export function RatingsBreakdown({ reviews, ratingCounts: propRatingCounts, tota
               } else if (hasHalfStar) {
                 return (
                   <div key={star} className="relative inline-block">
-                    <Star className="w-6 h-6 text-gray-300" />
+                    <Star className="w-6 h-6 text-[hsl(var(--border))]" />
                     <div className="absolute inset-0 overflow-hidden" style={{ width: '50%' }}>
                       <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
                     </div>
@@ -78,18 +78,18 @@ export function RatingsBreakdown({ reviews, ratingCounts: propRatingCounts, tota
               } else if (hasThreeQuarterStar) {
                 return (
                   <div key={star} className="relative inline-block">
-                    <Star className="w-6 h-6 text-gray-300" />
+                    <Star className="w-6 h-6 text-[hsl(var(--border))]" />
                     <div className="absolute inset-0 overflow-hidden" style={{ width: '75%' }}>
                       <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
                     </div>
                   </div>
                 )
               } else {
-                return <Star key={star} className="w-6 h-6 text-gray-300" />
+                return <Star key={star} className="w-6 h-6 text-[hsl(var(--border))]" />
               }
             })}
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-[hsl(var(--jungle-600))]">
             Based on {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}
           </div>
         </div>
@@ -103,19 +103,19 @@ export function RatingsBreakdown({ reviews, ratingCounts: propRatingCounts, tota
             return (
               <div key={rating} className="flex items-center gap-3">
                 <div className="flex items-center gap-1 w-16">
-                  <span className="text-sm font-medium text-gray-700">{rating}</span>
+                  <span className="text-sm font-medium text-[hsl(var(--jungle-700))]">{rating}</span>
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                 </div>
 
                 {/* Progress bar */}
-                <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div className="flex-1 h-3 bg-[hsl(var(--jungle-100))] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-amber-400 rounded-full transition-all duration-300"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
 
-                <div className="w-12 text-sm text-gray-600 text-right">
+                <div className="w-12 text-sm text-[hsl(var(--jungle-600))] text-right">
                   {count}
                 </div>
               </div>

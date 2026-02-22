@@ -13,7 +13,16 @@
       "Bash(git commit:*)",
       "Bash(git push)",
       "Bash(dir \"C:\\\\Users\\\\hollo\\\\Documents\\\\New folder\\\\app\")",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(cd:*)",
+      "Bash(find:*)",
+      "Bash(npx next build)",
+      "Bash(grep:*)",
+      "WebFetch(domain:waypointgy.com)",
+      "Bash(supabase db reset:*)",
+      "Bash(node_modules/.bin/tsc:*)",
+      "Bash(python3:*)",
+      "WebFetch(domain:serwist.pages.dev)"
     ]
   },
   "outputStyle": "default"

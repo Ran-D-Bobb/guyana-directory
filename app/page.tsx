@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { HomeFeedClient } from '@/components/home'
 import type { FeedItem } from '@/components/home'
 
+export const revalidate = 60
+
 export const metadata: Metadata = {
   title: 'Waypoint - Discover Local Businesses in Guyana',
   description: 'Find restaurants, shops, tourism experiences, events, and rentals across Guyana. Your guide to local businesses in the Land of Many Waters.',
@@ -30,7 +32,7 @@ export default async function Home() {
         business_photos (image_url, is_primary)
       `)
       .order('rating', { ascending: false, nullsFirst: false })
-      .limit(100),
+      .limit(24),
 
     // Tourism experiences
     supabase
@@ -44,7 +46,7 @@ export default async function Home() {
       `)
       .eq('is_approved', true)
       .order('rating', { ascending: false, nullsFirst: false })
-      .limit(100),
+      .limit(24),
 
     // Rentals
     supabase
@@ -58,7 +60,7 @@ export default async function Home() {
       `)
       .eq('is_approved', true)
       .order('rating', { ascending: false, nullsFirst: false })
-      .limit(100),
+      .limit(24),
 
     // Events - upcoming only
     supabase
@@ -70,7 +72,7 @@ export default async function Home() {
       `)
       .gte('end_date', new Date().toISOString())
       .order('start_date', { ascending: true })
-      .limit(50),
+      .limit(12),
   ])
 
   // Helper to get primary image from photo array

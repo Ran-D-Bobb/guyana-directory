@@ -139,7 +139,7 @@ export function ContactStep({
             <input
               type="file"
               id="image_file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               onChange={handleImageChange}
               className="hidden"
             />

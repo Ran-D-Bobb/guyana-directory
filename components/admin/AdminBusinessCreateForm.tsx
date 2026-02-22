@@ -9,12 +9,14 @@ interface AdminBusinessCreateFormProps {
   categories: Array<{ id: string; name: string; slug: string }>
   regions: Array<{ id: string; name: string; slug: string }>
   users: Array<{ id: string; name: string | null; email: string | null }>
+  tags?: Array<{ id: string; name: string; slug: string; category_id: string }>
 }
 
 export function AdminBusinessCreateForm({
   categories,
   regions,
   users,
+  tags = [],
 }: AdminBusinessCreateFormProps) {
   const router = useRouter()
   const supabase = createClient()
@@ -33,18 +35,33 @@ export function AdminBusinessCreateForm({
     is_featured: false,
   })
 
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [location, setLocation] = useState<LocationData | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const filteredTags = formData.category_id
+    ? tags.filter(tag => tag.category_id === formData.category_id)
+    : []
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTagIds(prev =>
+      prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
+    )
+  }
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const value = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value
+    const { name, value, type } = e.target
+    const newValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     setFormData({
       ...formData,
-      [e.target.name]: value,
+      [name]: newValue,
     })
+    if (name === 'category_id') {
+      setSelectedTagIds([])
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,7 +103,7 @@ export function AdminBusinessCreateForm({
         return
       }
 
-      const { error: createError } = await supabase.from('businesses').insert({
+      const { data: newBusiness, error: createError } = await supabase.from('businesses').insert({
         owner_id: formData.owner_id || null,
         name: formData.name.trim(),
         slug: slug,
@@ -102,12 +119,21 @@ export function AdminBusinessCreateForm({
         latitude: location?.latitude || null,
         longitude: location?.longitude || null,
         formatted_address: location?.formatted_address || null,
-      })
+      }).select('id').single()
 
       if (createError) {
         console.error('Error creating business:', createError)
         setError(`Failed to create business: ${createError.message}`)
       } else {
+        // Insert business tags
+        if (newBusiness && selectedTagIds.length > 0) {
+          await supabase.from('business_tags').insert(
+            selectedTagIds.map(tagId => ({
+              business_id: newBusiness.id,
+              tag_id: tagId,
+            }))
+          )
+        }
         // Redirect to admin businesses page
         router.push('/admin/businesses')
         router.refresh()
@@ -239,6 +265,32 @@ export function AdminBusinessCreateForm({
           ))}
         </select>
       </div>
+
+      {/* Tags */}
+      {filteredTags.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Tags <span className="text-gray-400 font-normal">(optional)</span>
+          </label>
+          <p className="text-xs text-gray-500 mb-2">Select tags that describe this business</p>
+          <div className="flex flex-wrap gap-2">
+            {filteredTags.map(tag => (
+              <button
+                key={tag.id}
+                type="button"
+                onClick={() => toggleTag(tag.id)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  selectedTagIds.includes(tag.id)
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {tag.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Region */}
       <div>

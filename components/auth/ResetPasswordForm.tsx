@@ -113,7 +113,7 @@ export function ResetPasswordForm() {
         </p>
         <div className="space-y-3">
           <Link href="/auth/forgot-password">
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+            <Button className="w-full bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))]">
               Request new reset link
             </Button>
           </Link>
@@ -132,8 +132,8 @@ export function ResetPasswordForm() {
   if (isSuccess) {
     return (
       <div className="text-center py-8">
-        <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
-          <CheckCircle className="w-8 h-8 text-emerald-600" />
+        <div className="mx-auto w-16 h-16 bg-[hsl(var(--jungle-100))] rounded-full flex items-center justify-center mb-4">
+          <CheckCircle className="w-8 h-8 text-[hsl(var(--jungle-500))]" />
         </div>
         <h2 className="text-2xl font-semibold text-gray-900 mb-2">Password updated</h2>
         <p className="text-gray-600 mb-6">
@@ -173,7 +173,7 @@ export function ResetPasswordForm() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+          className="w-full h-12 bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))] text-white font-medium transition-all"
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />

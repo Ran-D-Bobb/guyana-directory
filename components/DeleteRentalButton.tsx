@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-react'
 
 interface DeleteRentalButtonProps {
   rentalName: string
+  rentalId: string
 }
 
 export default function DeleteRentalButton({ rentalName }: DeleteRentalButtonProps) {

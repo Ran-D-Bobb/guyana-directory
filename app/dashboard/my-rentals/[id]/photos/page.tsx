@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { requireBusinessAccount } from '@/lib/account-type'
 import RentalPhotoUpload from '@/components/RentalPhotoUpload'
 
 export default async function RentalPhotosPage({ params }: { params: Promise<{ id: string }> }) {
@@ -9,8 +10,10 @@ export default async function RentalPhotosPage({ params }: { params: Promise<{ i
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/signin')
+    redirect('/auth/login')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Get the rental listing
   const { data: rental, error } = await supabase

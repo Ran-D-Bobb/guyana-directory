@@ -87,7 +87,7 @@ export default async function AdminEventsPage() {
             size="sm"
           />
           <AdminStatCard
-            label="Business Events"
+            label="Promotions"
             value={businessEvents?.length || 0}
             icon="Building2"
             color="blue"
@@ -235,12 +235,12 @@ export default async function AdminEventsPage() {
           </div>
         </section>
 
-        {/* Business Events Section */}
+        {/* Promotions Section */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
               <Building2 className="text-blue-600" size={20} />
-              Business Events
+              Promotions
               <span className="text-sm font-normal text-slate-500">({businessEvents?.length || 0})</span>
             </h2>
           </div>
@@ -314,7 +314,7 @@ export default async function AdminEventsPage() {
                           <EventActions
                             eventId={event.id}
                             eventName={event.title}
-                            eventType="business"
+                            eventType="promotion"
                             isFeatured={false}
                           />
                         </div>
@@ -326,8 +326,8 @@ export default async function AdminEventsPage() {
             ) : (
               <div className="p-12 text-center">
                 <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-slate-900 mb-1">No business events</h3>
-                <p className="text-slate-500">Business events and promotions will appear here</p>
+                <h3 className="text-lg font-medium text-slate-900 mb-1">No promotions</h3>
+                <p className="text-slate-500">Business promotions will appear here</p>
               </div>
             )}
           </div>

@@ -174,7 +174,7 @@ export function LoginForm() {
         <div className="flex justify-end">
           <Link
             href="/auth/forgot-password"
-            className="text-sm text-emerald-600 hover:text-emerald-700"
+            className="text-sm text-[hsl(var(--jungle-500))] hover:text-[hsl(var(--jungle-700))] transition-colors"
           >
             Forgot password?
           </Link>
@@ -183,7 +183,7 @@ export function LoginForm() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+          className="w-full h-12 bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))] text-white font-medium transition-all"
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -193,9 +193,9 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-[hsl(var(--jungle-600))]">
         Don&apos;t have an account?{' '}
-        <Link href="/auth/signup" className="font-medium text-emerald-600 hover:text-emerald-700">
+        <Link href="/auth/signup" className="font-medium text-[hsl(var(--jungle-500))] hover:text-[hsl(var(--jungle-700))] transition-colors">
           Sign up
         </Link>
       </p>

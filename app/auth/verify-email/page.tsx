@@ -52,9 +52,9 @@ function VerifyEmailContent() {
       <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
         <Mail className="w-8 h-8 text-amber-600" />
       </div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify your email</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>
       <p className="text-gray-600 mb-2">
-        Your email address needs to be verified before you can access this page.
+        We&apos;ve sent you a verification link. Please check your email to complete your registration.
       </p>
       {email && (
         <p className="text-sm text-gray-500 mb-6">
@@ -87,7 +87,7 @@ function VerifyEmailContent() {
       <div className="mt-8 pt-6 border-t border-gray-100">
         <p className="text-xs text-gray-500">
           Can&apos;t find the email? Check your spam folder or{' '}
-          <Link href="/auth/signup" className="text-emerald-600 hover:text-emerald-700">
+          <Link href="/auth/signup" className="text-[hsl(var(--jungle-500))] hover:text-[hsl(var(--jungle-700))] transition-colors">
             try signing up again
           </Link>
           .

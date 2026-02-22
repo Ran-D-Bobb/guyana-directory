@@ -17,12 +17,14 @@ interface BusinessFormData {
   phone: string
   email: string
   website: string
+  tag_ids: string[]
 }
 
 interface BusinessFormStepsProps {
   userId: string
   categories: Array<{ id: string; name: string; slug: string }>
   regions: Array<{ id: string; name: string; slug: string }>
+  tags?: Array<{ id: string; name: string; slug: string; category_id: string }>
   onSubmit: (data: BusinessFormData) => Promise<void>
   initialData?: Partial<BusinessFormData>
 }
@@ -31,6 +33,7 @@ export function BusinessFormSteps({
   userId,
   categories,
   regions,
+  tags = [],
   onSubmit,
   initialData,
 }: BusinessFormStepsProps) {
@@ -140,11 +143,13 @@ export function BusinessFormSteps({
               category_id: formData.category_id || '',
               region_id: formData.region_id || '',
               location: formData.location || null,
+              tag_ids: formData.tag_ids || [],
             }}
             onChange={updateFormData}
             errors={errors}
             categories={categories}
             regions={regions}
+            tags={tags}
           />
         )
 

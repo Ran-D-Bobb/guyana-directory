@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, Plus, Eye, ChevronLeft, Pencil } from 'lucide-react'
+import { Calendar, Plus, Eye, ChevronLeft, Pencil, Repeat } from 'lucide-react'
 import { BusinessEventDeleteButton } from '@/components/BusinessEventDeleteButton'
+import { requireBusinessAccount } from '@/lib/account-type'
 
 export default async function BusinessEventsPage() {
   const supabase = await createClient()
@@ -13,8 +14,10 @@ export default async function BusinessEventsPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Get user's business
   const { data: business } = await supabase
@@ -58,10 +61,10 @@ export default async function BusinessEventsPage() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <Calendar className="w-8 h-8" />
-                <h1 className="text-4xl font-bold">Business Events</h1>
+                <h1 className="text-4xl font-bold">Promotions</h1>
               </div>
               <p className="text-purple-100 text-lg">
-                Manage promotional events and offers for {business.name}
+                Manage promotions, sales, and special offers for {business.name}
               </p>
             </div>
             <Link
@@ -69,7 +72,7 @@ export default async function BusinessEventsPage() {
               className="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-purple-50 transition-colors inline-flex items-center gap-2"
             >
               <Plus className="w-5 h-5" />
-              Create Event
+              Create Promotion
             </Link>
           </div>
         </div>
@@ -83,7 +86,7 @@ export default async function BusinessEventsPage() {
               <div className="text-2xl font-bold text-gray-900">
                 {events?.length || 0}
               </div>
-              <div className="text-sm text-gray-600">Total Events</div>
+              <div className="text-sm text-gray-600">Total Promotions</div>
             </div>
             <div className="bg-purple-50 rounded-lg p-4">
               <div className="text-2xl font-bold text-purple-600">
@@ -139,6 +142,12 @@ export default async function BusinessEventsPage() {
                               Past
                             </span>
                           )}
+                          {event.is_recurring && (
+                            <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded inline-flex items-center gap-1">
+                              <Repeat className="w-3 h-3" />
+                              Recurring
+                            </span>
+                          )}
                         </div>
 
                         {event.business_event_types && (
@@ -170,6 +179,20 @@ export default async function BusinessEventsPage() {
                               minute: '2-digit',
                             })}
                           </div>
+                          {event.is_recurring && event.recurrence_pattern && (
+                            <div>
+                              <span className="font-medium">Repeats:</span>{' '}
+                              {event.recurrence_pattern === 'daily' && 'Daily'}
+                              {event.recurrence_pattern === 'weekly' && (
+                                <>Weekly on {(event.recurrence_days as number[] | null)?.map(d => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d]).join(', ')}</>
+                              )}
+                              {event.recurrence_pattern === 'biweekly' && 'Every 2 weeks'}
+                              {event.recurrence_pattern === 'monthly' && 'Monthly'}
+                              {event.recurrence_end_date && (
+                                <> until {new Date(event.recurrence_end_date).toLocaleDateString()}</>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-6 mt-4 text-sm text-gray-600">
@@ -200,17 +223,17 @@ export default async function BusinessEventsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
             <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No events yet
+              No promotions yet
             </h3>
             <p className="text-gray-600 mb-6">
-              Create promotional events like sales, discounts, happy hours, and special offers
+              Create promotions like sales, discounts, happy hours, and special offers
             </p>
             <Link
               href="/dashboard/my-business/events/create"
               className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
             >
               <Plus className="w-5 h-5" />
-              Create Your First Event
+              Create Your First Promotion
             </Link>
           </div>
         )}

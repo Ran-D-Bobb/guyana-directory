@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { requireBusinessAccount } from '@/lib/account-type'
 import RentalEditForm from '@/components/RentalEditForm'
 
 export default async function EditRentalPage({ params }: { params: Promise<{ id: string }> }) {
@@ -8,8 +9,10 @@ export default async function EditRentalPage({ params }: { params: Promise<{ id:
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/signin')
+    redirect('/auth/login')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Await params in Next.js 15
   const { id } = await params

@@ -14,6 +14,12 @@ export function EventViewTracker({ eventId }: EventViewTrackerProps) {
     if (hasTracked.current) return
     hasTracked.current = true
 
+    // Deduplicate within the same session
+    const sessionKey = `viewed_event_${eventId}`
+    if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey)) {
+      return
+    }
+
     const trackView = async () => {
       try {
         await fetch('/api/track-event-view', {
@@ -23,6 +29,9 @@ export function EventViewTracker({ eventId }: EventViewTrackerProps) {
           },
           body: JSON.stringify({ eventId }),
         })
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(sessionKey, '1')
+        }
       } catch (error) {
         console.error('Failed to track event view:', error)
       }

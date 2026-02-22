@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requireBusinessAccount } from '@/lib/account-type'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Eye, MessageCircle, Star, Edit, Upload, Calendar } from 'lucide-react'
@@ -13,6 +14,8 @@ export default async function MyBusinessPage() {
   if (!user) {
     redirect('/')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Fetch user's business
   const { data: business, error: businessError } = await supabase
@@ -35,7 +38,7 @@ export default async function MyBusinessPage() {
     console.error('Error fetching business:', businessError)
   }
 
-  // If user doesn't have a business, show create business message
+  // If user doesn't have a business, show create listing prompt
   if (!business) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
@@ -53,7 +56,7 @@ export default async function MyBusinessPage() {
               You don&apos;t have a business listing yet
             </h1>
             <p className="text-gray-600 mb-6">
-              Would you like to add your business to Guyana Directory?
+              Would you like to add your business to Waypoint?
             </p>
             <Link
               href="/dashboard/my-business/create"
@@ -130,7 +133,7 @@ export default async function MyBusinessPage() {
                 className="inline-flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
               >
                 <Calendar className="w-4 h-4" />
-                Manage Events
+                Promotions
               </Link>
               <Link
                 href={`/dashboard/my-business/edit`}

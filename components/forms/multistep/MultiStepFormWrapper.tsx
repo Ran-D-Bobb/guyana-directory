@@ -7,7 +7,7 @@ import { FormNavigation } from './FormNavigation'
 import { FormStep } from './FormStep'
 import { FormSuccessScreen } from './FormSuccessScreen'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, ArrowLeft, RotateCcw, FileText, SkipForward } from 'lucide-react'
+import { AlertCircle, ArrowLeft, ArrowRight, RotateCcw, FileText, SkipForward } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { hasDraft, getDraftTimestamp, clearDraft } from '@/lib/formDraftStorage'
 
@@ -210,18 +210,18 @@ export function MultiStepFormWrapper<T extends object>({
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 mx-auto mb-4">
+          <div className="bg-white rounded-2xl shadow-xl shadow-black/[0.04] border border-[hsl(var(--border))] p-7">
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-amber-50 border border-amber-200/50 mx-auto mb-4">
               <FileText className="w-6 h-6 text-amber-600" />
             </div>
 
-            <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
+            <h2 className="text-xl font-bold text-[hsl(var(--jungle-800))] text-center mb-2">
               Resume Your Draft?
             </h2>
 
-            <p className="text-gray-600 text-center text-sm mb-6">
+            <p className="text-[hsl(var(--jungle-600))] text-center text-sm mb-6">
               You have an unsaved draft from{' '}
-              <span className="font-medium">
+              <span className="font-medium text-[hsl(var(--jungle-700))]">
                 {draftTimestamp.toLocaleDateString()} at {draftTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </p>
@@ -229,7 +229,7 @@ export function MultiStepFormWrapper<T extends object>({
             <div className="space-y-3">
               <Button
                 onClick={handleContinueDraft}
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
+                className="w-full bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))] text-white shadow-sm shadow-[hsl(var(--jungle-600))]/20"
                 size="lg"
               >
                 <FileText className="w-4 h-4 mr-2" />
@@ -239,7 +239,7 @@ export function MultiStepFormWrapper<T extends object>({
               <Button
                 onClick={handleStartFresh}
                 variant="outline"
-                className="w-full"
+                className="w-full border-[hsl(var(--border))] hover:bg-[hsl(var(--jungle-50))]"
                 size="lg"
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
@@ -254,23 +254,23 @@ export function MultiStepFormWrapper<T extends object>({
 
   return (
     <>
-      {/* Mobile Layout - iOS Style */}
-      <div ref={formContainerRef} className={cn('lg:hidden relative flex min-h-screen w-full flex-col h-screen overflow-hidden bg-gray-50', className)}>
+      {/* Mobile Layout */}
+      <div ref={formContainerRef} className={cn('lg:hidden relative flex min-h-screen w-full flex-col h-screen overflow-hidden bg-[hsl(var(--jungle-50))]', className)}>
         {/* Sticky Header with Progress */}
-        <header className="flex-shrink-0 w-full bg-white border-b border-gray-200 shadow-sm z-10">
+        <header className="flex-shrink-0 w-full bg-white/95 backdrop-blur-lg border-b border-[hsl(var(--border))]/60 shadow-sm z-10">
           <div className="flex items-center px-3 py-2">
             {/* Back Button */}
             <button
               onClick={prevStep}
               disabled={!canGoBack || isSubmitting}
-              className="text-gray-700 flex size-9 shrink-0 items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 rounded-full transition-colors"
+              className="text-[hsl(var(--jungle-700))] flex size-9 shrink-0 items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[hsl(var(--jungle-50))] rounded-full transition-colors"
               aria-label="Go back"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
 
             {/* Centered Title */}
-            <h1 className="text-gray-900 text-base font-semibold leading-tight tracking-tight flex-1 text-center px-2">
+            <h1 className="text-[hsl(var(--jungle-800))] text-base font-semibold leading-tight tracking-tight flex-1 text-center px-2">
               {currentStepConfig?.title || 'Form'}
             </h1>
 
@@ -279,7 +279,7 @@ export function MultiStepFormWrapper<T extends object>({
               <button
                 onClick={skipStep}
                 disabled={isSubmitting}
-                className="text-gray-500 hover:text-gray-700 flex size-9 shrink-0 items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 rounded-full transition-colors"
+                className="text-[hsl(var(--jungle-600))] hover:text-[hsl(var(--jungle-700))] flex size-9 shrink-0 items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[hsl(var(--jungle-50))] rounded-full transition-colors"
                 aria-label="Skip this step"
               >
                 <SkipForward className="w-4 h-4" />
@@ -302,12 +302,12 @@ export function MultiStepFormWrapper<T extends object>({
         </header>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="flex-1 overflow-y-auto bg-[hsl(var(--jungle-50))]">
           {/* Main Content */}
           <main className="px-4 pt-3 pb-32">
           {/* Draft notification - subtle banner */}
           {showDraftNotification && draftTimestamp && (
-            <div className="mb-3 flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">
+            <div className="mb-3 flex items-center justify-between bg-amber-50 border border-amber-200/50 rounded-lg px-3 py-1.5">
               <div className="flex items-center gap-2">
                 <FileText className="h-3.5 w-3.5 text-amber-600" />
                 <span className="text-xs text-amber-800">
@@ -325,7 +325,7 @@ export function MultiStepFormWrapper<T extends object>({
 
           {/* Error summary with specific messages */}
           {Object.keys(errors).length > 0 && (
-            <div className="mb-3 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            <div className="mb-3 bg-red-50 border border-red-200/60 rounded-xl px-3.5 py-2.5">
               <div className="flex items-center gap-2 mb-1">
                 <AlertCircle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />
                 <span className="text-xs font-medium text-red-700">
@@ -369,11 +369,11 @@ export function MultiStepFormWrapper<T extends object>({
         />
       </div>
 
-      {/* Desktop Layout - Traditional Card */}
+      {/* Desktop Layout */}
       <div className={cn('hidden lg:block w-full max-w-4xl mx-auto py-8 px-4', className)}>
         {/* Draft notification - subtle banner */}
         {showDraftNotification && draftTimestamp && (
-          <div className="mb-6 flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+          <div className="mb-6 flex items-center justify-between bg-amber-50 border border-amber-200/50 rounded-xl px-4 py-3">
             <div className="flex items-center gap-2">
               <FileText className="h-4 w-4 text-amber-600" />
               <span className="text-sm text-amber-800">
@@ -398,7 +398,7 @@ export function MultiStepFormWrapper<T extends object>({
         )}
 
         {/* Progress Bar - Detailed variant for desktop */}
-        <div className="mb-4">
+        <div className="mb-5">
           <FormProgressBar
             currentStep={currentStep}
             totalSteps={totalSteps}
@@ -410,7 +410,7 @@ export function MultiStepFormWrapper<T extends object>({
 
         {/* Error summary with specific messages */}
         {Object.keys(errors).length > 0 && (
-          <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+          <div className="mb-4 bg-red-50 border border-red-200/60 rounded-xl px-4 py-3">
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
               <span className="text-sm font-medium text-red-700">
@@ -428,87 +428,95 @@ export function MultiStepFormWrapper<T extends object>({
         )}
 
         {/* Form Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          {/* Step Title with Skip option */}
-          <div className="mb-5 flex items-start justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">
-                {currentStepConfig?.title || 'Form'}
-              </h2>
-              {currentStepConfig?.description && (
-                <p className="text-gray-500 text-sm mt-1">
-                  {currentStepConfig.description}
-                </p>
+        <div className="bg-white rounded-2xl shadow-sm shadow-black/[0.03] border border-[hsl(var(--border))]/60 overflow-hidden">
+          {/* Card Header */}
+          <div className="px-7 pt-7 pb-5 border-b border-[hsl(var(--border))]/40">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="font-display text-xl text-[hsl(var(--jungle-800))]">
+                  {currentStepConfig?.title || 'Form'}
+                </h2>
+                {currentStepConfig?.description && (
+                  <p className="text-[hsl(var(--jungle-600))] text-sm mt-1">
+                    {currentStepConfig.description}
+                  </p>
+                )}
+              </div>
+              {canSkip && !isLastStep && (
+                <button
+                  onClick={skipStep}
+                  disabled={isSubmitting}
+                  className="flex items-center gap-1.5 text-sm text-[hsl(var(--jungle-600))] hover:text-[hsl(var(--jungle-700))] transition-colors disabled:opacity-50"
+                >
+                  <SkipForward className="w-4 h-4" />
+                  Skip this step
+                </button>
               )}
             </div>
-            {canSkip && !isLastStep && (
-              <button
-                onClick={skipStep}
-                disabled={isSubmitting}
-                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
-              >
-                <SkipForward className="w-4 h-4" />
-                Skip this step
-              </button>
-            )}
           </div>
 
-          {/* Form Steps - Only render active step */}
-          <FormStep
-            key={steps[currentStep]?.id}
-            title={steps[currentStep]?.title || ''}
-            description={steps[currentStep]?.description}
-            isActive={true}
-            direction={direction}
-          >
-            {renderStep(steps[currentStep]?.id || '', formData, updateFormData, errors)}
-          </FormStep>
-
-          {/* Desktop Navigation */}
-          <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-200">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={prevStep}
-              disabled={!canGoBack || isSubmitting}
-              size="lg"
+          {/* Card Body */}
+          <div className="px-7 py-6">
+            {/* Form Steps - Only render active step */}
+            <FormStep
+              key={steps[currentStep]?.id}
+              title={steps[currentStep]?.title || ''}
+              description={steps[currentStep]?.description}
+              isActive={true}
+              direction={direction}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
+              {renderStep(steps[currentStep]?.id || '', formData, updateFormData, errors)}
+            </FormStep>
+          </div>
 
-            <div className="flex items-center gap-3">
+          {/* Card Footer - Navigation */}
+          <div className="px-7 py-5 border-t border-[hsl(var(--border))]/40 bg-[hsl(var(--jungle-50))]/30">
+            <div className="flex justify-between items-center">
               <Button
                 type="button"
-                onClick={handleNext}
-                disabled={isSubmitting}
+                variant="outline"
+                onClick={prevStep}
+                disabled={!canGoBack || isSubmitting}
                 size="lg"
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="border-[hsl(var(--border))] hover:bg-[hsl(var(--jungle-50))] text-[hsl(var(--jungle-700))]"
               >
-                {isSubmitting ? (
-                  <>
-                    <svg className="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Submitting...
-                  </>
-                ) : isLastStep ? (
-                  'Submit'
-                ) : (
-                  <>
-                    Continue
-                    <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
-                  </>
-                )}
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
               </Button>
-            </div>
-          </div>
 
-          {/* Keyboard shortcut hint */}
-          <p className="text-xs text-gray-400 text-center mt-4">
-            Press <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600 font-mono">Enter</kbd> to continue
-          </p>
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={isSubmitting}
+                  size="lg"
+                  className="bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))] text-white shadow-sm shadow-[hsl(var(--jungle-600))]/20"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Submitting...
+                    </>
+                  ) : isLastStep ? (
+                    'Submit'
+                  ) : (
+                    <>
+                      Continue
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Keyboard shortcut hint */}
+            <p className="text-xs text-[hsl(var(--muted-foreground))] text-center mt-4">
+              Press <kbd className="px-1.5 py-0.5 bg-[hsl(var(--jungle-100))] rounded text-[hsl(var(--jungle-700))] font-mono text-[10px]">Enter</kbd> to continue
+            </p>
+          </div>
         </div>
       </div>
     </>

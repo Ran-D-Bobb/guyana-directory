@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requireBusinessAccount } from '@/lib/account-type'
 import Link from 'next/link'
 import { ArrowLeft, Eye, MessageCircle, Star, Phone, Edit, Upload, Briefcase } from 'lucide-react'
 
@@ -12,6 +13,8 @@ export default async function MyTourismPage() {
   if (!user) {
     redirect('/')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Fetch user's tourism experiences
   const { data: experiences, error: experiencesError } = await supabase

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { createStaticClient } from '@/lib/supabase/static'
 import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
+import { TourismViewTracker } from '@/components/TourismViewTracker'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -80,13 +81,6 @@ interface ExperiencePageProps {
   }>
 }
 
-// Function to increment view count
-async function incrementViewCount(experienceId: string) {
-  'use server'
-  const supabase = await createClient()
-  await supabase.rpc('increment_tourism_view_count', { experience_id: experienceId })
-}
-
 export default async function ExperiencePage({ params }: ExperiencePageProps) {
   const { slug } = await params
   const supabase = await createClient()
@@ -116,9 +110,6 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
   if (!experience) {
     notFound()
   }
-
-  // Increment view count
-  await incrementViewCount(experience.id)
 
   // Check if current user has saved this experience
   if (user) {
@@ -165,8 +156,11 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
       {/* JSON-LD structured data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
+
+      {/* Track view count (client-side to avoid blocking SSR) */}
+      <TourismViewTracker experienceId={experience.id} />
 
       {/* Track recently viewed */}
       <RecentlyViewedTracker

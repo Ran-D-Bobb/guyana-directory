@@ -334,92 +334,53 @@ export async function getReviewsByRating(period: TimePeriod, customRange?: DateR
 }
 
 /**
- * Get top performing categories
+ * Get top performing categories (single SQL query via DB function)
  */
 export async function getCategoryPerformance(limit: number = 10): Promise<CategoryPerformance[]> {
   const supabase = await createClient()
 
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('id, name, slug')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc('get_category_performance', { p_limit: limit })
 
-  if (!categories) return []
-
-  const performance: CategoryPerformance[] = []
-
-  for (const category of categories) {
-    // Get businesses in this category
-    const { data: businesses } = await supabase
-      .from('businesses')
-      .select('id, view_count, rating, review_count')
-      .eq('category_id', category.id)
-
-    const businessCount = businesses?.length || 0
-    const totalViews = businesses?.reduce((sum, b) => sum + (b.view_count || 0), 0) || 0
-    const totalReviews = businesses?.reduce((sum, b) => sum + (b.review_count || 0), 0) || 0
-
-    const ratingsWithValue = businesses?.filter(b => b.rating !== null) || []
-    const avgRating = ratingsWithValue.length > 0
-      ? ratingsWithValue.reduce((sum, b) => sum + (b.rating || 0), 0) / ratingsWithValue.length
-      : null
-
-    performance.push({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-      businessCount,
-      totalViews,
-      totalReviews,
-      avgRating: avgRating ? Math.round(avgRating * 10) / 10 : null
-    })
+  if (error || !data) {
+    console.error('Error fetching category performance:', error)
+    return []
   }
 
-  // Sort by total views and limit
-  return performance
-    .sort((a, b) => b.totalViews - a.totalViews)
-    .slice(0, limit)
+  return (data as { category_id: string; category_name: string; category_slug: string; business_count: number; total_views: number; total_reviews: number; avg_rating: number | null }[]).map(row => ({
+    id: row.category_id,
+    name: row.category_name,
+    slug: row.category_slug,
+    businessCount: Number(row.business_count),
+    totalViews: Number(row.total_views),
+    totalReviews: Number(row.total_reviews),
+    avgRating: row.avg_rating ? Math.round(Number(row.avg_rating) * 10) / 10 : null,
+  }))
 }
 
 /**
- * Get top performing regions
+ * Get top performing regions (single SQL query via DB function)
  */
 export async function getRegionPerformance(limit: number = 10): Promise<RegionPerformance[]> {
   const supabase = await createClient()
 
-  const { data: regions } = await supabase
-    .from('regions')
-    .select('id, name, slug, type')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc('get_region_performance', { p_limit: limit })
 
-  if (!regions) return []
-
-  const performance: RegionPerformance[] = []
-
-  for (const region of regions) {
-    // Get businesses in this region
-    const { data: businesses } = await supabase
-      .from('businesses')
-      .select('id, view_count, review_count')
-      .eq('region_id', region.id)
-
-    const businessCount = businesses?.length || 0
-    const totalViews = businesses?.reduce((sum, b) => sum + (b.view_count || 0), 0) || 0
-    const totalReviews = businesses?.reduce((sum, b) => sum + (b.review_count || 0), 0) || 0
-
-    performance.push({
-      id: region.id,
-      name: region.name,
-      slug: region.slug,
-      type: region.type,
-      businessCount,
-      totalViews,
-      totalReviews
-    })
+  if (error || !data) {
+    console.error('Error fetching region performance:', error)
+    return []
   }
 
-  // Sort by total views and limit
-  return performance
-    .sort((a, b) => b.totalViews - a.totalViews)
-    .slice(0, limit)
+  return (data as { region_id: string; region_name: string; region_slug: string; region_type: string; business_count: number; total_views: number; total_reviews: number }[]).map(row => ({
+    id: row.region_id,
+    name: row.region_name,
+    slug: row.region_slug,
+    type: row.region_type,
+    businessCount: Number(row.business_count),
+    totalViews: Number(row.total_views),
+    totalReviews: Number(row.total_reviews),
+  }))
 }
 
 /**

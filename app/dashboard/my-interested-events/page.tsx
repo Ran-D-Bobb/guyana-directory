@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requirePersonalAccount } from '@/lib/account-type'
 import Link from 'next/link'
 import { Star, ChevronLeft, Eye, Calendar, Clock } from 'lucide-react'
 import { EventCard } from '@/components/EventCard'
@@ -18,8 +19,10 @@ export default async function MyInterestedEventsPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
+
+  await requirePersonalAccount(user.id)
 
   // Fetch events user is interested in
   const { data: interestedEventsData, error } = await supabase

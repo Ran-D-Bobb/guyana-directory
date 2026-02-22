@@ -681,7 +681,7 @@ export function RentalActions({
 interface EventActionsProps {
   eventId: string
   eventName?: string
-  eventType: 'general' | 'business'
+  eventType: 'general' | 'promotion'
   isFeatured: boolean
   onUpdate?: () => void
 }
@@ -982,7 +982,6 @@ export function UserActions({
   userEmail,
   status,
   statusReason,
-  statusExpiresAt: _statusExpiresAt,
   isAdmin = false,
   onUpdate,
 }: UserActionsProps) {

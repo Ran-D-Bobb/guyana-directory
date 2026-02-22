@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requireBusinessAccount } from '@/lib/account-type'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { TourismExperienceEditForm } from '@/components/tourism/TourismExperienceEditForm'
@@ -20,6 +21,8 @@ export default async function EditTourismExperiencePage({ params }: PageProps) {
   if (!user) {
     redirect('/')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Fetch the tourism experience
   const { data: experience, error: experienceError } = await supabase

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requirePersonalAccount } from '@/lib/account-type'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -35,6 +36,8 @@ export default async function SavedPage() {
   if (!user) {
     redirect('/')
   }
+
+  await requirePersonalAccount(user.id)
 
   // Fetch saved businesses
   const { data: savedBusinessesData } = await supabase

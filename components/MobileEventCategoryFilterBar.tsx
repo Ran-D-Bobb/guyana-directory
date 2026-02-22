@@ -23,6 +23,7 @@ import {
   Palette,
   Heart,
   Calendar,
+  Tag,
   type LucideIcon
 } from 'lucide-react'
 import { Database } from '@/types/supabase'
@@ -44,7 +45,7 @@ const iconMap: Record<string, LucideIcon> = {
 export function MobileEventCategoryFilterBar({
   categories,
   currentCategorySlug,
-  regions
+  regions,
 }: MobileEventCategoryFilterBarProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -57,6 +58,7 @@ export function MobileEventCategoryFilterBar({
   const [localSort, setLocalSort] = useState(searchParams.get('sort') || 'featured')
   const [localTime, setLocalTime] = useState(searchParams.get('time') || 'upcoming')
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
+  const [localSource, setLocalSource] = useState(searchParams.get('source') || 'all')
 
   // Sync local state when URL changes
   useEffect(() => {
@@ -64,6 +66,7 @@ export function MobileEventCategoryFilterBar({
     setLocalSort(searchParams.get('sort') || 'featured')
     setLocalTime(searchParams.get('time') || 'upcoming')
     setSearchQuery(searchParams.get('q') || '')
+    setLocalSource(searchParams.get('source') || 'all')
   }, [searchParams])
 
   // Count active filters
@@ -71,14 +74,16 @@ export function MobileEventCategoryFilterBar({
     searchParams.get('region') && searchParams.get('region') !== 'all',
     searchParams.get('sort') && searchParams.get('sort') !== 'featured',
     searchParams.get('time') && searchParams.get('time') !== 'upcoming',
-    searchParams.get('q')
+    searchParams.get('q'),
+    searchParams.get('source') === 'promotions',
   ].filter(Boolean).length
 
   const localActiveFiltersCount = [
     localRegion !== 'all',
     localSort !== 'featured',
     localTime !== 'upcoming',
-    searchQuery.trim()
+    searchQuery.trim(),
+    localSource === 'promotions',
   ].filter(Boolean).length
 
   const applyFilters = () => {
@@ -87,6 +92,7 @@ export function MobileEventCategoryFilterBar({
     if (localSort !== 'featured') params.set('sort', localSort)
     if (localTime !== 'upcoming') params.set('time', localTime)
     if (searchQuery.trim()) params.set('q', searchQuery.trim())
+    if (localSource === 'promotions') params.set('source', localSource)
     router.push(`${pathname}?${params.toString()}`)
     setIsFilterOpen(false)
   }
@@ -96,6 +102,7 @@ export function MobileEventCategoryFilterBar({
     setLocalSort('featured')
     setLocalTime('upcoming')
     setSearchQuery('')
+    setLocalSource('all')
   }
 
   // Scroll active category into view (within container only)
@@ -305,6 +312,32 @@ export function MobileEventCategoryFilterBar({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Promotions Filter */}
+          <div className="mb-6">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
+              <Tag className="h-4 w-4 text-purple-500" />
+              Source
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { value: 'all', label: 'All Events', activeClass: 'bg-gray-800 text-white shadow-lg' },
+                { value: 'promotions', label: 'Promotions', activeClass: 'bg-purple-500 text-white shadow-lg' },
+              ].map((sourceOption) => (
+                <button
+                  key={sourceOption.value}
+                  onClick={() => setLocalSource(sourceOption.value)}
+                  className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                    localSource === sourceOption.value
+                      ? sourceOption.activeClass
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {sourceOption.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Sort By */}

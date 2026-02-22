@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { createStaticClient } from '@/lib/supabase/static'
 import { notFound } from 'next/navigation'
@@ -6,6 +8,7 @@ import { CategorySidebar } from '@/components/CategorySidebar'
 import { CategoryPageClient } from '@/components/CategoryPageClient'
 import { MobileCategoryFilterBar } from '@/components/MobileCategoryFilterBar'
 import { FollowCategoryButton } from '@/components/FollowCategoryButton'
+import { BusinessFilterPanel } from '@/components/BusinessFilterPanel'
 import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -25,6 +28,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
+const ITEMS_PER_PAGE = 24
+
 interface CategoryPageProps {
   params: Promise<{
     slug: string
@@ -35,12 +40,17 @@ interface CategoryPageProps {
     rating?: string
     verified?: string
     featured?: string
+    tags?: string  // comma-separated tag slugs
+    page?: string
   }>
 }
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params
-  const { region, sort = 'featured', rating, verified, featured } = await searchParams
+  const { region, sort = 'featured', rating, verified, featured, tags: tagsParam, page: pageParam } = await searchParams
+  const currentPage = Math.max(1, parseInt(pageParam || '1', 10) || 1)
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
+  const selectedTags = tagsParam ? tagsParam.split(',') : []
   const supabase = await createClient()
 
   // Fetch the current user
@@ -78,6 +88,35 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     .select('*')
     .order('name')
 
+  // Fetch category tags for filter UI
+  const { data: categoryTags } = await supabase
+    .from('category_tags')
+    .select('id, name, slug')
+    .eq('category_id', category.id)
+    .order('display_order', { ascending: true })
+
+  // Resolve tag filter once (used by both data and count queries)
+  let businessIdFilter: string[] | null = null
+  if (selectedTags.length > 0) {
+    const { data: tagRows } = await supabase
+      .from('category_tags')
+      .select('id')
+      .eq('category_id', category.id)
+      .in('slug', selectedTags)
+
+    const tagIds = tagRows?.map(t => t.id) || []
+    if (tagIds.length > 0) {
+      const { data: matchingBT } = await supabase
+        .from('business_tags')
+        .select('business_id')
+        .in('tag_id', tagIds)
+
+      businessIdFilter = [...new Set(matchingBT?.map(bt => bt.business_id) || [])]
+    } else {
+      businessIdFilter = []
+    }
+  }
+
   // Build the query for businesses
   let query = supabase
     .from('businesses')
@@ -88,6 +127,10 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       business_photos (
         image_url,
         is_primary
+      ),
+      business_tags (
+        tag_id,
+        category_tags:tag_id (name, slug)
       )
     `)
     .eq('category_id', category.id)
@@ -109,6 +152,15 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     query = query.eq('is_featured', true)
   }
 
+  // Apply tag filter
+  if (businessIdFilter !== null) {
+    if (businessIdFilter.length > 0) {
+      query = query.in('id', businessIdFilter)
+    } else {
+      query = query.in('id', ['00000000-0000-0000-0000-000000000000'])
+    }
+  }
+
   // Apply sorting
   switch (sort) {
     case 'featured':
@@ -126,7 +178,41 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       break
   }
 
-  const { data: businesses } = await query
+  // Build count query with same filters
+  let countQuery = supabase
+    .from('businesses')
+    .select('id', { count: 'exact', head: true })
+    .eq('category_id', category.id)
+
+  if (region && region !== 'all') {
+    countQuery = countQuery.eq('region_id', region)
+  }
+  if (rating && rating !== 'all') {
+    countQuery = countQuery.gte('rating', parseFloat(rating))
+  }
+  if (verified === 'true') {
+    countQuery = countQuery.eq('is_verified', true)
+  }
+  if (featured === 'true') {
+    countQuery = countQuery.eq('is_featured', true)
+  }
+  if (businessIdFilter !== null) {
+    if (businessIdFilter.length > 0) {
+      countQuery = countQuery.in('id', businessIdFilter)
+    } else {
+      countQuery = countQuery.in('id', ['00000000-0000-0000-0000-000000000000'])
+    }
+  }
+
+  // Apply pagination to data query
+  query = query.range(offset, offset + ITEMS_PER_PAGE - 1)
+
+  const [{ data: businesses }, { count: totalCount }] = await Promise.all([
+    query,
+    countQuery,
+  ])
+
+  const totalPages = Math.ceil((totalCount || 0) / ITEMS_PER_PAGE)
 
   // Process businesses to extract primary photo
   const businessesWithPhotos = (businesses || []).map(b => ({
@@ -156,7 +242,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 </p>
               )}
               <p className="text-sm text-gray-600 mt-2">
-                <span className="font-semibold text-gray-900">{businessesWithPhotos.length}</span> results
+                <span className="font-semibold text-gray-900">{totalCount || 0}</span> results
               </p>
             </div>
             <FollowCategoryButton
@@ -171,14 +257,18 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         </div>
 
         {/* Mobile Category & Filter Bar */}
-        <MobileCategoryFilterBar
-          categories={categoriesWithCount}
-          currentCategorySlug={slug}
-          regions={regions || []}
-          currentFilters={{ region, sort, rating, verified, featured }}
-          basePath="/businesses"
-          categoryPath="/businesses/category"
-        />
+        <Suspense fallback={null}>
+          <MobileCategoryFilterBar
+            categories={categoriesWithCount}
+            currentCategorySlug={slug}
+            regions={regions || []}
+            currentFilters={{ region, sort, rating, verified, featured }}
+            basePath="/businesses"
+            categoryPath="/businesses/category"
+            categoryTags={categoryTags || []}
+            selectedTags={selectedTags}
+          />
+        </Suspense>
 
         {/* Content Container */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
@@ -206,8 +296,61 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             </div>
           </div>
 
+          {/* Desktop Filter Panel with Tags */}
+          <div className="hidden lg:block mb-6">
+            <Suspense fallback={null}>
+              <BusinessFilterPanel
+                regions={regions || []}
+                currentFilters={{ region, sort, rating, verified, featured }}
+                categoryTags={categoryTags || []}
+                selectedTags={selectedTags}
+              />
+            </Suspense>
+          </div>
+
           {/* Business Grid with View Controls */}
           <CategoryPageClient businesses={businessesWithPhotos} />
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav className="flex items-center justify-center gap-2 mt-8" aria-label="Pagination">
+              {currentPage > 1 && (
+                <Link
+                  href={`/businesses/category/${slug}?${new URLSearchParams({
+                    ...(region && region !== 'all' ? { region } : {}),
+                    ...(sort !== 'featured' ? { sort } : {}),
+                    ...(rating && rating !== 'all' ? { rating } : {}),
+                    ...(verified === 'true' ? { verified } : {}),
+                    ...(featured === 'true' ? { featured } : {}),
+                    ...(tagsParam ? { tags: tagsParam } : {}),
+                    page: String(currentPage - 1),
+                  }).toString()}`}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Previous
+                </Link>
+              )}
+              <span className="px-4 py-2 text-sm text-gray-600">
+                Page {currentPage} of {totalPages}
+              </span>
+              {currentPage < totalPages && (
+                <Link
+                  href={`/businesses/category/${slug}?${new URLSearchParams({
+                    ...(region && region !== 'all' ? { region } : {}),
+                    ...(sort !== 'featured' ? { sort } : {}),
+                    ...(rating && rating !== 'all' ? { rating } : {}),
+                    ...(verified === 'true' ? { verified } : {}),
+                    ...(featured === 'true' ? { featured } : {}),
+                    ...(tagsParam ? { tags: tagsParam } : {}),
+                    page: String(currentPage + 1),
+                  }).toString()}`}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Next
+                </Link>
+              )}
+            </nav>
+          )}
         </main>
       </div>
 

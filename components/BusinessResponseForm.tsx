@@ -1,9 +1,20 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MessageSquare, Trash2, Edit2 } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 interface BusinessResponseFormProps {
   reviewId: string
@@ -29,8 +40,10 @@ export function BusinessResponseForm({
   const [isEditing, setIsEditing] = useState(!existingResponse)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const supabase = createClient()
+  const router = useRouter()
 
   if (!user || !isBusinessOwner) {
     return null
@@ -64,9 +77,7 @@ export function BusinessResponseForm({
         } else {
           setSuccess(true)
           setIsEditing(false)
-          setTimeout(() => {
-            window.location.reload()
-          }, 1500)
+          router.refresh()
         }
       } else {
         // Create new response
@@ -84,9 +95,7 @@ export function BusinessResponseForm({
         } else {
           setSuccess(true)
           setResponse('')
-          setTimeout(() => {
-            window.location.reload()
-          }, 1500)
+          router.refresh()
         }
       }
     } catch (err) {
@@ -99,10 +108,6 @@ export function BusinessResponseForm({
 
   const handleDelete = async () => {
     if (!existingResponse) return
-
-    if (!confirm('Are you sure you want to delete your response?')) {
-      return
-    }
 
     setIsDeleting(true)
     setError(null)
@@ -117,9 +122,7 @@ export function BusinessResponseForm({
       if (deleteError) {
         setError(`Failed to delete response: ${deleteError.message}`)
       } else {
-        setTimeout(() => {
-          window.location.reload()
-        }, 500)
+        router.refresh()
       }
     } catch (err) {
       console.error('Error deleting response:', err)
@@ -131,25 +134,47 @@ export function BusinessResponseForm({
 
   if (existingResponse && !isEditing) {
     return (
-      <div className="mt-3 ml-15">
-        <div className="flex items-center justify-end gap-2">
-          <button
-            onClick={() => setIsEditing(true)}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-700"
-          >
-            <Edit2 className="w-3 h-3" />
-            Edit Response
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-50"
-          >
-            <Trash2 className="w-3 h-3" />
-            {isDeleting ? 'Deleting...' : 'Delete'}
-          </button>
+      <>
+        <div className="mt-3 ml-15">
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-1 px-2 py-1 text-xs text-[hsl(var(--jungle-600))] hover:text-[hsl(var(--jungle-700))]"
+            >
+              <Edit2 className="w-3 h-3" />
+              Edit Response
+            </button>
+            <button
+              onClick={() => setShowDeleteDialog(true)}
+              disabled={isDeleting}
+              className="flex items-center gap-1 px-2 py-1 text-xs text-red-600 hover:text-red-700 disabled:opacity-50"
+            >
+              <Trash2 className="w-3 h-3" />
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
         </div>
-      </div>
+
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete your response?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently remove your response to this review.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     )
   }
 
@@ -157,16 +182,16 @@ export function BusinessResponseForm({
     return (
       <div className="mt-3 ml-15 bg-emerald-50 border border-emerald-200 rounded-lg p-3">
         <p className="text-sm text-emerald-700 font-medium">
-          {existingResponse ? 'Response updated!' : 'Response submitted!'} The page will refresh shortly.
+          {existingResponse ? 'Response updated!' : 'Response submitted!'}
         </p>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 ml-15 bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <form onSubmit={handleSubmit} className="mt-3 ml-15 bg-[hsl(var(--jungle-50))] border border-[hsl(var(--border))] rounded-lg p-4">
       <div className="flex items-center justify-between mb-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-blue-900">
+        <label className="flex items-center gap-2 text-sm font-medium text-[hsl(var(--jungle-900))]">
           <MessageSquare className="w-4 h-4" />
           {existingResponse ? 'Edit Your Response' : 'Respond to this review'}
         </label>
@@ -177,7 +202,7 @@ export function BusinessResponseForm({
               setIsEditing(false)
               setResponse(existingResponse.response)
             }}
-            className="text-xs text-gray-600 hover:text-gray-900"
+            className="text-xs text-[hsl(var(--jungle-600))] hover:text-[hsl(var(--jungle-900))]"
           >
             Cancel
           </button>
@@ -189,16 +214,16 @@ export function BusinessResponseForm({
         onChange={(e) => setResponse(e.target.value)}
         placeholder="Thank the customer and address their feedback..."
         rows={3}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+        className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-lg focus:ring-2 focus:ring-[hsl(var(--jungle-500))] focus:border-[hsl(var(--jungle-500))] text-sm"
         maxLength={500}
       />
       <div className="flex items-center justify-between mt-2">
-        <p className="text-xs text-gray-500">{response.length}/500 characters</p>
+        <p className="text-xs text-[hsl(var(--muted-foreground))]">{response.length}/500 characters</p>
 
         <button
           type="submit"
           disabled={isSubmitting || !response.trim()}
-          className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+          className="px-4 py-2 text-sm bg-[hsl(var(--jungle-500))] text-white rounded-lg hover:bg-[hsl(var(--jungle-600))] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
         >
           {isSubmitting ? (existingResponse ? 'Updating...' : 'Submitting...') : (existingResponse ? 'Update Response' : 'Submit Response')}
         </button>

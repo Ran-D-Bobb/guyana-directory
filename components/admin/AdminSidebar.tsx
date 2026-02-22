@@ -25,6 +25,7 @@ import {
   MapPin,
   FileWarning,
   Video,
+  Tag,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -94,6 +95,7 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0, flaggedPh
       badgeColor: 'bg-orange-500'
     },
     { label: 'Categories', href: '/admin/categories', icon: FolderOpen },
+    { label: 'Tags', href: '/admin/tags', icon: Tag },
     { label: 'Regions', href: '/admin/regions', icon: MapPin },
     { label: 'Data Quality', href: '/admin/data-quality', icon: FileWarning },
     { label: 'Audit Log', href: '/admin/audit-log', icon: ClipboardList },

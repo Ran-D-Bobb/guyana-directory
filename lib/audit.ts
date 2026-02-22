@@ -28,6 +28,7 @@ export type EntityType =
   | 'category'
   | 'region'
   | 'timeline'
+  | 'tag'
 
 export interface AuditLogEntry {
   action: AdminAction

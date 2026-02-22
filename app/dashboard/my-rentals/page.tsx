@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requireBusinessAccount } from '@/lib/account-type'
 import Link from 'next/link'
 import { Home, Eye, MessageCircle, Heart, Star, Plus, Edit, Camera } from 'lucide-react'
 import DeleteRentalButton from '@/components/DeleteRentalButton'
@@ -10,8 +11,10 @@ export default async function MyRentalsPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/signin')
+    redirect('/auth/login')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Get landlord's rentals
   const { data: rentals, error } = await supabase
@@ -32,8 +35,9 @@ export default async function MyRentalsPage() {
   const totalInquiries = rentals?.reduce((sum, rental) => sum + (rental.inquiry_count || 0), 0) || 0
   const totalSaves = rentals?.reduce((sum, rental) => sum + (rental.save_count || 0), 0) || 0
   const totalReviews = rentals?.reduce((sum, rental) => sum + (rental.review_count || 0), 0) || 0
-  const avgRating = rentals && rentals.length > 0
-    ? (rentals.reduce((sum, rental) => sum + (rental.rating || 0), 0) / rentals.filter(r => r.rating).length) || 0
+  const ratedRentals = rentals?.filter(r => r.rating) || []
+  const avgRating = ratedRentals.length > 0
+    ? ratedRentals.reduce((sum, r) => sum + (r.rating || 0), 0) / ratedRentals.length
     : 0
 
   // Calculate revenue estimate (total views * avg price * 2% conversion rate)
@@ -230,7 +234,7 @@ export default async function MyRentalsPage() {
                         <Camera className="h-4 w-4" />
                         Manage Photos
                       </Link>
-                      <DeleteRentalButton rentalName={rental.name} />
+                      <DeleteRentalButton rentalName={rental.name} rentalId={rental.id} />
                     </div>
                   </div>
                 </div>

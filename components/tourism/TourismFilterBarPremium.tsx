@@ -153,7 +153,7 @@ export function TourismFilterBarPremium({ regions = [], currentFilters = {} }: T
   }
 
   return (
-    <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 p-4">
+    <div className="relative z-10 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 p-4">
       <div className="flex items-center gap-3 flex-wrap">
         {/* Filter Label */}
         <div className="flex items-center gap-2 pr-4 border-r border-gray-200">

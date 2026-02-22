@@ -23,6 +23,9 @@ export default async function AdminBusinessesPage({
   const featuredFilter = params.featured as string | undefined
   const searchQuery = params.q as string | undefined
 
+  // Sanitize search query for DB
+  const safeQ = searchQuery ? searchQuery.replace(/[%_(),.*]/g, ' ').trim() : ''
+
   // Build query
   let query = supabase
     .from('businesses')
@@ -33,6 +36,11 @@ export default async function AdminBusinessesPage({
       profiles(name, email)
     `)
     .order('created_at', { ascending: false })
+
+  // Apply search filter at DB level
+  if (safeQ) {
+    query = query.ilike('name', `%${safeQ}%`)
+  }
 
   // Apply filters
   if (categoryFilter) {
@@ -49,6 +57,9 @@ export default async function AdminBusinessesPage({
     query = query.eq('is_featured', false)
   }
 
+  // Limit results
+  query = query.limit(100)
+
   const { data: businesses } = await query
 
   // Get categories for filter
@@ -57,13 +68,7 @@ export default async function AdminBusinessesPage({
     .select('*')
     .order('name')
 
-  // Apply search filter client-side
-  const filteredBusinesses = searchQuery
-    ? businesses?.filter(b =>
-        b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        b.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : businesses
+  const filteredBusinesses = businesses
 
   // Calculate stats
   const totalBusinesses = businesses?.length || 0

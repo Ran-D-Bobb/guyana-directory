@@ -38,66 +38,74 @@ export async function getRecommendations(
   const { userId, recentlyViewedCategories = [], limit = 6 } = input
   const categoryWeights: Map<string, CategoryWeight> = new Map()
 
-  // 1. Get categories from saved businesses (weight: 3)
-  if (userId) {
-    const { data: savedBusinesses } = await supabase
-      .from('saved_businesses')
-      .select(`
-        business_id,
-        businesses!inner (
-          category_id,
-          categories!inner (id, name)
-        )
-      `)
-      .eq('user_id', userId)
+  // Fetch saved and reviewed data in parallel to reduce query count
+  type BusinessWithCategory = { business_id: string; businesses: { category_id: string | null; categories: { id: string; name: string } | null } }
+  let savedBusinesses: BusinessWithCategory[] | null = null
+  let reviewsData: BusinessWithCategory[] | null = null
 
-    if (savedBusinesses) {
-      for (const saved of savedBusinesses) {
-        const business = saved.businesses as {
-          category_id: string | null
-          categories: { id: string; name: string } | null
-        }
-        if (business?.categories) {
-          const existing = categoryWeights.get(business.categories.id)
-          categoryWeights.set(business.categories.id, {
-            categoryId: business.categories.id,
-            categoryName: business.categories.name,
-            weight: (existing?.weight || 0) + 3,
-            source: 'saved',
-          })
-        }
+  if (userId) {
+    const [savedResult, reviewsResult] = await Promise.all([
+      supabase
+        .from('saved_businesses')
+        .select(`
+          business_id,
+          businesses!inner (
+            category_id,
+            categories!inner (id, name)
+          )
+        `)
+        .eq('user_id', userId),
+      supabase
+        .from('reviews')
+        .select(`
+          business_id,
+          businesses!inner (
+            category_id,
+            categories!inner (id, name)
+          )
+        `)
+        .eq('user_id', userId),
+    ])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    savedBusinesses = savedResult.data as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    reviewsData = reviewsResult.data as any
+  }
+
+  // 1. Get categories from saved businesses (weight: 3)
+  if (savedBusinesses) {
+    for (const saved of savedBusinesses) {
+      const business = saved.businesses as {
+        category_id: string | null
+        categories: { id: string; name: string } | null
+      }
+      if (business?.categories) {
+        const existing = categoryWeights.get(business.categories.id)
+        categoryWeights.set(business.categories.id, {
+          categoryId: business.categories.id,
+          categoryName: business.categories.name,
+          weight: (existing?.weight || 0) + 3,
+          source: 'saved',
+        })
       }
     }
   }
 
   // 2. Get categories from reviewed businesses (weight: 2)
-  if (userId) {
-    const { data: reviews } = await supabase
-      .from('reviews')
-      .select(`
-        business_id,
-        businesses!inner (
-          category_id,
-          categories!inner (id, name)
-        )
-      `)
-      .eq('user_id', userId)
-
-    if (reviews) {
-      for (const review of reviews) {
-        const business = review.businesses as {
-          category_id: string | null
-          categories: { id: string; name: string } | null
-        }
-        if (business?.categories) {
-          const existing = categoryWeights.get(business.categories.id)
-          categoryWeights.set(business.categories.id, {
-            categoryId: business.categories.id,
-            categoryName: business.categories.name,
-            weight: (existing?.weight || 0) + 2,
-            source: existing?.source || 'reviewed',
-          })
-        }
+  if (reviewsData) {
+    for (const review of reviewsData) {
+      const business = review.businesses as {
+        category_id: string | null
+        categories: { id: string; name: string } | null
+      }
+      if (business?.categories) {
+        const existing = categoryWeights.get(business.categories.id)
+        categoryWeights.set(business.categories.id, {
+          categoryId: business.categories.id,
+          categoryName: business.categories.name,
+          weight: (existing?.weight || 0) + 2,
+          source: existing?.source || 'reviewed',
+        })
       }
     }
   }
@@ -148,29 +156,14 @@ export async function getRecommendations(
   // Get top 3 category IDs for querying
   const topCategoryIds = sortedCategories.slice(0, 3).map(c => c.categoryId)
 
-  // Get businesses from those categories, excluding ones user has already saved/reviewed
+  // Reuse already-fetched data for exclusion list (no extra queries needed)
   const excludeBusinessIds: string[] = []
 
-  if (userId) {
-    // Get saved business IDs
-    const { data: savedIds } = await supabase
-      .from('saved_businesses')
-      .select('business_id')
-      .eq('user_id', userId)
-
-    if (savedIds) {
-      excludeBusinessIds.push(...savedIds.map(s => s.business_id))
-    }
-
-    // Get reviewed business IDs
-    const { data: reviewedIds } = await supabase
-      .from('reviews')
-      .select('business_id')
-      .eq('user_id', userId)
-
-    if (reviewedIds) {
-      excludeBusinessIds.push(...reviewedIds.map(r => r.business_id))
-    }
+  if (savedBusinesses) {
+    excludeBusinessIds.push(...savedBusinesses.map(s => s.business_id))
+  }
+  if (reviewsData) {
+    excludeBusinessIds.push(...reviewsData.map(r => r.business_id))
   }
 
   // Query businesses from preferred categories

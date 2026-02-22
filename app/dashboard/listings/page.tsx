@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requireBusinessAccount } from '@/lib/account-type'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -34,6 +35,8 @@ export default async function ListingsPage() {
   if (!user) {
     redirect('/')
   }
+
+  await requireBusinessAccount(user.id)
 
   // Fetch all user listings in parallel
   const [businessResult, eventsResult, tourismResult, rentalsResult] = await Promise.all([

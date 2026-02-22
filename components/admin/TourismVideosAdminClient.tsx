@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import {
@@ -14,9 +15,9 @@ import {
   ArrowUp,
   ArrowDown,
   Upload,
-  X,
   Link as LinkIcon,
-  Trash2
+  Trash2,
+  Clock
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
@@ -34,6 +35,7 @@ interface HeroVideo {
   thumbnail_url: string | null
   display_order: number
   is_active: boolean
+  cycle_duration: number | null
   created_at: string
   updated_at: string
 }
@@ -47,6 +49,7 @@ const defaultVideo: Partial<HeroVideo> = {
   video_url: '',
   thumbnail_url: '',
   is_active: true,
+  cycle_duration: null,
 }
 
 export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminClientProps) {
@@ -114,7 +117,7 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
     }
   }
 
-  const updateField = (field: keyof HeroVideo, value: string | boolean | null) => {
+  const updateField = (field: keyof HeroVideo, value: string | boolean | number | null) => {
     setEditingVideo(prev => prev ? { ...prev, [field]: value } : null)
   }
 
@@ -153,6 +156,7 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
             video_url: editingVideo.video_url,
             thumbnail_url: editingVideo.thumbnail_url || null,
             is_active: editingVideo.is_active,
+            cycle_duration: editingVideo.cycle_duration || null,
           })
           .eq('id', editingVideo.id)
 
@@ -171,6 +175,7 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
             thumbnail_url: editingVideo.thumbnail_url || null,
             is_active: editingVideo.is_active ?? true,
             display_order: maxOrder + 1,
+            cycle_duration: editingVideo.cycle_duration || null,
           })
 
         if (error) throw error
@@ -353,10 +358,11 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
                 {/* Video Preview */}
                 <div className="w-32 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
                   {isYouTubeUrl(video.video_url) ? (
-                    <img
+                    <Image
                       src={getYouTubeThumbnail(video.video_url) || ''}
                       alt={video.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                   ) : (
                     <video
@@ -390,6 +396,10 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
                     </span>
                     <span className="text-xs text-gray-400">
                       Order: {video.display_order}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                      <Clock className="w-3 h-3" />
+                      {video.cycle_duration ? `${video.cycle_duration}s` : 'Full video'}
                     </span>
                   </div>
                 </div>
@@ -608,6 +618,30 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
                   <p className="text-sm text-red-600">{uploadError}</p>
                 </div>
               )}
+
+              {/* Cycle Duration */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Display Duration (seconds)
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    min="5"
+                    max="300"
+                    value={editingVideo.cycle_duration ?? ''}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      updateField('cycle_duration', val ? parseInt(val) : null)
+                    }}
+                    placeholder="Auto (play full video)"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 placeholder:text-gray-400"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Leave empty to play the full video before cycling. Set a value to advance after that many seconds.
+                </p>
+              </div>
 
               {/* Active Toggle */}
               <div className="flex items-center justify-between py-3 border-t border-gray-200">

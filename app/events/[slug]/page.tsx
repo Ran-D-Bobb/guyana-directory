@@ -3,12 +3,15 @@ import { createClient } from '@/lib/supabase/server'
 import { createStaticClient } from '@/lib/supabase/static'
 import { EventViewTracker } from '@/components/EventViewTracker'
 import { EventInterestButton } from '@/components/EventInterestButton'
+import { EventShareButton } from '@/components/EventShareButton'
+import { EventDetailHeader } from '@/components/EventDetailHeader'
 import { StaticMapCard } from '@/components/StaticMapCard'
 import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
+import { EventCard } from '@/components/EventCard'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronLeft, Calendar, MapPin, Building2, Clock, Sparkles, Eye, User, Phone } from 'lucide-react'
+import { Calendar, MapPin, Building2, Clock, Sparkles, Eye, User, Phone, Users, ArrowRight } from 'lucide-react'
 
 // Default event image from Unsplash
 const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80'
@@ -70,58 +73,77 @@ export default async function EventPage({ params }: EventPageProps) {
   const { slug } = await params
   const supabase = await createClient()
 
-  // Get current user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Parallelize auth + event fetch (independent queries)
+  const [userResult, eventResult] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from('events')
+      .select(`
+        *,
+        event_categories:category_id (id, name, icon),
+        businesses:business_id (
+          id,
+          name,
+          slug,
+          phone,
+          email,
+          website,
+          address,
+          regions:region_id (name)
+        )
+      `)
+      .eq('slug', slug)
+      .single(),
+  ])
 
-  // Fetch the event with category, business, and creator
-  const { data: event } = await supabase
-    .from('events')
-    .select(`
-      *,
-      event_categories:category_id (name, icon),
-      businesses:business_id (
-        id,
-        name,
-        slug,
-        phone,
-        email,
-        website,
-        address,
-        regions:region_id (name)
-      )
-    `)
-    .eq('slug', slug)
-    .single()
-
-  // Fetch creator profile separately if there's a user_id
-  let creatorProfile = null
-  if (event?.user_id) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('name')
-      .eq('id', event.user_id)
-      .single()
-    creatorProfile = profile
-  }
+  const user = userResult.data.user
+  const event = eventResult.data
 
   if (!event) {
     notFound()
   }
 
-  // Check if current user has marked interest
-  let userIsInterested = false
-  if (user) {
-    const { data: interest } = await supabase
-      .from('event_interests')
-      .select('id')
-      .eq('event_id', event.id)
-      .eq('user_id', user.id)
-      .single()
+  // Parallelize creator profile, interest check, and related events (all independent)
+  const [creatorProfileResult, interestResult, relatedEventsResult] = await Promise.all([
+    event.user_id
+      ? supabase.from('profiles').select('name').eq('id', event.user_id).single()
+      : Promise.resolve({ data: null }),
+    user
+      ? supabase.from('event_interests').select('id').eq('event_id', event.id).eq('user_id', user.id).single()
+      : Promise.resolve({ data: null }),
+    event.event_categories?.id
+      ? supabase
+          .from('events')
+          .select(`
+            id, title, slug, start_date, end_date, image_url, location,
+            is_featured, view_count, interest_count,
+            event_categories:category_id (name, icon),
+            businesses:business_id (name, slug)
+          `)
+          .eq('category_id', event.event_categories.id)
+          .neq('id', event.id)
+          .gt('end_date', new Date().toISOString())
+          .order('start_date', { ascending: true })
+          .limit(3)
+      : Promise.resolve({ data: null }),
+  ])
 
-    userIsInterested = !!interest
-  }
+  const creatorProfile = creatorProfileResult.data as { name: string | null } | null
+  const userIsInterested = !!interestResult.data
+  const relatedEvents = (relatedEventsResult.data || []) as Array<{
+    id: string
+    title: string
+    slug: string
+    start_date: string
+    end_date: string
+    image_url: string | null
+    location: string | null
+    is_featured: boolean | null
+    view_count: number | null
+    interest_count: number | null
+    event_categories: { name: string; icon: string | null } | null
+    businesses: { name: string; slug: string } | null
+  }>
 
   // Format dates
   const startDate = new Date(event.start_date)
@@ -151,7 +173,7 @@ export default async function EventPage({ params }: EventPageProps) {
   const isPast = endDate < now
 
   // JSON-LD structured data for Event
-  const eventBusiness = event.businesses as { name: string; address: string; regions: { name: string } | null } | null
+  const eventBusiness = event.businesses as { name: string; slug: string; address: string; regions: { name: string } | null } | null
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Event',
@@ -161,7 +183,7 @@ export default async function EventPage({ params }: EventPageProps) {
     image: event.image_url || undefined,
     startDate: event.start_date,
     endDate: event.end_date,
-    eventStatus: isPast ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
+    eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     ...(event.location || eventBusiness ? {
       location: {
@@ -181,7 +203,7 @@ export default async function EventPage({ params }: EventPageProps) {
       organizer: {
         '@type': 'Organization',
         name: eventBusiness.name,
-        url: `https://waypointgy.com/businesses/${(event.businesses as { slug: string }).slug}`,
+        url: `https://waypointgy.com/businesses/${eventBusiness.slug}`,
       },
     } : {}),
   }
@@ -191,7 +213,7 @@ export default async function EventPage({ params }: EventPageProps) {
       {/* JSON-LD structured data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
 
       {/* Track event view */}
@@ -208,37 +230,36 @@ export default async function EventPage({ params }: EventPageProps) {
         location={event.location || undefined}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-pink-50/20">
-        {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <Link
-              href="/events"
-              className="inline-flex items-center gap-2 text-gray-600 hover:text-purple-600 transition-colors duration-200"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Events</span>
-            </Link>
-          </div>
-        </header>
+      <div className={`min-h-screen ${isPast ? 'bg-gradient-to-br from-gray-50 via-gray-100/30 to-gray-50' : 'bg-gradient-to-br from-gray-50 via-emerald-50/30 to-amber-50/20'}`}>
+        {/* Improved sticky header with title and share */}
+        <EventDetailHeader title={event.title} slug={event.slug} />
 
         <main className="max-w-7xl mx-auto px-4 py-8 animate-fade-in">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6 animate-slide-in">
               {/* Event Image */}
-              <div className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className={`group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 ${isPast ? 'opacity-80' : ''}`}>
                 <div className="aspect-video w-full relative overflow-hidden">
                   <Image
                     src={event.image_url || DEFAULT_EVENT_IMAGE}
                     alt={event.title}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 800px"
                     priority
                   />
-                  {/* Gradient overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 via-purple-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Subtle gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+                  {/* Past event overlay */}
+                  {isPast && (
+                    <div className="absolute inset-0 bg-gray-900/30 flex items-center justify-center">
+                      <span className="px-6 py-3 bg-gray-900/70 backdrop-blur-sm text-white font-semibold rounded-full text-lg">
+                        This event has ended
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -247,13 +268,13 @@ export default async function EventPage({ params }: EventPageProps) {
                 {/* Badges */}
                 <div className="flex flex-wrap gap-2.5 mb-6">
                   {event.is_featured && (
-                    <span className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-full shadow-md animate-scale-in">
+                    <span className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 rounded-full shadow-md animate-scale-in">
                       <Sparkles className="w-4 h-4" />
                       Featured Event
                     </span>
                   )}
                   {event.event_categories && (
-                    <span className="px-4 py-2 text-sm font-semibold bg-purple-100 text-purple-700 rounded-full border-2 border-purple-200 hover:bg-purple-200 transition-colors duration-200">
+                    <span className="px-4 py-2 text-sm font-semibold bg-emerald-100 text-emerald-700 rounded-full border-2 border-emerald-200 hover:bg-emerald-200 transition-colors duration-200">
                       {event.event_categories.name}
                     </span>
                   )}
@@ -271,22 +292,22 @@ export default async function EventPage({ params }: EventPageProps) {
                 </div>
 
                 {/* Title */}
-                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text">
+                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
                   {event.title}
                 </h1>
 
                 {/* Event Type */}
                 {event.event_type && (
-                  <p className="text-lg text-purple-600 font-semibold mb-8 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-purple-600 rounded-full" />
+                  <p className="text-lg text-emerald-600 font-semibold mb-8 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full" />
                     {event.event_type}
                   </p>
                 )}
 
                 {/* Date and Time */}
                 <div className="space-y-4 mb-8 pb-8 border-b-2 border-gray-100">
-                  <div className="flex items-start gap-4 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors duration-200">
-                    <div className="p-2 bg-purple-600 rounded-lg shadow-md">
+                  <div className="flex items-start gap-4 p-4 bg-emerald-50 rounded-xl hover:bg-emerald-100/70 transition-colors duration-200">
+                    <div className="p-2 bg-emerald-600 rounded-lg shadow-md">
                       <Calendar className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1">
@@ -305,8 +326,8 @@ export default async function EventPage({ params }: EventPageProps) {
 
                   {/* Location */}
                   {event.location && (
-                    <div className="flex items-start gap-4 p-4 bg-pink-50 rounded-xl hover:bg-pink-100 transition-colors duration-200">
-                      <div className="p-2 bg-pink-600 rounded-lg shadow-md">
+                    <div className="flex items-start gap-4 p-4 bg-amber-50 rounded-xl hover:bg-amber-100/70 transition-colors duration-200">
+                      <div className="p-2 bg-amber-600 rounded-lg shadow-md">
                         <MapPin className="w-6 h-6 text-white" />
                       </div>
                       <p className="text-gray-900 font-semibold flex-1 leading-relaxed">{event.location}</p>
@@ -330,10 +351,10 @@ export default async function EventPage({ params }: EventPageProps) {
                 {event.description && (
                   <div className="mb-8">
                     <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <span className="w-1 h-8 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full" />
+                      <span className="w-1 h-8 bg-gradient-to-b from-emerald-600 to-amber-500 rounded-full" />
                       About This Event
                     </h2>
-                    <div className="text-gray-700 whitespace-pre-line leading-relaxed text-lg pl-5 border-l-2 border-purple-100">
+                    <div className="text-gray-700 whitespace-pre-line leading-relaxed text-lg pl-5 border-l-2 border-emerald-100">
                       {event.description}
                     </div>
                   </div>
@@ -342,20 +363,82 @@ export default async function EventPage({ params }: EventPageProps) {
                 {/* Stats */}
                 <div className="flex flex-wrap gap-4 pt-6 border-t-2 border-gray-100">
                   <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                    <div className="p-1.5 bg-purple-100 rounded-lg">
-                      <Eye className="w-5 h-5 text-purple-600" />
+                    <div className="p-1.5 bg-emerald-100 rounded-lg">
+                      <Eye className="w-5 h-5 text-emerald-600" />
                     </div>
                     <span className="text-sm font-semibold text-gray-900">
                       {event.view_count} {event.view_count === 1 ? 'view' : 'views'}
                     </span>
                   </div>
+                  {(event.interest_count ?? 0) > 0 && (
+                    <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                      <div className="p-1.5 bg-amber-100 rounded-lg">
+                        <Users className="w-5 h-5 text-amber-600" />
+                      </div>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {event.interest_count} interested
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {/* Related Events */}
+              {relatedEvents.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-md p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                      <span className="w-1 h-8 bg-gradient-to-b from-emerald-600 to-amber-500 rounded-full" />
+                      More {event.event_categories?.name || ''} Events
+                    </h2>
+                    {event.event_categories && (
+                      <Link
+                        href={`/events?category=${event.event_categories.id}`}
+                        className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                      >
+                        View all
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {relatedEvents.map((relatedEvent) => (
+                      <EventCard
+                        key={relatedEvent.id}
+                        event={{
+                          ...relatedEvent,
+                          is_featured: relatedEvent.is_featured ?? false,
+                          event_categories: relatedEvent.event_categories ? {
+                            name: relatedEvent.event_categories.name,
+                            icon: relatedEvent.event_categories.icon || ''
+                          } : null,
+                          businesses: relatedEvent.businesses,
+                        }}
+                        variant="compact"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Past event CTA */}
+              {isPast && (
+                <div className="bg-white rounded-2xl shadow-md p-8 text-center">
+                  <p className="text-gray-600 mb-4">This event has ended. Check out upcoming events!</p>
+                  <Link
+                    href="/events"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    Browse Upcoming Events
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-24 space-y-6 hover:shadow-xl transition-shadow duration-300">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-20 space-y-6 hover:shadow-xl transition-shadow duration-300">
                 {/* Interest Button */}
                 {!isPast && (
                   <div className="pb-6 border-b-2 border-gray-100">
@@ -368,9 +451,14 @@ export default async function EventPage({ params }: EventPageProps) {
                   </div>
                 )}
 
+                {/* Share Button */}
+                <div className={!isPast ? '' : 'pb-6 border-b-2 border-gray-100'}>
+                  <EventShareButton title={event.title} slug={event.slug} />
+                </div>
+
                 {/* Contact Button */}
                 {event.businesses && event.businesses.phone && (
-                  <div className={!isPast ? "" : "pb-6 border-b-2 border-gray-100"}>
+                  <div>
                     <a
                       href={`tel:${event.businesses.phone}`}
                       className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5"
@@ -382,9 +470,9 @@ export default async function EventPage({ params }: EventPageProps) {
                 )}
 
                 {/* Organizer Info */}
-                <div>
+                <div className="pt-6 border-t-2 border-gray-100">
                   <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <span className="w-1 h-4 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full" />
+                    <span className="w-1 h-4 bg-gradient-to-b from-emerald-600 to-amber-500 rounded-full" />
                     Organized By
                   </h3>
 
@@ -403,8 +491,9 @@ export default async function EventPage({ params }: EventPageProps) {
                             {event.businesses.name}
                           </p>
                           {event.businesses.regions && (
-                            <p className="text-sm text-gray-600 font-medium">
-                              📍 {event.businesses.regions.name}
+                            <p className="text-sm text-gray-600 font-medium flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                              {event.businesses.regions.name}
                             </p>
                           )}
                         </div>
@@ -412,22 +501,22 @@ export default async function EventPage({ params }: EventPageProps) {
 
                       {event.businesses.address && (
                         <div className="flex items-start gap-3 text-sm text-gray-700 pl-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                          <MapPin className="w-4 h-4 text-pink-600 mt-0.5 flex-shrink-0" />
+                          <MapPin className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
                           <span className="leading-relaxed">{event.businesses.address}</span>
                         </div>
                       )}
                     </div>
                   ) : creatorProfile?.name ? (
                     /* User Organizer */
-                    <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100">
-                      <div className="p-2 bg-purple-600 rounded-lg shadow-md">
+                    <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-amber-50 border border-emerald-100">
+                      <div className="p-2 bg-emerald-600 rounded-lg shadow-md">
                         <User className="w-5 h-5 text-white" />
                       </div>
                       <div>
                         <p className="font-bold text-gray-900 mb-1">
                           {creatorProfile.name}
                         </p>
-                        <p className="text-sm text-purple-600 font-medium">
+                        <p className="text-sm text-emerald-600 font-medium">
                           Community Organizer
                         </p>
                       </div>

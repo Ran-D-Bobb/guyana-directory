@@ -5,7 +5,9 @@ import { notFound } from 'next/navigation'
 import { EventCategorySidebar } from '@/components/EventCategorySidebar'
 import { EventPageClient } from '@/components/EventPageClient'
 import { MobileEventCategoryFilterBar } from '@/components/MobileEventCategoryFilterBar'
+import { EventFilterPanel } from '@/components/EventFilterPanel'
 import { getEventCategoriesWithCounts } from '@/lib/category-counts'
+import { fetchFilteredEvents } from '@/lib/events'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -32,14 +34,18 @@ interface EventCategoryPageProps {
     sort?: string
     q?: string
     region?: string
-    view?: string
+    source?: string
+    page?: string
   }>
 }
 
+const ITEMS_PER_PAGE = 24
+
 export default async function EventCategoryPage({ params, searchParams }: EventCategoryPageProps) {
   const { slug } = await params
-  const { time = 'upcoming', sort = 'featured', q, region, view = 'grid' } = await searchParams
+  const { time = 'upcoming', sort = 'featured', q, region, source, page = '1' } = await searchParams
   const supabase = await createClient()
+  const currentPage = Math.max(1, parseInt(page) || 1)
 
   // Fetch the category
   const { data: category } = await supabase
@@ -54,87 +60,21 @@ export default async function EventCategoryPage({ params, searchParams }: EventC
 
   // Fetch all event categories with counts based on time filter
   const validTimeFilter = ['upcoming', 'ongoing', 'past', 'all'].includes(time) ? time as 'upcoming' | 'ongoing' | 'past' | 'all' : 'upcoming'
-  const categoriesWithCount = await getEventCategoriesWithCounts(validTimeFilter)
 
-  // Get current time for main query
-  const now = new Date().toISOString()
+  // Parallelize independent data fetches
+  const [categoriesWithCount, regionsResult, eventsResult] = await Promise.all([
+    getEventCategoriesWithCounts(validTimeFilter),
+    supabase.from('regions').select('*').order('name'),
+    fetchFilteredEvents(
+      supabase,
+      { category: category.id, time, region, source, q, sort },
+      currentPage,
+      ITEMS_PER_PAGE,
+    ),
+  ])
 
-  // Fetch all regions for filters
-  const { data: regions } = await supabase
-    .from('regions')
-    .select('*')
-    .order('name')
-
-  // Build the query for events
-  let query = supabase
-    .from('events')
-    .select(`
-      *,
-      event_categories:category_id (name, icon),
-      businesses:business_id (name, slug)
-    `)
-    .eq('category_id', category.id)
-
-  // Apply time filter
-  switch (time) {
-    case 'upcoming':
-      query = query.gt('start_date', now)
-      break
-    case 'ongoing':
-      query = query.lte('start_date', now).gte('end_date', now)
-      break
-    case 'past':
-      query = query.lt('end_date', now)
-      break
-    case 'all':
-      // No filter
-      break
-  }
-
-  // Apply region filter if selected
-  if (region && region !== 'all') {
-    query = query.eq('region_id', region)
-  }
-
-  // Apply search filter if query exists
-  if (q && q.trim()) {
-    query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,location.ilike.%${q}%`)
-  }
-
-  // Apply sorting
-  switch (sort) {
-    case 'featured':
-      query = query.order('is_featured', { ascending: false })
-      query = query.order('start_date', { ascending: true })
-      break
-    case 'date':
-      query = query.order('start_date', { ascending: true })
-      break
-    case 'popular':
-      query = query.order('view_count', { ascending: false })
-      break
-  }
-
-  const { data: rawEvents, error } = await query
-
-  // Log errors for debugging
-  if (error) {
-    console.error('Events category query error:', error)
-  }
-
-  // Map events to ensure proper types
-  const events = (rawEvents || []).map(event => ({
-    ...event,
-    event_categories: event.event_categories ? {
-      name: event.event_categories.name,
-      icon: event.event_categories.icon || ''
-    } : null,
-    businesses: event.businesses ? {
-      name: event.businesses.name,
-      slug: event.businesses.slug
-    } : null,
-    profiles: null as { name: string | null } | null
-  }))
+  const regions = regionsResult.data
+  const { events, pagination } = eventsResult
 
   return (
     <div className="min-h-screen bg-gray-50 flex pb-0 lg:pb-0">
@@ -149,7 +89,7 @@ export default async function EventCategoryPage({ params, searchParams }: EventC
             {category.name}
           </h1>
           <p className="text-sm text-gray-600 mt-2">
-            <span className="font-semibold text-gray-900">{events.length}</span> events
+            <span className="font-semibold text-gray-900">{pagination.totalItems}</span> events
           </p>
         </div>
 
@@ -172,11 +112,28 @@ export default async function EventCategoryPage({ params, searchParams }: EventC
             </p>
           </div>
 
-          {/* Events Grid/Calendar with View Controls */}
-          <EventPageClient events={events} searchParams={{ category: category.id, time, sort, q, region, view }} />
+          {/* Desktop Filter Panel */}
+          <div className="hidden lg:block sticky top-0 z-30 mb-8 -mx-2 px-2 py-2 bg-gradient-to-b from-gray-50 via-gray-50 to-transparent">
+            <EventFilterPanel
+              regions={regions || []}
+              currentFilters={{
+                region,
+                time,
+                sort,
+                source,
+                q,
+              }}
+            />
+          </div>
+
+          {/* Events Grid */}
+          <EventPageClient
+            events={events}
+            searchParams={{ category: category.id, time, sort, q, region }}
+            pagination={pagination}
+          />
         </main>
       </div>
-
     </div>
   )
 }

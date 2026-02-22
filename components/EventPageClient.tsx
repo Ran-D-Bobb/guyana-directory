@@ -4,15 +4,24 @@ import React from 'react'
 import { useRouter, usePathname, useSearchParams as useNextSearchParams } from 'next/navigation'
 import { Sparkles, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { EventCard } from './EventCard'
-import { EventCalendar } from './EventCalendar'
-import { Database } from '@/types/supabase'
 
-type Event = Database['public']['Tables']['events']['Row'] & {
+type Event = {
+  id: string
+  title: string
+  slug: string
+  description: string | null
+  start_date: string
+  end_date: string
+  image_url: string | null
+  location: string | null
+  is_featured: boolean | null
+  view_count: number | null
+  interest_count: number | null
   event_categories: { name: string; icon: string } | null
   businesses: { name: string; slug: string } | null
-  profiles: {
-    name: string | null
-  } | null
+  profiles: { name: string | null } | null
+  source_type?: 'community' | 'business'
+  business_slug?: string | null
 }
 
 interface PaginationInfo {
@@ -31,7 +40,6 @@ interface EventPageClientProps {
     sort?: string
     q?: string
     region?: string
-    view?: string
   }
   pagination?: PaginationInfo
 }
@@ -46,7 +54,7 @@ export function EventPageClient({ events, searchParams, pagination }: EventPageC
     params.set('page', page.toString())
     router.push(`${pathname}?${params.toString()}`)
   }
-  const { q, view = 'grid' } = searchParams
+  const { q } = searchParams
   const featuredCount = events?.filter(e => e.is_featured === true).length || 0
 
   return (
@@ -84,30 +92,21 @@ export function EventPageClient({ events, searchParams, pagination }: EventPageC
         </div>
       </div>
 
-      {/* Grid View */}
-      {view === 'grid' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-          {events.map((event, index) => (
-            <div
-              key={event.id}
-              className="animate-fade-up"
-              style={{ animationDelay: `${Math.min(index * 50, 400)}ms` }}
-            >
-              <EventCard event={event} />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Calendar View */}
-      {view === 'calendar' && (
-        <div className="animate-fade-in">
-          <EventCalendar events={events} />
-        </div>
-      )}
+      {/* Events Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+        {events.map((event, index) => (
+          <div
+            key={event.id}
+            className="animate-fade-up"
+            style={{ animationDelay: `${Math.min(index * 50, 400)}ms` }}
+          >
+            <EventCard event={event} />
+          </div>
+        ))}
+      </div>
 
       {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && view !== 'calendar' && (
+      {pagination && pagination.totalPages > 1 && (
         <nav className="flex items-center justify-center gap-1 mt-8" aria-label="Pagination">
           <button
             onClick={() => goToPage(pagination.currentPage - 1)}
@@ -157,7 +156,7 @@ export function EventPageClient({ events, searchParams, pagination }: EventPageC
       )}
 
       {/* Page Info */}
-      {pagination && pagination.totalItems > 0 && view !== 'calendar' && (
+      {pagination && pagination.totalItems > 0 && (
         <p className="text-center text-sm text-gray-500 mt-4">
           Showing {((pagination.currentPage - 1) * 24) + 1}-{Math.min(pagination.currentPage * 24, pagination.totalItems)} of {pagination.totalItems} events
         </p>

@@ -37,7 +37,7 @@ function AuthErrorContent() {
 
       <div className="space-y-3">
         <Link href="/auth/login">
-          <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+          <Button className="w-full bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))]">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to sign in
           </Button>
