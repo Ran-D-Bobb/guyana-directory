@@ -453,7 +453,7 @@ export function TourismVideosAdminClient({ initialVideos }: TourismVideosAdminCl
 
       {/* Edit/Create Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-lg bg-white text-gray-900">
+        <DialogContent className="max-w-lg bg-white text-gray-900 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-gray-900">
               {editingVideo?.id ? 'Edit Video' : 'Add New Video'}

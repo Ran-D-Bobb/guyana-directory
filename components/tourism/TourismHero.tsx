@@ -35,7 +35,9 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
   const [activeIndex, setActiveIndex] = useState(0)
   const [showVideoA, setShowVideoA] = useState(true) // Toggle between video A and B
   const [videoAIndex, setVideoAIndex] = useState(0)
-  const [videoBIndex, setVideoBIndex] = useState(0) // Will be set properly after heroVideos is known
+  const [videoBIndex, setVideoBIndex] = useState(() =>
+    videos && videos.length > 1 ? 1 : 0
+  )
   const [hasLoaded, setHasLoaded] = useState(false)
 
   const videoARef = useRef<HTMLVideoElement>(null)
@@ -60,33 +62,25 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
     }
   }, [hasLoaded, playVideo])
 
-  // Advance to next video
+  // Advance to next video (hidden player is already preloaded by the effect below)
   const advanceToNext = useCallback(() => {
-    const nextIndex = (activeIndex + 1) % heroVideos.length
-
     if (showVideoA) {
-      setVideoBIndex(nextIndex)
-      setTimeout(() => {
-        const videoB = videoBRef.current
-        if (videoB) {
-          videoB.currentTime = 0
-          playVideo(videoB)
-        }
-        setShowVideoA(false)
-      }, 100)
+      const videoB = videoBRef.current
+      if (videoB) {
+        videoB.currentTime = 0
+        playVideo(videoB)
+      }
+      setShowVideoA(false)
     } else {
-      setVideoAIndex(nextIndex)
-      setTimeout(() => {
-        const videoA = videoARef.current
-        if (videoA) {
-          videoA.currentTime = 0
-          playVideo(videoA)
-        }
-        setShowVideoA(true)
-      }, 100)
+      const videoA = videoARef.current
+      if (videoA) {
+        videoA.currentTime = 0
+        playVideo(videoA)
+      }
+      setShowVideoA(true)
     }
-    setActiveIndex(nextIndex)
-  }, [activeIndex, showVideoA, playVideo, heroVideos.length])
+    setActiveIndex(prev => (prev + 1) % heroVideos.length)
+  }, [showVideoA, playVideo, heroVideos.length])
 
   // Auto-cycle: use admin-set duration, or wait for video to finish
   useEffect(() => {
@@ -117,30 +111,50 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
     }
   }, [hasLoaded, hasMultipleVideos, showVideoA, videoAIndex, videoBIndex, heroVideos, advanceToNext])
 
-  // Manual video switch
+  // Preload the next video on the hidden player so transitions are seamless
+  useEffect(() => {
+    if (!hasMultipleVideos) return
+    const nextIndex = (activeIndex + 1) % heroVideos.length
+    if (showVideoA) {
+      setVideoBIndex(prev => prev !== nextIndex ? nextIndex : prev)
+    } else {
+      setVideoAIndex(prev => prev !== nextIndex ? nextIndex : prev)
+    }
+  }, [activeIndex, showVideoA, hasMultipleVideos, heroVideos.length])
+
+  // Manual video switch (via indicator dots)
   const switchToVideo = useCallback((index: number) => {
     if (index === activeIndex) return
 
+    const doTransition = (
+      videoRef: React.RefObject<HTMLVideoElement | null>,
+      setIndex: React.Dispatch<React.SetStateAction<number>>,
+      targetShowA: boolean,
+    ) => {
+      setIndex(index)
+      const video = videoRef.current
+      if (video) {
+        const doSwitch = () => {
+          video.currentTime = 0
+          playVideo(video)
+          setShowVideoA(targetShowA)
+        }
+        // If already loaded with this source, switch immediately
+        if (video.readyState >= 3) {
+          doSwitch()
+        } else {
+          video.addEventListener('canplay', doSwitch, { once: true })
+        }
+      } else {
+        // YouTube iframe — just crossfade
+        setShowVideoA(targetShowA)
+      }
+    }
+
     if (showVideoA) {
-      setVideoBIndex(index)
-      setTimeout(() => {
-        const videoB = videoBRef.current
-        if (videoB) {
-          videoB.currentTime = 0
-          playVideo(videoB)
-        }
-        setShowVideoA(false)
-      }, 100)
+      doTransition(videoBRef, setVideoBIndex, false)
     } else {
-      setVideoAIndex(index)
-      setTimeout(() => {
-        const videoA = videoARef.current
-        if (videoA) {
-          videoA.currentTime = 0
-          playVideo(videoA)
-        }
-        setShowVideoA(true)
-      }, 100)
+      doTransition(videoARef, setVideoAIndex, true)
     }
     setActiveIndex(index)
   }, [activeIndex, showVideoA, playVideo])
