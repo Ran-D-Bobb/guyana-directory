@@ -92,7 +92,7 @@ export function FormSuccessScreen({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="mt-8 text-2xl font-bold text-gray-900 text-center"
+        className="mt-8 text-2xl font-bold text-[hsl(var(--foreground))] text-center"
       >
         {title}
       </motion.h2>
@@ -102,7 +102,7 @@ export function FormSuccessScreen({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="mt-3 text-gray-600 text-center max-w-md"
+        className="mt-3 text-[hsl(var(--muted-foreground))] text-center max-w-md"
       >
         {message}
       </motion.p>

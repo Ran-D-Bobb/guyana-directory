@@ -36,6 +36,7 @@ DROP POLICY IF EXISTS "Admins can update timeline events" ON timeline_events;
 DROP POLICY IF EXISTS "Admins can delete timeline events" ON timeline_events;
 
 -- Single SELECT policy: active events for everyone, all events for admins
+DROP POLICY IF EXISTS "Anyone can view timeline events" ON timeline_events;
 CREATE POLICY "Anyone can view timeline events"
   ON timeline_events
   FOR SELECT
@@ -47,6 +48,7 @@ CREATE POLICY "Anyone can view timeline events"
     )
   );
 
+DROP POLICY IF EXISTS "Admins can insert timeline events" ON timeline_events;
 CREATE POLICY "Admins can insert timeline events"
   ON timeline_events
   FOR INSERT
@@ -57,6 +59,7 @@ CREATE POLICY "Admins can insert timeline events"
     )
   );
 
+DROP POLICY IF EXISTS "Admins can update timeline events" ON timeline_events;
 CREATE POLICY "Admins can update timeline events"
   ON timeline_events
   FOR UPDATE
@@ -73,6 +76,7 @@ CREATE POLICY "Admins can update timeline events"
     )
   );
 
+DROP POLICY IF EXISTS "Admins can delete timeline events" ON timeline_events;
 CREATE POLICY "Admins can delete timeline events"
   ON timeline_events
   FOR DELETE
@@ -91,6 +95,7 @@ CREATE POLICY "Admins can delete timeline events"
 DROP POLICY IF EXISTS "Business owners can add their tags" ON business_tags;
 DROP POLICY IF EXISTS "Business owners can remove their tags" ON business_tags;
 
+DROP POLICY IF EXISTS "Business owners can add their tags" ON business_tags;
 CREATE POLICY "Business owners can add their tags" ON business_tags
   FOR INSERT WITH CHECK (
     EXISTS (
@@ -100,6 +105,7 @@ CREATE POLICY "Business owners can add their tags" ON business_tags
     ) OR is_admin()
   );
 
+DROP POLICY IF EXISTS "Business owners can remove their tags" ON business_tags;
 CREATE POLICY "Business owners can remove their tags" ON business_tags
   FOR DELETE USING (
     EXISTS (
@@ -118,6 +124,7 @@ CREATE POLICY "Business owners can remove their tags" ON business_tags
 DROP POLICY IF EXISTS "Public can view active tourism hero videos" ON tourism_hero_videos;
 DROP POLICY IF EXISTS "Admins can view all tourism hero videos" ON tourism_hero_videos;
 
+DROP POLICY IF EXISTS "Anyone can view tourism hero videos" ON tourism_hero_videos;
 CREATE POLICY "Anyone can view tourism hero videos"
   ON tourism_hero_videos
   FOR SELECT

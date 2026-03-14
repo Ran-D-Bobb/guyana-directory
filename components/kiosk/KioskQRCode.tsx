@@ -14,24 +14,26 @@ export default function KioskQRCode({ url, title, onClose }: KioskQRCodeProps) {
   useKioskConfig()
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-lg kiosk-animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-lg kiosk-animate-fade-in" role="dialog" aria-modal="true" aria-label="QR code to save on your phone">
       <div
-        className="bg-white rounded-3xl mx-auto kiosk-shadow-xl relative kiosk-animate-slide-up overflow-y-auto"
+        className="bg-white mx-auto kiosk-shadow-xl relative kiosk-animate-slide-up overflow-y-auto"
         style={{
-          padding: '48px',
-          maxWidth: '800px',
+          padding: 'var(--kiosk-sp-48)',
+          maxWidth: 'calc(800px * var(--kiosk-scale))',
           maxHeight: '90vh',
-          width: '90%'
+          width: '90%',
+          borderRadius: 'var(--kiosk-radius-lg)',
         }}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
+          aria-label="Close QR code"
           className="absolute bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
           style={{
-            top: '24px',
-            right: '24px',
-            padding: '16px',
+            top: 'var(--kiosk-sp-24)',
+            right: 'var(--kiosk-sp-24)',
+            padding: 'var(--kiosk-sp-16)',
             zIndex: 10
           }}
         >
@@ -39,14 +41,14 @@ export default function KioskQRCode({ url, title, onClose }: KioskQRCodeProps) {
         </button>
 
         {/* Content */}
-        <div className="text-center" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div className="text-center" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--kiosk-sp-32)' }}>
           {/* Icon */}
           <div className="flex justify-center">
             <div
               className="rounded-full flex items-center justify-center"
               style={{
                 background: 'var(--kiosk-gradient-ocean)',
-                padding: '24px'
+                padding: 'var(--kiosk-sp-24)'
               }}
             >
               <Smartphone className="text-white" size={64} strokeWidth={2} />
@@ -58,15 +60,15 @@ export default function KioskQRCode({ url, title, onClose }: KioskQRCodeProps) {
             <h2
               className="font-black text-gray-900"
               style={{
-                fontSize: '48px',
-                marginBottom: '16px'
+                fontSize: 'var(--kiosk-text-48)',
+                marginBottom: 'var(--kiosk-sp-16)'
               }}
             >
               Save to Your Phone
             </h2>
             <p
               className="text-gray-600"
-              style={{ fontSize: '24px' }}
+              style={{ fontSize: 'var(--kiosk-text-24)' }}
             >
               Scan this QR code to view on your device
             </p>
@@ -74,9 +76,10 @@ export default function KioskQRCode({ url, title, onClose }: KioskQRCodeProps) {
 
           {/* QR Code */}
           <div
-            className="flex justify-center bg-gray-50 rounded-2xl mx-auto"
+            className="flex justify-center bg-gray-50 mx-auto"
             style={{
-              padding: '32px'
+              padding: 'var(--kiosk-sp-32)',
+              borderRadius: 'var(--kiosk-radius-md)',
             }}
           >
             <QRCodeSVG
@@ -91,14 +94,15 @@ export default function KioskQRCode({ url, title, onClose }: KioskQRCodeProps) {
 
           {/* Experience Title */}
           <div
-            className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-2xl"
+            className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300"
             style={{
-              padding: '24px'
+              padding: 'var(--kiosk-sp-24)',
+              borderRadius: 'var(--kiosk-radius-md)',
             }}
           >
             <p
               className="font-semibold text-gray-900 line-clamp-2"
-              style={{ fontSize: '24px' }}
+              style={{ fontSize: 'var(--kiosk-text-24)' }}
             >
               {title}
             </p>
@@ -106,21 +110,24 @@ export default function KioskQRCode({ url, title, onClose }: KioskQRCodeProps) {
 
           {/* Instructions */}
           <div
-            className="text-left bg-blue-50 rounded-2xl border-2 border-blue-300"
-            style={{ padding: '24px' }}
+            className="text-left bg-blue-50 border-2 border-blue-300"
+            style={{
+              padding: 'var(--kiosk-sp-24)',
+              borderRadius: 'var(--kiosk-radius-md)',
+            }}
           >
             <p
               className="font-bold text-blue-900"
               style={{
-                fontSize: '24px',
-                marginBottom: '16px'
+                fontSize: 'var(--kiosk-text-24)',
+                marginBottom: 'var(--kiosk-sp-16)'
               }}
             >
               How to scan:
             </p>
             <ol
               className="text-blue-800 list-decimal list-inside"
-              style={{ fontSize: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}
+              style={{ fontSize: 'var(--kiosk-text-20)', display: 'flex', flexDirection: 'column', gap: 'var(--kiosk-sp-8)' }}
             >
               <li>Open your phone&apos;s camera app</li>
               <li>Point it at the QR code above</li>

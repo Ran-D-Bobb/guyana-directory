@@ -6,9 +6,11 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { MapPin, BadgeCheck, Sparkles, Star, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Database } from '@/types/supabase'
 import { SaveBusinessButton } from './SaveBusinessButton'
+import { getCategoryImage } from '@/lib/category-images'
+import { ScrollReveal } from '@/components/ScrollReveal'
 
 type Business = Database['public']['Tables']['businesses']['Row'] & {
-  categories: { name: string } | null
+  categories: { name: string; slug: string } | null
   regions: { name: string } | null
   primary_photo?: string | null
 }
@@ -28,19 +30,17 @@ interface BusinessesPageClientProps {
   savedBusinessIds?: string[]
 }
 
-const DEFAULT_BUSINESS_IMAGE = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80'
-
 // Unified Business Card - clean, consistent, touch-friendly
 function BusinessCard({ business, userId, isSaved }: { business: Business; userId?: string | null; isSaved?: boolean }) {
-  const imageUrl = business.primary_photo || DEFAULT_BUSINESS_IMAGE
+  const imageUrl = business.primary_photo || getCategoryImage(business.categories?.slug || '')
 
   return (
     <Link
       href={`/businesses/${business.slug}`}
-      className="group block rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100"
+      className="group flex flex-col rounded-2xl overflow-hidden bg-[hsl(var(--card))] shadow-sm hover:shadow-xl transition-shadow duration-300 border border-[hsl(var(--border))] h-full"
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+      <div className="relative aspect-[4/3] overflow-hidden bg-[hsl(var(--muted))]">
         <Image
           src={imageUrl}
           alt={business.name}
@@ -89,27 +89,29 @@ function BusinessCard({ business, userId, isSaved }: { business: Business; userI
         )}
       </div>
 
-      {/* Content */}
-      <div className="p-4">
+      {/* Content — fixed height so all cards match */}
+      <div className="p-4 flex flex-col flex-1">
         {/* Category */}
         {business.categories && (
-          <div className="text-xs font-semibold text-emerald-600 mb-1 uppercase tracking-wider">
+          <div className="text-xs font-semibold text-[hsl(var(--primary))] mb-1 uppercase tracking-wider">
             {business.categories.name}
           </div>
         )}
 
-        {/* Name */}
-        <h3 className="font-semibold text-lg text-gray-900 mb-1.5 line-clamp-2 group-hover:text-emerald-600 transition-colors">
+        {/* Name — single line to keep cards uniform */}
+        <h3 className="font-semibold text-lg text-foreground mb-1.5 line-clamp-1 group-hover:text-[hsl(var(--primary))] transition-colors">
           {business.name}
         </h3>
 
-        {/* Location */}
-        {business.regions && (
-          <div className="flex items-center gap-1.5 text-sm text-gray-500">
-            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="truncate">{business.regions.name}</span>
-          </div>
-        )}
+        {/* Location — pushed to bottom */}
+        <div className="mt-auto">
+          {business.regions && (
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">{business.regions.name}</span>
+            </div>
+          )}
+        </div>
       </div>
     </Link>
   )
@@ -176,7 +178,7 @@ function Pagination({ pagination }: { pagination: PaginationInfo }) {
       <button
         onClick={() => goToPage(pagination.currentPage - 1)}
         disabled={!pagination.hasPrevPage}
-        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-foreground bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg hover:bg-[hsl(var(--muted))] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         aria-label="Previous page"
       >
         <ChevronLeft className="w-4 h-4" />
@@ -187,7 +189,7 @@ function Pagination({ pagination }: { pagination: PaginationInfo }) {
       <div className="flex items-center gap-1">
         {getPageNumbers().map((page, index) =>
           page === 'ellipsis' ? (
-            <span key={`ellipsis-${index}`} className="px-2 py-2 text-gray-400">
+            <span key={`ellipsis-${index}`} className="px-2 py-2 text-muted-foreground">
               ...
             </span>
           ) : (
@@ -196,8 +198,8 @@ function Pagination({ pagination }: { pagination: PaginationInfo }) {
               onClick={() => goToPage(page)}
               className={`min-w-[40px] px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 pagination.currentPage === page
-                  ? 'bg-emerald-500 text-white'
-                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                  ? 'bg-[hsl(var(--primary))] text-white'
+                  : 'text-foreground bg-[hsl(var(--card))] border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
               }`}
               aria-current={pagination.currentPage === page ? 'page' : undefined}
             >
@@ -211,7 +213,7 @@ function Pagination({ pagination }: { pagination: PaginationInfo }) {
       <button
         onClick={() => goToPage(pagination.currentPage + 1)}
         disabled={!pagination.hasNextPage}
-        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-foreground bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg hover:bg-[hsl(var(--muted))] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         aria-label="Next page"
       >
         <span className="hidden sm:inline">Next</span>
@@ -227,13 +229,13 @@ export function BusinessesPageClient({ businesses, pagination, userId, savedBusi
   if (businesses.length === 0) {
     return (
       <div className="text-center py-16">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-6">
-          <Search className="w-8 h-8 text-gray-400" />
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[hsl(var(--muted))] mb-6">
+          <Search className="w-8 h-8 text-muted-foreground" />
         </div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <h3 className="text-xl font-semibold text-foreground mb-2">
           No businesses found
         </h3>
-        <p className="text-gray-500 max-w-md mx-auto">
+        <p className="text-muted-foreground max-w-md mx-auto">
           Try adjusting your filters or search terms to find what you&apos;re looking for.
         </p>
       </div>
@@ -244,8 +246,15 @@ export function BusinessesPageClient({ businesses, pagination, userId, savedBusi
     <div className="relative z-0">
       {/* Business Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-        {businesses.map((business) => (
-          <BusinessCard key={business.id} business={business} userId={userId} isSaved={savedSet.has(business.id)} />
+        {businesses.map((business, index) => (
+          <ScrollReveal
+            key={business.id}
+            variant="fade-up"
+            delay={Math.min((index % 4) * 75, 225)}
+            duration={500}
+          >
+            <BusinessCard business={business} userId={userId} isSaved={savedSet.has(business.id)} />
+          </ScrollReveal>
         ))}
       </div>
 
@@ -253,7 +262,7 @@ export function BusinessesPageClient({ businesses, pagination, userId, savedBusi
       <Pagination pagination={pagination} />
 
       {/* Results summary */}
-      <div className="text-center text-sm text-gray-500 mt-4">
+      <div className="text-center text-sm text-muted-foreground mt-4">
         Showing {((pagination.currentPage - 1) * 24) + 1}-{Math.min(pagination.currentPage * 24, pagination.totalItems)} of {pagination.totalItems} businesses
       </div>
     </div>

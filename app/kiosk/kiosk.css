@@ -19,54 +19,95 @@
   --kiosk-scale: 1;
   --kiosk-orientation: landscape;
 
-  /* Typography Scale (Kiosk-optimized, not responsive) */
-  --kiosk-text-xs: 24px;      /* Small labels, metadata */
-  --kiosk-text-sm: 28px;      /* Secondary text */
-  --kiosk-text-base: 32px;    /* Body text, descriptions */
-  --kiosk-text-lg: 40px;      /* Large body text */
-  --kiosk-text-xl: 48px;      /* Card titles, H3 */
-  --kiosk-text-2xl: 56px;     /* CTA button text */
-  --kiosk-text-3xl: 64px;     /* Section headers, H2 */
-  --kiosk-text-4xl: 72px;     /* Section headers, H2 */
-  --kiosk-text-5xl: 96px;     /* Page titles, H1 */
-  --kiosk-text-hero: 120px;   /* Hero headlines */
+  /* ==============================================
+     NUMERIC TEXT TOKENS — scale with --kiosk-scale
+     Base values tuned for 1920x1080 at scale 1.0
+     ============================================== */
+  --kiosk-text-12: calc(12px * var(--kiosk-scale));
+  --kiosk-text-14: calc(14px * var(--kiosk-scale));
+  --kiosk-text-16: calc(16px * var(--kiosk-scale));
+  --kiosk-text-18: calc(18px * var(--kiosk-scale));
+  --kiosk-text-20: calc(20px * var(--kiosk-scale));
+  --kiosk-text-24: calc(24px * var(--kiosk-scale));
+  --kiosk-text-28: calc(28px * var(--kiosk-scale));
+  --kiosk-text-32: calc(32px * var(--kiosk-scale));
+  --kiosk-text-36: calc(36px * var(--kiosk-scale));
+  --kiosk-text-40: calc(40px * var(--kiosk-scale));
+  --kiosk-text-42: calc(42px * var(--kiosk-scale));
+  --kiosk-text-48: calc(48px * var(--kiosk-scale));
+  --kiosk-text-56: calc(56px * var(--kiosk-scale));
+  --kiosk-text-64: calc(64px * var(--kiosk-scale));
+  --kiosk-text-72: calc(72px * var(--kiosk-scale));
+  --kiosk-text-80: calc(80px * var(--kiosk-scale));
+  --kiosk-text-96: calc(96px * var(--kiosk-scale));
+  --kiosk-text-120: calc(120px * var(--kiosk-scale));
 
-  /* Spacing Scale (Fixed for kiosks, not fluid) */
-  --kiosk-space-xs: 12px;
-  --kiosk-space-sm: 16px;
-  --kiosk-space-md: 24px;
-  --kiosk-space-lg: 32px;
-  --kiosk-space-xl: 40px;
-  --kiosk-space-2xl: 48px;
-  --kiosk-space-3xl: 64px;
-  --kiosk-space-4xl: 80px;
-  --kiosk-space-5xl: 96px;
-  --kiosk-space-6xl: 120px;
+  /* Semantic text aliases (backward-compatible) */
+  --kiosk-text-xs: var(--kiosk-text-24);
+  --kiosk-text-sm: var(--kiosk-text-28);
+  --kiosk-text-base: var(--kiosk-text-32);
+  --kiosk-text-lg: var(--kiosk-text-40);
+  --kiosk-text-xl: var(--kiosk-text-48);
+  --kiosk-text-2xl: var(--kiosk-text-56);
+  --kiosk-text-3xl: var(--kiosk-text-64);
+  --kiosk-text-4xl: var(--kiosk-text-72);
+  --kiosk-text-5xl: var(--kiosk-text-96);
+  --kiosk-text-hero: var(--kiosk-text-120);
 
-  /* Touch Target Sizes (Industry standard for public kiosks) */
-  --kiosk-touch-sm: 88px;      /* Minimum recommended */
-  --kiosk-touch-md: 100px;     /* Standard buttons */
-  --kiosk-touch-lg: 120px;     /* Large interactive elements */
-  --kiosk-touch-xl: 160px;     /* Extra large CTAs */
-  --kiosk-touch-mega: 200px;   /* Mega CTAs (primary actions) */
+  /* ==============================================
+     NUMERIC SPACING TOKENS — scale with --kiosk-scale
+     ============================================== */
+  --kiosk-sp-4: calc(4px * var(--kiosk-scale));
+  --kiosk-sp-6: calc(6px * var(--kiosk-scale));
+  --kiosk-sp-8: calc(8px * var(--kiosk-scale));
+  --kiosk-sp-12: calc(12px * var(--kiosk-scale));
+  --kiosk-sp-16: calc(16px * var(--kiosk-scale));
+  --kiosk-sp-20: calc(20px * var(--kiosk-scale));
+  --kiosk-sp-24: calc(24px * var(--kiosk-scale));
+  --kiosk-sp-32: calc(32px * var(--kiosk-scale));
+  --kiosk-sp-40: calc(40px * var(--kiosk-scale));
+  --kiosk-sp-48: calc(48px * var(--kiosk-scale));
+  --kiosk-sp-64: calc(64px * var(--kiosk-scale));
+  --kiosk-sp-80: calc(80px * var(--kiosk-scale));
+  --kiosk-sp-96: calc(96px * var(--kiosk-scale));
+  --kiosk-sp-120: calc(120px * var(--kiosk-scale));
 
-  /* Layout Dimensions */
-  --kiosk-nav-height: 88px;    /* Top navigation bar */
-  --kiosk-card-width: 400px;   /* Category/experience cards */
-  --kiosk-card-height: 400px;
-  --kiosk-button-primary-width: 320px;
-  --kiosk-button-primary-height: 120px;
-  --kiosk-qr-size: 400px;      /* QR code display */
-  --kiosk-icon-sm: 48px;
-  --kiosk-icon-md: 80px;
-  --kiosk-icon-lg: 120px;
-  --kiosk-icon-xl: 160px;
+  /* Semantic spacing aliases (backward-compatible) */
+  --kiosk-space-xs: var(--kiosk-sp-12);
+  --kiosk-space-sm: var(--kiosk-sp-16);
+  --kiosk-space-md: var(--kiosk-sp-24);
+  --kiosk-space-lg: var(--kiosk-sp-32);
+  --kiosk-space-xl: var(--kiosk-sp-40);
+  --kiosk-space-2xl: var(--kiosk-sp-48);
+  --kiosk-space-3xl: var(--kiosk-sp-64);
+  --kiosk-space-4xl: var(--kiosk-sp-80);
+  --kiosk-space-5xl: var(--kiosk-sp-96);
+  --kiosk-space-6xl: var(--kiosk-sp-120);
 
-  /* Border Radius (Friendly, approachable design) */
-  --kiosk-radius-sm: 12px;
-  --kiosk-radius-md: 16px;
-  --kiosk-radius-lg: 24px;
-  --kiosk-radius-xl: 32px;
+  /* Touch Target Sizes — scale with --kiosk-scale */
+  --kiosk-touch-sm: calc(88px * var(--kiosk-scale));
+  --kiosk-touch-md: calc(100px * var(--kiosk-scale));
+  --kiosk-touch-lg: calc(120px * var(--kiosk-scale));
+  --kiosk-touch-xl: calc(160px * var(--kiosk-scale));
+  --kiosk-touch-mega: calc(200px * var(--kiosk-scale));
+
+  /* Layout Dimensions — scale with --kiosk-scale */
+  --kiosk-nav-height: calc(88px * var(--kiosk-scale));
+  --kiosk-card-width: calc(400px * var(--kiosk-scale));
+  --kiosk-card-height: calc(400px * var(--kiosk-scale));
+  --kiosk-button-primary-width: calc(320px * var(--kiosk-scale));
+  --kiosk-button-primary-height: calc(120px * var(--kiosk-scale));
+  --kiosk-qr-size: calc(400px * var(--kiosk-scale));
+  --kiosk-icon-sm: calc(48px * var(--kiosk-scale));
+  --kiosk-icon-md: calc(80px * var(--kiosk-scale));
+  --kiosk-icon-lg: calc(120px * var(--kiosk-scale));
+  --kiosk-icon-xl: calc(160px * var(--kiosk-scale));
+
+  /* Border Radius — scale with --kiosk-scale */
+  --kiosk-radius-sm: calc(12px * var(--kiosk-scale));
+  --kiosk-radius-md: calc(16px * var(--kiosk-scale));
+  --kiosk-radius-lg: calc(24px * var(--kiosk-scale));
+  --kiosk-radius-xl: calc(32px * var(--kiosk-scale));
   --kiosk-radius-full: 9999px;
 
   /* Shadows (Depth and hierarchy) */
@@ -92,17 +133,17 @@
   /* Caribbean-Inspired Tourism Color Palette */
   /* High-contrast, vibrant, energetic colors */
 
-  /* Primary: Bright Neon Green (matching example #13ec13) */
-  --kiosk-primary-50: #f0fdf4;
-  --kiosk-primary-100: #dcfce7;
-  --kiosk-primary-200: #bbf7d0;
-  --kiosk-primary-300: #86efac;
-  --kiosk-primary-400: #4ade80;
-  --kiosk-primary-500: #13ec13;
-  --kiosk-primary-600: #10c010;
-  --kiosk-primary-700: #0d9e0d;
-  --kiosk-primary-800: #0a7c0a;
-  --kiosk-primary-900: #075a07;
+  /* Primary: Waypoint Emerald (aligned with main brand) */
+  --kiosk-primary-50: #ecfdf5;
+  --kiosk-primary-100: #d1fae5;
+  --kiosk-primary-200: #a7f3d0;
+  --kiosk-primary-300: #6ee7b7;
+  --kiosk-primary-400: #34d399;
+  --kiosk-primary-500: #10b981;
+  --kiosk-primary-600: #059669;
+  --kiosk-primary-700: #047857;
+  --kiosk-primary-800: #065f46;
+  --kiosk-primary-900: #064e3b;
 
   /* Secondary: Sunset Orange */
   --kiosk-secondary-50: #fff7ed;
@@ -116,10 +157,11 @@
   --kiosk-secondary-800: #9a3412;
   --kiosk-secondary-900: #7c2d12;
 
-  /* Accent: Paradise Pink */
-  --kiosk-accent-400: #f472b6;
-  --kiosk-accent-500: #ec4899;
-  --kiosk-accent-600: #db2777;
+  /* Accent: Golden Amber (Tropical Luxe signature) */
+  --kiosk-accent-gold-300: #fcd34d;
+  --kiosk-accent-gold-400: #fbbf24;
+  --kiosk-accent-gold-500: #d4a853;
+  --kiosk-accent-gold-600: #b8860b;
 
   /* Success: Lush Green */
   --kiosk-success-400: #4ade80;
@@ -132,9 +174,17 @@
   --kiosk-warning-500: #eab308;
 
   /* Dark Mode (Default for kiosks - reduces glare, extends screen life) */
-  --kiosk-bg-base: #102210;        /* Very dark green (matching example) */
-  --kiosk-bg-elevated: #203120;    /* Dark green elevated */
-  --kiosk-bg-overlay: #1c271c;     /* Dark green overlay */
+  --kiosk-bg-base: #0c1f17;        /* Deep jungle dark */
+  --kiosk-bg-elevated: #142d1e;    /* Elevated surface */
+  --kiosk-bg-overlay: #112619;     /* Overlay surface */
+
+  /* Border tokens */
+  --kiosk-border-subtle: rgba(16, 185, 129, 0.15);
+  --kiosk-border-default: rgba(16, 185, 129, 0.25);
+  --kiosk-border-hover: rgba(16, 185, 129, 0.5);
+
+  /* Easing */
+  --kiosk-ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   --kiosk-text-primary: #ffffff;
   --kiosk-text-secondary: rgba(255, 255, 255, 0.9);
@@ -144,12 +194,40 @@
   /* Gradient Backgrounds (Eye-catching hero sections) */
   --kiosk-gradient-ocean: linear-gradient(135deg, #0f766e 0%, #14b8a6 50%, #2dd4bf 100%);
   --kiosk-gradient-sunset: linear-gradient(135deg, #c2410c 0%, #f97316 50%, #fb923c 100%);
-  --kiosk-gradient-tropical: linear-gradient(135deg, #102210 0%, #115e59 50%, #0d9488 100%);
+  --kiosk-gradient-tropical: linear-gradient(135deg, #0c1f17 0%, #115e59 50%, #0d9488 100%);
   --kiosk-gradient-paradise: linear-gradient(135deg, #7c2d12 0%, #ea580c 50%, #fb923c 75%, #ec4899 100%);
   --kiosk-gradient-vibrant: linear-gradient(135deg, #facc15 0%, #f97316 50%, #ec4899 100%);
 
   /* Hero overlay gradient (dark to transparent) */
   --kiosk-gradient-hero-overlay: linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 40%);
+
+  /* ============================================
+     CINEMATIC DESIGN TOKENS
+     ============================================ */
+
+  /* Cinema backgrounds — deeper darks for immersive feel */
+  --kiosk-bg-cinema: #080f0c;
+  --kiosk-bg-cinema-elevated: #0a1610;
+
+  /* Glass-morphism tokens */
+  --kiosk-glass-bg: rgba(12, 31, 23, 0.6);
+  --kiosk-glass-bg-heavy: rgba(8, 15, 12, 0.85);
+  --kiosk-glass-border: rgba(16, 185, 129, 0.12);
+  --kiosk-glass-blur: calc(20px * var(--kiosk-scale));
+
+  /* Cinema gradients */
+  --kiosk-gradient-cinema: linear-gradient(180deg, transparent 0%, rgba(8, 15, 12, 0.4) 40%, rgba(8, 15, 12, 0.95) 100%);
+  --kiosk-gradient-hero-left: linear-gradient(90deg, rgba(8, 15, 12, 0.95) 0%, rgba(8, 15, 12, 0.7) 35%, rgba(8, 15, 12, 0.3) 55%, transparent 70%);
+  --kiosk-gradient-card: linear-gradient(180deg, transparent 0%, rgba(8, 15, 12, 0.3) 50%, rgba(8, 15, 12, 0.9) 100%);
+  --kiosk-gradient-vignette: radial-gradient(ellipse at center, transparent 50%, rgba(8, 15, 12, 0.6) 100%);
+
+  /* Content row card dimensions */
+  --kiosk-row-card-width: calc(380px * var(--kiosk-scale));
+  --kiosk-row-card-height: calc(214px * var(--kiosk-scale)); /* 16:9 ratio */
+
+  /* Timeline tokens */
+  --kiosk-timeline-line-width: calc(4px * var(--kiosk-scale));
+  --kiosk-timeline-node-size: calc(48px * var(--kiosk-scale));
 }
 
 /* ============================================
@@ -160,11 +238,6 @@
 @media (max-width: 1366px) and (orientation: landscape) {
   :root {
     --kiosk-scale: 0.85;
-    --kiosk-card-width: 340px;
-    --kiosk-card-height: 340px;
-    --kiosk-button-primary-width: 280px;
-    --kiosk-button-primary-height: 100px;
-    --kiosk-qr-size: 340px;
   }
 }
 
@@ -173,6 +246,7 @@
   :root {
     --kiosk-orientation: portrait;
     --kiosk-scale: 1;
+    /* Portrait-specific layout overrides (wider cards for narrow viewport) */
     --kiosk-card-width: 600px;
     --kiosk-card-height: 400px;
     --kiosk-button-primary-width: 400px;
@@ -184,11 +258,14 @@
 @media (min-width: 2560px) {
   :root {
     --kiosk-scale: 1.5;
-    --kiosk-card-width: 600px;
-    --kiosk-card-height: 600px;
-    --kiosk-button-primary-width: 480px;
-    --kiosk-button-primary-height: 180px;
-    --kiosk-qr-size: 600px;
+  }
+}
+
+/* Ultra-wide / Huawei smartboards and other non-standard resolutions */
+/* Fluid fallback for viewports between standard breakpoints */
+@media (min-width: 1921px) and (max-width: 2559px) {
+  :root {
+    --kiosk-scale: 1.2;
   }
 }
 
@@ -258,8 +335,8 @@
   letter-spacing: 0.05em;
   border-radius: var(--kiosk-radius-lg);
 
-  /* Bright neon green gradient */
-  background: linear-gradient(135deg, #13ec13 0%, #22c55e 50%, #10c010 100%);
+  /* Emerald gradient (brand-aligned) */
+  background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
   background-size: 200% 100%;
 
   color: var(--kiosk-bg-base);
@@ -276,8 +353,8 @@
 
   /* Bright green glow effect */
   box-shadow:
-    0 0 40px rgba(19, 236, 19, 0.6),
-    0 0 80px rgba(19, 236, 19, 0.4),
+    0 0 40px rgba(16, 185, 129, 0.6),
+    0 0 80px rgba(16, 185, 129, 0.4),
     0 8px 24px rgba(0, 0, 0, 0.4),
     inset 0 2px 4px rgba(255, 255, 255, 0.3);
 
@@ -326,8 +403,8 @@
   transform: scale(1.05);
   background-position: 100% 0;
   box-shadow:
-    0 0 60px rgba(19, 236, 19, 0.8),
-    0 0 120px rgba(19, 236, 19, 0.6),
+    0 0 60px rgba(16, 185, 129, 0.8),
+    0 0 120px rgba(16, 185, 129, 0.6),
     0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
@@ -335,7 +412,7 @@
 .kiosk-btn-primary:active {
   transform: scale(0.98);
   box-shadow:
-    0 0 30px rgba(19, 236, 19, 0.6),
+    0 0 30px rgba(16, 185, 129, 0.6),
     0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
@@ -392,7 +469,7 @@
   height: var(--kiosk-card-height);
   border-radius: var(--kiosk-radius-xl);
   background: var(--kiosk-bg-overlay);
-  border: 2px solid rgba(59, 84, 59, 1);
+  border: 2px solid var(--kiosk-border-default);
   box-shadow: var(--kiosk-shadow-md);
   transition: all var(--kiosk-duration-normal) ease-out;
   cursor: pointer;
@@ -405,7 +482,7 @@
   border-color: var(--kiosk-primary-500);
   box-shadow:
     var(--kiosk-shadow-xl),
-    0 0 40px rgba(19, 236, 19, 0.3);
+    0 0 40px rgba(16, 185, 129, 0.3);
 }
 
 .kiosk-card-category:active {
@@ -471,15 +548,15 @@
 @keyframes kiosk-glow-pulse {
   0%, 100% {
     box-shadow:
-      0 0 40px rgba(19, 236, 19, 0.6),
-      0 0 80px rgba(19, 236, 19, 0.4),
+      0 0 40px rgba(16, 185, 129, 0.6),
+      0 0 80px rgba(16, 185, 129, 0.4),
       0 8px 24px rgba(0, 0, 0, 0.4),
       inset 0 2px 4px rgba(255, 255, 255, 0.3);
   }
   50% {
     box-shadow:
-      0 0 60px rgba(19, 236, 19, 0.8),
-      0 0 120px rgba(19, 236, 19, 0.6),
+      0 0 60px rgba(16, 185, 129, 0.8),
+      0 0 120px rgba(16, 185, 129, 0.6),
       0 8px 24px rgba(0, 0, 0, 0.4),
       inset 0 2px 4px rgba(255, 255, 255, 0.3);
   }
@@ -650,4 +727,480 @@
     grid-template-columns: 1fr;
     gap: var(--kiosk-space-2xl);
   }
+}
+
+/* ============================================
+   REUSABLE COMPONENT CLASSES
+   ============================================ */
+
+/* Card — the standard dark glass card used throughout kiosk */
+.kiosk-card {
+  background: rgba(20, 45, 30, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: var(--kiosk-radius-lg);
+  border: 1px solid var(--kiosk-border-default);
+  overflow: hidden;
+  transition: all var(--kiosk-duration-normal) var(--kiosk-ease-expo);
+  cursor: pointer;
+}
+
+.kiosk-card:hover {
+  transform: scale(1.03);
+  border-color: var(--kiosk-primary-500);
+  box-shadow: 0 12px 40px rgba(16, 185, 129, 0.15);
+}
+
+.kiosk-card:active {
+  transform: scale(1.01);
+}
+
+/* Section container with glass effect */
+.kiosk-section {
+  background: rgba(12, 31, 23, 0.5);
+  backdrop-filter: blur(8px);
+  border-radius: var(--kiosk-radius-lg);
+  border: 2px solid var(--kiosk-border-default);
+  padding: var(--kiosk-space-2xl);
+}
+
+/* Navigation arrow button (prev/next) */
+.kiosk-nav-arrow {
+  background: rgba(20, 45, 30, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--kiosk-border-default);
+  padding: var(--kiosk-space-sm);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--kiosk-duration-normal) var(--kiosk-ease-expo);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kiosk-nav-arrow:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--kiosk-primary-500);
+}
+
+.kiosk-nav-arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kiosk-nav-arrow:disabled:hover {
+  background: rgba(20, 45, 30, 0.4);
+  border-color: var(--kiosk-border-default);
+}
+
+/* Floating action button (Back, Language, etc.) */
+.kiosk-floating-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--kiosk-space-xs);
+  border-radius: 9999px;
+  border: 1px solid var(--kiosk-border-hover);
+  background: rgba(12, 31, 23, 0.8);
+  padding: var(--kiosk-space-sm) var(--kiosk-space-lg);
+  color: white;
+  font-size: var(--kiosk-text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--kiosk-duration-normal) var(--kiosk-ease-expo);
+}
+
+.kiosk-floating-btn:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--kiosk-primary-500);
+}
+
+/* Badge (category, rating) */
+.kiosk-badge {
+  padding: 8px 16px;
+  border-radius: var(--kiosk-radius-sm);
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.kiosk-badge-primary {
+  background: rgba(16, 185, 129, 0.95);
+  color: var(--kiosk-bg-base);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.kiosk-badge-dark {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Emerald CTA gradient button */
+.kiosk-btn-cta {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+  color: var(--kiosk-bg-base);
+  font-weight: bold;
+  border-radius: var(--kiosk-radius-md);
+  text-align: center;
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.3);
+  transition: all var(--kiosk-duration-normal) var(--kiosk-ease-expo);
+}
+
+.kiosk-btn-cta:hover {
+  box-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
+  transform: scale(1.02);
+}
+
+/* Dark overlay for image backgrounds */
+.kiosk-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 31, 23, 0.75);
+  transition: all var(--kiosk-duration-normal) var(--kiosk-ease-expo);
+}
+
+.kiosk-image-overlay-hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(12, 31, 23, 0.7) 100%);
+}
+
+/* ==========================================================================
+   DELIGHT: Screen burn-in protection
+   Subtle pixel-shift prevents static elements from burning into displays.
+   ========================================================================== */
+@keyframes kiosk-pixel-shift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(1px, 1px); }
+  50% { transform: translate(-1px, 0); }
+  75% { transform: translate(0, -1px); }
+}
+
+.kiosk-burn-protect {
+  animation: kiosk-pixel-shift 120s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   DELIGHT: Touch ripple effect
+   Visual feedback on tap for kiosk touch screens.
+   ========================================================================== */
+.kiosk-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.kiosk-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%), rgba(16, 185, 129, 0.3) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.kiosk-ripple:active::after {
+  opacity: 1;
+  transition: opacity 0.05s;
+}
+
+/* ==========================================================================
+   DELIGHT: Ambient glow pulse
+   Subtle emerald glow on key CTAs for visual emphasis.
+   ========================================================================== */
+@keyframes kiosk-glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+  50% { box-shadow: 0 0 36px rgba(16, 185, 129, 0.4); }
+}
+
+.kiosk-glow {
+  animation: kiosk-glow-pulse 4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   DELIGHT: Staggered entrance for card grids
+   ========================================================================== */
+@keyframes kiosk-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kiosk-stagger-enter > * {
+  opacity: 0;
+  animation: kiosk-card-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.kiosk-stagger-enter > *:nth-child(1) { animation-delay: 0ms; }
+.kiosk-stagger-enter > *:nth-child(2) { animation-delay: 80ms; }
+.kiosk-stagger-enter > *:nth-child(3) { animation-delay: 160ms; }
+.kiosk-stagger-enter > *:nth-child(4) { animation-delay: 240ms; }
+.kiosk-stagger-enter > *:nth-child(5) { animation-delay: 320ms; }
+.kiosk-stagger-enter > *:nth-child(6) { animation-delay: 400ms; }
+
+/* ============================================
+   CINEMATIC KEYFRAMES
+   ============================================ */
+
+/* Smooth crossfade for attract screen slides */
+@keyframes kiosk-crossfade-in {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Concentric touch rings — "Touch to Explore" CTA */
+@keyframes kiosk-touch-ring {
+  0%   { transform: scale(1); opacity: 0.5; border-color: rgba(16, 185, 129, 0.5); }
+  100% { transform: scale(2.8); opacity: 0; border-color: rgba(16, 185, 129, 0); }
+}
+
+/* Detail overlay slide-up entrance */
+@keyframes kiosk-overlay-enter {
+  from { transform: translateY(100vh); opacity: 0.5; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* Detail overlay slide-down exit */
+@keyframes kiosk-overlay-exit {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(100vh); opacity: 0; }
+}
+
+/* Timeline emerald glow pulse */
+@keyframes kiosk-timeline-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.3); }
+  50%      { box-shadow: 0 0 24px rgba(16, 185, 129, 0.6); }
+}
+
+/* Slow Ken Burns — more cinematic than existing */
+@keyframes kiosk-ken-burns-slow {
+  0%   { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.12) translate(-1.5%, -1%); }
+}
+
+/* Hero billboard slide transition */
+@keyframes kiosk-hero-slide-in {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Progress bar fill animation */
+@keyframes kiosk-progress-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Gentle float for CTA text */
+@keyframes kiosk-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* ============================================
+   CINEMATIC UTILITY CLASSES
+   ============================================ */
+
+/* Glass-morphism panel */
+.kiosk-glass {
+  background: var(--kiosk-glass-bg);
+  backdrop-filter: blur(var(--kiosk-glass-blur));
+  -webkit-backdrop-filter: blur(var(--kiosk-glass-blur));
+  border: 1px solid var(--kiosk-glass-border);
+  border-radius: var(--kiosk-radius-lg);
+}
+
+/* Heavy glass — more opaque for text readability */
+.kiosk-glass-heavy {
+  background: var(--kiosk-glass-bg-heavy);
+  backdrop-filter: blur(var(--kiosk-glass-blur));
+  -webkit-backdrop-filter: blur(var(--kiosk-glass-blur));
+  border: 1px solid var(--kiosk-glass-border);
+  border-radius: var(--kiosk-radius-lg);
+}
+
+/* Cinema background */
+.kiosk-bg-cinema {
+  background: var(--kiosk-bg-cinema);
+}
+
+/* Cinema gradient overlay — bottom-third fade */
+.kiosk-cinema-overlay {
+  background: var(--kiosk-gradient-cinema);
+}
+
+/* Hero left gradient — for billboard info panels */
+.kiosk-hero-gradient {
+  background: var(--kiosk-gradient-hero-left);
+}
+
+/* Card gradient overlay */
+.kiosk-card-gradient {
+  background: var(--kiosk-gradient-card);
+}
+
+/* Content row — horizontal scroll-snap rail */
+.kiosk-content-row {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  gap: var(--kiosk-sp-24);
+  padding: var(--kiosk-sp-16) var(--kiosk-sp-64);
+}
+
+.kiosk-content-row::-webkit-scrollbar {
+  display: none;
+}
+
+.kiosk-content-row > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Detail overlay backdrop */
+.kiosk-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: var(--kiosk-z-modal);
+}
+
+/* Detail overlay container */
+.kiosk-overlay-container {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--kiosk-z-modal) + 1);
+  animation: kiosk-overlay-enter 600ms var(--kiosk-ease-expo) forwards;
+}
+
+.kiosk-overlay-container.exiting {
+  animation: kiosk-overlay-exit 400ms var(--kiosk-ease-expo) forwards;
+}
+
+/* Timeline vertical line */
+.kiosk-timeline-line {
+  width: var(--kiosk-timeline-line-width);
+  background: linear-gradient(180deg, transparent 0%, var(--kiosk-primary-500) 10%, var(--kiosk-primary-500) 90%, transparent 100%);
+  animation: kiosk-timeline-glow 3s ease-in-out infinite;
+  border-radius: var(--kiosk-radius-full);
+}
+
+/* Timeline date node */
+.kiosk-timeline-node {
+  width: var(--kiosk-timeline-node-size);
+  height: var(--kiosk-timeline-node-size);
+  background: var(--kiosk-bg-cinema);
+  border: 3px solid var(--kiosk-primary-500);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: kiosk-timeline-glow 3s ease-in-out infinite;
+}
+
+/* Attract screen progress bar */
+.kiosk-attract-progress {
+  height: calc(4px * var(--kiosk-scale));
+  background: var(--kiosk-primary-500);
+  transform-origin: left;
+  border-radius: var(--kiosk-radius-full);
+}
+
+/* Timing badge styles for events */
+.kiosk-badge-live {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  padding: var(--kiosk-sp-4) var(--kiosk-sp-12);
+  border-radius: var(--kiosk-radius-full);
+  font-size: var(--kiosk-text-14);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  animation: kiosk-pulse 2s ease-in-out infinite;
+}
+
+.kiosk-badge-tomorrow {
+  background: rgba(16, 185, 129, 0.9);
+  color: white;
+  padding: var(--kiosk-sp-4) var(--kiosk-sp-12);
+  border-radius: var(--kiosk-radius-full);
+  font-size: var(--kiosk-text-14);
+  font-weight: 700;
+}
+
+.kiosk-badge-this-week {
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  padding: var(--kiosk-sp-4) var(--kiosk-sp-12);
+  border-radius: var(--kiosk-radius-full);
+  font-size: var(--kiosk-text-14);
+  font-weight: 700;
+}
+
+/* Navigation pill — floating bottom center */
+.kiosk-nav-pill {
+  position: fixed;
+  bottom: var(--kiosk-sp-32);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--kiosk-z-nav);
+  display: flex;
+  align-items: center;
+  gap: var(--kiosk-sp-4);
+  padding: var(--kiosk-sp-8);
+  border-radius: var(--kiosk-radius-full);
+  background: var(--kiosk-glass-bg-heavy);
+  backdrop-filter: blur(var(--kiosk-glass-blur));
+  -webkit-backdrop-filter: blur(var(--kiosk-glass-blur));
+  border: 1px solid var(--kiosk-glass-border);
+  box-shadow: var(--kiosk-shadow-xl);
+}
+
+.kiosk-nav-pill-item {
+  padding: var(--kiosk-sp-16) var(--kiosk-sp-32);
+  border-radius: var(--kiosk-radius-full);
+  font-size: var(--kiosk-text-20);
+  font-weight: 600;
+  color: var(--kiosk-text-tertiary);
+  cursor: pointer;
+  transition: all var(--kiosk-duration-normal) var(--kiosk-ease-expo);
+  min-height: var(--kiosk-touch-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--kiosk-sp-8);
+}
+
+.kiosk-nav-pill-item:hover {
+  color: var(--kiosk-text-primary);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.kiosk-nav-pill-item.active {
+  color: var(--kiosk-bg-base);
+  background: var(--kiosk-primary-500);
+  font-weight: 700;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .kiosk-burn-protect { animation: none; }
+  .kiosk-glow { animation: none; }
+  .kiosk-stagger-enter > * { animation: none; opacity: 1; }
+  .kiosk-badge-live { animation: none; }
+  .kiosk-timeline-line { animation: none; }
+  .kiosk-timeline-node { animation: none; }
+  .kiosk-overlay-container { animation: none; }
+  .kiosk-overlay-container.exiting { animation: none; }
+  .kiosk-attract-progress { transition: none; }
 }

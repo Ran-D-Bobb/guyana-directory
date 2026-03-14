@@ -70,10 +70,10 @@ export function CategoryLocationStep({
       {/* Tags - shown after category selection */}
       {filteredTags.length > 0 && (
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Tags <span className="text-gray-400 font-normal">(optional)</span>
+          <label className="block text-sm font-medium text-[hsl(var(--foreground))]">
+            Tags <span className="text-[hsl(var(--muted-foreground))] font-normal">(optional)</span>
           </label>
-          <p className="text-xs text-gray-500">Select tags that describe your business</p>
+          <p className="text-xs text-[hsl(var(--muted-foreground))]">Select tags that describe your business</p>
           <div className="flex flex-wrap gap-2">
             {filteredTags.map(tag => (
               <button

@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Star, MapPin, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
+import { getFallbackImage } from '@/lib/category-images'
 
 type SpotlightItem = {
   id: string
@@ -42,13 +43,6 @@ const typeConfig = {
   },
 }
 
-const defaultImages = {
-  business: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80',
-  tourism: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600&q=80',
-  rental: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80',
-  event: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
-}
-
 function SpotlightCard({ item, index }: { item: SpotlightItem; index: number }) {
   const config = typeConfig[item.type]
   const href =
@@ -67,12 +61,12 @@ function SpotlightCard({ item, index }: { item: SpotlightItem; index: number }) 
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <div
-        className={`relative bg-white rounded-2xl md:rounded-3xl overflow-hidden transition-shadow duration-300 card-elevated ${config.glow} active:scale-[0.99]`}
+        className={`relative bg-card rounded-2xl md:rounded-3xl overflow-hidden transition-shadow duration-300 card-elevated active:scale-[0.99]`}
       >
         {/* Image container with overlay */}
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
-            src={item.image_url || defaultImages[item.type]}
+            src={item.image_url || getFallbackImage(item.category, item.type)}
             alt={item.name}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -114,20 +108,20 @@ function SpotlightCard({ item, index }: { item: SpotlightItem; index: number }) 
         {/* Content - fixed height for consistency, compact on mobile */}
         <div className="p-3 md:p-5 flex flex-col h-[140px] md:h-[160px]">
           {/* Category - always reserve space */}
-          <p className="text-[10px] md:text-xs text-emerald-600 font-semibold uppercase tracking-wider mb-1 md:mb-2 h-3 md:h-4">
+          <p className="text-[10px] md:text-xs text-primary font-semibold uppercase tracking-wider mb-1 md:mb-2 h-3 md:h-4">
             {item.category || '\u00A0'}
           </p>
 
           {/* Title */}
-          <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1 md:mb-2 line-clamp-2 group-hover:text-emerald-700 transition-colors font-display leading-tight">
+          <h3 className="text-base md:text-lg font-semibold text-foreground mb-1 md:mb-2 line-clamp-2 group-hover:text-primary transition-colors font-display leading-tight">
             {item.name}
           </h3>
 
           {/* Location - always reserve space */}
-          <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm text-gray-500 h-4 md:h-5">
+          <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm text-muted-foreground h-4 md:h-5">
             {item.location ? (
               <>
-                <MapPin className="w-3 h-3 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
+                <MapPin className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground/70 flex-shrink-0" />
                 <span className="line-clamp-1">{item.location}</span>
               </>
             ) : (
@@ -136,7 +130,7 @@ function SpotlightCard({ item, index }: { item: SpotlightItem; index: number }) 
           </div>
 
           {/* Bottom row - pushed to bottom */}
-          <div className="flex items-center justify-between mt-auto pt-2 md:pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between mt-auto pt-2 md:pt-4 border-t border-border">
             {item.rating > 0 ? (
               <span className="text-[10px] md:text-xs text-gray-400">
                 {item.review_count} {item.review_count === 1 ? 'review' : 'reviews'}
@@ -148,7 +142,7 @@ function SpotlightCard({ item, index }: { item: SpotlightItem; index: number }) 
               </span>
             )}
 
-            <span className="text-[10px] md:text-xs font-medium text-emerald-600 group-hover:text-emerald-700 transition-colors">
+            <span className="text-[10px] md:text-xs font-medium text-primary group-hover:text-primary/80 transition-colors">
               View →
             </span>
           </div>

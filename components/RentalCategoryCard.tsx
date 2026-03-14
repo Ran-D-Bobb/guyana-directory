@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import * as LucideIcons from 'lucide-react'
 import { LucideIcon } from 'lucide-react'
+import { getRentalCategoryImage } from '@/lib/category-images'
 
 interface RentalCategoryCardProps {
   category: {
@@ -17,23 +18,11 @@ interface RentalCategoryCardProps {
   imageUrl?: string
 }
 
-// Map of category slugs to Unsplash images
-const categoryImages: Record<string, string> = {
-  'apartments': 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80',
-  'houses': 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80',
-  'vacation-homes': 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800&q=80',
-  'room-rentals': 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80',
-  'office-spaces': 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
-  'commercial': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
-  'shared-housing': 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80',
-  'land': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80',
-}
-
 export function RentalCategoryCard({ category, imageUrl }: RentalCategoryCardProps) {
   // Get the icon component dynamically
   const IconComponent = (LucideIcons[category.icon as keyof typeof LucideIcons] || LucideIcons.Home) as LucideIcon
 
-  const displayImage = imageUrl || categoryImages[category.slug] || categoryImages['apartments']
+  const displayImage = imageUrl || getRentalCategoryImage(category.slug)
 
   return (
     <Link

@@ -1,0 +1,918 @@
+{
+  "generated_at": "2026-03-12T14:55:09.257Z",
+  "total_businesses": 3411,
+  "total_flagged": 111,
+  "remaining_after_cleanup": 3300,
+  "groups": {
+    "religious": {
+      "label": "Places of Worship & Religious Institutions",
+      "count": 0,
+      "businesses": []
+    },
+    "government": {
+      "label": "Government & Public Buildings",
+      "count": 3,
+      "businesses": [
+        {
+          "id": "db891f5a-6888-4de0-b268-41a2bc549393",
+          "name": "Anna Regina Police Station",
+          "address": "7G89+7QF, Anna Regina",
+          "category": "Unknown",
+          "region": "Anna Regina",
+          "matched_keyword": "police station"
+        },
+        {
+          "id": "bdc5c3b9-d877-4a90-bf49-463920b6949e",
+          "name": "Aurora Police Station",
+          "address": "2G35+63V, Zeelandia",
+          "category": "Unknown",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "police station"
+        },
+        {
+          "id": "61c71e09-d0c2-48d7-9330-f990eaa6ef30",
+          "name": "Georgetown Magistrates Court",
+          "address": "RR5M+PP3, Ave of the Republic, Georgetown, Guyana",
+          "category": "Unknown",
+          "region": "Georgetown",
+          "matched_keyword": "magistrate"
+        }
+      ]
+    },
+    "cemetery_funeral": {
+      "label": "Cemeteries & Funeral Services",
+      "count": 0,
+      "businesses": []
+    },
+    "public_education": {
+      "label": "Public Schools & Universities (not private training)",
+      "count": 108,
+      "businesses": [
+        {
+          "id": "4ab449c2-66c3-4c57-afcd-9786d41ec9b3",
+          "name": "Agatash Primary School",
+          "address": "99GM+252, Bartica",
+          "category": "Education & Training",
+          "region": "Bartica",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "bf247fcb-2222-482b-88f2-d6984547ae71",
+          "name": "Albion Front Nursery School",
+          "address": "7JFF+7WX, Unnamed Road, Nigg, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "e866f601-95af-46c7-8f01-99c02cd24fee",
+          "name": "Albouystown Nursery School",
+          "address": "86 Penitence St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "b0181635-aef6-4f73-884f-c8eb222c10ad",
+          "name": "Alexander Village Nursery School",
+          "address": "QRVQ+FFM, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "cb33cf23-747b-461b-8cd5-46a761635253",
+          "name": "Ankerville Nursery School",
+          "address": "Lot 6 Portuguese Quarters,Public Road,Corentyne highway, Port Mourant, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "8fa3d4ea-739e-479e-897f-6f931401b9c1",
+          "name": "Arapaima Primary School",
+          "address": "95GX+78P, School Road, Lethem",
+          "category": "Education & Training",
+          "region": "Lethem",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "d06a0097-1c91-4398-a880-908576291797",
+          "name": "Aurora Nursery School",
+          "address": "2G35+93W, Zeelandia",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "75017fd9-d5d3-4b25-8910-3448697b8473",
+          "name": "Aurora Primary School",
+          "address": "2G35+93W, Zeelandia",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "4c62e805-d170-4b03-9fad-2bae19c2c3c7",
+          "name": "Aurora Secondary School",
+          "address": "3G47+FHX, Pomona",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "686679e3-e92e-4c79-8d63-86f38a8cd935",
+          "name": "Bartica Secondary School",
+          "address": "C93C+8V7, 7th Avenue, Bartica",
+          "category": "Education & Training",
+          "region": "Bartica",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "424cb466-723b-4ce2-bb2e-c9c0ad1a507b",
+          "name": "Belvedere Nursery School",
+          "address": "7J7P+F4M, Belvedere, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "081461c2-973d-4044-9015-686669b50f23",
+          "name": "Belvedere Primary School",
+          "address": "7J8M+MP7, Belvedere, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "0de6c6a2-1667-43cc-9c7a-b2e46a1fb1ce",
+          "name": "Bethany Primary School",
+          "address": "Bethany Mission, Supenaam, XC99+FFJ, Creek",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "2624db92-7725-4c55-944e-853623c6bdfb",
+          "name": "Bethany Primary School",
+          "address": "XCRF+WF9, Machabo",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "dfd04870-5b23-44b6-910b-7ac51809a9ef",
+          "name": "Betsy Ground Primary School",
+          "address": "6G9G+PPW, New Amsterdam, Guyana",
+          "category": "Education & Training",
+          "region": "New Amsterdam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "967d74e4-e7a9-4fe5-9fe1-46420a9d0c15",
+          "name": "Brickdam Secondary School",
+          "address": "228 Freeman St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "b69553a7-e0de-4f67-83df-64932b029c84",
+          "name": "Burnham Drive Nursery School",
+          "address": "St Aidan's Church Compound, Burnham Dr, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "2760981b-f0f9-4d01-921e-bcbb9e1b0b36",
+          "name": "Canefield Nursery school",
+          "address": "7G25+3WV, Canefield Settlement, Guyana",
+          "category": "Education & Training",
+          "region": "New Amsterdam",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "2b8439b6-8607-4e36-9cc0-e6ac90a8fef0",
+          "name": "Canje Secondary School",
+          "address": "7G53+W4P, New Amsterdam, Guyana",
+          "category": "Education & Training",
+          "region": "New Amsterdam",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "f83a85ae-60d8-41c0-9a0c-4f7a5dd8383e",
+          "name": "Carmel Secondary School",
+          "address": "QRXM+XP8, Hill St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "8dcf8cec-7617-4953-9522-f0ce1be9f572",
+          "name": "Charlestown Secondary School",
+          "address": "RR2M+HW2, Howes St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "fbce27eb-9620-45f4-924b-fa0d9de58619",
+          "name": "Christianburg Nursery School",
+          "address": "2M8W+FMF, Burnham Dr, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "504f3884-2b41-43f9-8727-f8615e4528da",
+          "name": "Christianburg Primary School",
+          "address": "2M8W+JQP, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "0f54a237-4fae-4300-ab9a-caa275c70518",
+          "name": "Christiansburg Wismar secondary school",
+          "address": "2M8Q+XCJ, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "c79dbfa4-5c86-47ee-8c99-c99112da9af8",
+          "name": "Corentyne Comprehensive High School",
+          "address": "6JXX+96W, Port Mourant, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "high school"
+        },
+        {
+          "id": "35f4e2fa-e2cf-4462-b9d9-158ed6ae9b70",
+          "name": "Corriverton Primary School",
+          "address": "VVW6+8M2, Skeldon, Guyana",
+          "category": "Education & Training",
+          "region": "Corriverton",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "82be2f8c-71c8-4b69-a864-602d216d0843",
+          "name": "Cropper Primary School",
+          "address": "7JCC+2W7, Nigg, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "ab77d7d6-da6e-4193-b6b3-0ee363b730b4",
+          "name": "Cumberland primary school building 2",
+          "address": "7G35+J6, New Amsterdam, Guyana",
+          "category": "Education & Training",
+          "region": "New Amsterdam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "05c47fe8-12b2-4d25-9fa1-d31f766b1e4d",
+          "name": "De Willem Secondary School",
+          "address": "Zeeburg North, VMJP+RF8 West Coast, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "6c1ae6ea-03d5-4d87-97e1-045547638b09",
+          "name": "Dolphin Secondary School",
+          "address": "RR3P+26P, Broad St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "27cf0a79-689f-46dc-9f73-93ec87552ebe",
+          "name": "East Ruimveldt Secondary School",
+          "address": "QVQ3+MG8, Avacado Pl, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "5c69e6a8-9aac-452b-93a5-a5170abac181",
+          "name": "Edinburgh Primary School",
+          "address": "5FXG+8MW, New Amsterdam, Guyana",
+          "category": "Education & Training",
+          "region": "New Amsterdam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "5e86cf2d-2ff5-4f00-b1fe-a2f2ea7ef929",
+          "name": "Farm nursery school",
+          "address": "VJC5+97, Parika, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "d1c8ec7e-1276-4dd6-9404-b7e658fce2e4",
+          "name": "Freeburg Secondary School",
+          "address": "42 Palm St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "3e356923-88a4-40cc-966b-74c17a308df1",
+          "name": "Fyrish Nursery School",
+          "address": "7JH7+Q8X, Nigg, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "779e6524-4aa3-4f3e-90cf-df0ba356ec2b",
+          "name": "Good Hope Nursery School",
+          "address": "XFGV+HCM, Maria Johanna",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "3fd63060-8fe2-4dad-a011-009dece8ffae",
+          "name": "Good Hope Primary School",
+          "address": "XFFQ+MVV, Maria Johanna",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "490bf24e-6958-411c-add6-a9f2eb4172c3",
+          "name": "Greenwich Park Primary School",
+          "address": "VJCC+PF4, Tuschen, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "7fe603df-c86f-48c0-a27b-03a687a5e377",
+          "name": "Hibernia Nursery School",
+          "address": "2G96+V5, Aurora",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "2cfa3942-67cb-4f9a-bb8e-8c44a8705b92",
+          "name": "Holy Name Primary School",
+          "address": "CCJ4+2PW, Ampa, Guyana",
+          "category": "Education & Training",
+          "region": "Bartica",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "0d0f1930-342f-473b-aa5e-56ba9724a718",
+          "name": "Huis't Dieren Nursery School",
+          "address": "Huist dieren, 3G28+28G, Machado",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "8f6a2357-35fe-41f2-98eb-0f590b78e223",
+          "name": "Huist Dieren Primary School",
+          "address": "3G27+3XM, Machado",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "8c86d632-0490-4e25-a869-602af0f34621",
+          "name": "J.C. Chandisingh Secondary School",
+          "address": "7J4X+42M, Port Mourant, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "190bed25-afb5-40d4-9395-c80f6a15ca31",
+          "name": "Kara Kara primary school",
+          "address": "2P65+74M, Unnamed Road, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "2157effa-cb4f-4395-ade6-67ac6d136a38",
+          "name": "Ketley Primary School",
+          "address": "RR3M+FQ2, Ketley St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "0f12c35a-0c9e-480d-b22f-d257ac67eb74",
+          "name": "Leguan Secondary School",
+          "address": "Leguan Island, Leguan Secondary School, Leguan I",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "f975b289-5db6-4dbc-b0ff-1e855e850dbb",
+          "name": "Leonora Nursery School",
+          "address": "VP97+X26, Leonora, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "1d05f563-07d0-4927-b63c-d3f578019c95",
+          "name": "Leonora Primary School",
+          "address": "VP97+VHV, Uitvlugt, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "2479bb34-6256-49c0-a3c8-4bdda3df460b",
+          "name": "Leonora Secondary School",
+          "address": "VP89+89J, Leonora, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "84d27883-42a1-484c-b3a6-4d9f20afcf04",
+          "name": "Linden Foundation Secondary School",
+          "address": "2PFG+647, Unnamed Road, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "e798fb71-7e21-4180-88e5-eec141f9002c",
+          "name": "Line Path 'C' Nursery School",
+          "address": "Unnamed Road, VVF4+Q7Q, Skeldon, Guyana",
+          "category": "Education & Training",
+          "region": "Corriverton",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "afdaeb7c-4e60-4e06-9d17-4efafc4223cb",
+          "name": "Line Path D Nursery School",
+          "address": "Line Path D, Corriverton, Berbice, VV84+8QM, Skeldon, Guyana",
+          "category": "Education & Training",
+          "region": "Corriverton",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "2a3eab60-e0f1-4656-8251-2ed62c477297",
+          "name": "Lochaber Primary School",
+          "address": "Vryheid, New Amsterdam, Guyana",
+          "category": "Education & Training",
+          "region": "New Amsterdam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "b85f31e7-bbb4-4235-8488-491e6a9694f5",
+          "name": "Lodge Nursery School",
+          "address": "Lot H Durban and, RV22+V6F, Chapel St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "81982eae-67a8-4e83-8744-ac79c46b52ed",
+          "name": "Lower Corentyne Secondary School",
+          "address": "7J6W+4HC, Port Mourant, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "ccfa322b-c15a-4b87-9bda-0a93cf817cb5",
+          "name": "Mackenzie High School",
+          "address": "2M6X+F48 Purple heart Street, Mackenzie, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "high school"
+        },
+        {
+          "id": "da49fd77-dd2d-4279-849b-07d000658390",
+          "name": "Mackenzie Primary School",
+          "address": "2P65+625, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "dda9907a-b137-40f0-b0c5-90c80133da00",
+          "name": "Maryville Primary School",
+          "address": "WH7Q+3V8, Parika",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "32389559-a49f-47b1-905f-1018585aba6c",
+          "name": "McGillivray Primary School",
+          "address": "QP98+PXF, LaGrange, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "d9fea319-f1b7-4d6b-ba3a-364c8574d9b5",
+          "name": "Meten-meer-zorg Primary School",
+          "address": "VMJH+V9F, Meten-Meer-Zorg, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "e61d90f0-df26-4306-9c24-624240df89d0",
+          "name": "New Slivercity Secondary School",
+          "address": "XMWR+X55, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "a290dc3a-dc02-4559-933d-4f85cadf8c27",
+          "name": "North Georgetown Secondary School",
+          "address": "RR7V+RJ2, East St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "7a4c9deb-3c67-42b3-a852-8b78ec27ae48",
+          "name": "Parika Salem Secondary School",
+          "address": "VH2C+VMH, Parika, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "7a7316ea-c1e8-4f2e-94e8-dae2b27dc59c",
+          "name": "Port Mourant Secondary School",
+          "address": "Unnamed Road, 7J3W+FQ7, Port Mourant, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "d2231dc7-727f-4095-a82f-52ddc2fd94ad",
+          "name": "Queenstown Secondary School",
+          "address": "RV72+34V, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "7071890f-4992-406c-88ff-f63bf8b9893a",
+          "name": "Rainbow Day Care, Play and Nursery School",
+          "address": "7G78+7JC G Franton Street, Old Market Street, Anna Regina",
+          "category": "Unknown",
+          "region": "Anna Regina",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "19c66b92-8ddb-4099-9616-d04f53e7e16a",
+          "name": "Regma Primary School",
+          "address": "2M7X+GHH, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "7da9754b-7992-44e6-b73c-f904182cc8ff",
+          "name": "Reliance Nursery School",
+          "address": "7G78+CR3, Anna Regina",
+          "category": "Unknown",
+          "region": "Anna Regina",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "74f782ae-fb3b-44e2-a7ee-69124196bbdf",
+          "name": "Riverstown Primary School",
+          "address": "3G77+9GP, Pomona",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "4953d634-2e6a-447d-aa62-20b232f75262",
+          "name": "Ruby Back Primary School",
+          "address": "Ruby Back Road, Parika, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "707df533-a5d9-40b7-98a8-688b3add8c3f",
+          "name": "Saint Aloysius Primary School",
+          "address": "7F4Q+64J, New Amsterdam, Guyana",
+          "category": "Education & Training",
+          "region": "New Amsterdam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "0045fb53-015b-4531-bba5-2f04d2e43822",
+          "name": "Sans Souci Primary School",
+          "address": "Wakenaam, Essequibo, XG3G+H9M, Maria Johanna",
+          "category": "Education & Training",
+          "region": "Pomeroon-Supenaam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "b1d5a0f1-3e13-4403-90af-3827d2d0dc6d",
+          "name": "Sheet Anchor Primary School",
+          "address": "144 No.2 Village, east canje berbice, New Amsterdam, Guyana",
+          "category": "Education & Training",
+          "region": "New Amsterdam",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "462ca66d-9d82-4038-b6f2-a0d29130ef9c",
+          "name": "Skeldon High School",
+          "address": "VVC4+WC4, Skeldon, Guyana",
+          "category": "Education & Training",
+          "region": "Corriverton",
+          "matched_keyword": "high school"
+        },
+        {
+          "id": "c85a91bd-5b02-45dc-a3b6-b387463f237b",
+          "name": "Skeldon Line Path Secondary School",
+          "address": "VV73+HQM, Skeldon, Guyana",
+          "category": "Education & Training",
+          "region": "Corriverton",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "f31c77a6-6444-4f26-a489-43e8b58e3bd1",
+          "name": "Skeldon Primary School",
+          "address": "VVF5+W5W, Skeldon, Guyana",
+          "category": "Education & Training",
+          "region": "Corriverton",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "d86da359-58a7-49e3-b275-fc3921e18b53",
+          "name": "Smith Memorial Primary School",
+          "address": "Hadfield St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "c96fb8d6-59f3-4954-9deb-8c4c0d8933cb",
+          "name": "Smyth Street Nursery School",
+          "address": "8 Smythe St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "83326e2a-870f-4bb5-a822-5904e6f71ac9",
+          "name": "St Ambrose Primary School",
+          "address": "RR7W+P89, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "cc85d5b1-f9c2-4ed6-af5c-3d90774a48b9",
+          "name": "St. Aidan's Primary School",
+          "address": "2M7M+37Q, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "07ba339e-75f6-4cda-a8e5-151b1b6e91d6",
+          "name": "St. Gabriel's Primary School",
+          "address": "RR7X+6G4, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "39203d6d-f7a1-461d-9580-6bea08b58503",
+          "name": "St. Ignatius Primary School",
+          "address": "86X4+V7, Lethem",
+          "category": "Education & Training",
+          "region": "Lethem",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "17d336ad-b88d-4367-91da-52c7bcfa5f9e",
+          "name": "St. Ignatius Secondary School",
+          "address": "9645+R94, Lethem",
+          "category": "Education & Training",
+          "region": "Lethem",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "cbf2f2d1-abf8-4bcd-b9a4-24406e1ca0af",
+          "name": "St. Margaret's Primary School",
+          "address": "RR7R+P7G, Camp St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "18fb274c-2c51-4c27-9fe8-c68a479c2810",
+          "name": "St. Plus Primary School",
+          "address": "QRWR+FH2, Middle Rd, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "eea3000b-5223-4704-bf07-df6071994372",
+          "name": "St. Rose's High School, Guyana",
+          "address": "245 Church St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "high school"
+        },
+        {
+          "id": "fe670576-3aa3-4546-8147-078099548755",
+          "name": "St.Angelous Primary School",
+          "address": "297 Thomas St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "b9947aa2-e1ec-43af-a9cb-f95519aa254a",
+          "name": "Stella Maris Primary School",
+          "address": "Stella Maris Primary School, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "b12d6132-6c1e-47df-93e3-d5da13681331",
+          "name": "Stewartsville Primary School",
+          "address": "VPC3+F36, Stewartville, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "2cb55d1f-c743-4ad3-8122-1f73e0a144ae",
+          "name": "Stewartville Secondary School",
+          "address": "VPC3+HCC, Stewartville, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "1b41cb67-8e42-4026-b0a7-20cc07a4ce32",
+          "name": "Tain Nursery School",
+          "address": "6MV6+2PH, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "1be6473e-d140-42c5-9216-947378ef46a2",
+          "name": "Tain Primary School",
+          "address": "6MV6+3VV, Port Mourant, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "2813f2d3-5ea9-4a4c-9723-67dc2cfdec2f",
+          "name": "The Bishops' High School, Guyana",
+          "address": "RR7P+QGC, Carmichael St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "high school"
+        },
+        {
+          "id": "35d81767-2575-48bd-97ed-6b4057dd6e48",
+          "name": "The Central High School",
+          "address": "RR3M+WQ4, Smythe St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "high school"
+        },
+        {
+          "id": "ea7824ba-4734-45b5-93ac-b5fd76a82e66",
+          "name": "Three Miles Secondary School.",
+          "address": "87-89 Three Miles Potaro Road, Bartica",
+          "category": "Education & Training",
+          "region": "Bartica",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "4d6f3c56-e620-49f3-9739-4c442b0dcf2f",
+          "name": "Tuschen Primary SchoolVictoria lilly.",
+          "address": "VJ8X+QHQ, Tuschen, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "875aae51-ef08-4884-aae3-0cf2fcc63cae",
+          "name": "Two Miles Primary School",
+          "address": "99MF+H2Q, Bartica",
+          "category": "Education & Training",
+          "region": "Bartica",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "ea8064c0-f870-4444-bbd4-43a6237b6c15",
+          "name": "Uitvlugt Primary School",
+          "address": "VMFW+W29, Uitvlugt, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "308eb616-b78b-4dae-ac6b-403879a518a1",
+          "name": "Uitvlugt Secondary School",
+          "address": "Unnamed Road, Stewartville,, VPG2+M4R, Uitvlugt, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "8bd802d0-d42c-4970-93cf-8bba12dd76e9",
+          "name": "University of Guyana Berbice Campus",
+          "address": "1-4 Public Road, Settlement, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "university of guyana"
+        },
+        {
+          "id": "132da09e-0841-42b2-a707-5b8a49889249",
+          "name": "University Of Guyana Tain Campus",
+          "address": "6MPF+226, Port Mourant, Guyana",
+          "category": "Education & Training",
+          "region": "Rose Hall",
+          "matched_keyword": "university of guyana"
+        },
+        {
+          "id": "e8777721-4c7c-4907-bae4-3801fa6550fa",
+          "name": "Valmiki College for Business & Technology High School",
+          "address": "Peter Rose St, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "high school"
+        },
+        {
+          "id": "54d337a8-cb80-4ece-8354-23b188e6fe6e",
+          "name": "Vergenoegen Secondary School",
+          "address": "VJGW+QPV, Pile Ave, Vergenoegen, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "6b93fba4-11c3-4547-87b2-086071e62d44",
+          "name": "Watooka Day Primary School",
+          "address": "XPQ4+XGR Kwakwani Road, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "d39e1e38-0c82-40af-b8bb-57b3e7b88037",
+          "name": "West Ruimveldt Primary School",
+          "address": "QRVP+H8M, E Bank Public Rd, Georgetown, Guyana",
+          "category": "Education & Training",
+          "region": "Georgetown",
+          "matched_keyword": "primary school"
+        },
+        {
+          "id": "b6e09d5b-6c76-4f90-80a4-d034b42b3f73",
+          "name": "Wisburg Secondary School",
+          "address": "2M2C+654, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "secondary school"
+        },
+        {
+          "id": "7abf36ae-6d86-4e7d-a2ee-8dbc026deb38",
+          "name": "Wismar Hill Nursery School",
+          "address": "2M4Q+35F, Linden, Guyana",
+          "category": "Education & Training",
+          "region": "Linden",
+          "matched_keyword": "nursery school"
+        },
+        {
+          "id": "fe55b61f-3318-4329-b987-ad2485078e3a",
+          "name": "ZEELUGT PRIMARY SCHOOL",
+          "address": "VMH7+89J, Tuschen, Guyana",
+          "category": "Education & Training",
+          "region": "Essequibo Islands-West Demerara",
+          "matched_keyword": "primary school"
+        }
+      ]
+    }
+  }
+}

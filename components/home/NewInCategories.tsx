@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { Bell, Sparkles, ChevronRight, Star, MapPin, Loader2, Folder, Store, ShoppingBag, UtensilsCrossed, Wrench, Briefcase, Shirt, Home, Heart, Laptop, GraduationCap, Music, Camera, Dumbbell, Leaf, Car, Plane, PawPrint, Baby, Gift, Coffee, Package, type LucideIcon } from 'lucide-react';
+import { getCategoryImage } from '@/lib/category-images';
 
 // Map icon names to actual Lucide components
 const iconMap: Record<string, LucideIcon> = {
@@ -27,8 +28,6 @@ interface FollowedCategoryWithBusinesses {
     image_url: string | null;
   }>;
 }
-
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80';
 
 export function NewInCategories() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -84,6 +83,7 @@ export function NewInCategories() {
             business_photos (image_url, is_primary)
           `)
           .eq('category_id', category.category_id)
+          .eq('is_active', true)
           .gte('created_at', oneWeekAgo.toISOString())
           .order('created_at', { ascending: false })
           .limit(6);
@@ -188,17 +188,17 @@ export function NewInCategories() {
                       <Link
                         key={business.id}
                         href={`/businesses/${business.slug}`}
-                        className="group flex-shrink-0 w-[140px] snap-start"
+                        className="group flex-shrink-0 w-[clamp(130px,38vw,160px)] snap-start"
                       >
                         <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 mb-2">
                           <Image
-                            src={business.image_url || DEFAULT_IMAGE}
+                            src={business.image_url || getCategoryImage(category.category_slug)}
                             alt={business.name}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                             sizes="140px"
                           />
-                          <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full uppercase">
+                          <div className="absolute top-2 left-2 px-2 py-0.5 bg-primary text-primary-foreground text-[11px] font-bold rounded-full uppercase">
                             New
                           </div>
                         </div>
@@ -229,7 +229,7 @@ export function NewInCategories() {
                     >
                       <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 mb-2">
                         <Image
-                          src={business.image_url || DEFAULT_IMAGE}
+                          src={business.image_url || getCategoryImage(category.category_slug)}
                           alt={business.name}
                           fill
                           className="object-cover transition-transform duration-300 group-hover:scale-105"

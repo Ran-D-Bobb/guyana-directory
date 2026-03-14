@@ -50,7 +50,7 @@ export function FormFieldWrapper({
   return (
     <div className={cn('space-y-1.5', className)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-[hsl(var(--foreground))]">
           {label}
           {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
@@ -59,7 +59,7 @@ export function FormFieldWrapper({
         {children}
       </div>
       {hint && !error && (
-        <p className="text-xs text-gray-500">{hint}</p>
+        <p className="text-xs text-[hsl(var(--muted-foreground))]">{hint}</p>
       )}
       <FormFieldError error={error} />
     </div>

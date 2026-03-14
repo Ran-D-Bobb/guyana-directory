@@ -27,10 +27,10 @@ export function InteractiveMapPreview(props: InteractiveMapPreviewProps) {
     return (
       <div className={cn('w-full', props.className)}>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-medium text-gray-700">Location preview</p>
+          <p className="text-xs font-medium text-[hsl(var(--foreground))]">Location preview</p>
         </div>
-        <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 flex items-center justify-center">
-          <div className="text-center text-gray-400">
+        <div className="relative w-full h-64 bg-[hsl(var(--muted))] rounded-lg overflow-hidden border-2 border-[hsl(var(--border))] flex items-center justify-center">
+          <div className="text-center text-[hsl(var(--muted-foreground))]">
             <MapPin className="w-8 h-8 mx-auto mb-2 animate-pulse" />
             <p className="text-sm">Loading map...</p>
           </div>
@@ -267,10 +267,10 @@ function MapContent({
     return (
       <div className={cn('w-full', className)}>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-medium text-gray-700">Location preview</p>
+          <p className="text-xs font-medium text-[hsl(var(--foreground))]">Location preview</p>
         </div>
-        <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 flex items-center justify-center">
-          <div className="text-center text-gray-400">
+        <div className="relative w-full h-64 bg-[hsl(var(--muted))] rounded-lg overflow-hidden border-2 border-[hsl(var(--border))] flex items-center justify-center">
+          <div className="text-center text-[hsl(var(--muted-foreground))]">
             <MapPin className="w-8 h-8 mx-auto mb-2 animate-pulse" />
             <p className="text-sm">Loading map...</p>
           </div>
@@ -282,7 +282,7 @@ function MapContent({
   return (
     <div className={cn('w-full', className)}>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-medium text-gray-700">
+        <p className="text-xs font-medium text-[hsl(var(--foreground))]">
           {hasLocation ? 'Location preview' : 'Select location on map'}
         </p>
         {hasLocation && (
@@ -297,7 +297,7 @@ function MapContent({
         )}
       </div>
 
-      <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 z-0">
+      <div className="relative w-full h-64 bg-[hsl(var(--muted))] rounded-lg overflow-hidden border-2 border-[hsl(var(--border))] z-0">
         {/* Map container */}
         <div id={mapIdRef.current} className="w-full h-full relative z-0" />
 
@@ -316,29 +316,29 @@ function MapContent({
           <button
             type="button"
             onClick={handleZoomIn}
-            className="bg-white hover:bg-gray-50 border-2 border-gray-300 rounded p-1.5 shadow-md transition-colors"
+            className="bg-white hover:bg-[hsl(var(--muted))] border-2 border-[hsl(var(--border))] rounded p-1.5 shadow-md transition-colors"
             title="Zoom in"
           >
-            <ZoomIn className="w-4 h-4 text-gray-700" />
+            <ZoomIn className="w-4 h-4 text-[hsl(var(--foreground))]" />
           </button>
           <button
             type="button"
             onClick={handleZoomOut}
-            className="bg-white hover:bg-gray-50 border-2 border-gray-300 rounded p-1.5 shadow-md transition-colors"
+            className="bg-white hover:bg-[hsl(var(--muted))] border-2 border-[hsl(var(--border))] rounded p-1.5 shadow-md transition-colors"
             title="Zoom out"
           >
-            <ZoomOut className="w-4 h-4 text-gray-700" />
+            <ZoomOut className="w-4 h-4 text-[hsl(var(--foreground))]" />
           </button>
         </div>
 
         {/* Current zoom level indicator */}
-        <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs text-gray-600 z-10">
+        <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs text-[hsl(var(--muted-foreground))] z-10">
           Zoom: {currentZoom}
         </div>
       </div>
 
       {/* Hint text */}
-      <div className="mt-2 flex items-start gap-1.5 text-xs text-gray-500">
+      <div className="mt-2 flex items-start gap-1.5 text-xs text-[hsl(var(--muted-foreground))]">
         <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
         <p>
           {clickToPlace && !hasLocation

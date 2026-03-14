@@ -20,7 +20,7 @@ export function TourismEmptyState({ hasFilters = false, onClearFilters }: Touris
         {/* Image */}
         <div className="absolute inset-4 rounded-full overflow-hidden">
           <Image
-            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&q=80"
+            src="/images/defaults/tourism.jpg"
             alt="Adventure awaits"
             fill
             className="object-cover opacity-80"

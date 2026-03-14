@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Clock, Star, Users, Sparkles, ShieldCheck, Award } from 'lucide-react'
 import { Database } from '@/types/supabase'
+import { getFallbackImage } from '@/lib/category-images'
 
 type TourismExperience = Database['public']['Tables']['tourism_experiences']['Row'] & {
   tourism_categories: { name: string; icon: string } | null
@@ -12,9 +13,6 @@ type TourismExperience = Database['public']['Tables']['tourism_experiences']['Ro
 interface ExperienceCardProps {
   experience: TourismExperience
 }
-
-// Default tourism experience image from Unsplash
-const DEFAULT_TOURISM_IMAGE = 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80'
 
 // Difficulty color coding
 const difficultyColors: Record<string, string> = {
@@ -27,7 +25,7 @@ const difficultyColors: Record<string, string> = {
 export function ExperienceCard({ experience }: ExperienceCardProps) {
   // Get primary photo or first photo
   const photos = Array.isArray(experience.tourism_photos) ? experience.tourism_photos : []
-  const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || DEFAULT_TOURISM_IMAGE
+  const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || getFallbackImage(experience.tourism_categories?.name, 'tourism')
 
   const difficultyColor = difficultyColors[experience.difficulty_level || 'easy'] || difficultyColors.easy
 

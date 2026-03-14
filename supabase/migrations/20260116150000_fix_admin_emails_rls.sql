@@ -9,6 +9,7 @@ ALTER TABLE public.admin_emails ENABLE ROW LEVEL SECURITY;
 -- Create a restrictive policy - no direct access for regular users
 -- The is_admin() SECURITY DEFINER function bypasses RLS, so it will still work
 -- Only service_role can directly access this table
+DROP POLICY IF EXISTS "No direct access to admin_emails" ON public.admin_emails;
 CREATE POLICY "No direct access to admin_emails" ON public.admin_emails
   FOR ALL
   USING (false)

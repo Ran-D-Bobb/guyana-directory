@@ -26,6 +26,7 @@ import {
   FileWarning,
   Video,
   Tag,
+  ScanEye,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -94,6 +95,7 @@ export function AdminSidebar({ pendingTourism = 0, flaggedRentals = 0, flaggedPh
       badge: flaggedPhotos > 0 ? flaggedPhotos : undefined,
       badgeColor: 'bg-orange-500'
     },
+    { label: 'Photo Audit', href: '/admin/photo-audit', icon: ScanEye },
     { label: 'Categories', href: '/admin/categories', icon: FolderOpen },
     { label: 'Tags', href: '/admin/tags', icon: Tag },
     { label: 'Regions', href: '/admin/regions', icon: MapPin },

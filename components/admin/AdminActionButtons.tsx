@@ -196,6 +196,7 @@ interface BusinessActionsProps {
   businessName?: string
   isVerified: boolean
   isFeatured: boolean
+  isActive?: boolean
   onUpdate?: () => void
 }
 
@@ -204,6 +205,7 @@ export function BusinessActions({
   businessName,
   isVerified,
   isFeatured,
+  isActive = true,
   onUpdate,
 }: BusinessActionsProps) {
   const [loading, setLoading] = useState<string | null>(null)
@@ -270,6 +272,36 @@ export function BusinessActions({
     }
   }
 
+  const handleToggleActive = async () => {
+    setLoading('active')
+    try {
+      const newActive = !isActive
+      const { error } = await supabase
+        .from('businesses')
+        .update({ is_active: newActive })
+        .eq('id', businessId)
+
+      if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newActive ? 'reactivate' : 'unapprove',
+        entity_type: 'business',
+        entity_id: businessId,
+        entity_name: businessName || 'Unknown Business',
+        before_data: { is_active: isActive },
+        after_data: { is_active: newActive },
+      })
+
+      onUpdate?.()
+      router.refresh()
+    } catch (error) {
+      console.error('Error toggling active status:', error)
+    } finally {
+      setLoading(null)
+    }
+  }
+
   const handleDelete = async () => {
     const { error } = await supabase
       .from('businesses')
@@ -309,6 +341,16 @@ export function BusinessActions({
         icon={isFeatured ? <StarOff size={14} /> : <Star size={14} />}
       >
         {isFeatured ? 'Unfeature' : 'Feature'}
+      </ActionButton>
+
+      <ActionButton
+        onClick={handleToggleActive}
+        loading={loading === 'active'}
+        variant={isActive ? 'warning' : 'primary'}
+        size="sm"
+        icon={isActive ? <EyeOff size={14} /> : <Eye size={14} />}
+      >
+        {isActive ? 'Hide' : 'Show'}
       </ActionButton>
 
       <DeleteButton

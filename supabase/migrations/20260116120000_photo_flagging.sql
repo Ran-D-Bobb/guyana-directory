@@ -26,6 +26,7 @@ CREATE INDEX IF NOT EXISTS idx_business_photos_is_flagged ON business_photos(is_
 ALTER TABLE photo_flags ENABLE ROW LEVEL SECURITY;
 
 -- Users can flag photos (insert their own flags)
+DROP POLICY IF EXISTS "Users can flag photos" ON photo_flags;
 CREATE POLICY "Users can flag photos"
   ON photo_flags
   FOR INSERT
@@ -33,6 +34,7 @@ CREATE POLICY "Users can flag photos"
   WITH CHECK (auth.uid() = user_id);
 
 -- Users can view their own flags
+DROP POLICY IF EXISTS "Users can view their own flags" ON photo_flags;
 CREATE POLICY "Users can view their own flags"
   ON photo_flags
   FOR SELECT
@@ -40,6 +42,7 @@ CREATE POLICY "Users can view their own flags"
   USING (auth.uid() = user_id);
 
 -- Admins can view all flags
+DROP POLICY IF EXISTS "Admins can view all flags" ON photo_flags;
 CREATE POLICY "Admins can view all flags"
   ON photo_flags
   FOR SELECT
@@ -47,6 +50,7 @@ CREATE POLICY "Admins can view all flags"
   USING (is_admin());
 
 -- Admins can delete flags (when dismissing)
+DROP POLICY IF EXISTS "Admins can delete flags" ON photo_flags;
 CREATE POLICY "Admins can delete flags"
   ON photo_flags
   FOR DELETE

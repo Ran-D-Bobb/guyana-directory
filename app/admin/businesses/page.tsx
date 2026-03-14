@@ -21,6 +21,7 @@ export default async function AdminBusinessesPage({
   const categoryFilter = params.category as string | undefined
   const verifiedFilter = params.verified as string | undefined
   const featuredFilter = params.featured as string | undefined
+  const visibilityFilter = params.visibility as string | undefined
   const searchQuery = params.q as string | undefined
 
   // Sanitize search query for DB
@@ -56,6 +57,11 @@ export default async function AdminBusinessesPage({
   } else if (featuredFilter === 'false') {
     query = query.eq('is_featured', false)
   }
+  if (visibilityFilter === 'visible') {
+    query = query.eq('is_active', true)
+  } else if (visibilityFilter === 'hidden') {
+    query = query.eq('is_active', false)
+  }
 
   // Limit results
   query = query.limit(100)
@@ -74,10 +80,11 @@ export default async function AdminBusinessesPage({
   const totalBusinesses = businesses?.length || 0
   const verifiedCount = businesses?.filter(b => b.is_verified).length || 0
   const featuredCount = businesses?.filter(b => b.is_featured).length || 0
+  const hiddenCount = businesses?.filter(b => b.is_active === false).length || 0
   const totalViews = businesses?.reduce((sum, b) => sum + (b.view_count || 0), 0) || 0
 
   // Check if any filter is active
-  const hasActiveFilters = !!(categoryFilter || verifiedFilter || featuredFilter || searchQuery)
+  const hasActiveFilters = !!(categoryFilter || verifiedFilter || featuredFilter || visibilityFilter || searchQuery)
 
   return (
     <div className="min-h-screen">
@@ -108,6 +115,13 @@ export default async function AdminBusinessesPage({
             value={featuredCount}
             icon="Sparkles"
             color="yellow"
+            size="sm"
+          />
+          <AdminStatCard
+            label="Hidden"
+            value={hiddenCount}
+            icon="EyeOff"
+            color="red"
             size="sm"
           />
           <AdminStatCard
@@ -169,6 +183,17 @@ export default async function AdminBusinessesPage({
                 <option value="">All Listings</option>
                 <option value="true">Featured</option>
                 <option value="false">Not Featured</option>
+              </select>
+
+              {/* Visibility Filter */}
+              <select
+                name="visibility"
+                defaultValue={visibilityFilter || ''}
+                className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-emerald-300 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all min-w-[140px]"
+              >
+                <option value="">All Visibility</option>
+                <option value="visible">Visible</option>
+                <option value="hidden">Hidden</option>
               </select>
 
               <div className="flex items-center gap-2">

@@ -33,7 +33,10 @@ export default function KioskNavBar() {
       {showLanguages && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center backdrop-blur-lg"
-          style={{ background: 'rgba(16, 34, 16, 0.95)' }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Select language"
+          style={{ background: 'rgba(12, 31, 23, 0.95)' }}
           onClick={() => setShowLanguages(false)}
         >
           <div
@@ -41,10 +44,10 @@ export default function KioskNavBar() {
             onClick={(e) => e.stopPropagation()}
             style={{
               padding: 'var(--kiosk-space-5xl)',
-              maxWidth: '1000px',
+              maxWidth: 'calc(1000px * var(--kiosk-scale))',
               width: '90%',
               background: 'var(--kiosk-bg-overlay)',
-              border: '2px solid rgba(59, 84, 59, 1)'
+              border: '2px solid var(--kiosk-border-default)'
             }}
           >
             <h2
@@ -74,10 +77,10 @@ export default function KioskNavBar() {
                     gap: 'var(--kiosk-space-lg)',
                     padding: 'var(--kiosk-space-2xl)',
                     background: 'var(--kiosk-bg-elevated)',
-                    border: '2px solid rgba(59, 84, 59, 1)'
+                    border: '2px solid var(--kiosk-border-default)'
                   }}
                 >
-                  <span style={{ fontSize: '72px' }}>{lang.flag}</span>
+                  <span style={{ fontSize: 'var(--kiosk-text-72)' }}>{lang.flag}</span>
                   <div className="text-left">
                     <p
                       className="font-bold group-hover:translate-x-2 transition-transform"

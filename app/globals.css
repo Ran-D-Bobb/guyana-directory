@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* =====================================================
    WAYPOINT - Tropical Luxe Design System
    Inspired by Guyana's rainforests and golden waters
@@ -49,6 +51,45 @@
   --waterfall-blue: 195 80% 45%;
   --sunset-coral: 15 85% 60%;
   --orchid-purple: 280 65% 55%;
+}
+
+.dark {
+  --background: 0 0% 7%;
+  --foreground: 0 0% 93%;
+  --card: 0 0% 12%;
+  --card-foreground: 0 0% 93%;
+  --popover: 0 0% 12%;
+  --popover-foreground: 0 0% 93%;
+  --primary: 160 84% 39%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 45 80% 50%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 16%;
+  --muted-foreground: 0 0% 55%;
+  --accent: 45 80% 50%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 70% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 20%;
+  --input: 0 0% 20%;
+  --ring: 160 84% 39%;
+
+  --jungle-900: 0 0% 93%;
+  --jungle-800: 0 0% 82%;
+  --jungle-700: 0 0% 72%;
+  --jungle-600: 0 0% 62%;
+  --jungle-500: 160 84% 39%;
+  --jungle-400: 160 70% 50%;
+  --jungle-300: 0 0% 35%;
+  --jungle-200: 0 0% 22%;
+  --jungle-100: 0 0% 16%;
+  --jungle-50: 0 0% 7%;
+
+  --gold-500: 45 80% 50%;
+  --gold-400: 45 70% 55%;
+  --gold-300: 45 50% 40%;
+  --gold-200: 45 35% 25%;
+  --gold-100: 45 25% 15%;
 }
 
 * {
@@ -333,6 +374,16 @@ p {
   animation: gradient-flow 15s ease infinite;
 }
 
+/* Featured sparkle — gentle twinkle */
+@keyframes featured-sparkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+.animate-featured-sparkle {
+  animation: featured-sparkle 3s ease-in-out infinite;
+}
+
 /* Stagger delays */
 .delay-100 { animation-delay: 100ms; }
 .delay-200 { animation-delay: 200ms; }
@@ -568,6 +619,26 @@ p {
   transform: translateY(-4px);
 }
 
+.dark .card-elevated {
+  background: hsl(0 0% 12%);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.25),
+    0 16px 32px rgba(0, 0, 0, 0.3);
+}
+
+.dark .card-elevated:hover {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    0 24px 48px rgba(0, 0, 0, 0.4);
+}
+
+.dark .glass {
+  background: rgba(18, 18, 18, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
 /* =====================================================
    SCROLLBAR STYLING
    ===================================================== */
@@ -733,6 +804,93 @@ select option {
   background-color: white;
 }
 
+.dark select option {
+  background-color: hsl(0 0% 12%);
+}
+
+/* =====================================================
+   TEXT-ON-IMAGE PROTECTION SYSTEM
+   Guarantees text readability on any hero/banner image
+   ===================================================== */
+
+/* Scrim: Strong bottom gradient for text areas over images.
+   Use on a div with absolute inset-0 positioned over the image. */
+.hero-scrim {
+  background:
+    /* Primary text protection - strong at bottom where text lives */
+    linear-gradient(
+      to top,
+      hsl(0 0% 0% / 0.82) 0%,
+      hsl(0 0% 0% / 0.75) 8%,
+      hsl(0 0% 0% / 0.6) 20%,
+      hsl(0 0% 0% / 0.35) 40%,
+      hsl(0 0% 0% / 0.15) 60%,
+      hsl(0 0% 0% / 0.08) 75%,
+      transparent 100%
+    ),
+    /* Subtle top vignette for header/nav area */
+    linear-gradient(
+      to bottom,
+      hsl(0 0% 0% / 0.25) 0%,
+      transparent 30%
+    );
+}
+
+/* Themed scrim variant using project jungle colors */
+.hero-scrim-jungle {
+  background:
+    linear-gradient(
+      to top,
+      hsl(158 64% 4% / 0.88) 0%,
+      hsl(158 50% 6% / 0.72) 12%,
+      hsl(158 40% 8% / 0.5) 28%,
+      hsl(158 30% 10% / 0.25) 50%,
+      hsl(158 20% 12% / 0.1) 70%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      hsl(0 0% 0% / 0.2) 0%,
+      transparent 25%
+    );
+}
+
+/* Frosted text container - subtle glass behind text content.
+   Apply to the text wrapper div positioned over the image. */
+.hero-text-backdrop {
+  background: hsl(0 0% 0% / 0.12);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid hsl(0 0% 100% / 0.06);
+}
+
+/* Multi-layer text shadow for hero titles.
+   Creates a soft dark halo that works on any background. */
+.text-hero-title {
+  text-shadow:
+    0 1px 3px hsl(0 0% 0% / 0.9),
+    0 2px 8px hsl(0 0% 0% / 0.6),
+    0 4px 20px hsl(0 0% 0% / 0.4),
+    0 8px 40px hsl(0 0% 0% / 0.2);
+}
+
+/* Lighter text shadow for body text / subtitles on images */
+.text-hero-body {
+  text-shadow:
+    0 1px 2px hsl(0 0% 0% / 0.8),
+    0 2px 6px hsl(0 0% 0% / 0.5),
+    0 4px 16px hsl(0 0% 0% / 0.3);
+}
+
+/* Subtle shadow for small text / labels on images */
+.text-hero-label {
+  text-shadow:
+    0 1px 2px hsl(0 0% 0% / 0.7),
+    0 2px 4px hsl(0 0% 0% / 0.4);
+}
+
 /* =====================================================
    TEXT EFFECTS
    ===================================================== */
@@ -831,4 +989,522 @@ select option {
   height: 80px;
   background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23f9fafb' d='M0,40 C480,80 960,0 1440,40 L1440,80 L0,80 Z'/%3E%3C/svg%3E") no-repeat;
   background-size: cover;
+}
+
+/* =====================================================
+   DARK MODE - Global Utility Overrides
+   Automatically remaps hardcoded Tailwind gray/white
+   utilities so ALL components get dark mode without
+   needing individual dark: classes on every element.
+   ===================================================== */
+
+/* --- White Backgrounds → Dark Card Surface --- */
+.dark .bg-white {
+  background-color: hsl(0 0% 12%);
+}
+.dark .bg-white\/95 {
+  background-color: hsl(0 0% 12% / 0.95);
+}
+.dark .bg-white\/90 {
+  background-color: hsl(0 0% 12% / 0.9);
+}
+.dark .bg-white\/80 {
+  background-color: hsl(0 0% 12% / 0.8);
+}
+
+/* --- Gray Backgrounds → Neutral Dark Scale --- */
+.dark .bg-gray-50 {
+  background-color: hsl(0 0% 7%);
+}
+.dark .bg-gray-100 {
+  background-color: hsl(0 0% 16%);
+}
+.dark .bg-gray-200 {
+  background-color: hsl(0 0% 20%);
+}
+.dark .bg-gray-300 {
+  background-color: hsl(0 0% 25%);
+}
+.dark .bg-gray-900 {
+  background-color: hsl(0 0% 93%);
+}
+
+/* --- Hover Backgrounds --- */
+.dark .hover\:bg-white:hover {
+  background-color: hsl(0 0% 16%);
+}
+.dark .hover\:bg-gray-50:hover {
+  background-color: hsl(0 0% 12%);
+}
+.dark .hover\:bg-gray-100:hover {
+  background-color: hsl(0 0% 20%);
+}
+.dark .hover\:bg-gray-200:hover {
+  background-color: hsl(0 0% 25%);
+}
+
+/* --- Text Colors → Inverted for readability --- */
+.dark .text-gray-900 {
+  color: hsl(0 0% 95%);
+}
+.dark .text-gray-800 {
+  color: hsl(0 0% 85%);
+}
+.dark .text-gray-700 {
+  color: hsl(0 0% 78%);
+}
+.dark .text-gray-600 {
+  color: hsl(0 0% 68%);
+}
+.dark .text-gray-500 {
+  color: hsl(0 0% 55%);
+}
+.dark .text-gray-400 {
+  color: hsl(0 0% 48%);
+}
+
+/* --- Border Colors → Dark Borders --- */
+.dark .border-gray-100 {
+  border-color: hsl(0 0% 18%);
+}
+.dark .border-gray-200 {
+  border-color: hsl(0 0% 20%);
+}
+.dark .border-gray-200\/50 {
+  border-color: hsl(0 0% 20% / 0.5);
+}
+.dark .border-gray-200\/80 {
+  border-color: hsl(0 0% 20% / 0.8);
+}
+.dark .border-gray-300 {
+  border-color: hsl(0 0% 25%);
+}
+
+/* --- Hover Borders --- */
+.dark .hover\:border-gray-300:hover {
+  border-color: hsl(0 0% 30%);
+}
+
+/* --- Divide Colors --- */
+.dark .divide-gray-100 > :not(:last-child) {
+  border-color: hsl(0 0% 18%);
+}
+.dark .divide-gray-200 > :not(:last-child) {
+  border-color: hsl(0 0% 20%);
+}
+
+/* --- Ring Colors --- */
+.dark .ring-white\/50 {
+  --tw-ring-color: hsl(0 0% 16% / 0.5);
+}
+.dark .ring-gray-100 {
+  --tw-ring-color: hsl(0 0% 18%);
+}
+
+/* --- Gradient Stops → Dark Equivalents --- */
+.dark .from-gray-100 {
+  --tw-gradient-from: hsl(0 0% 16%);
+}
+.dark .from-gray-200 {
+  --tw-gradient-from: hsl(0 0% 20%);
+}
+.dark .to-gray-100 {
+  --tw-gradient-to: hsl(0 0% 16%);
+}
+.dark .to-gray-200 {
+  --tw-gradient-to: hsl(0 0% 20%);
+}
+.dark .to-gray-300 {
+  --tw-gradient-to: hsl(0 0% 25%);
+}
+
+/* --- Placeholder Text --- */
+.dark .placeholder-gray-400::placeholder,
+.dark .placeholder\:text-gray-400::placeholder {
+  color: hsl(0 0% 40%);
+}
+
+/* --- Focus Styles --- */
+.dark .focus\:bg-white:focus {
+  background-color: hsl(0 0% 16%);
+}
+.dark .focus\:border-gray-300:focus {
+  border-color: hsl(0 0% 30%);
+}
+
+/* --- Specific Component Patterns --- */
+
+/* Filter dropdowns and popovers */
+.dark .shadow-2xl {
+  --tw-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+}
+.dark .shadow-xl {
+  --tw-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
+}
+.dark .shadow-lg {
+  --tw-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.25);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+}
+.dark .shadow-md {
+  --tw-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+}
+.dark .shadow-sm {
+  --tw-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+}
+
+/* Badge color adjustments for dark mode */
+.dark .bg-emerald-100 {
+  background-color: hsl(160 40% 15%);
+}
+.dark .text-emerald-700 {
+  color: hsl(160 60% 65%);
+}
+.dark .bg-amber-100 {
+  background-color: hsl(45 40% 15%);
+}
+.dark .text-amber-700 {
+  color: hsl(45 70% 65%);
+}
+.dark .bg-blue-50 {
+  background-color: hsl(210 30% 13%);
+}
+.dark .bg-rose-50 {
+  background-color: hsl(350 25% 13%);
+}
+.dark .bg-amber-50 {
+  background-color: hsl(45 25% 11%);
+}
+.dark .bg-red-50 {
+  background-color: hsl(0 25% 13%);
+}
+.dark .bg-red-100 {
+  background-color: hsl(0 30% 16%);
+}
+
+/* Hover states for colored backgrounds */
+.dark .hover\:bg-gray-50:hover {
+  background-color: hsl(0 0% 12%);
+}
+.dark .hover\:bg-red-50:hover {
+  background-color: hsl(0 30% 15%);
+}
+.dark .hover\:bg-amber-50:hover {
+  background-color: hsl(45 30% 13%);
+}
+.dark .hover\:bg-blue-50:hover {
+  background-color: hsl(210 30% 15%);
+}
+.dark .hover\:bg-rose-50:hover {
+  background-color: hsl(350 30% 15%);
+}
+
+/* Wave divider dark mode */
+.dark .wave-divider::after {
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23121212' d='M0,40 C480,80 960,0 1440,40 L1440,80 L0,80 Z'/%3E%3C/svg%3E") no-repeat;
+  background-size: cover;
+}
+
+/* Gradient mesh dark mode */
+.dark .gradient-mesh-jungle {
+  background:
+    radial-gradient(ellipse at 20% 30%, hsl(0 0% 15% / 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, hsl(0 0% 10% / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, hsl(0 0% 5% / 0.5) 0%, transparent 50%),
+    linear-gradient(to bottom, hsl(0 0% 7%), hsl(0 0% 5%));
+}
+
+.dark .gradient-mesh-golden {
+  background:
+    radial-gradient(ellipse at 30% 20%, hsl(0 0% 15% / 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, hsl(0 0% 10% / 0.15) 0%, transparent 50%),
+    linear-gradient(135deg, hsl(0 0% 8%) 0%, hsl(0 0% 10% / 0.2) 100%);
+}
+
+/* Scrollbar dark mode */
+.dark .scrollbar-thin {
+  scrollbar-color: hsl(0 0% 25%) transparent;
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: hsl(0 0% 25%);
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(0 0% 35%);
+}
+
+/* Text gradient fixes for dark mode */
+.dark .text-gradient-gold {
+  background: linear-gradient(135deg, hsl(45 80% 55%), hsl(35 70% 50%), hsl(45 80% 55%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Footer protection - footer already has dark styling, prevent overrides */
+.dark footer .text-gray-400 {
+  color: hsl(0 0% 63%);
+}
+.dark footer .text-gray-500 {
+  color: hsl(0 0% 55%);
+}
+.dark footer .bg-gray-900,
+.dark footer .from-gray-900 {
+  background-color: hsl(220 13% 10%);
+}
+.dark footer .border-gray-700 {
+  border-color: hsl(220 10% 25%);
+}
+.dark footer .bg-gray-700\/50 {
+  background-color: hsl(220 10% 25% / 0.5);
+}
+
+/* Form inputs dark mode */
+.dark input,
+.dark textarea,
+.dark select {
+  color: hsl(0 0% 90%) !important;
+  background-color: hsl(0 0% 14%);
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: hsl(0 0% 42%) !important;
+}
+.dark select option {
+  color: hsl(0 0% 90%);
+  background-color: hsl(0 0% 12%);
+}
+
+/* --- Specific Dark Mode Focus Input Override --- */
+.dark .focus\:bg-white:focus,
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  background-color: hsl(0 0% 16%);
+}
+
+/* =====================================================
+   DARK MODE — Slate Color Overrides
+   Admin panel and components use slate-* instead of gray-*.
+   Mirror the gray-* mappings for full dark mode support.
+   ===================================================== */
+
+/* --- Slate Backgrounds → Dark Surfaces --- */
+.dark .bg-slate-50 {
+  background-color: hsl(0 0% 7%);
+}
+.dark .bg-slate-100 {
+  background-color: hsl(0 0% 16%);
+}
+.dark .bg-slate-200 {
+  background-color: hsl(0 0% 20%);
+}
+.dark .bg-slate-50\/80 {
+  background-color: hsl(0 0% 7% / 0.8);
+}
+
+/* --- Slate Hover Backgrounds --- */
+.dark .hover\:bg-slate-50:hover {
+  background-color: hsl(0 0% 12%);
+}
+.dark .hover\:bg-slate-50\/80:hover {
+  background-color: hsl(0 0% 12% / 0.8);
+}
+.dark .hover\:bg-slate-100:hover {
+  background-color: hsl(0 0% 20%);
+}
+.dark .hover\:bg-slate-200:hover {
+  background-color: hsl(0 0% 25%);
+}
+
+/* --- Slate Text → Inverted for Dark Readability --- */
+.dark .text-slate-900 {
+  color: hsl(0 0% 95%);
+}
+.dark .text-slate-800 {
+  color: hsl(0 0% 85%);
+}
+.dark .text-slate-700 {
+  color: hsl(0 0% 78%);
+}
+.dark .text-slate-600 {
+  color: hsl(0 0% 68%);
+}
+.dark .text-slate-500 {
+  color: hsl(0 0% 55%);
+}
+.dark .text-slate-400 {
+  color: hsl(0 0% 48%);
+}
+.dark .text-slate-300 {
+  color: hsl(0 0% 38%);
+}
+
+/* --- Slate Hover Text --- */
+.dark .hover\:text-slate-900:hover {
+  color: hsl(0 0% 95%);
+}
+
+/* --- Slate Border Colors → Dark Borders --- */
+.dark .border-slate-100 {
+  border-color: hsl(0 0% 18%);
+}
+.dark .border-slate-200 {
+  border-color: hsl(0 0% 20%);
+}
+.dark .border-slate-200\/80 {
+  border-color: hsl(0 0% 20% / 0.8);
+}
+.dark .border-slate-300 {
+  border-color: hsl(0 0% 25%);
+}
+.dark .border-slate-300\/80 {
+  border-color: hsl(0 0% 25% / 0.8);
+}
+
+/* --- Slate Hover Borders --- */
+.dark .hover\:border-slate-300:hover {
+  border-color: hsl(0 0% 30%);
+}
+.dark .hover\:border-slate-300\/80:hover {
+  border-color: hsl(0 0% 30% / 0.8);
+}
+
+/* --- Slate Dividers --- */
+.dark .divide-slate-100 > :not(:last-child) {
+  border-color: hsl(0 0% 18%);
+}
+.dark .divide-slate-200 > :not(:last-child) {
+  border-color: hsl(0 0% 20%);
+}
+
+/* --- Slate Focus States --- */
+.dark .focus\:border-slate-200:focus {
+  border-color: hsl(0 0% 25%);
+}
+
+/* --- Slate Ring Colors --- */
+.dark .ring-slate-100 {
+  --tw-ring-color: hsl(0 0% 18%);
+}
+
+/* --- Admin Header Backdrop --- */
+.dark .bg-white\/80 {
+  background-color: hsl(0 0% 12% / 0.8);
+}
+
+/* =====================================================
+   DARK MODE — Colored Light Backgrounds (Admin Cards)
+   Stat cards, badges, icon containers use *-50/*-100
+   backgrounds that need dark equivalents.
+   ===================================================== */
+
+/* Purple */
+.dark .bg-purple-50 {
+  background-color: hsl(280 25% 13%);
+}
+.dark .bg-purple-100 {
+  background-color: hsl(280 30% 16%);
+}
+.dark .text-purple-700 {
+  color: hsl(280 55% 70%);
+}
+
+/* Cyan */
+.dark .bg-cyan-50 {
+  background-color: hsl(195 25% 12%);
+}
+.dark .bg-cyan-100 {
+  background-color: hsl(195 30% 16%);
+}
+.dark .text-cyan-700 {
+  color: hsl(195 55% 65%);
+}
+
+/* Orange */
+.dark .bg-orange-50 {
+  background-color: hsl(30 25% 12%);
+}
+.dark .bg-orange-100 {
+  background-color: hsl(30 30% 16%);
+}
+.dark .text-orange-700 {
+  color: hsl(30 65% 60%);
+}
+
+/* Pink */
+.dark .bg-pink-50 {
+  background-color: hsl(330 25% 13%);
+}
+.dark .bg-pink-100 {
+  background-color: hsl(330 30% 16%);
+}
+.dark .text-pink-700 {
+  color: hsl(330 55% 65%);
+}
+
+/* Yellow */
+.dark .bg-yellow-50 {
+  background-color: hsl(45 25% 11%);
+}
+.dark .bg-yellow-100 {
+  background-color: hsl(45 30% 15%);
+}
+.dark .text-yellow-700 {
+  color: hsl(45 65% 60%);
+}
+
+/* Blue-100 (not yet covered) */
+.dark .bg-blue-100 {
+  background-color: hsl(210 30% 16%);
+}
+.dark .text-blue-700 {
+  color: hsl(210 55% 65%);
+}
+
+/* Red text for badges */
+.dark .text-red-700 {
+  color: hsl(0 55% 65%);
+}
+
+/* Orange text for alerts */
+.dark .text-orange-900 {
+  color: hsl(30 60% 80%);
+}
+.dark .text-orange-600 {
+  color: hsl(30 70% 60%);
+}
+.dark .text-red-900 {
+  color: hsl(0 55% 80%);
+}
+.dark .text-red-600 {
+  color: hsl(0 65% 60%);
+}
+
+/* Admin alert gradients in dark mode */
+.dark .from-orange-50 {
+  --tw-gradient-from: hsl(30 25% 12%);
+}
+.dark .to-amber-50 {
+  --tw-gradient-to: hsl(45 25% 11%);
+}
+.dark .from-red-50 {
+  --tw-gradient-from: hsl(0 25% 13%);
+}
+.dark .to-rose-50 {
+  --tw-gradient-to: hsl(350 25% 13%);
+}
+.dark .border-orange-200 {
+  border-color: hsl(30 30% 25%);
+}
+.dark .border-red-200 {
+  border-color: hsl(0 30% 25%);
+}
+.dark .hover\:border-orange-300:hover {
+  border-color: hsl(30 35% 30%);
+}
+.dark .hover\:border-red-300:hover {
+  border-color: hsl(0 35% 30%);
 }

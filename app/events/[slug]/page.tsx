@@ -12,9 +12,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, MapPin, Building2, Clock, Sparkles, Eye, User, Phone, Users, ArrowRight } from 'lucide-react'
-
-// Default event image from Unsplash
-const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80'
+import { getFallbackImage } from '@/lib/category-images'
 
 // Revalidate every 2 minutes
 export const revalidate = 120
@@ -225,7 +223,7 @@ export default async function EventPage({ params }: EventPageProps) {
         id={event.id}
         slug={event.slug}
         name={event.title}
-        image={event.image_url || DEFAULT_EVENT_IMAGE}
+        image={event.image_url || getFallbackImage(event.event_categories?.name, 'event')}
         category={event.event_categories?.name}
         location={event.location || undefined}
       />
@@ -242,7 +240,7 @@ export default async function EventPage({ params }: EventPageProps) {
               <div className={`group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 ${isPast ? 'opacity-80' : ''}`}>
                 <div className="aspect-video w-full relative overflow-hidden">
                   <Image
-                    src={event.image_url || DEFAULT_EVENT_IMAGE}
+                    src={event.image_url || getFallbackImage(event.event_categories?.name, 'event')}
                     alt={event.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"

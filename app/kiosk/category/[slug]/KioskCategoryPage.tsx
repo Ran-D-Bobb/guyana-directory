@@ -1,62 +1,52 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import KioskCategorySlideshow from '@/components/kiosk/KioskCategorySlideshow'
 import { useIdleTimer } from '@/hooks/useIdleTimer'
-
-interface Experience {
-  id: string
-  slug: string
-  name: string
-  description: string
-  image_url: string | null
-  rating: number
-  review_count: number
-  duration: string | null
-  group_size_max: number | null
-  price_from: number
-  difficulty_level: string | null
-  location_details: string | null
-  region_name: string | null
-}
-
-interface FeaturedExperience {
-  id: string
-  slug: string
-  name: string
-  description: string
-  image_url: string | null
-  rating: number
-  review_count: number
-  duration: string | null
-  price_from: number
-  category_name: string
-}
+import KioskCategoryBrowser from '@/components/kiosk/KioskCategoryBrowser'
+import KioskDetailOverlay from '@/components/kiosk/KioskDetailOverlay'
+import KioskExperienceDetail from '@/components/kiosk/KioskExperienceDetail'
+import { useState } from 'react'
+import type { KioskExperience, KioskCategory } from '@/app/kiosk/KioskHomePage'
 
 interface KioskCategoryPageProps {
-  experiences: Experience[]
+  experiences: KioskExperience[]
   categoryName: string
-  featuredExperiences?: FeaturedExperience[]
+  categorySlug: string
 }
 
-export default function KioskCategoryPage({ experiences, categoryName, featuredExperiences }: KioskCategoryPageProps) {
+export default function KioskCategoryPage({ experiences, categoryName, categorySlug }: KioskCategoryPageProps) {
   const router = useRouter()
+  const [selectedExperience, setSelectedExperience] = useState<KioskExperience | null>(null)
 
-  // Auto-return to home after 90 seconds of inactivity
   useIdleTimer(() => {
     router.push('/kiosk')
-  }, 90000) // 90 seconds
+  }, 90000)
 
-  const handleBack = () => {
-    router.push('/kiosk')
+  const category: KioskCategory = {
+    id: '',
+    slug: categorySlug,
+    name: categoryName,
+    icon: '',
+    description: null,
+    experience_count: experiences.length,
   }
 
   return (
-    <KioskCategorySlideshow
-      experiences={experiences}
-      categoryName={categoryName}
-      featuredExperiences={featuredExperiences}
-      onBack={handleBack}
-    />
+    <>
+      <KioskCategoryBrowser
+        category={category}
+        experiences={experiences}
+        onOpenExperience={(exp) => setSelectedExperience(exp)}
+        onBack={() => router.push('/kiosk')}
+      />
+      {selectedExperience && (
+        <KioskDetailOverlay
+          isExiting={false}
+          onClose={() => setSelectedExperience(null)}
+        >
+          <KioskExperienceDetail experience={selectedExperience} />
+        </KioskDetailOverlay>
+      )}
+    </>
   )
 }

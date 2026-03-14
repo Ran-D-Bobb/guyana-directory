@@ -2,21 +2,24 @@
 -- Part of Phase 2: User Suspend/Ban
 
 -- Create enum for user status
-CREATE TYPE user_status AS ENUM ('active', 'suspended', 'banned');
+DO $$ BEGIN
+  CREATE TYPE user_status AS ENUM ('active', 'suspended', 'banned');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Add status fields to profiles table
 ALTER TABLE profiles
-  ADD COLUMN status user_status DEFAULT 'active' NOT NULL,
-  ADD COLUMN status_reason text,
-  ADD COLUMN status_expires_at timestamptz,
-  ADD COLUMN status_updated_at timestamptz,
-  ADD COLUMN status_updated_by uuid REFERENCES profiles(id) ON DELETE SET NULL;
+  ADD COLUMN IF NOT EXISTS status user_status DEFAULT 'active' NOT NULL,
+  ADD COLUMN IF NOT EXISTS status_reason text,
+  ADD COLUMN IF NOT EXISTS status_expires_at timestamptz,
+  ADD COLUMN IF NOT EXISTS status_updated_at timestamptz,
+  ADD COLUMN IF NOT EXISTS status_updated_by uuid REFERENCES profiles(id) ON DELETE SET NULL;
 
 -- Create index for efficient filtering by status
-CREATE INDEX idx_profiles_status ON profiles(status);
+CREATE INDEX IF NOT EXISTS idx_profiles_status ON profiles(status);
 
 -- Create index for finding expiring suspensions
-CREATE INDEX idx_profiles_status_expires ON profiles(status_expires_at)
+CREATE INDEX IF NOT EXISTS idx_profiles_status_expires ON profiles(status_expires_at)
   WHERE status = 'suspended' AND status_expires_at IS NOT NULL;
 
 -- Add comments for documentation

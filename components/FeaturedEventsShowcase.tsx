@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, MapPin, Sparkles, ArrowRight, Users } from 'lucide-react'
+import { getFallbackImage } from '@/lib/category-images'
 
 type Event = {
   id: string
@@ -23,8 +24,6 @@ type Event = {
 interface FeaturedEventsShowcaseProps {
   events: Event[]
 }
-
-const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80'
 
 export function FeaturedEventsShowcase({ events }: FeaturedEventsShowcaseProps) {
   // Get up to 3 featured events
@@ -78,7 +77,7 @@ export function FeaturedEventsShowcase({ events }: FeaturedEventsShowcaseProps) 
           className="lg:col-span-2 lg:row-span-2 group relative rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-100 via-amber-50/30 to-emerald-50 min-h-[320px] lg:min-h-[420px]"
         >
           <Image
-            src={heroEvent.image_url || DEFAULT_EVENT_IMAGE}
+            src={heroEvent.image_url || getFallbackImage(heroEvent.event_categories?.name, 'event')}
             alt={heroEvent.title}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -148,7 +147,7 @@ export function FeaturedEventsShowcase({ events }: FeaturedEventsShowcaseProps) 
             className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-100 via-amber-50/30 to-emerald-50 min-h-[200px] lg:min-h-0"
           >
             <Image
-              src={event.image_url || DEFAULT_EVENT_IMAGE}
+              src={event.image_url || getFallbackImage(event.event_categories?.name, 'event')}
               alt={event.title}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-105"

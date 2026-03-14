@@ -1,7 +1,7 @@
 -- Timeline Events Table
 -- This stores the annual/recurring events displayed in the events timeline carousel
 
-CREATE TABLE timeline_events (
+CREATE TABLE IF NOT EXISTS timeline_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Core event info
@@ -40,9 +40,10 @@ CREATE TABLE timeline_events (
 );
 
 -- Create index for ordering
-CREATE INDEX idx_timeline_events_order ON timeline_events(display_order, is_active);
+CREATE INDEX IF NOT EXISTS idx_timeline_events_order ON timeline_events(display_order, is_active);
 
 -- Auto-update updated_at
+DROP TRIGGER IF EXISTS set_timeline_events_updated_at ON timeline_events;
 CREATE TRIGGER set_timeline_events_updated_at
   BEFORE UPDATE ON timeline_events
   FOR EACH ROW
@@ -52,12 +53,14 @@ CREATE TRIGGER set_timeline_events_updated_at
 ALTER TABLE timeline_events ENABLE ROW LEVEL SECURITY;
 
 -- Everyone can view active timeline events
+DROP POLICY IF EXISTS "Anyone can view active timeline events" ON timeline_events;
 CREATE POLICY "Anyone can view active timeline events"
   ON timeline_events
   FOR SELECT
   USING (is_active = true);
 
 -- Admins can do everything (using email check pattern from existing code)
+DROP POLICY IF EXISTS "Admins can manage timeline events" ON timeline_events;
 CREATE POLICY "Admins can manage timeline events"
   ON timeline_events
   FOR ALL
@@ -68,8 +71,9 @@ CREATE POLICY "Admins can manage timeline events"
     )
   );
 
--- Seed with the existing hardcoded events
-INSERT INTO timeline_events (title, subtitle, description, month, month_short, day, location, media_type, media_url, gradient_colors, accent_color, category, highlights, display_order) VALUES
+-- Seed with the existing hardcoded events (only if table is empty)
+INSERT INTO timeline_events (title, subtitle, description, month, month_short, day, location, media_type, media_url, gradient_colors, accent_color, category, highlights, display_order)
+SELECT * FROM (VALUES
 (
   'Mashramani',
   'Republic Day Celebrations',
@@ -197,4 +201,6 @@ INSERT INTO timeline_events (title, subtitle, description, month, month_short, d
   'National Holiday',
   ARRAY['Masquerade Dancing', 'Pepperpot', 'Carol Singing', 'Family Gatherings'],
   8
-);
+)
+) AS seed_data(title, subtitle, description, month, month_short, day, location, media_type, media_url, gradient_colors, accent_color, category, highlights, display_order)
+WHERE NOT EXISTS (SELECT 1 FROM timeline_events LIMIT 1);

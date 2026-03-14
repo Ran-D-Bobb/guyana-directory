@@ -157,11 +157,11 @@ export function ReviewForm({ businessId, businessName, user, existingReview }: R
 
   if (!user) {
     return (
-      <div className="bg-[hsl(var(--jungle-50))] rounded-lg p-6 text-center">
+      <div className="bg-[hsl(var(--jungle-50))] rounded-xl p-6 text-center">
         <p className="text-[hsl(var(--jungle-700))] mb-4">Sign in to leave a review</p>
         <button
           onClick={handleSignIn}
-          className="px-6 py-2 bg-[hsl(var(--jungle-500))] text-white rounded-lg hover:bg-[hsl(var(--jungle-600))] transition-colors"
+          className="px-6 py-2 bg-[hsl(var(--jungle-500))] text-white rounded-xl hover:bg-[hsl(var(--jungle-600))] transition-colors"
         >
           Sign In with Google
         </button>
@@ -172,13 +172,13 @@ export function ReviewForm({ businessId, businessName, user, existingReview }: R
   if (existingReview && !isEditing) {
     return (
       <>
-        <div className="bg-[hsl(var(--jungle-50))] rounded-lg p-6 border border-[hsl(var(--border))]">
+        <div className="bg-[hsl(var(--jungle-50))] rounded-xl p-6 border border-[hsl(var(--border))]">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[hsl(var(--jungle-900))] font-semibold">Your Review</p>
             <div className="flex gap-2">
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-[hsl(var(--jungle-500))] text-white rounded-lg hover:bg-[hsl(var(--jungle-600))] transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-[hsl(var(--jungle-500))] text-white rounded-xl hover:bg-[hsl(var(--jungle-600))] transition-colors"
               >
                 <Edit2 className="w-4 h-4" />
                 Edit
@@ -186,7 +186,7 @@ export function ReviewForm({ businessId, businessName, user, existingReview }: R
               <button
                 onClick={() => setShowDeleteDialog(true)}
                 disabled={isDeleting}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50"
               >
                 <Trash2 className="w-4 h-4" />
                 {isDeleting ? 'Deleting...' : 'Delete'}
@@ -235,16 +235,23 @@ export function ReviewForm({ businessId, businessName, user, existingReview }: R
 
   if (success) {
     return (
-      <div className="bg-emerald-50 rounded-lg p-6 text-center">
-        <p className="text-emerald-700 font-medium">
+      <div className="bg-emerald-50 rounded-xl p-6 text-center">
+        <p className="text-emerald-700 font-medium mb-3">
           {existingReview ? 'Review updated successfully!' : 'Thank you for your review!'}
         </p>
+        <button
+          type="button"
+          onClick={() => setSuccess(false)}
+          className="text-sm text-emerald-600 hover:text-emerald-800 underline transition-colors"
+        >
+          {existingReview ? 'Edit again' : 'Write another review'}
+        </button>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-[hsl(var(--jungle-50))] rounded-lg p-6">
+    <form onSubmit={handleSubmit} className="bg-[hsl(var(--jungle-50))] rounded-xl p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-[hsl(var(--jungle-900))]">
           {existingReview ? 'Edit Your Review' : 'Write a Review'}
@@ -269,15 +276,32 @@ export function ReviewForm({ businessId, businessName, user, existingReview }: R
         <label className="block text-sm font-medium text-[hsl(var(--jungle-700))] mb-2">
           Your Rating *
         </label>
-        <div className="flex gap-1">
+        <div
+          role="radiogroup"
+          aria-label="Rating"
+          className="flex gap-1"
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+              e.preventDefault()
+              setRating(prev => Math.min(prev + 1, 5))
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+              e.preventDefault()
+              setRating(prev => Math.max(prev - 1, 1))
+            }
+          }}
+        >
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
               type="button"
+              role="radio"
+              aria-checked={rating === star}
+              aria-label={`${star} star${star !== 1 ? 's' : ''}`}
+              tabIndex={rating === star || (rating === 0 && star === 1) ? 0 : -1}
               onClick={() => setRating(star)}
               onMouseEnter={() => setHoveredRating(star)}
               onMouseLeave={() => setHoveredRating(0)}
-              className="transition-transform hover:scale-110"
+              className="transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
             >
               <Star
                 className={`w-8 h-8 ${
@@ -302,7 +326,7 @@ export function ReviewForm({ businessId, businessName, user, existingReview }: R
           onChange={(e) => setComment(e.target.value)}
           placeholder={`Share your experience with ${businessName}...`}
           rows={4}
-          className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-lg focus:ring-2 focus:ring-[hsl(var(--jungle-500))] focus:border-[hsl(var(--jungle-500))] text-[hsl(var(--jungle-900))] placeholder:text-[hsl(var(--muted-foreground))]"
+          className="w-full px-4 py-3 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--background))] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] transition-all duration-200 min-h-[48px]"
           maxLength={500}
         />
         <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">{comment.length}/500 characters</p>
@@ -310,7 +334,7 @@ export function ReviewForm({ businessId, businessName, user, existingReview }: R
 
       {/* Error Message */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
@@ -319,7 +343,7 @@ export function ReviewForm({ businessId, businessName, user, existingReview }: R
       <button
         type="submit"
         disabled={isSubmitting || rating === 0}
-        className="w-full px-6 py-3 bg-[hsl(var(--jungle-500))] text-white rounded-lg hover:bg-[hsl(var(--jungle-600))] disabled:bg-[hsl(var(--border))] disabled:text-[hsl(var(--muted-foreground))] disabled:cursor-not-allowed transition-colors font-medium"
+        className="w-full px-6 py-3 bg-[hsl(var(--jungle-500))] text-white rounded-xl hover:bg-[hsl(var(--jungle-600))] disabled:bg-[hsl(var(--border))] disabled:text-[hsl(var(--muted-foreground))] disabled:cursor-not-allowed transition-colors font-medium min-h-[48px]"
       >
         {isSubmitting ? (existingReview ? 'Updating...' : 'Submitting...') : (existingReview ? 'Update Review' : 'Submit Review')}
       </button>

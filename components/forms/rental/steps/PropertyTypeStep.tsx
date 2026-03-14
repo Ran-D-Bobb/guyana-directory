@@ -34,10 +34,10 @@ export default function PropertyTypeStep({
     <div className="space-y-5">
       {/* Property Type Selection - Card Grid */}
       <div>
-        <label className="block text-sm font-medium text-gray-900 mb-3">
+        <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-3">
           Property Type <span className="text-red-500">*</span>
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Property Type">
           {PROPERTY_TYPES.map((type) => {
             const Icon = type.icon
             const isSelected = formData.property_type === type.value
@@ -45,31 +45,33 @@ export default function PropertyTypeStep({
               <button
                 key={type.value}
                 type="button"
+                role="radio"
+                aria-checked={isSelected}
                 onClick={() => onChange('property_type', type.value)}
                 className={`
-                  relative p-4 rounded-xl border bg-white text-left transition-all
+                  relative p-4 rounded-xl border-2 bg-[hsl(var(--background))] text-left transition-all duration-200 min-h-[48px]
                   ${isSelected
-                    ? 'border-gray-900 ring-1 ring-gray-900'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-emerald-500 ring-1 ring-emerald-500/20'
+                    : 'border-[hsl(var(--border))] hover:border-emerald-300'
                   }
                 `}
               >
                 <div className="flex flex-col items-start gap-2">
                   <Icon
-                    className={`w-6 h-6 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                    className={`w-6 h-6 ${isSelected ? 'text-emerald-600' : 'text-[hsl(var(--muted-foreground))]'}`}
                   />
                   <div>
-                    <div className={`font-medium text-sm ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>
+                    <div className={`font-medium text-sm ${isSelected ? 'text-emerald-900' : 'text-[hsl(var(--foreground))]'}`}>
                       {type.label}
                     </div>
-                    <div className="text-xs mt-1 text-gray-500">
+                    <div className="text-xs mt-1 text-[hsl(var(--muted-foreground))]">
                       {type.description}
                     </div>
                   </div>
                 </div>
                 {isSelected && (
                   <div className="absolute top-3 right-3">
-                    <div className="w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
+                    <div className="w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center">
                       <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>

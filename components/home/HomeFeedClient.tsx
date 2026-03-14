@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { CompactBanner } from './CompactBanner';
+import { WelcomeHero } from './WelcomeHero';
 import { CategoryFilterPills, type FilterType, type SortOption } from './CategoryFilterPills';
 import { UnifiedFeed } from './UnifiedFeed';
 import { type FeedItem } from './FeedCard';
@@ -9,6 +9,7 @@ import { ForYouSection } from './ForYouSection';
 import { NewInCategories } from './NewInCategories';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
 import { FooterMinimal } from '@/components/FooterMinimal';
+import { ScrollReveal } from '@/components/ScrollReveal';
 
 interface HomeFeedClientProps {
   items: FeedItem[];
@@ -69,8 +70,8 @@ export function HomeFeedClient({ items }: HomeFeedClientProps) {
 
   return (
     <div className="min-h-screen bg-[hsl(var(--jungle-50))] pb-24 lg:pb-0">
-      {/* Compact Banner with Search */}
-      <CompactBanner />
+      {/* Welcome Hero with Search & Quick Access */}
+      <WelcomeHero items={items} />
 
       {/* Sticky Filter Bar */}
       <CategoryFilterPills
@@ -84,21 +85,29 @@ export function HomeFeedClient({ items }: HomeFeedClientProps) {
       {/* Content sections with improved spacing - 16px min on mobile */}
       <div className="space-y-4 sm:space-y-6">
         {/* Recently Viewed Section */}
-        <RecentlyViewed limit={10} />
+        <ScrollReveal variant="fade-up">
+          <RecentlyViewed limit={10} />
+        </ScrollReveal>
 
         {/* Personalized Recommendations */}
-        <ForYouSection />
+        <ScrollReveal variant="fade-up" delay={100}>
+          <ForYouSection />
+        </ScrollReveal>
 
         {/* New in Followed Categories */}
-        <NewInCategories />
+        <ScrollReveal variant="fade-up" delay={100}>
+          <NewInCategories />
+        </ScrollReveal>
       </div>
 
       {/* Main Content Area - Browse All */}
-      <main className="max-w-7xl mx-auto px-4 pt-4 pb-6 sm:pt-8">
-        <div className="mb-4 sm:mb-6">
-          <h2 className="text-section-title-lg font-bold text-gray-900">Browse All</h2>
-          <p className="text-small-fluid text-gray-500 mt-0.5">Discover more businesses and experiences</p>
-        </div>
+      <main id="browse-all" className="max-w-7xl mx-auto px-4 pt-4 pb-6 sm:pt-8 scroll-mt-4">
+        <ScrollReveal variant="fade-up">
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-section-title-lg font-bold text-gray-900">Browse All</h2>
+            <p className="text-small-fluid text-gray-500 mt-0.5">Discover more businesses and experiences</p>
+          </div>
+        </ScrollReveal>
         <UnifiedFeed items={sortedItems} />
       </main>
 

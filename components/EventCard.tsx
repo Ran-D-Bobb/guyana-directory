@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, MapPin, Building2, Sparkles, User, Users, Tag } from 'lucide-react'
+import { getFallbackImage } from '@/lib/category-images'
 
 type Event = {
   id: string
@@ -25,8 +26,6 @@ interface EventCardProps {
   variant?: 'default' | 'featured' | 'compact'
 }
 
-// Default event image from Unsplash
-const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80'
 
 export function EventCard({ event, variant = 'default' }: EventCardProps) {
   // Format date range
@@ -68,10 +67,10 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
 
   // Dynamic classes based on variant and featured status
   const cardClasses = `
-    group block rounded-2xl overflow-hidden transition-all duration-500 ease-out
+    group block rounded-2xl overflow-hidden transition-[transform,box-shadow,border-color] duration-500 ease-out
     ${isFeatured && variant !== 'compact'
-      ? 'bg-gradient-to-br from-white via-white to-emerald-50/30 border border-emerald-200/60 shadow-lg shadow-emerald-900/5 hover:shadow-2xl hover:shadow-emerald-900/10 hover:-translate-y-2 hover:border-emerald-300/80'
-      : 'bg-white border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 hover:-translate-y-1'
+      ? 'bg-card border border-primary/30 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-primary/50'
+      : 'bg-card border border-border hover:border-primary/30 hover:shadow-xl hover:-translate-y-1'
     }
   `
 
@@ -80,7 +79,7 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
       {/* Event Image */}
       <div className="relative w-full h-56 bg-gradient-to-br from-emerald-100 via-amber-50/30 to-emerald-50 overflow-hidden">
         <Image
-          src={event.image_url || DEFAULT_EVENT_IMAGE}
+          src={event.image_url || getFallbackImage(event.event_categories?.name, 'event')}
           alt={event.title}
           fill
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
@@ -113,7 +112,7 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
 
         {/* Featured badge on image */}
         {isFeatured && (
-          <div className="absolute top-4 right-4 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 text-xs font-bold rounded-full shadow-lg shadow-amber-500/30">
+          <div className="absolute top-4 right-4 px-3 py-1.5 bg-amber-400 text-amber-950 text-xs font-bold rounded-full shadow-md">
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
               Featured
@@ -123,7 +122,7 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
 
         {/* Promotion badge for business events */}
         {isBusinessEvent && !isFeatured && (
-          <div className="absolute top-4 right-4 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-bold rounded-full shadow-lg shadow-purple-500/30">
+          <div className="absolute top-4 right-4 px-3 py-1.5 bg-purple-500 text-white text-xs font-bold rounded-full shadow-md">
             <span className="flex items-center gap-1.5">
               <Tag className="w-3.5 h-3.5" />
               Promotion
@@ -157,7 +156,7 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
         )}
 
         {/* Event title */}
-        <h3 className="font-display font-semibold text-xl text-gray-900 mb-3 line-clamp-2 group-hover:text-emerald-700 transition-colors duration-300">
+        <h3 className="font-display font-semibold text-xl text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors duration-300">
           {event.title}
         </h3>
 
@@ -167,12 +166,12 @@ export function EventCard({ event, variant = 'default' }: EventCardProps) {
             <div className="p-1.5 bg-amber-50 rounded-lg flex-shrink-0">
               <MapPin className="w-4 h-4 text-amber-600" />
             </div>
-            <span className="text-sm text-gray-600 line-clamp-1">{event.location}</span>
+            <span className="text-sm text-muted-foreground line-clamp-1">{event.location}</span>
           </div>
         )}
 
         {/* Organizer and Interest */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between pt-4 border-t border-border">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             {event.businesses ? (
               <>

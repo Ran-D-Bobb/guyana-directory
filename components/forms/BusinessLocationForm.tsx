@@ -111,10 +111,10 @@ export function BusinessLocationForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2">
           Business Location
         </h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">
           Help customers find your business by providing your exact location
         </p>
       </div>
@@ -169,11 +169,11 @@ export function BusinessLocationForm({
 
       {/* Preview of data that will be saved (for demo purposes) */}
       {formData.location && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-xs font-medium text-gray-700 mb-2">
+        <div className="mt-6 p-4 bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))]">
+          <p className="text-xs font-medium text-[hsl(var(--foreground))] mb-2">
             Data to be saved:
           </p>
-          <pre className="text-xs text-gray-600 overflow-x-auto">
+          <pre className="text-xs text-[hsl(var(--muted-foreground))] overflow-x-auto">
             {JSON.stringify(
               {
                 businessName: formData.businessName,

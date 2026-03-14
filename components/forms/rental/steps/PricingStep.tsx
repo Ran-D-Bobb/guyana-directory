@@ -40,11 +40,11 @@ export default function PricingStep({
       <div className="space-y-4">
         {/* Price per Night */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
             Price per Night
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] font-medium">
               GYD
             </span>
             <input
@@ -52,19 +52,19 @@ export default function PricingStep({
               value={formatCurrency(formData.price_per_night)}
               onChange={(e) => handleCurrencyChange('price_per_night', e.target.value)}
               placeholder="15,000"
-              className="w-full pl-14 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
+              className="w-full pl-14 pr-4 py-3 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 min-h-[48px] md:min-h-[44px]"
             />
           </div>
-          <p className="text-sm text-gray-500 mt-1">Optional - for short-term rentals</p>
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Optional - for short-term rentals</p>
         </div>
 
         {/* Price per Week */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
             Price per Week
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] font-medium">
               GYD
             </span>
             <input
@@ -72,19 +72,19 @@ export default function PricingStep({
               value={formatCurrency(formData.price_per_week)}
               onChange={(e) => handleCurrencyChange('price_per_week', e.target.value)}
               placeholder="90,000"
-              className="w-full pl-14 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
+              className="w-full pl-14 pr-4 py-3 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 min-h-[48px] md:min-h-[44px]"
             />
           </div>
-          <p className="text-sm text-gray-500 mt-1">Optional - offer weekly rates</p>
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Optional - offer weekly rates</p>
         </div>
 
         {/* Price per Month - REQUIRED */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Price per Month *
+          <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
+            Price per Month <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] font-medium">
               GYD
             </span>
             <input
@@ -93,25 +93,26 @@ export default function PricingStep({
               value={formatCurrency(formData.price_per_month)}
               onChange={(e) => handleCurrencyChange('price_per_month', e.target.value)}
               placeholder="350,000"
-              className={`w-full pl-14 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-400 ${
-                errors.price_per_month ? 'border-red-300' : 'border-gray-300'
+              aria-invalid={errors.price_per_month ? true : undefined}
+              className={`w-full pl-14 pr-4 py-3 border rounded-xl bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 min-h-[48px] md:min-h-[44px] ${
+                errors.price_per_month ? 'border-red-500' : 'border-[hsl(var(--border))]'
               }`}
             />
           </div>
           {errors.price_per_month ? (
             <p className="text-sm text-red-600 mt-1">{errors.price_per_month}</p>
           ) : (
-            <p className="text-sm text-gray-500 mt-1">Required - monthly rental rate</p>
+            <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Required - monthly rental rate</p>
           )}
         </div>
 
         {/* Security Deposit */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
             Security Deposit
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] font-medium">
               GYD
             </span>
             <input
@@ -119,15 +120,15 @@ export default function PricingStep({
               value={formatCurrency(formData.security_deposit)}
               onChange={(e) => handleCurrencyChange('security_deposit', e.target.value)}
               placeholder="100,000"
-              className="w-full pl-14 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
+              className="w-full pl-14 pr-4 py-3 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 min-h-[48px] md:min-h-[44px]"
             />
           </div>
-          <p className="text-sm text-gray-500 mt-1">Optional - refundable security deposit</p>
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Optional - refundable security deposit</p>
         </div>
       </div>
 
       {/* Pricing Tips */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
         <div className="flex gap-3">
           <div className="flex-shrink-0">
             <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">

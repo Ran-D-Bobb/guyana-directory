@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Star, MapPin, Calendar, TrendingUp, Compass, Home, CalendarDays } from 'lucide-react'
+import { getFallbackImage } from '@/lib/category-images'
 
 type SearchResult = {
   id: string
@@ -35,13 +36,6 @@ interface UnifiedSearchResultsProps {
   activeType: FilterType
 }
 
-const defaultImages = {
-  business: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80',
-  experience: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=400&q=80',
-  rental: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80',
-  event: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=80',
-}
-
 const typeConfig = {
   business: { color: 'bg-amber-500', icon: TrendingUp },
   experience: { color: 'bg-emerald-500', icon: Compass },
@@ -61,7 +55,7 @@ function ResultCard({ result }: { result: SearchResult }) {
       {/* Image */}
       <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
         <Image
-          src={result.image || defaultImages[result.type]}
+          src={result.image || getFallbackImage(result.category, result.type === 'experience' ? 'tourism' : result.type)}
           alt={result.name}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"

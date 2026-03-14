@@ -4,11 +4,11 @@
 
 -- 1. Add account_type column with default 'personal' for all existing users
 ALTER TABLE profiles
-  ADD COLUMN account_type TEXT NOT NULL DEFAULT 'personal'
+  ADD COLUMN IF NOT EXISTS account_type TEXT NOT NULL DEFAULT 'personal'
   CHECK (account_type IN ('personal', 'business'));
 
 -- 2. Index for efficient filtering
-CREATE INDEX idx_profiles_account_type ON profiles(account_type);
+CREATE INDEX IF NOT EXISTS idx_profiles_account_type ON profiles(account_type);
 
 -- 3. Update profile creation trigger to read account_type from signup metadata
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -40,6 +40,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 4. Replace business INSERT RLS policy to enforce account type
 DROP POLICY IF EXISTS "Authenticated users and admins can create businesses" ON businesses;
 
+DROP POLICY IF EXISTS "Business accounts and admins can create businesses" ON businesses;
 CREATE POLICY "Business accounts and admins can create businesses" ON businesses
   FOR INSERT WITH CHECK (
     (
@@ -74,6 +75,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS prevent_account_type_change_trigger ON profiles;
 CREATE TRIGGER prevent_account_type_change_trigger
   BEFORE UPDATE ON profiles
   FOR EACH ROW

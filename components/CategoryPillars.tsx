@@ -17,7 +17,7 @@ const pillars = [
     title: 'Shopping',
     description: 'Shops, restaurants, services & more',
     href: '/businesses',
-    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80',
+    image: '/images/defaults/business.jpg',
     gradient: 'from-amber-500 to-orange-500',
     countKey: 'businesses' as const,
   },
@@ -26,7 +26,7 @@ const pillars = [
     title: 'Explore',
     description: 'Tours, adventures & cool things to do',
     href: '/tourism',
-    image: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=600&q=80',
+    image: '/images/defaults/tourism.jpg',
     gradient: 'from-emerald-500 to-teal-500',
     countKey: 'experiences' as const,
   },
@@ -35,7 +35,7 @@ const pillars = [
     title: 'Stays',
     description: 'Places to crash, short or long term',
     href: '/rentals',
-    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80',
+    image: '/images/defaults/rental.jpg',
     gradient: 'from-blue-500 to-indigo-500',
     countKey: 'rentals' as const,
   },
@@ -44,7 +44,7 @@ const pillars = [
     title: 'Events',
     description: 'What\'s happening around you',
     href: '/events',
-    image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=600&q=80',
+    image: '/images/defaults/event.jpg',
     gradient: 'from-purple-500 to-pink-500',
     countKey: 'events' as const,
   },
@@ -103,18 +103,18 @@ export function CategoryPillars({ counts }: CategoryPillarsProps) {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-base md:text-xl lg:text-2xl font-display font-semibold text-white mb-0.5 md:mb-2">
+                <h3 className="text-base md:text-xl lg:text-2xl font-display font-semibold text-white mb-0.5 md:mb-2 text-hero-title">
                   {pillar.title}
                 </h3>
 
                 {/* Description - hidden on small mobile */}
-                <p className="text-white/80 text-[10px] md:text-sm mb-2 md:mb-4 leading-tight md:leading-relaxed line-clamp-2 md:line-clamp-none">
+                <p className="text-white/80 text-[10px] md:text-sm mb-2 md:mb-4 leading-tight md:leading-relaxed line-clamp-2 md:line-clamp-none text-hero-body">
                   {pillar.description}
                 </p>
 
                 {/* Footer */}
                 <div className="flex items-center justify-between">
-                  <span className="text-white/70 text-[10px] md:text-sm font-medium">
+                  <span className="text-white/70 text-[10px] md:text-sm font-medium text-hero-label">
                     {counts[pillar.countKey].toLocaleString()} listings
                   </span>
                   <div className="hidden md:flex items-center gap-1 text-white text-sm font-medium opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">

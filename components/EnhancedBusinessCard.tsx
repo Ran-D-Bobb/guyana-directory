@@ -7,9 +7,11 @@ import { Database } from '@/types/supabase'
 import { useState } from 'react'
 import { ViewMode } from './ViewModeToggle'
 import { StarRating } from './StarRating'
+import { BusinessStatusBadge, type BusinessHours } from './BusinessStatusBadge'
+import { getCategoryImage, DEFAULT_CATEGORY_IMAGE } from '@/lib/category-images'
 
 type Business = Database['public']['Tables']['businesses']['Row'] & {
-  categories: { name: string } | null
+  categories: { name: string; slug?: string } | null
   regions: { name: string } | null
 }
 
@@ -19,11 +21,11 @@ interface EnhancedBusinessCardProps {
   viewMode: ViewMode
 }
 
-const DEFAULT_BUSINESS_IMAGE = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80'
-
 export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: EnhancedBusinessCardProps) {
   const [isFavorited, setIsFavorited] = useState(false)
-  const imageUrl = primaryPhoto || DEFAULT_BUSINESS_IMAGE
+  const categorySlug = business.categories?.slug
+  const fallbackImage = categorySlug ? getCategoryImage(categorySlug) : DEFAULT_CATEGORY_IMAGE
+  const imageUrl = primaryPhoto || fallbackImage
 
   const handlePhoneClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -57,7 +59,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
     return (
       <Link
         href={`/businesses/${business.slug}`}
-        className="group block rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 bg-white border border-gray-100 hover:border-emerald-200 hover:-translate-y-1"
+        className="group block rounded-2xl overflow-hidden hover:shadow-2xl transition-[transform,box-shadow,border-color] duration-300 bg-card border border-border hover:border-primary/30 hover:-translate-y-1"
       >
         <div className="relative w-full h-56 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
           <Image
@@ -104,6 +106,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
               {business.phone && (
                 <button
                   onClick={handlePhoneClick}
+                  aria-label={`Call ${business.name}`}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-semibold shadow-lg transition-colors"
                 >
                   <Phone className="h-4 w-4" />
@@ -112,6 +115,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
               )}
               <button
                 onClick={handleFavorite}
+                aria-label={isFavorited ? `Remove ${business.name} from favorites` : `Add ${business.name} to favorites`}
                 className={`p-2.5 rounded-xl font-semibold shadow-lg transition-all ${
                   isFavorited ? 'bg-red-500 text-white' : 'bg-white/95 text-gray-700 hover:bg-white'
                 }`}
@@ -120,6 +124,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
               </button>
               <button
                 onClick={handleShare}
+                aria-label={`Share ${business.name}`}
                 className="p-2.5 bg-white/95 hover:bg-white text-gray-700 rounded-xl font-semibold shadow-lg transition-colors"
               >
                 <Share2 className="h-4 w-4" />
@@ -129,18 +134,25 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
         </div>
 
         <div className="p-5">
-          <h3 className="font-bold text-xl text-gray-900 mb-2 line-clamp-1 group-hover:text-emerald-600 transition-colors">
+          <h3 className="font-bold text-xl text-foreground mb-2 line-clamp-1 group-hover:text-primary transition-colors">
             {business.name}
           </h3>
-          {business.categories && (
-            <p className="text-sm font-medium text-emerald-600 mb-3 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-              {business.categories.name}
-            </p>
-          )}
+          <div className="flex items-center justify-between gap-2 mb-3">
+            {business.categories && (
+              <p className="text-sm font-medium text-primary flex items-center gap-1 min-w-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></span>
+                <span className="truncate">{business.categories.name}</span>
+              </p>
+            )}
+            {business.hours && (
+              <div className="flex-shrink-0">
+                <BusinessStatusBadge hours={business.hours as BusinessHours} variant="inline" />
+              </div>
+            )}
+          </div>
           {business.regions && (
-            <div className="flex items-center gap-1.5 text-sm text-gray-600">
-              <MapPin className="w-4 h-4 text-gray-400" />
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MapPin className="w-4 h-4 text-muted-foreground/70" />
               <span>{business.regions.name}</span>
             </div>
           )}
@@ -154,7 +166,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
     return (
       <Link
         href={`/businesses/${business.slug}`}
-        className="group flex gap-6 p-5 rounded-2xl bg-white border border-gray-100 hover:border-emerald-200 hover:shadow-xl transition-all duration-300"
+        className="group flex gap-6 p-5 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-xl transition-[box-shadow,border-color] duration-300"
       >
         {/* Image */}
         <div className="relative w-48 h-32 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
@@ -177,19 +189,19 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1">
-              <h3 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">
+              <h3 className="font-bold text-xl text-foreground mb-2 group-hover:text-primary transition-colors">
                 {business.name}
               </h3>
               <div className="flex items-center gap-3 mb-3">
                 {business.categories && (
-                  <span className="text-sm font-medium text-emerald-600 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  <span className="text-sm font-medium text-primary flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                     {business.categories.name}
                   </span>
                 )}
                 {business.regions && (
-                  <span className="flex items-center gap-1 text-sm text-gray-600">
-                    <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <MapPin className="w-3.5 h-3.5 text-muted-foreground/70" />
                     {business.regions.name}
                   </span>
                 )}
@@ -212,7 +224,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
           </div>
 
           {business.description && (
-            <p className="text-sm text-gray-600 line-clamp-2 mb-4">{business.description}</p>
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{business.description}</p>
           )}
 
           {/* Actions */}
@@ -220,6 +232,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
             {business.phone && (
               <button
                 onClick={handlePhoneClick}
+                aria-label={`Call ${business.name}`}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-semibold text-sm transition-colors"
               >
                 <Phone className="h-4 w-4" />
@@ -228,6 +241,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
             )}
             <button
               onClick={handleFavorite}
+              aria-label={isFavorited ? `Remove ${business.name} from favorites` : `Add ${business.name} to favorites`}
               className={`p-2 rounded-lg transition-all ${
                 isFavorited ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
@@ -236,6 +250,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
             </button>
             <button
               onClick={handleShare}
+              aria-label={`Share ${business.name}`}
               className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors"
             >
               <Share2 className="h-4 w-4" />
@@ -250,7 +265,7 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
   return (
     <Link
       href={`/businesses/${business.slug}`}
-      className="group flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-100 hover:border-emerald-200 hover:shadow-lg transition-all duration-300"
+      className="group flex items-center gap-4 p-4 rounded-xl bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-[box-shadow,border-color] duration-300"
     >
       {/* Small Image */}
       <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
@@ -265,16 +280,16 @@ export function EnhancedBusinessCard({ business, primaryPhoto, viewMode }: Enhan
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1 group-hover:text-emerald-600 transition-colors">
+        <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-primary transition-colors">
           {business.name}
         </h3>
         <div className="flex items-center gap-3 text-sm">
           {business.categories && (
-            <span className="text-emerald-600 font-medium">{business.categories.name}</span>
+            <span className="text-primary font-medium">{business.categories.name}</span>
           )}
           {business.regions && (
-            <span className="flex items-center gap-1 text-gray-600">
-              <MapPin className="w-3 h-3 text-gray-400" />
+            <span className="flex items-center gap-1 text-muted-foreground">
+              <MapPin className="w-3 h-3 text-muted-foreground/70" />
               {business.regions.name}
             </span>
           )}

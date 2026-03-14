@@ -1,15 +1,9 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import { EventCategorySidebar } from '@/components/EventCategorySidebar'
-import { EventPageClient } from '@/components/EventPageClient'
-import { MobileEventCategoryFilterBar } from '@/components/MobileEventCategoryFilterBar'
-import { EventFilterPanel } from '@/components/EventFilterPanel'
-import { FeaturedEventsShowcase } from '@/components/FeaturedEventsShowcase'
-import { getEventCategoriesWithCounts } from '@/lib/category-counts'
-import { Calendar, Compass, Sparkles } from 'lucide-react'
-import { TimelineBanner } from '@/components/TimelineBanner'
-import Link from 'next/link'
-import { fetchFilteredEvents } from '@/lib/events'
+import { mapUnifiedEvents } from '@/lib/events'
+import type { UnifiedEvent } from '@/types/unified-events'
+import type { MappedEvent } from '@/lib/events'
+import { EventsNetflixPage, type EventRowData, type EventCategory } from '@/components/events'
 
 export const metadata: Metadata = {
   title: 'Events & Festivals in Guyana',
@@ -26,154 +20,212 @@ export const revalidate = 300
 
 interface EventsPageProps {
   searchParams: Promise<{
-    category?: string
     time?: string
-    sort?: string
     q?: string
     region?: string
-    page?: string
-    source?: string
   }>
 }
 
+// ─── Row Building Helpers ───────────────────────────────────────────
+
+/** Get the start and end of the current weekend (Fri 00:00 to Sun 23:59) */
+function getWeekendRange(): { start: Date; end: Date } {
+  const now = new Date()
+  const day = now.getDay() // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
+
+  const friday = new Date(now)
+  const daysUntilFriday = day <= 5 ? 5 - day : -1 // If it's Sat(6), Friday was yesterday
+  friday.setDate(now.getDate() + daysUntilFriday)
+  friday.setHours(0, 0, 0, 0)
+
+  const sunday = new Date(friday)
+  sunday.setDate(friday.getDate() + 2)
+  sunday.setHours(23, 59, 59, 999)
+
+  return { start: friday, end: sunday }
+}
+
+/** Get end of current week (Sunday 23:59) */
+function getEndOfWeek(): Date {
+  const now = new Date()
+  const day = now.getDay()
+  const sunday = new Date(now)
+  sunday.setDate(now.getDate() + (7 - day))
+  sunday.setHours(23, 59, 59, 999)
+  return sunday
+}
+
+/** Get end of current month */
+function getEndOfMonth(): Date {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+}
+
+/** Category icon mapping — maps event_categories icon names to our icon keys */
+const CATEGORY_ICON_MAP: Record<string, { icon: string; color: string }> = {
+  Concert: { icon: 'music', color: 'text-purple-400' },
+  Music: { icon: 'music', color: 'text-purple-400' },
+  Workshop: { icon: 'book_open', color: 'text-blue-400' },
+  Community: { icon: 'users', color: 'text-emerald-400' },
+  Festival: { icon: 'sparkles', color: 'text-amber-400' },
+  Sports: { icon: 'dumbbell', color: 'text-green-400' },
+  'Business Networking': { icon: 'briefcase', color: 'text-sky-400' },
+  'Food & Drink': { icon: 'utensils', color: 'text-orange-400' },
+  'Art & Culture': { icon: 'palette', color: 'text-rose-400' },
+  Charity: { icon: 'heart', color: 'text-pink-400' },
+  Other: { icon: 'calendar', color: 'text-gray-400' },
+}
+
+function buildEventRows(
+  allEvents: MappedEvent[],
+  categories: Array<{ id: string; name: string; icon: string | null }>,
+  timeFilter?: string,
+): EventRowData[] {
+  const rows: EventRowData[] = []
+
+  // If a time filter is active, just show all events in a single "Results" row
+  if (timeFilter === 'this_week' || timeFilter === 'this_month') {
+    const cutoff = timeFilter === 'this_week' ? getEndOfWeek() : getEndOfMonth()
+    const filtered = allEvents.filter(e => {
+      const start = new Date(e.start_date)
+      return start <= cutoff
+    })
+    if (filtered.length > 0) {
+      rows.push({
+        title: timeFilter === 'this_week' ? 'This Week' : 'This Month',
+        icon: 'calendar',
+        iconColor: 'text-emerald-400',
+        events: filtered,
+      })
+    }
+    return rows
+  }
+
+  // ── Row 1: Happening This Weekend ──
+  const weekend = getWeekendRange()
+  const weekendEvents = allEvents.filter(e => {
+    const start = new Date(e.start_date)
+    const end = new Date(e.end_date)
+    // Event overlaps with the weekend
+    return start <= weekend.end && end >= weekend.start
+  })
+  if (weekendEvents.length > 0) {
+    rows.push({
+      title: 'Happening This Weekend',
+      icon: 'flame',
+      iconColor: 'text-orange-400',
+      events: weekendEvents.slice(0, 15),
+    })
+  }
+
+  // ── Row 2: Trending (by views + interest) ──
+  const trending = [...allEvents]
+    .sort((a, b) => (b.view_count + b.interest_count) - (a.view_count + a.interest_count))
+    .slice(0, 12)
+  if (trending.length > 0) {
+    rows.push({
+      title: 'Trending',
+      icon: 'trending_up',
+      iconColor: 'text-emerald-400',
+      events: trending,
+    })
+  }
+
+  // ── Category Rows ──
+  const usedEventIds = new Set<string>()
+  // Don't deduplicate from weekend/trending — let events appear in multiple rows
+
+  for (const cat of categories) {
+    const catEvents = allEvents.filter(e => e.category_id === cat.id)
+    if (catEvents.length === 0) continue
+
+    const iconInfo = CATEGORY_ICON_MAP[cat.name] || { icon: 'sparkles', color: 'text-gray-400' }
+
+    rows.push({
+      title: cat.name,
+      icon: iconInfo.icon,
+      iconColor: iconInfo.color,
+      events: catEvents.slice(0, 15),
+    })
+
+    catEvents.forEach(e => usedEventIds.add(e.id))
+  }
+
+  // ── Promotions Row ──
+  const promotions = allEvents.filter(e => e.source_type === 'business')
+  if (promotions.length > 0) {
+    rows.push({
+      title: 'Promotions & Deals',
+      icon: 'tag',
+      iconColor: 'text-fuchsia-400',
+      events: promotions.slice(0, 15),
+    })
+  }
+
+  return rows
+}
+
+// ─── Page Component ─────────────────────────────────────────────────
+
 export default async function EventsPage({ searchParams }: EventsPageProps) {
-  const { category, time = 'upcoming', sort = 'featured', q, region, page = '1', source } = await searchParams
+  const { time, q, region } = await searchParams
   const supabase = await createClient()
-  const currentPage = Math.max(1, parseInt(page) || 1)
+  const now = new Date().toISOString()
 
-  // Fetch all event categories with counts based on time filter
-  const validTimeFilter = ['upcoming', 'ongoing', 'past', 'all'].includes(time) ? time as 'upcoming' | 'ongoing' | 'past' | 'all' : 'upcoming'
+  // Build the main query — fetch upcoming + ongoing events
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let query = (supabase as any)
+    .from('all_events')
+    .select('*')
 
-  // Parallelize independent data fetches
-  const [categoriesWithCount, regionsResult, timelineResult, eventsResult] = await Promise.all([
-    getEventCategoriesWithCounts(validTimeFilter),
-    supabase.from('regions').select('*').order('name'),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any)
-      .from('timeline_events')
-      .select('title, month_short, gradient_colors, media_type')
-      .eq('is_active', true)
-      .order('display_order', { ascending: true })
-      .limit(3),
-    fetchFilteredEvents(supabase, { category, time, region, source, q, sort }, currentPage),
+  // Apply search filter if present
+  if (q && q.trim()) {
+    const safeQ = q.replace(/[%_(),.*]/g, ' ').trim()
+    if (safeQ) {
+      query = query.or(`title.plfts.${safeQ},description.ilike.%${safeQ}%,location.ilike.%${safeQ}%`)
+    }
+  }
+
+  // Apply region filter
+  if (region && region !== 'all') {
+    query = query.eq('region_id', region)
+  }
+
+  // Only show upcoming + ongoing events (not past)
+  query = query.or(`start_date.gt.${now},and(start_date.lte.${now},end_date.gte.${now})`)
+
+  // Parallelize: events + categories + regions
+  const [eventsResult, categoriesResult, regionsResult] = await Promise.all([
+    query.order('start_date', { ascending: true }).limit(120),
+    supabase.from('event_categories').select('id, name, slug, icon').order('name'),
+    supabase.from('regions').select('id, name, slug').order('name'),
   ])
 
-  const regions = regionsResult.data
-  const timelineEvents = timelineResult.data
-  const { events, pagination } = eventsResult
+  const allEvents = mapUnifiedEvents((eventsResult.data || []) as UnifiedEvent[])
+  const categories = categoriesResult.data || []
+  const regions = regionsResult.data || []
 
-  // Check if we should show the featured showcase (only on default view with no search)
-  const showFeaturedShowcase = !q && !category && !region && !source && time === 'upcoming' && sort === 'featured'
-  const featuredEvents = events.filter(e => e.is_featured)
-  const hasFeaturedEvents = featuredEvents.length > 0
+  // Separate featured events for the hero
+  const heroEvents = allEvents.filter(e => e.is_featured).slice(0, 5)
 
-  // Filter out featured events from main grid if showing showcase, but always keep non-featured
-  const gridEvents = showFeaturedShowcase && hasFeaturedEvents
-    ? events.filter(e => !e.is_featured)
-    : events
+  // If no featured, use top 3 by interest/views as hero
+  const finalHeroEvents = heroEvents.length > 0
+    ? heroEvents
+    : [...allEvents]
+        .sort((a, b) => (b.interest_count + b.view_count) - (a.interest_count + a.view_count))
+        .slice(0, 3)
+
+  // Build category rows
+  const eventRows = buildEventRows(allEvents, categories, time)
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-gradient-to-b from-white via-emerald-50/20 to-white flex pb-0 lg:pb-0">
-      {/* Desktop Event Category Sidebar */}
-      <EventCategorySidebar categories={categoriesWithCount} />
-
-      {/* Main Content Area - scrollable on desktop */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
-        {/* Mobile Category & Filter Bar */}
-        <MobileEventCategoryFilterBar
-          categories={categoriesWithCount}
-          regions={regions || []}
-        />
-
-        {/* Single main content area */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
-          {/* Page Header */}
-          <div className="mb-8 animate-fade-up">
-            <h1 className="font-display text-3xl lg:text-4xl font-semibold text-gray-900 mb-3">
-              {source === 'promotions' ? 'Promotions' : 'Events in Guyana'}
-            </h1>
-            <p className="text-lg text-gray-600 max-w-3xl">
-              {source === 'promotions'
-                ? 'Browse sales, discounts, and special offers from local businesses'
-                : 'Discover local events, workshops, festivals, and community gatherings across Guyana'}
-            </p>
-          </div>
-
-          {/* Annual Events Timeline Banner - above filters for better scanning flow */}
-          <TimelineBanner previewEvents={timelineEvents || undefined} />
-
-          {/* Desktop Filter Panel - Sticky */}
-          <div className="hidden lg:block sticky top-0 z-30 mb-8 -mx-2 px-2 py-2 bg-gradient-to-b from-white via-white to-transparent">
-            <EventFilterPanel
-              regions={regions || []}
-              currentFilters={{
-                region,
-                time,
-                sort,
-                source,
-                q,
-              }}
-            />
-          </div>
-
-          {/* Featured Events Showcase - Only show on default view */}
-          {showFeaturedShowcase && hasFeaturedEvents && (
-            <FeaturedEventsShowcase events={events} />
-          )}
-
-          {/* Section divider when showing featured and there are non-featured events */}
-          {showFeaturedShowcase && hasFeaturedEvents && gridEvents.length > 0 && (
-            <div className="flex items-center gap-4 mb-8">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-200 to-transparent" />
-              <span className="text-sm font-medium text-gray-500 px-4">All Events</span>
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-200 to-transparent" />
-            </div>
-          )}
-
-          {/* Events Grid */}
-          {events.length > 0 ? (
-            <EventPageClient
-              events={gridEvents}
-              searchParams={{ category, time, sort, q, region }}
-              pagination={pagination}
-            />
-          ) : (
-            /* Empty State */
-            <div className="text-center py-16 lg:py-24 animate-fade-in">
-              <div className="relative inline-block mb-8">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-200/40 to-amber-200/40 rounded-full blur-2xl scale-150" />
-                <div className="relative inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-100 to-amber-50 border border-emerald-200/50 shadow-lg">
-                  <Calendar className="w-12 h-12 text-emerald-600" />
-                </div>
-              </div>
-
-              <h3 className="font-display text-2xl lg:text-3xl font-semibold text-gray-900 mb-4">
-                The stage is waiting...
-              </h3>
-              <p className="text-gray-500 text-lg max-w-md mx-auto mb-8">
-                No events match your current filters. Try adjusting your search or explore other options.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Link
-                  href="/events"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 hover:bg-emerald-700 transition-colors"
-                >
-                  <Compass className="w-5 h-5" />
-                  Browse All Events
-                </Link>
-                <Link
-                  href="/events/timeline"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-emerald-200 transition-colors"
-                >
-                  <Sparkles className="w-5 h-5 text-amber-500" />
-                  View Annual Timeline
-                </Link>
-              </div>
-            </div>
-          )}
-        </main>
-      </div>
-    </div>
+    <EventsNetflixPage
+      heroEvents={finalHeroEvents}
+      eventRows={eventRows}
+      categories={categories as EventCategory[]}
+      regions={regions}
+      searchQuery={q}
+      activeRegion={region}
+    />
   )
 }

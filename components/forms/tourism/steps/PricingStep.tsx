@@ -30,7 +30,7 @@ export function PricingStep({
       {/* Price and Currency */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-gray-900">
+          <label className="block text-sm font-medium text-[hsl(var(--foreground))]">
             Price From
           </label>
           <input
@@ -40,7 +40,7 @@ export function PricingStep({
             placeholder="0"
             min="0"
             step="0.01"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-900 transition-all duration-200 min-h-[48px]"
+            className="w-full px-4 py-3 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 min-h-[48px] md:min-h-[44px]"
           />
         </div>
 
@@ -88,7 +88,7 @@ export function PricingStep({
       />
 
       {/* Pricing Tips */}
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+      <div className="bg-green-50 border border-green-200 rounded-xl p-4">
         <div className="flex gap-3">
           <div className="flex-shrink-0">
             <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">

@@ -9,161 +9,158 @@ import {
   Palmtree,
   Home,
   Calendar,
-  ChevronRight,
+  Phone,
   MapPin,
 } from 'lucide-react';
 import { StarRating } from '@/components/StarRating';
 import type { DiscoverItem, DiscoverItemType } from '@/types/discover';
 import { getDistanceTierStyles } from '@/lib/geolocation';
 import { cn } from '@/lib/utils';
+import { getFallbackImage } from '@/lib/category-images';
 
 interface DiscoverCardListProps {
   item: DiscoverItem;
+  showDistance?: boolean;
 }
 
 const TYPE_CONFIG: Record<
   DiscoverItemType,
-  { icon: React.ElementType; color: string; label: string; path: string }
+  { icon: React.ElementType; label: string; path: string }
 > = {
-  business: {
-    icon: Store,
-    color: 'text-emerald-600 bg-emerald-50',
-    label: 'Business',
-    path: '/businesses',
-  },
-  tourism: {
-    icon: Palmtree,
-    color: 'text-teal-600 bg-teal-50',
-    label: 'Experience',
-    path: '/tourism',
-  },
-  rental: {
-    icon: Home,
-    color: 'text-blue-600 bg-blue-50',
-    label: 'Rental',
-    path: '/rentals',
-  },
-  event: {
-    icon: Calendar,
-    color: 'text-purple-600 bg-purple-50',
-    label: 'Event',
-    path: '/events',
-  },
+  business: { icon: Store, label: 'Business', path: '/businesses' },
+  tourism: { icon: Palmtree, label: 'Experience', path: '/tourism' },
+  rental: { icon: Home, label: 'Rental', path: '/rentals' },
+  event: { icon: Calendar, label: 'Event', path: '/events' },
 };
 
-const DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80';
-
 function formatDistanceValue(meters: number): string {
-  if (meters === Infinity) return 'Unknown';
+  if (meters === Infinity) return '';
   if (meters < 1000) return `${Math.round(meters)} m`;
   return `${(meters / 1000).toFixed(1)} km`;
 }
 
-export function DiscoverCardList({ item }: DiscoverCardListProps) {
+function formatPrice(price: number | null | undefined, type: DiscoverItemType): string {
+  if (!price) return '';
+  if (type === 'rental') return `$${price.toLocaleString()}/mo`;
+  return `From $${price.toLocaleString()}`;
+}
+
+export function DiscoverCardList({ item, showDistance = true }: DiscoverCardListProps) {
   const typeConfig = TYPE_CONFIG[item.type];
-  const TypeIcon = typeConfig.icon;
-  const tierStyles = getDistanceTierStyles(item.distance_tier);
+  const tierStyles = showDistance ? getDistanceTierStyles(item.distance_tier) : null;
+  const distanceText = showDistance ? formatDistanceValue(item.distance_meters) : '';
+  const priceText = formatPrice(item.price_from, item.type);
+  const contactNumber = item.phone || item.whatsapp_number;
 
   return (
-    <Link
-      href={`${typeConfig.path}/${item.slug}`}
-      className="group flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 hover:border-emerald-200 hover:shadow-lg transition-all duration-300"
-    >
-      {/* Image */}
-      <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-xl overflow-hidden shrink-0 bg-gray-100">
+    <div className="group relative flex gap-3 sm:gap-4 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]/30 transition-colors">
+      {/* Image — links to detail */}
+      <Link
+        href={`${typeConfig.path}/${item.slug}`}
+        className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-l-xl overflow-hidden shrink-0 bg-[hsl(var(--muted))]"
+      >
         <Image
-          src={item.image_url || DEFAULT_IMAGE}
+          src={item.image_url || getFallbackImage(item.category_name, item.type)}
           alt={item.name}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-          sizes="144px"
+          className="object-cover"
+          sizes="(max-width: 640px) 96px, 128px"
         />
-        {/* Type badge overlay */}
-        <div className="absolute top-2 left-2">
+
+        {/* Distance badge — top-left on image */}
+        {showDistance && distanceText && tierStyles && (
           <span
             className={cn(
-              'inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full shadow-sm',
-              typeConfig.color
+              'absolute top-1.5 left-1.5 inline-flex items-center px-1.5 py-0.5 text-[11px] font-bold rounded-md',
+              tierStyles.bg,
+              tierStyles.text
             )}
           >
-            <TypeIcon className="w-3 h-3" />
+            {distanceText}
           </span>
-        </div>
-      </div>
+        )}
+      </Link>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+      {/* Content — links to detail */}
+      <Link
+        href={`${typeConfig.path}/${item.slug}`}
+        className="flex-1 min-w-0 py-2.5 sm:py-3 pr-2 flex flex-col justify-between"
+      >
         <div>
-          {/* Header */}
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className="font-bold text-lg text-gray-900 line-clamp-1 group-hover:text-emerald-600 transition-colors">
+          {/* Name + badges */}
+          <div className="flex items-start gap-1.5 mb-0.5">
+            <h3 className="font-semibold text-[15px] sm:text-base text-foreground line-clamp-1 group-hover:text-[hsl(var(--primary))] transition-colors">
               {item.name}
             </h3>
-            {/* Badges */}
-            <div className="flex items-center gap-1 shrink-0">
-              {item.is_featured && (
-                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                </span>
-              )}
-              {item.is_verified && (
-                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100">
-                  <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Category */}
-          {item.category_name && (
-            <p className="text-sm text-emerald-600 font-medium mb-2 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-              {item.category_name}
-            </p>
-          )}
-
-          {/* Description */}
-          {item.description && (
-            <p className="text-sm text-gray-500 line-clamp-2 mb-2">
-              {item.description}
-            </p>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            {/* Distance */}
-            <div
-              className={cn(
-                'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full',
-                tierStyles.bg,
-                tierStyles.text
-              )}
-            >
-              <MapPin className="w-3 h-3" />
-              {formatDistanceValue(item.distance_meters)}
-            </div>
-
-            {/* Rating */}
-            {item.rating != null && item.rating > 0 && (
-              <div className="flex items-center gap-1.5">
-                <StarRating rating={item.rating} size="sm" />
-                <span className="text-sm font-bold text-gray-900">
-                  {item.rating.toFixed(1)}
-                </span>
-                {item.review_count > 0 && (
-                  <span className="text-xs text-gray-400">({item.review_count})</span>
-                )}
-              </div>
+            {item.is_verified && (
+              <BadgeCheck className="w-4 h-4 text-[hsl(var(--primary))] shrink-0 mt-0.5" />
+            )}
+            {item.is_featured && (
+              <Sparkles className="w-3.5 h-3.5 text-[hsl(var(--gold-500))] shrink-0 mt-0.5" />
             )}
           </div>
 
-          {/* Arrow */}
-          <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
+          {/* Category + type */}
+          <p className="text-xs text-muted-foreground line-clamp-1">
+            {item.category_name || typeConfig.label}
+            {item.address && (
+              <span className="inline-flex items-center gap-0.5 ml-1.5">
+                <span className="text-[hsl(var(--border))]">&middot;</span>
+                <span className="truncate max-w-[140px] sm:max-w-[200px]">{item.address}</span>
+              </span>
+            )}
+          </p>
         </div>
-      </div>
-    </Link>
+
+        {/* Bottom row: rating, distance label, price */}
+        <div className="flex items-center gap-3 mt-auto">
+          {/* Rating */}
+          {item.rating != null && item.rating > 0 && (
+            <div className="flex items-center gap-1">
+              <StarRating rating={item.rating} size="sm" />
+              <span className="text-xs font-semibold text-foreground">
+                {item.rating.toFixed(1)}
+              </span>
+              {item.review_count > 0 && (
+                <span className="text-xs text-muted-foreground">({item.review_count})</span>
+              )}
+            </div>
+          )}
+
+          {/* Distance label */}
+          {showDistance && item.distance_label && (
+            <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+              <MapPin className="w-3 h-3" />
+              {item.distance_label}
+            </span>
+          )}
+
+          {/* Price */}
+          {priceText && (
+            <span className="text-xs font-medium text-[hsl(var(--primary))]">
+              {priceText}
+            </span>
+          )}
+        </div>
+      </Link>
+
+      {/* Call button — separate tap target */}
+      {contactNumber && (
+        <a
+          href={`tel:${contactNumber}`}
+          onClick={(e) => e.stopPropagation()}
+          className={cn(
+            'self-center shrink-0 mr-3 sm:mr-4',
+            'w-10 h-10 sm:w-11 sm:h-11 rounded-full',
+            'bg-[hsl(var(--primary))]/10 hover:bg-[hsl(var(--primary))]/20',
+            'flex items-center justify-center',
+            'transition-colors'
+          )}
+          aria-label={`Call ${item.name}`}
+        >
+          <Phone className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-[hsl(var(--primary))]" />
+        </a>
+      )}
+    </div>
   );
 }

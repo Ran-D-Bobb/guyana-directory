@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { CheckCircle, XCircle, Star, StarOff, Trash2 } from 'lucide-react'
+import { CheckCircle, XCircle, Star, StarOff, Trash2, Eye, EyeOff } from 'lucide-react'
 import { logAdminAction } from '@/lib/audit'
 
 interface AdminBusinessActionsProps {
@@ -11,6 +11,7 @@ interface AdminBusinessActionsProps {
   businessName: string
   isVerified: boolean
   isFeatured: boolean
+  isActive?: boolean
 }
 
 export function AdminBusinessActions({
@@ -18,6 +19,7 @@ export function AdminBusinessActions({
   businessName,
   isVerified,
   isFeatured,
+  isActive = true,
 }: AdminBusinessActionsProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -78,6 +80,36 @@ export function AdminBusinessActions({
     } catch (error) {
       console.error('Error toggling featured status:', error)
       alert('Failed to update featured status')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleToggleActive = async () => {
+    setLoading(true)
+    try {
+      const newActive = !isActive
+      const { error } = await supabase
+        .from('businesses')
+        .update({ is_active: newActive })
+        .eq('id', businessId)
+
+      if (error) throw error
+
+      // Log the action
+      await logAdminAction({
+        action: newActive ? 'reactivate' : 'unapprove',
+        entity_type: 'business',
+        entity_id: businessId,
+        entity_name: businessName,
+        before_data: { is_active: isActive },
+        after_data: { is_active: newActive },
+      })
+
+      router.refresh()
+    } catch (error) {
+      console.error('Error toggling active status:', error)
+      alert('Failed to update visibility')
     } finally {
       setLoading(false)
     }
@@ -156,6 +188,28 @@ export function AdminBusinessActions({
           <>
             <Star size={16} />
             Feature
+          </>
+        )}
+      </button>
+
+      <button
+        onClick={handleToggleActive}
+        disabled={loading}
+        className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
+          isActive
+            ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+            : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+        } disabled:opacity-50`}
+      >
+        {isActive ? (
+          <>
+            <EyeOff size={16} />
+            Hide
+          </>
+        ) : (
+          <>
+            <Eye size={16} />
+            Show
           </>
         )}
       </button>

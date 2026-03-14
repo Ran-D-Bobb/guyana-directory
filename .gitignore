@@ -1,5 +1,8 @@
 # dependencies
 /node_modules
+
+# scraper backups (large JSON files with business data)
+scripts/scrape-backup-*.json
 /.pnp
 .pnp.js
 .yarn/install-state.gz

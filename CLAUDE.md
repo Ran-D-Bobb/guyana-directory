@@ -223,3 +223,53 @@ supabase db push
 - Review responses from business owners
 - Advanced analytics
 - Multi-language support
+
+## Design Context
+
+### Users
+Waypoint serves an equal mix of **Guyanese locals** (searching for businesses, services, restaurants, things to do) and **tourists** (discovering experiences, stays, and events). Business owners use the dashboard to manage listings. Users are typically on mobile, often on mid-range Android devices with variable connectivity. The core job: find a trustworthy local business or experience, get the key info fast, and make contact (phone/email).
+
+### Brand Personality
+**Warm, Trustworthy, Local** — like a knowledgeable friend showing you around Guyana. The interface should feel approachable and genuine, never corporate or impersonal. Copy should be conversational and encouraging, not formal or transactional.
+
+**Emotional goals:** confidence (this info is reliable), ease (I can find what I need quickly), and a gentle sense of place (I feel connected to Guyana).
+
+### Aesthetic Direction
+**"Tropical Luxe"** — Rooted in Guyana's rainforests and golden waters. The visual identity balances nature-inspired warmth with clean, modern craft.
+
+- **Typography:** Playfair Display (serif, display headings) + DM Sans (clean sans-serif body). Fluid clamp() sizing throughout.
+- **Color palette:** Deep jungle greens (`--jungle-*`) as primary, golden amber (`--gold-*`) as accent, with waterfall blue, sunset coral, and orchid purple as extended accents. Primary brand color: emerald `hsl(160, 84%, 39%)`.
+- **Surfaces:** White cards with layered shadows (`card-elevated`), subtle noise/grain texture overlays for depth. Light mode default, dark mode supported.
+- **Motion:** Expo easing `cubic-bezier(0.16, 1, 0.3, 1)` for all transitions. Scroll-triggered reveals via IntersectionObserver. Ken Burns on hero imagery. Respects `prefers-reduced-motion`.
+- **Cards & images:** 4:3 aspect ratio standard, rounded-2xl corners, hover lift + shadow deepening, image zoom on hover.
+- **Mobile:** Bottom tab navigation (6 items: Home, Near Me, Shopping, Explore, Events, Stays), fixed header with logo, sticky filter bars.
+
+**Anti-references — Waypoint must NOT feel like:**
+- Cluttered directories (Yellow Pages / Yelp density, ad noise)
+- Generic corporate SaaS (bland templates, no personality)
+- Over-designed luxury (too minimal, cold, unapproachable)
+- Flashy social media (TikTok/Instagram trends over function)
+
+### Design Principles
+
+1. **Mobile-first, always.** Design for 375px and touch first. Every element needs a 44px+ touch target. Desktop is an enhancement, not the default.
+2. **Show, don't tell.** Lead with imagery and ratings. Users scan, they don't read. Use visual hierarchy (type scale, color, spacing) to guide the eye to what matters: name, photo, rating, contact.
+3. **Earn trust through craft.** Verified badges, star ratings, and polished micro-interactions signal quality. Consistent spacing, aligned grids, and smooth motion build unconscious confidence.
+4. **Celebrate place.** The interface should feel distinctly Guyanese — through color (jungle greens, golden amber), warm copy ("Discover local gems across Guyana"), and contextual touches (time-of-day greetings, Guyana-flavored loading messages).
+5. **Respect the connection.** Many users are on slow or intermittent connections. Optimize images aggressively, use skeleton loading, lazy load below-fold content, and keep JS bundles lean. Performance is a feature.
+
+### Design Tokens Summary
+
+| Token | Light | Purpose |
+|-------|-------|---------|
+| `--primary` | `hsl(160, 84%, 39%)` | Brand emerald — CTAs, links, active states |
+| `--secondary` / `--accent` | `hsl(45, 93%, 58%)` | Golden amber — featured badges, highlights |
+| `--foreground` | `hsl(150, 25%, 10%)` | Near-black jungle — body text |
+| `--background` | `hsl(0, 0%, 98%)` | Off-white |
+| `--jungle-50` | `hsl(160, 35%, 97%)` | Page background tint |
+| `--border` | `hsl(150, 10%, 88%)` | Subtle borders |
+| `--radius` | `0.5rem` | Base border radius (cards use `rounded-2xl`) |
+
+**Fonts:** `--font-playfair` (display), `--font-dm-sans` (body)
+**Easing:** `cubic-bezier(0.16, 1, 0.3, 1)` (expo-out) for all transitions
+**Accessibility:** WCAG AA compliance, `prefers-reduced-motion` fully respected

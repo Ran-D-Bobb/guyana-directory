@@ -1,96 +1,50 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import KioskExperienceShowcase from '@/components/kiosk/KioskExperienceShowcase'
 import { useIdleTimer } from '@/hooks/useIdleTimer'
-import { useEffect } from 'react'
-
-interface ExperiencePhoto {
-  id: string
-  image_url: string
-  is_primary: boolean
-}
-
-interface ExperienceReview {
-  id: string
-  rating: number
-  comment: string | null
-  created_at: string
-  profiles: {
-    name: string
-  } | null
-}
-
-interface Experience {
-  id: string
-  slug: string
-  name: string
-  description: string
-  category_name: string
-  region_name: string | null
-  location: string | null
-  duration: string | null
-  difficulty_level: string | null
-  max_group_size: number | null
-  min_age: string | null
-  price_from: number | null
-  rating: number | null
-  review_count: number | null
-  phone: string | null
-  languages_offered: string[] | null
-  what_to_bring: string[] | null
-  accessibility_info: string | null
-  safety_information: string | null
-  included_items: string | null
-  excluded_items: string | null
-  tourism_photos: ExperiencePhoto[]
-  tourism_reviews: ExperienceReview[]
-}
-
-interface FeaturedExperience {
-  id: string
-  slug: string
-  name: string
-  description: string
-  image_url: string | null
-  rating: number
-  review_count: number
-  duration: string | null
-  price_from: number
-  category_name: string
-}
+import KioskExperienceDetail from '@/components/kiosk/KioskExperienceDetail'
+import type { KioskExperience } from '@/app/kiosk/KioskHomePage'
 
 interface KioskExperiencePageProps {
-  experience: Experience
-  featuredExperiences: FeaturedExperience[]
+  experience: KioskExperience
 }
 
-export default function KioskExperiencePage({ experience, featuredExperiences }: KioskExperiencePageProps) {
+export default function KioskExperiencePage({ experience }: KioskExperiencePageProps) {
   const router = useRouter()
 
-  // Auto-return to home after 2 minutes of inactivity
   useIdleTimer(() => {
     router.push('/kiosk')
-  }, 120000) // 120 seconds (2 minutes)
-
-  const handleBack = () => {
-    router.back()
-  }
-
-  // Track experience view in kiosk mode
-  useEffect(() => {
-    // Log kiosk experience view
-    console.log('Kiosk view:', experience.name)
-
-    // You can add analytics tracking here
-    // Example: track to your analytics service with device_type: 'kiosk'
-  }, [experience.id, experience.name])
+  }, 120000)
 
   return (
-    <KioskExperienceShowcase
-      experience={experience}
-      featuredExperiences={featuredExperiences}
-      onBack={handleBack}
-    />
+    <div style={{ width: '100%', height: '100vh', background: 'var(--kiosk-bg-cinema)', position: 'relative' }}>
+      {/* Back button */}
+      <button
+        onClick={() => router.push('/kiosk')}
+        className="kiosk-glass"
+        style={{
+          position: 'absolute',
+          top: 'var(--kiosk-sp-24)',
+          left: 'var(--kiosk-sp-32)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--kiosk-sp-8)',
+          padding: 'var(--kiosk-sp-12) var(--kiosk-sp-20)',
+          cursor: 'pointer',
+          border: '1px solid var(--kiosk-glass-border)',
+          color: 'white',
+          fontSize: 'var(--kiosk-text-18)',
+          fontWeight: 600,
+          zIndex: 50,
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+        Back to Kiosk
+      </button>
+
+      <KioskExperienceDetail experience={experience} />
+    </div>
   )
 }

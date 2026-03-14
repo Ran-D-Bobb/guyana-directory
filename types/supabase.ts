@@ -128,15 +128,16 @@ export type Database = {
           business_id: string
           created_at: string | null
           description: string | null
+          discount_amount: number | null
           end_date: string
           event_type_id: string | null
           id: string
           image_url: string | null
           is_active: boolean | null
           is_recurring: boolean | null
-          recurrence_pattern: string | null
           recurrence_days: number[] | null
           recurrence_end_date: string | null
+          recurrence_pattern: string | null
           slug: string
           start_date: string
           title: string
@@ -147,15 +148,16 @@ export type Database = {
           business_id: string
           created_at?: string | null
           description?: string | null
+          discount_amount?: number | null
           end_date: string
           event_type_id?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
           is_recurring?: boolean | null
-          recurrence_pattern?: string | null
           recurrence_days?: number[] | null
           recurrence_end_date?: string | null
+          recurrence_pattern?: string | null
           slug: string
           start_date: string
           title: string
@@ -166,15 +168,16 @@ export type Database = {
           business_id?: string
           created_at?: string | null
           description?: string | null
+          discount_amount?: number | null
           end_date?: string
           event_type_id?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
           is_recurring?: boolean | null
-          recurrence_pattern?: string | null
           recurrence_days?: number[] | null
           recurrence_end_date?: string | null
+          recurrence_pattern?: string | null
           slug?: string
           start_date?: string
           title?: string
@@ -283,8 +286,10 @@ export type Database = {
           description: string | null
           email: string | null
           formatted_address: string | null
+          google_place_id: string | null
           hours: Json | null
           id: string
+          is_active: boolean
           is_featured: boolean | null
           is_verified: boolean | null
           latitude: number | null
@@ -296,6 +301,7 @@ export type Database = {
           region_id: string | null
           review_count: number | null
           slug: string
+          source: string | null
           updated_at: string | null
           view_count: number | null
           website: string | null
@@ -309,8 +315,10 @@ export type Database = {
           description?: string | null
           email?: string | null
           formatted_address?: string | null
+          google_place_id?: string | null
           hours?: Json | null
           id?: string
+          is_active?: boolean
           is_featured?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
@@ -322,6 +330,7 @@ export type Database = {
           region_id?: string | null
           review_count?: number | null
           slug: string
+          source?: string | null
           updated_at?: string | null
           view_count?: number | null
           website?: string | null
@@ -335,8 +344,10 @@ export type Database = {
           description?: string | null
           email?: string | null
           formatted_address?: string | null
+          google_place_id?: string | null
           hours?: Json | null
           id?: string
+          is_active?: boolean
           is_featured?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
@@ -348,6 +359,7 @@ export type Database = {
           region_id?: string | null
           review_count?: number | null
           slug?: string
+          source?: string | null
           updated_at?: string | null
           view_count?: number | null
           website?: string | null
@@ -2093,6 +2105,18 @@ export type Database = {
     Functions: {
       dismiss_photo_flags: { Args: { p_photo_id: string }; Returns: Json }
       flag_photo: { Args: { p_photo_id: string }; Returns: Json }
+      get_category_performance: {
+        Args: { p_limit?: number }
+        Returns: {
+          avg_rating: number
+          business_count: number
+          category_id: string
+          category_name: string
+          category_slug: string
+          total_reviews: number
+          total_views: number
+        }[]
+      }
       get_followed_categories_with_counts: {
         Args: { p_user_id: string }
         Returns: {
@@ -2107,6 +2131,28 @@ export type Database = {
       get_new_businesses_this_week: {
         Args: { p_category_id: string }
         Returns: number
+      }
+      get_rating_counts: {
+        Args: { p_business_id: string }
+        Returns: {
+          count_1: number
+          count_2: number
+          count_3: number
+          count_4: number
+          count_5: number
+        }[]
+      }
+      get_region_performance: {
+        Args: { p_limit?: number }
+        Returns: {
+          business_count: number
+          region_id: string
+          region_name: string
+          region_slug: string
+          region_type: string
+          total_reviews: number
+          total_views: number
+        }[]
       }
       get_region_with_children: {
         Args: { region_id: string }
@@ -2354,3 +2400,4 @@ export const Constants = {
     },
   },
 } as const
+

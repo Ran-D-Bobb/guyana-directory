@@ -58,7 +58,6 @@ export function TagInput({
       e.preventDefault()
       addTag(inputValue)
     } else if (e.key === 'Backspace' && !inputValue && value.length > 0) {
-      // Remove last tag if input is empty and backspace is pressed
       removeTag(value[value.length - 1])
     }
   }
@@ -74,12 +73,11 @@ export function TagInput({
     <div className={cn('w-full', className)}>
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-700 mb-1.5"
+        className="block text-sm font-medium text-[hsl(var(--foreground))] mb-1.5"
       >
         {label}
       </label>
 
-      {/* Tags display */}
       {value.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {value.map(tag => (
@@ -92,7 +90,8 @@ export function TagInput({
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                className="ml-1.5 hover:text-emerald-900"
+                aria-label={`Remove ${tag}`}
+                className="ml-1.5 p-1 hover:text-emerald-900 transition-colors"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -101,7 +100,6 @@ export function TagInput({
         </div>
       )}
 
-      {/* Input */}
       {canAddMore && (
         <div className="relative">
           <div className="flex items-center gap-2">
@@ -114,28 +112,29 @@ export function TagInput({
               onKeyDown={handleKeyDown}
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => {
-                // Delay to allow click on suggestions
                 setTimeout(() => setShowSuggestions(false), 200)
               }}
               placeholder={placeholder}
               className={cn(
-                'flex-1 px-3 py-2.5 md:py-2',
-                'border border-gray-300 rounded-lg',
-                'text-gray-900 placeholder:text-gray-400',
+                'flex-1 px-4 py-3',
+                'border border-[hsl(var(--border))] rounded-xl',
+                'bg-[hsl(var(--background))]',
+                'text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]',
                 'focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500',
                 'transition-all duration-200',
-                'min-h-[44px] md:min-h-[40px]'
+                'min-h-[48px] md:min-h-[44px]'
               )}
             />
             <button
               type="button"
               onClick={() => addTag(inputValue)}
               disabled={!inputValue.trim()}
+              aria-label="Add tag"
               className={cn(
-                'h-11 w-11 md:h-10 md:w-10 flex-shrink-0',
+                'h-12 w-12 md:h-11 md:w-11 flex-shrink-0',
                 'flex items-center justify-center',
-                'border border-gray-300 rounded-lg',
-                'bg-white hover:bg-gray-50',
+                'border border-[hsl(var(--border))] rounded-xl',
+                'bg-[hsl(var(--background))] hover:bg-[hsl(var(--muted))]',
                 'transition-all duration-200',
                 'disabled:opacity-40 disabled:cursor-not-allowed'
               )}
@@ -144,17 +143,16 @@ export function TagInput({
             </button>
           </div>
 
-          {/* Suggestions dropdown */}
           {showSuggestions &&
             filteredSuggestions.length > 0 &&
             inputValue && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+              <div className="absolute z-10 w-full mt-1 bg-[hsl(var(--background))] border border-[hsl(var(--border))] rounded-xl shadow-lg max-h-48 overflow-y-auto">
                 {filteredSuggestions.map(suggestion => (
                   <button
                     key={suggestion}
                     type="button"
                     onClick={() => handleSuggestionClick(suggestion)}
-                    className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-emerald-50 transition-colors"
+                    className="w-full px-4 py-3 text-left text-sm text-[hsl(var(--foreground))] hover:bg-emerald-50 transition-colors first:rounded-t-xl last:rounded-b-xl"
                   >
                     {suggestion}
                   </button>
@@ -164,17 +162,16 @@ export function TagInput({
         </div>
       )}
 
-      {/* Count and helper text */}
       <div className="flex items-center justify-between mt-2">
         {helperText && (
-          <p className="text-sm text-gray-500">{helperText}</p>
+          <p className="text-sm text-[hsl(var(--muted-foreground))]">{helperText}</p>
         )}
         <p
           className={cn(
             'text-xs font-medium',
             value.length >= maxTags
               ? 'text-amber-600'
-              : 'text-gray-500'
+              : 'text-[hsl(var(--muted-foreground))]'
           )}
         >
           {value.length} / {maxTags}

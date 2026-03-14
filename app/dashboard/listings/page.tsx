@@ -17,13 +17,12 @@ import {
   ChevronRight,
   Sparkles
 } from 'lucide-react'
+import { getFallbackImage } from '@/lib/category-images'
 
 export const metadata = {
   title: 'My Listings - Waypoint',
   description: 'Manage all your listings in one place',
 }
-
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80'
 
 export default async function ListingsPage() {
   const supabase = await createClient()
@@ -273,7 +272,7 @@ export default async function ListingsPage() {
 
 // Mini Cards for each type
 function BusinessCard({ business }: { business: { name: string; slug: string; rating: number | null; view_count: number | null; is_featured: boolean | null; categories: { name: string } | null; business_photos: { image_url: string; is_primary: boolean | null }[] } }) {
-  const photo = business.business_photos?.find(p => p.is_primary)?.image_url || business.business_photos?.[0]?.image_url || DEFAULT_IMAGE
+  const photo = business.business_photos?.find(p => p.is_primary)?.image_url || business.business_photos?.[0]?.image_url || getFallbackImage(business.categories?.name, 'business')
   return (
     <Link href={`/businesses/${business.slug}`} className="group flex gap-4 p-3 bg-white rounded-xl border border-gray-100 hover:border-emerald-200 hover:shadow-md transition-all">
       <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">

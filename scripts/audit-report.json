@@ -1,0 +1,1579 @@
+{
+  "generated_at": "2026-03-14T08:42:37.257Z",
+  "threshold": 70,
+  "total_audited": 3231,
+  "total_flagged": 105,
+  "score_distribution": {
+    "0-10": 5,
+    "11-20": 5,
+    "21-40": 23,
+    "41-60": 60,
+    "61-70": 24,
+    "71-85": 1010,
+    "86-100": 2104
+  },
+  "flagged_by_category": {
+    "Uncategorized": {
+      "count": 37,
+      "businesses": [
+        {
+          "id": "3fd3b5a1-07d2-44b7-9d6e-8e989a222368",
+          "name": "Bartica",
+          "description": null,
+          "score": 10,
+          "reasons": [
+            "Single short word — may be a person's name, not a business",
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "Bartica",
+          "address": "Bartica",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "d609324a-0e0a-41ea-bae2-424f27eac15f",
+          "name": "Lethem",
+          "description": null,
+          "score": 10,
+          "reasons": [
+            "Single short word — may be a person's name, not a business",
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "Lethem",
+          "address": "Lethem",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "b3653c8b-9cc1-4c2a-9198-87d05e0220ea",
+          "name": "Linden",
+          "description": null,
+          "score": 10,
+          "reasons": [
+            "Single short word — may be a person's name, not a business",
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "Linden",
+          "address": "Linden, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "a2bb5872-cc82-451a-91e3-f1dc9c75f13c",
+          "name": "Parika",
+          "description": null,
+          "score": 10,
+          "reasons": [
+            "Single short word — may be a person's name, not a business",
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "Parika, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "bdbfac2d-ea80-4afc-9c2f-aaee4fb6d861",
+          "name": "Ministry of health office (ANNIX) BUILDING",
+          "description": null,
+          "score": 20,
+          "reasons": [
+            "Government/civic building"
+          ],
+          "region": "Linden",
+          "address": "2M4V+3RH, Linden, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "95cd1f8d-2ed7-4eb6-b485-d83a7e9205b8",
+          "name": "Ministry of labour",
+          "description": null,
+          "score": 20,
+          "reasons": [
+            "Government/civic building"
+          ],
+          "region": "Linden",
+          "address": "2M3V+XQ4, Linden, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "0de1536d-9651-40d9-a52c-04fbdccc631f",
+          "name": "Bartica Fire Station",
+          "description": null,
+          "score": 25,
+          "reasons": [
+            "Government/civic building"
+          ],
+          "region": "Bartica",
+          "address": "C93G+8HQ, Bartica",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "114cb119-6719-42e0-8484-56bd51fa9b74",
+          "name": "Kingston, Corriverton Water Treatment Plant - Guyana Water Inc.",
+          "description": null,
+          "score": 25,
+          "reasons": [
+            "Public infrastructure / utility"
+          ],
+          "region": "Corriverton",
+          "address": "VVP4+2G6, Kingston Rd, Skeldon, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "020e6f1c-4cc6-4434-ad3d-67270c3272a4",
+          "name": "Namryck Koker - Conservancy",
+          "description": null,
+          "score": 25,
+          "reasons": [
+            "Public infrastructure / utility"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "RJ42+72, Parika, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "97515eda-8c51-40f6-8922-23cbf1df27bb",
+          "name": "Anna Regina",
+          "description": null,
+          "score": 30,
+          "reasons": [
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "Anna Regina",
+          "address": "Anna Regina",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "a9b3af11-f5e2-453d-b204-09f8faa18ae6",
+          "name": "Corriverton",
+          "description": null,
+          "score": 30,
+          "reasons": [
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "Corriverton",
+          "address": "Corriverton, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "6d8cecdd-bdab-4b04-b528-23b749b85fb2",
+          "name": "Georgetown",
+          "description": null,
+          "score": 30,
+          "reasons": [
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "Georgetown",
+          "address": "Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "ba5e16d1-477b-4f12-af71-4ac15ff0b382",
+          "name": "Georgetown Cenotaph",
+          "description": null,
+          "score": 30,
+          "reasons": [
+            "Cemetery/crematorium"
+          ],
+          "region": "Georgetown",
+          "address": "RR7M+FW8, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "73d4d061-4d8f-4b3c-b27f-17a6298bb9b4",
+          "name": "New Amsterdam",
+          "description": null,
+          "score": 30,
+          "reasons": [
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "New Amsterdam",
+          "address": "6FVP+7G5, New Amsterdam, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "9fde75cd-faf2-4541-900a-53a783d3dd20",
+          "name": "New Amsterdam",
+          "description": null,
+          "score": 30,
+          "reasons": [
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "New Amsterdam",
+          "address": "New Amsterdam, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "6b86022f-cd40-4744-be3c-3bb66eaffd11",
+          "name": "Linden Fire Station",
+          "description": null,
+          "score": 35,
+          "reasons": [
+            "Government/civic building"
+          ],
+          "region": "Linden",
+          "address": "2M3W+F54, Linden, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "82f578b2-719b-49a0-b191-6268929a6255",
+          "name": "Rose Hall Fire Station",
+          "description": null,
+          "score": 35,
+          "reasons": [
+            "Government/civic building"
+          ],
+          "region": "Rose Hall",
+          "address": "7J5V+M3W, Rosehall, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "92cf1ccd-171b-48b2-bb3e-8885089dec04",
+          "name": "Ministry of Natural Resources",
+          "description": null,
+          "score": 40,
+          "reasons": [
+            "Government/civic building"
+          ],
+          "region": "Georgetown",
+          "address": "96 Duke St, Georgetown, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "bf6f8471-da75-47de-95da-cb0969c4de12",
+          "name": "T&HD Supenaam Stelling",
+          "description": null,
+          "score": 40,
+          "reasons": [
+            "Public infrastructure / utility"
+          ],
+          "region": "Pomeroon-Supenaam",
+          "address": "XFCP+86W, Maria Johanna",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "04f565ca-ffb9-4d19-a289-b224587005c1",
+          "name": "Blairmont Estate Cricket Ground",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Public recreation ground"
+          ],
+          "region": "New Amsterdam",
+          "address": "7F24+2GC, Ithaca, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "4404c9d5-c5b6-4948-a09a-0d79c23692cd",
+          "name": "Cheddi Jagan Memorial Park",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Appears to be a public park"
+          ],
+          "region": "Anna Regina",
+          "address": "7G78+3M5, Anna Regina",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "a4ed3d97-a46c-4674-a156-077437c6898c",
+          "name": "Guyana Water Inc. Port Mourant Water Treatment Plant",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Public infrastructure / utility"
+          ],
+          "region": "Rose Hall",
+          "address": "7J6X+37Q, Port Mourant, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "059992ce-bba4-41f9-ba8c-618cfdb37859",
+          "name": "Karasabai Bus Park",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Appears to be a public park"
+          ],
+          "region": "Lethem",
+          "address": "96H2+CHH, Tabatinga Drive, Lethem",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "2a50dc2e-3392-43db-b9ae-3f7c2cccb472",
+          "name": "Lima Water Treatment Plant",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Public infrastructure / utility"
+          ],
+          "region": "Anna Regina",
+          "address": "7GR9+5P5, Anna Regina",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "237dcbe1-09b4-460b-9a65-e7fe41345753",
+          "name": "Parika Ferry Stelling East Bank Essequibo Guyana",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Public infrastructure / utility"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "T&HD Parika Stelling, Parika, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "b4c9ceb4-1588-460c-bc26-1ad4f85bdb32",
+          "name": "Rose Hall Estate 1913 Martyrs Park",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Appears to be a public park"
+          ],
+          "region": "New Amsterdam",
+          "address": "6GV6+7VH, Rose Hall, Guyana",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "7cc19b15-e27c-45c9-8d64-12c97965d0df",
+          "name": "Good Hope Health Center",
+          "description": null,
+          "score": 50,
+          "reasons": [
+            "Public health facility (may not be commercial)"
+          ],
+          "region": "Pomeroon-Supenaam",
+          "address": "XFFQ+FG5, Unnamed Road, Maria Johanna",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "665581b3-d868-4cdd-84b1-a61c5e2db672",
+          "name": "Aurora",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Pomeroon-Supenaam",
+          "address": "Aurora",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "9258bd40-59cf-43e3-9661-dc0b54cc274d",
+          "name": "Bonfim",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Lethem",
+          "address": "Bonfim - São Salvador, Bonfim - State of Roraima, 69380-000, Brazil",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "5974b149-274e-4582-a034-05228829b51f",
+          "name": "Dass",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Anna Regina",
+          "address": "7G86+43V 90 new housing scheme, Anna Regina",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "0dfc63f6-e3bf-44b4-8e8e-948ae46d8fd5",
+          "name": "Guayana",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "New Amsterdam",
+          "address": "6FVP+7G5, New Amsterdam, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "7831e941-5e76-4abf-92d5-ab370ad9c290",
+          "name": "Kalkuni",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Upper Demerara-Berbice",
+          "address": "Kalkuni, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "496999df-24fb-4b1b-8b10-1122a74614ae",
+          "name": "Koriabo",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Barima-Waini",
+          "address": "Koriabo",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "1cf271e7-b0fa-45a1-a2aa-da1a67166898",
+          "name": "Machabo",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Pomeroon-Supenaam",
+          "address": "Machabo",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "ec060555-e47c-4d9a-a569-dede0a631a99",
+          "name": "Manari",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Barima-Waini",
+          "address": "Manari",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "73869d25-9ead-4b44-a40b-c2fb222188d6",
+          "name": "Meraki",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Corriverton",
+          "address": "Skeldon, Corentyne, VVC2+286, Berbice, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "d828e25a-c3a0-4c17-aaa4-626be810af6c",
+          "name": "Deckers",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Rose Hall",
+          "address": "6.255000,-57, 356400, Rosehall, Guyana",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        }
+      ]
+    },
+    "Home, Garden & Trades": {
+      "count": 6,
+      "businesses": [
+        {
+          "id": "2a992b9f-2b3d-4faa-be15-de2bcc5566be",
+          "name": "Linden",
+          "description": null,
+          "score": 10,
+          "reasons": [
+            "Single short word — may be a person's name, not a business",
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "Linden",
+          "address": "XMXX+GP, Linden, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "86a21234-072a-4edd-98eb-29b28149d5b9",
+          "name": "五金店",
+          "description": null,
+          "score": 40,
+          "reasons": [
+            "Very short name (3 chars)"
+          ],
+          "region": "Georgetown",
+          "address": "163 Alexander St, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "2faa01eb-5d67-492a-8ebc-2b8c3076b060",
+          "name": "宋部长",
+          "description": null,
+          "score": 40,
+          "reasons": [
+            "Very short name (3 chars)"
+          ],
+          "region": "Georgetown",
+          "address": "RV59+VG8, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "c2e767fc-f132-453b-a403-ec5f655ca0ec",
+          "name": "244 REGENT ST HAMID HARDWARE",
+          "description": null,
+          "score": 50,
+          "reasons": [
+            "Name looks like an address, not a business name"
+          ],
+          "region": "Georgetown",
+          "address": "244 Regent St, Georgetown, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "24560a35-815d-4338-b038-4b0de8250dec",
+          "name": "DM",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Very short name (2 chars)"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "341 Parika East Bank Essequibo georgetown guyana, Parika, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "cbe6d719-ab50-47bb-acac-e9c65d581ac9",
+          "name": "Courts",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "2051 Block Vii, Parika, Guyana",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        }
+      ]
+    },
+    "Government & Public Services": {
+      "count": 2,
+      "businesses": [
+        {
+          "id": "bdc5c3b9-d877-4a90-bf49-463920b6949e",
+          "name": "Aurora Police Station",
+          "description": null,
+          "score": 20,
+          "reasons": [
+            "Government/civic building"
+          ],
+          "region": "Pomeroon-Supenaam",
+          "address": "2G35+63V, Zeelandia",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "db891f5a-6888-4de0-b268-41a2bc549393",
+          "name": "Anna Regina Police Station",
+          "description": null,
+          "score": 25,
+          "reasons": [
+            "Government/civic building"
+          ],
+          "region": "Anna Regina",
+          "address": "7G89+7QF, Anna Regina",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        }
+      ]
+    },
+    "Restaurants & Dining": {
+      "count": 13,
+      "businesses": [
+        {
+          "id": "8bd50d4f-4b0c-4479-83d5-81b818d45610",
+          "name": "Oc",
+          "description": null,
+          "score": 20,
+          "reasons": [
+            "Very short name (2 chars)",
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "b0922de7-da2d-4d00-a469-3b27f3ada39b",
+          "name": "Test Business",
+          "description": "test description",
+          "score": 30,
+          "reasons": [
+            "Placeholder / unnamed entry"
+          ],
+          "region": "Georgetown",
+          "address": null,
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "1f0515ca-bbd3-4f55-ac93-efeed3a12b42",
+          "name": "Alwyn",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Linden",
+          "address": "76 canvas city, Linden, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "fd7060c9-b0f5-424d-aa11-75d2b404a794",
+          "name": "Eleazar",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "RV26+2M4, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "3e0b78a4-39a6-4b33-9b35-5da4e58bab42",
+          "name": "Guyana",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "VH6H+4W4, Parika, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "e34a2795-d8d6-49db-a812-516423d9d497",
+          "name": "Juicee",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Linden",
+          "address": "2M6R+MC2, Linden, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "dd021959-4453-43fd-b8e2-e6bc51be6e07",
+          "name": "Kamboat",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "New Amsterdam",
+          "address": "6FXH+8WG, New Amsterdam, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "5d028d33-267c-437a-ab78-e16817857f79",
+          "name": "Palmira",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "New Amsterdam",
+          "address": "7FJW+GC, New Amsterdam, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "15e67db5-0168-41bf-b48a-0a04a87949de",
+          "name": "Safraz",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "RR5X+597, Regent St, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "8d5333aa-c94a-4c91-9700-99bc207db819",
+          "name": "Village Bar",
+          "description": null,
+          "score": 60,
+          "reasons": [
+            "Generic place descriptor, not a business name"
+          ],
+          "region": "Corriverton",
+          "address": "VVV7+F9X, Skeldon, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "17238e39-fae4-40ae-9537-d18f91142410",
+          "name": "Bruce",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Rose Hall",
+          "address": "7J9F+VJF, Nigg, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "4da2dd7c-76f8-4b92-8c7f-c3e5dc6321b6",
+          "name": "Chetram",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Rose Hall",
+          "address": "7J7F+7HR, Nigg, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "c3b70f8b-7941-4f00-8158-ac2ec42b6ec8",
+          "name": "Kitty",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Demerara-Mahaica",
+          "address": "PRJR+VG, Mocha Arcadia, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        }
+      ]
+    },
+    "Hospitality & Lodging": {
+      "count": 13,
+      "businesses": [
+        {
+          "id": "d24f8640-6034-4347-9c7e-8bce3d146808",
+          "name": "Parika",
+          "description": null,
+          "score": 20,
+          "reasons": [
+            "Single short word — may be a person's name, not a business",
+            "Name is just a city/town name with no business identifier"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "VH6G+XGP, Parika, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "3bf61098-19e6-4e1a-b909-289599d32d30",
+          "name": "Wismar Housing Scheme",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Residential area (not a business)"
+          ],
+          "region": "Linden",
+          "address": "2M4P+3MR, Linden-Kwakwani Rd, Linden, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "b86a1b79-236b-49d3-aed8-fc84e0a674d0",
+          "name": "Dacoura Nature Park",
+          "description": null,
+          "score": 50,
+          "reasons": [
+            "Appears to be a public park"
+          ],
+          "region": "Linden",
+          "address": "Linden, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "10fba3df-51ef-45b6-8978-b65727d0ec30",
+          "name": "Azumi",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Linden",
+          "address": "2M8J+9Q, Linden, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "07b6d80d-d54c-4477-8829-1216951f63bb",
+          "name": "Casa",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "AB Cemetry road, & Princess St, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "5fa559e1-8907-42c2-a867-51a6a7f6f0bd",
+          "name": "Casa",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "19-19DURBAN & HALEY ST, Durban St, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "1f353f62-9958-46fa-a675-082bb5651de1",
+          "name": "City Inn",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Generic place descriptor, not a business name"
+          ],
+          "region": "Corriverton",
+          "address": "VVC3+7HF, Skeldon, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "524f0cd2-1086-4bfb-bbff-589ecf1fb495",
+          "name": "Hotel",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Lethem",
+          "address": "Rua Ilhéus, 184 - São Salvador, Bonfim - RR, 69380-000, Brazil",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "b9019354-cc9c-4ea1-b069-12915e9ffeb3",
+          "name": "Takie",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Rose Hall",
+          "address": "7J88+48Q, Sand Reef, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "d1fcc67f-0c0b-4447-b7cc-8c9b568e4221",
+          "name": "City Inn Hotel",
+          "description": null,
+          "score": 60,
+          "reasons": [
+            "Generic place descriptor, not a business name"
+          ],
+          "region": "Corriverton",
+          "address": "City Inn Hotel Lot 143, Corriverton, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "15a33506-5725-4701-9249-a1257736e3cc",
+          "name": "Bjhkk",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "VMF3+3FC, Unnamed Road, Tuschen, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "57401599-72fc-4526-a5c4-9ca749eb74f0",
+          "name": "Bonfim",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Lethem",
+          "address": "Av. do Comércio, 25 - Cidade Nova, Bonfim - RR, 69380-000, Brazil",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "53ec65b4-8fda-4a4f-9137-9aba65a0856a",
+          "name": "Junior",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "VMF9+X8M, Tuschen, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        }
+      ]
+    },
+    "Financial Services": {
+      "count": 3,
+      "businesses": [
+        {
+          "id": "6126cf37-89de-4009-bb0b-7ce96d5e16da",
+          "name": "BLUE MACHINE (ATM REPUBLIC BANK LETHEM BRANCH)",
+          "description": null,
+          "score": 30,
+          "reasons": [
+            "ATM (machine, not a business)"
+          ],
+          "region": "Lethem",
+          "address": "96C3+G97, Lethem",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "f4610aaf-2fe8-4947-a645-84009def1837",
+          "name": "GBTI Bank ATM",
+          "description": null,
+          "score": 30,
+          "reasons": [
+            "ATM (machine, not a business)"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "VH6H+525, Parika, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "eef0d3af-4915-4c96-afdb-5f569c6824bf",
+          "name": "Scotia Bank Atm",
+          "description": null,
+          "score": 30,
+          "reasons": [
+            "ATM (machine, not a business)"
+          ],
+          "region": "Georgetown",
+          "address": "RR6Q+FCF, Georgetown, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        }
+      ]
+    },
+    "Entertainment & Events": {
+      "count": 1,
+      "businesses": [
+        {
+          "id": "92b3b6f0-3636-4e66-be55-cd30c929d039",
+          "name": "J & J Fun Park",
+          "description": null,
+          "score": 40,
+          "reasons": [
+            "Appears to be a public park"
+          ],
+          "region": "Mahaica-Berbice",
+          "address": "Lot F Gangoo Creek, Guyana",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        }
+      ]
+    },
+    "Grocery & Supermarkets": {
+      "count": 3,
+      "businesses": [
+        {
+          "id": "093caac9-f94e-49d1-9854-50191ab8be1d",
+          "name": "商店",
+          "description": null,
+          "score": 40,
+          "reasons": [
+            "Very short name (2 chars)"
+          ],
+          "region": "Georgetown",
+          "address": "Guyana, Georgetown, Campbell Ave, 33 Delph Street",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "197128b7-6d9e-4484-baf0-95ad71807aa0",
+          "name": "超市",
+          "description": null,
+          "score": 40,
+          "reasons": [
+            "Very short name (2 chars)"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "VM84+XX, Tuschen, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "980dda94-4fda-4e00-9f09-d1ea2ef2656e",
+          "name": "City Boys",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Generic place descriptor, not a business name"
+          ],
+          "region": "Lethem",
+          "address": "96J2+QHQ, Lethem",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        }
+      ]
+    },
+    "Fashion & Clothing": {
+      "count": 4,
+      "businesses": [
+        {
+          "id": "6daf46a4-54fa-4fd5-8225-38304a79f8ea",
+          "name": "..",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Very short name (2 chars)"
+          ],
+          "region": "New Amsterdam",
+          "address": "East Canje Berbice, 735 Fort Ordinance Rd, New Amsterdam, Guyana",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "1ccb3042-95c3-4efe-a5a5-ba7c5e4e7a89",
+          "name": "TWD",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Very short name (3 chars)"
+          ],
+          "region": "Georgetown",
+          "address": "RR8V+9RQ, New Market St, Georgetown, Guyana",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "c93fbfb7-f6fb-4209-9f47-b70cf7830a57",
+          "name": "Health Center Street West Watooka",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Public health facility (may not be commercial)"
+          ],
+          "region": "Linden",
+          "address": "XMRW+5VM, Linden, Guyana",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "430eaf1b-a14f-4bef-84f9-088760353f6f",
+          "name": "Judy",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "A105 Duncan St, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        }
+      ]
+    },
+    "Automotive Services": {
+      "count": 5,
+      "businesses": [
+        {
+          "id": "f11d6712-75ed-48a2-8497-2894ff1cc350",
+          "name": "ARB",
+          "description": null,
+          "score": 45,
+          "reasons": [
+            "Very short name (3 chars)"
+          ],
+          "region": "Georgetown",
+          "address": "Seaforth St, Georgetown, Guyana",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "1ab68548-f6e7-4388-aca1-aa49f20876d8",
+          "name": "Ijnv",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Corriverton",
+          "address": "RRRV+JM, Skeldon, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "97ebf321-191c-42f0-873b-9a0294e38e8e",
+          "name": "Mobil",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "VP97+72Q, Tuschen, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "2df9ceae-5031-48f3-94b3-f028bb2d7af2",
+          "name": "Neezo",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "New Amsterdam",
+          "address": "8CCP+7XW, Waterloo, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "159214b2-1470-45dc-9a28-075c8fdfb961",
+          "name": "Puerto",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "Lot 5, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        }
+      ]
+    },
+    "Health & Medical": {
+      "count": 9,
+      "businesses": [
+        {
+          "id": "b441c48c-2a36-4e8d-b4a8-aecb5f83b30c",
+          "name": "Campbellville health center",
+          "description": null,
+          "score": 50,
+          "reasons": [
+            "Public health facility (may not be commercial)"
+          ],
+          "region": "Georgetown",
+          "address": "RV57+P5G, Duncan St, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "4ae2f5fb-e89a-43db-b66e-41201fb80ebd",
+          "name": "Fyrish Health Center",
+          "description": null,
+          "score": 50,
+          "reasons": [
+            "Public health facility (may not be commercial)"
+          ],
+          "region": "Rose Hall",
+          "address": "7JFF+53P, Nigg, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "3b84b635-d13a-40a2-af6f-6ba7258b260f",
+          "name": "Greenwich Park Health Centre",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Public health facility (may not be commercial)"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "VJCC+JQX, Tuschen, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "5d83ca6c-c5af-4a59-b756-5a67a30974c9",
+          "name": "Bless",
+          "description": null,
+          "score": 60,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Rose Hall",
+          "address": "73 courtland ketten dam, Berbice, Guyana",
+          "has_phone": true,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "888d4ab3-5f78-4b1a-be5d-9964eba1ed1c",
+          "name": "City Pharmacy",
+          "description": null,
+          "score": 60,
+          "reasons": [
+            "Generic place descriptor, not a business name"
+          ],
+          "region": "Georgetown",
+          "address": "Orange Walk, Georgetown, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "7fdd2ae1-f6d7-4414-b2b1-425b30d4f421",
+          "name": "LaGrange Health Centre",
+          "description": null,
+          "score": 60,
+          "reasons": [
+            "Public health facility (may not be commercial)"
+          ],
+          "region": "Georgetown",
+          "address": "QR72+V8P, LaGrange Old Rd, LaGrange, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "cb0ac02b-88d2-429c-a730-a47eea8ada89",
+          "name": "Kitty Health Centre",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Public health facility (may not be commercial)"
+          ],
+          "region": "Georgetown",
+          "address": "RV84+XWV, Sandy Babb St, Georgetown, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "ee87697d-3751-4b39-af07-1839811a5006",
+          "name": "Lodge Health Centre",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Public health facility (may not be commercial)"
+          ],
+          "region": "Georgetown",
+          "address": "RV24+XC4, Hadfield St, Georgetown, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        },
+        {
+          "id": "4f0bd583-3385-4345-90df-c55cd615ac92",
+          "name": "Mocha Arcadia Health Centre",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Public health facility (may not be commercial)"
+          ],
+          "region": "Demerara-Mahaica",
+          "address": "PRPR+C9H, Mocha Arcadia, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        }
+      ]
+    },
+    "Education & Training": {
+      "count": 2,
+      "businesses": [
+        {
+          "id": "16a487a8-8194-4649-a1ee-61371fb19f6e",
+          "name": "Aliki",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "PGJP+XR, Maswa, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "366b4d17-6b34-49bd-b460-5abc8f93f39c",
+          "name": "Kesia",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "QVPG+QJ3, Berbice St, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        }
+      ]
+    },
+    "Professional Services": {
+      "count": 2,
+      "businesses": [
+        {
+          "id": "27e1e096-b47f-4a4f-9d10-3bbce48a4ab9",
+          "name": "Cargo",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "90 Duke St, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "dcaab278-4f11-4fc7-95b9-5da2d101bc05",
+          "name": "Dragon",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Rose Hall",
+          "address": "7J2C+W7H, Albion, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        }
+      ]
+    },
+    "Real Estate": {
+      "count": 2,
+      "businesses": [
+        {
+          "id": "3cdf7896-688a-4dec-85fa-899176d3342b",
+          "name": "Favour",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "Lot 47 Pere St, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        },
+        {
+          "id": "448a089b-cca7-4134-a9e1-7e30249f681d",
+          "name": "Brixx",
+          "description": null,
+          "score": 60,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "45 Brickdam St, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        }
+      ]
+    },
+    "Fitness & Sports": {
+      "count": 1,
+      "businesses": [
+        {
+          "id": "f91e5ef4-9acb-4533-9461-f9200c7a3b34",
+          "name": "Pilates",
+          "description": null,
+          "score": 55,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Georgetown",
+          "address": "RVG6+43P, Georgetown, Guyana",
+          "has_phone": false,
+          "has_reviews": false,
+          "is_active": true
+        }
+      ]
+    },
+    "Beauty & Personal Care": {
+      "count": 1,
+      "businesses": [
+        {
+          "id": "a787d298-dfd7-491e-a021-b319fcd0967b",
+          "name": "City Mall Hair Studio and Tattoo Parlor",
+          "description": null,
+          "score": 60,
+          "reasons": [
+            "Generic place descriptor, not a business name"
+          ],
+          "region": "Georgetown",
+          "address": "111-112 Camp and, Regent St, Georgetown, Guyana",
+          "has_phone": true,
+          "has_reviews": true,
+          "is_active": true
+        }
+      ]
+    },
+    "Technology & Electronics": {
+      "count": 1,
+      "businesses": [
+        {
+          "id": "98aeeadc-35cb-4a64-8a26-2bb80a2ce81f",
+          "name": "Zeelugt",
+          "description": null,
+          "score": 65,
+          "reasons": [
+            "Single short word — may be a person's name, not a business"
+          ],
+          "region": "Essequibo Islands-West Demerara",
+          "address": "VM83+8X, 26 Zeelugt south, Tuschen, Guyana",
+          "has_phone": false,
+          "has_reviews": true,
+          "is_active": true
+        }
+      ]
+    }
+  }
+}

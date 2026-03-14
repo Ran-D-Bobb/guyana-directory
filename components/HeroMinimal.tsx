@@ -31,7 +31,7 @@ export function HeroMinimal({ suggestions = [] }: HeroMinimalProps) {
       {/* Background image with Ken Burns effect */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&q=85"
+          src="/images/defaults/tourism-landscape.jpg"
           alt="Kaieteur Falls, Guyana"
           fill
           className="object-cover animate-ken-burns-slow"
@@ -40,9 +40,9 @@ export function HeroMinimal({ suggestions = [] }: HeroMinimalProps) {
           sizes="100vw"
         />
 
-        {/* Multi-layer gradient overlay for depth */}
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/40 via-transparent to-emerald-950/80" />
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/30 via-transparent to-amber-900/20" />
+        {/* Scrim overlay for guaranteed text readability */}
+        <div className="absolute inset-0 hero-scrim" />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/20 via-transparent to-amber-900/10" />
 
         {/* Grain texture overlay */}
         <div className="absolute inset-0 grain-overlay" />
@@ -64,7 +64,7 @@ export function HeroMinimal({ suggestions = [] }: HeroMinimalProps) {
 
         {/* Main headline with staggered animation - scaled for mobile */}
         <h1 className="mb-4 md:mb-6">
-          <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-semibold text-white animate-fade-up delay-100">
+          <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-semibold text-white animate-fade-up delay-100 text-hero-title">
             Discover
           </span>
           <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-semibold animate-fade-up delay-200">
@@ -75,7 +75,7 @@ export function HeroMinimal({ suggestions = [] }: HeroMinimalProps) {
         </h1>
 
         {/* Subheadline */}
-        <p className="text-base md:text-lg lg:text-xl text-white/80 mb-6 md:mb-10 font-light max-w-2xl mx-auto animate-fade-up delay-300 leading-relaxed px-2">
+        <p className="text-base md:text-lg lg:text-xl text-white/80 mb-6 md:mb-10 font-light max-w-2xl mx-auto animate-fade-up delay-300 leading-relaxed px-2 text-hero-body">
           Businesses, experiences, stays & events — <br className="hidden sm:block" />
           all in <span className="text-emerald-400 font-medium">one place</span>
         </p>

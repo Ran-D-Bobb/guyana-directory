@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Star, MapPin, Sparkles, BadgeCheck } from 'lucide-react';
+import { Star, MapPin, BadgeCheck, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getFallbackImage } from '@/lib/category-images';
 
 export type FeedItemType = 'business' | 'tourism' | 'rental' | 'event';
 
@@ -63,12 +64,6 @@ const TYPE_CONFIG: Record<
   },
 };
 
-const DEFAULT_IMAGES: Record<FeedItemType, string> = {
-  business: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80',
-  tourism: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=600&q=80',
-  rental: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80',
-  event: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
-};
 
 export function FeedCard({ item, index = 0 }: FeedCardProps) {
   const config = TYPE_CONFIG[item.type];
@@ -78,16 +73,18 @@ export function FeedCard({ item, index = 0 }: FeedCardProps) {
     <Link
       href={href}
       className={cn(
-        'group block rounded-2xl overflow-hidden card-elevated',
-        'active:scale-[0.98] transition-transform duration-150',
-        'animate-fade-up'
+        'group block rounded-2xl overflow-hidden',
+        'hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]',
+        'transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
+        item.is_featured
+          ? 'ring-2 ring-amber-400/60 shadow-[0_0_12px_rgba(251,191,36,0.15)]'
+          : 'card-elevated'
       )}
-      style={{ animationDelay: `${Math.min(index * 50, 400)}ms` }}
     >
       {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
         <Image
-          src={item.image_url || DEFAULT_IMAGES[item.type]}
+          src={item.image_url || getFallbackImage(item.category_name, item.type)}
           alt={item.name}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -97,7 +94,7 @@ export function FeedCard({ item, index = 0 }: FeedCardProps) {
         {/* Gradient overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        {/* Top Left: Type Badge */}
+        {/* Top Left: Type Badge + Verified */}
         <div className="absolute top-3 left-3 flex items-center gap-2">
           <span
             className={cn(
@@ -110,16 +107,8 @@ export function FeedCard({ item, index = 0 }: FeedCardProps) {
             {config.label}
           </span>
 
-          {/* Featured Badge */}
-          {item.is_featured && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-950 rounded-full shadow-lg">
-              <Sparkles className="w-3 h-3" />
-              <span className="hidden sm:inline">Featured</span>
-            </span>
-          )}
-
           {/* Verified Badge */}
-          {item.is_verified && !item.is_featured && (
+          {item.is_verified && (
             <span className="inline-flex items-center p-1 bg-emerald-500 text-white rounded-full shadow-lg">
               <BadgeCheck className="w-3 h-3" />
             </span>
@@ -139,12 +128,20 @@ export function FeedCard({ item, index = 0 }: FeedCardProps) {
 
       {/* Content */}
       <div className="p-3.5 sm:p-4 bg-white">
-        {/* Category */}
-        {item.category_name && (
-          <p className="text-[11px] sm:text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1 truncate">
-            {item.category_name}
-          </p>
-        )}
+        {/* Category + Featured label */}
+        <div className="flex items-center gap-2 mb-1">
+          {item.category_name && (
+            <p className="text-[11px] sm:text-xs font-semibold text-emerald-600 uppercase tracking-wider truncate">
+              {item.category_name}
+            </p>
+          )}
+          {item.is_featured && (
+            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-600 flex-shrink-0">
+              <Sparkles className="w-3 h-3 animate-featured-sparkle" />
+              Featured
+            </span>
+          )}
+        </div>
 
         {/* Name */}
         <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-1 group-hover:text-emerald-600 transition-colors mb-1">

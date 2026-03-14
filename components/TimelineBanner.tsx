@@ -36,7 +36,7 @@ export function TimelineBanner({ previewEvents }: TimelineBannerProps) {
           {/* Background Image */}
           <div className="absolute inset-0">
             <Image
-              src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1600&q=80"
+              src="/images/defaults/event.jpg"
               alt="Guyana Festivals"
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-105"

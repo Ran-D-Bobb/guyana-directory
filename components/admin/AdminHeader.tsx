@@ -142,12 +142,13 @@ export function AdminHeader({
                 className="relative flex items-center justify-center w-10 h-10 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
               >
                 <Bell size={20} />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true" />
+                <span className="sr-only">Notifications</span>
               </button>
 
               {notificationsOpen && (
                 <>
-                  <div className="fixed inset-0 z-10" onClick={() => setNotificationsOpen(false)} />
+                  <div className="fixed inset-0 z-10" role="button" aria-label="Close notifications" tabIndex={-1} onClick={() => setNotificationsOpen(false)} onKeyDown={(e) => { if (e.key === 'Escape') setNotificationsOpen(false) }} />
                   <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 z-20 overflow-hidden">
                     <div className="p-4 border-b border-slate-100">
                       <div className="flex items-center justify-between">
@@ -199,7 +200,7 @@ export function AdminHeader({
 
               {profileOpen && (
                 <>
-                  <div className="fixed inset-0 z-10" onClick={() => setProfileOpen(false)} />
+                  <div className="fixed inset-0 z-10" role="button" aria-label="Close profile menu" tabIndex={-1} onClick={() => setProfileOpen(false)} onKeyDown={(e) => { if (e.key === 'Escape') setProfileOpen(false) }} />
                   <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 z-20 overflow-hidden">
                     <div className="p-4 border-b border-slate-100">
                       <div className="flex items-center gap-3">

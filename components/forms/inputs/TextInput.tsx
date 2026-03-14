@@ -33,30 +33,42 @@ export function TextInput({
   type = 'text',
   className,
 }: TextInputProps) {
-  const [isFocused, setIsFocused] = useState(false)
   const [isTouched, setIsTouched] = useState(false)
 
   const showError = error && isTouched
   const showSuccess = !error && value && isTouched && required
 
-  const handleBlur = () => {
-    setIsFocused(false)
-    setIsTouched(true)
-  }
+  const errorId = `${name}-error`
+  const helperId = `${name}-helper`
 
   return (
     <div className={cn('w-full', className)}>
-      <label
-        htmlFor={name}
-        className="block text-sm font-medium text-gray-900 mb-1.5"
-      >
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
+      <div className="flex items-center justify-between mb-1.5">
+        <label
+          htmlFor={name}
+          className="block text-sm font-medium text-[hsl(var(--foreground))]"
+        >
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+
+        {maxLength && (
+          <span
+            className={cn(
+              'text-xs',
+              value.length > maxLength * 0.9
+                ? 'text-amber-600 font-medium'
+                : 'text-[hsl(var(--muted-foreground))]'
+            )}
+          >
+            {value.length} / {maxLength}
+          </span>
+        )}
+      </div>
 
       <div className="relative">
         {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]">
             {icon}
           </div>
         )}
@@ -67,35 +79,35 @@ export function TextInput({
           type={type}
           value={value}
           onChange={e => onChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={handleBlur}
+          onBlur={() => setIsTouched(true)}
           placeholder={placeholder}
           maxLength={maxLength}
           required={required}
+          aria-invalid={showError ? true : undefined}
+          aria-required={required || undefined}
+          aria-describedby={showError ? errorId : helperText ? helperId : undefined}
           className={cn(
             'w-full px-4 py-3',
             'border rounded-xl',
-            'bg-white',
-            'text-gray-900 placeholder:text-gray-400',
+            'bg-[hsl(var(--background))]',
+            'text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             'transition-all duration-200',
-            'min-h-[48px]',
+            'min-h-[48px] md:min-h-[44px]',
             icon && 'pl-10',
             (showSuccess || showError) && 'pr-10',
             showError &&
-              'border-red-500 focus:border-red-500 focus:ring-red-100',
+              'border-red-500 focus:border-red-500 focus:ring-red-500/20',
             showSuccess &&
-              'border-gray-900 focus:border-gray-900 focus:ring-gray-100',
+              'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20',
             !showError &&
               !showSuccess &&
-              'border-gray-200 focus:border-gray-900 focus:ring-gray-100',
-            isFocused && !showError && 'ring-2 ring-gray-100'
+              'border-[hsl(var(--border))] focus:border-emerald-500 focus:ring-emerald-500/20'
           )}
         />
 
-        {/* Success/Error icon */}
         {showSuccess && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-900">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500">
             <Check className="w-5 h-5" />
           </div>
         )}
@@ -106,19 +118,17 @@ export function TextInput({
         )}
       </div>
 
-      {/* Helper text or error message */}
-      {showError ? (
-        <p className="text-sm text-red-500 mt-1.5 flex items-start gap-1">
-          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+      {showError && (
+        <p id={errorId} className="text-sm text-red-600 mt-1.5">
           {error}
         </p>
-      ) : helperText ? (
-        <p className="text-sm text-gray-500 mt-1.5">{helperText}</p>
-      ) : maxLength ? (
-        <p className="text-xs text-gray-400 mt-1.5 text-right">
-          {value.length} / {maxLength}
+      )}
+
+      {helperText && !showError && (
+        <p id={helperId} className="text-sm text-[hsl(var(--muted-foreground))] mt-1.5">
+          {helperText}
         </p>
-      ) : null}
+      )}
     </div>
   )
 }

@@ -138,7 +138,7 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
     .from('businesses')
     .select(`
       *,
-      categories:category_id (name),
+      categories:category_id (name, slug),
       regions:region_id (name),
       business_photos (
         image_url,
@@ -149,6 +149,7 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
         category_tags:tag_id (name, slug)
       )
     `)
+    .eq('is_active', true)
 
   // Apply category filter if selected
   if (categoryId) {
@@ -213,6 +214,7 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
   let countQuery = supabase
     .from('businesses')
     .select('*', { count: 'exact', head: true })
+    .eq('is_active', true)
 
   // Apply same filters to count query
   if (categoryId) {

@@ -38,13 +38,11 @@ export function ImageUpload({
   const [uploadError, setUploadError] = useState<string | null>(null)
 
   const handleFileSelect = (file: File) => {
-    // Validate file size
     if (file.size > maxSize * 1024 * 1024) {
       setUploadError(`File size must be less than ${maxSize}MB`)
       return
     }
 
-    // Validate file type
     if (!acceptedFormats.includes(file.type)) {
       setUploadError('Invalid file format. Please use JPG, PNG, or WebP')
       return
@@ -53,7 +51,6 @@ export function ImageUpload({
     setUploadError(null)
     onChange(file)
 
-    // Create preview
     const reader = new FileReader()
     reader.onloadend = () => {
       setPreviewUrl(reader.result as string)
@@ -102,19 +99,28 @@ export function ImageUpload({
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleClick()
+    }
+  }
+
   const showError = error || uploadError
 
   return (
     <div className={cn('w-full', className)}>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+      <label
+        htmlFor={name}
+        className="block text-sm font-medium text-[hsl(var(--foreground))] mb-1.5"
+      >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
       {previewUrl ? (
-        // Preview state
         <div className="relative">
-          <div className="relative w-full h-48 md:h-64 rounded-lg overflow-hidden border-2 border-gray-300">
+          <div className="relative w-full h-48 md:h-64 rounded-xl overflow-hidden border-2 border-[hsl(var(--border))]">
             <Image
               src={previewUrl}
               alt="Preview"
@@ -134,22 +140,25 @@ export function ImageUpload({
           </Button>
         </div>
       ) : (
-        // Upload state
         <div
+          role="button"
+          tabIndex={0}
           onClick={handleClick}
+          onKeyDown={handleKeyDown}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
           className={cn(
-            'relative border-2 border-dashed rounded-lg',
+            'relative border-2 border-dashed rounded-xl',
             'p-8 text-center cursor-pointer',
             'transition-all duration-200',
             'hover:border-emerald-400 hover:bg-emerald-50/50',
+            'focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500',
             dragActive && 'border-emerald-500 bg-emerald-50',
             showError
               ? 'border-red-300 bg-red-50'
-              : 'border-gray-300 bg-gray-50'
+              : 'border-[hsl(var(--border))] bg-[hsl(var(--muted))]'
           )}
         >
           <input
@@ -178,19 +187,17 @@ export function ImageUpload({
             </div>
 
             <div>
-              <p className="text-base font-medium text-gray-700 mb-1">
+              <p className="text-base font-medium text-[hsl(var(--foreground))] mb-1">
                 Click to upload or drag and drop
               </p>
-              <p className="text-sm text-gray-500">{helperText}</p>
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">{helperText}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Error message */}
       {showError && (
-        <p className="text-sm text-red-600 mt-2 flex items-start gap-1">
-          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+        <p className="text-sm text-red-600 mt-1.5">
           {showError}
         </p>
       )}

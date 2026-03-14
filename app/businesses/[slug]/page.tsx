@@ -32,6 +32,7 @@ import {
   Star,
   ExternalLink
 } from 'lucide-react'
+import { formatPhoneDisplay } from '@/lib/utils'
 
 // Revalidate every 2 minutes
 export const revalidate = 120
@@ -43,6 +44,7 @@ export async function generateStaticParams() {
   const { data: businesses } = await supabase
     .from('businesses')
     .select('slug')
+    .eq('is_active', true)
     .order('view_count', { ascending: false })
     .limit(50)
 
@@ -231,6 +233,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             business_photos (image_url, is_primary)
           `)
           .eq('category_id', business.category_id)
+          .eq('is_active', true)
           .neq('id', business.id)
           .order('rating', { ascending: false, nullsFirst: false })
           .limit(4)
@@ -333,9 +336,10 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 
         {/* ======= HERO SECTION ======= */}
         <section className="relative h-[55vh] md:h-[60vh] min-h-[400px] md:min-h-[450px] max-h-[600px] overflow-hidden">
-          {/* Combined gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-[hsl(var(--jungle-900))]/70 via-[hsl(var(--jungle-900))]/20 to-transparent z-10" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[hsl(var(--jungle-50))] z-10" />
+          {/* Scrim overlay - guarantees text readability on any image */}
+          <div className="absolute inset-0 hero-scrim-jungle z-10" />
+          {/* Bottom blend into page background */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[hsl(var(--jungle-50))] to-transparent z-10" />
 
           {/* Main hero image */}
           <div className="absolute inset-0">
@@ -376,19 +380,19 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                   href={`/businesses/category/${business.categories.slug}`}
                   className="inline-block mb-2 md:mb-3 animate-fade-up delay-100"
                 >
-                  <span className="text-xs md:text-sm font-medium text-[hsl(var(--gold-400))] hover:text-[hsl(var(--gold-300))] transition-colors tracking-widest uppercase">
+                  <span className="text-xs md:text-sm font-medium text-[hsl(var(--gold-400))] hover:text-[hsl(var(--gold-300))] transition-colors tracking-widest uppercase text-hero-label">
                     {business.categories.name}
                   </span>
                 </Link>
               )}
 
               {/* Title */}
-              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-3 md:mb-4 animate-fade-up delay-200 drop-shadow-2xl tracking-tight">
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-3 md:mb-4 animate-fade-up delay-200 text-hero-title tracking-tight">
                 {business.name}
               </h1>
 
               {/* Rating & Location Row */}
-              <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm md:text-base text-white/90 animate-fade-up delay-300">
+              <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm md:text-base text-white/90 text-hero-body animate-fade-up delay-300">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-0.5">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -554,13 +558,9 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                     <div className="flex-1 h-px bg-gradient-to-r from-[hsl(var(--border))] to-transparent" />
                   </div>
 
-                  {business.description ? (
+                  {business.description && (
                     <p className="text-[hsl(var(--jungle-700))] leading-relaxed whitespace-pre-line text-base lg:text-lg">
                       {business.description}
-                    </p>
-                  ) : (
-                    <p className="text-[hsl(var(--muted-foreground))] italic">
-                      No description available yet.
                     </p>
                   )}
 
@@ -863,7 +863,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                           </div>
                           <div>
                             <p className="text-[10px] uppercase tracking-wider text-[hsl(var(--muted-foreground))] font-medium">Phone</p>
-                            <p className="text-sm text-[hsl(var(--jungle-700))] font-medium">{business.phone}</p>
+                            <p className="text-sm text-[hsl(var(--jungle-700))] font-medium">{formatPhoneDisplay(business.phone) || business.phone}</p>
                           </div>
                         </a>
                       )}

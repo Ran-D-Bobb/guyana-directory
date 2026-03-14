@@ -84,46 +84,24 @@ export default async function Page({ params }: PageProps) {
     tourism_reviews: ((experience.tourism_reviews || []) as Array<{id: string; overall_rating: number; comment: string | null; created_at: string; profiles: {name: string} | null}>).map(r => ({...r, rating: r.overall_rating})).slice(0, 5) // Limit to 5 reviews and map overall_rating to rating
   }
 
-  // Fetch featured experiences (marked as featured in the database, excluding current)
-  const { data: featuredExps } = await supabase
-    .from('tourism_experiences')
-    .select(`
-      id,
-      slug,
-      name,
-      description,
-      price_from,
-      rating,
-      review_count,
-      duration,
-      tourism_categories(name),
-      tourism_photos(image_url, is_primary)
-    `)
-    .neq('id', experience.id)
-    .eq('is_approved', true)
-    .eq('is_featured', true)
-    .order('rating', { ascending: false })
-    .limit(6)
+  // Transform to simplified KioskExperience shape
+  const photos = experience.tourism_photos as Array<{image_url: string; is_primary: boolean}> | null
+  const primaryPhoto = photos?.find(p => p.is_primary)
+  const anyPhoto = photos?.[0]
 
-  const featuredExperiences = (featuredExps || []).map((exp) => {
-    const photos = exp.tourism_photos as Array<{image_url: string; is_primary: boolean}> | null
-    const primaryPhoto = photos?.find(p => p.is_primary)
-    const anyPhoto = photos?.[0]
-    const category = exp.tourism_categories as {name: string} | null
+  const kioskExperience = {
+    id: transformedExperience.id,
+    slug: transformedExperience.slug,
+    name: transformedExperience.name,
+    description: transformedExperience.description,
+    image_url: (primaryPhoto?.image_url || anyPhoto?.image_url || null) as string | null,
+    rating: transformedExperience.rating || 0,
+    review_count: transformedExperience.review_count || 0,
+    duration: transformedExperience.duration,
+    price_from: transformedExperience.price_from || 0,
+    category_name: transformedExperience.category_name,
+    difficulty_level: transformedExperience.difficulty_level,
+  }
 
-    return {
-      id: exp.id as string,
-      slug: exp.slug as string,
-      name: exp.name as string,
-      description: exp.description as string,
-      image_url: (primaryPhoto?.image_url || anyPhoto?.image_url || null) as string | null,
-      rating: exp.rating as number,
-      review_count: exp.review_count as number,
-      duration: exp.duration as string | null,
-      price_from: exp.price_from as number,
-      category_name: category?.name || 'Experience'
-    }
-  })
-
-  return <KioskExperiencePage experience={transformedExperience} featuredExperiences={featuredExperiences} />
+  return <KioskExperiencePage experience={kioskExperience} />
 }

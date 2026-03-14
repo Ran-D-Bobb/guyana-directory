@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Star, BadgeCheck, Phone, ArrowRight } from 'lucide-react'
 import { Database } from '@/types/supabase'
+import { getCategoryImage } from '@/lib/category-images'
 import {
   Carousel,
   CarouselContent,
@@ -15,7 +16,7 @@ import {
 import Autoplay from "embla-carousel-autoplay"
 
 type Business = Database['public']['Tables']['businesses']['Row'] & {
-  categories: { name: string } | null
+  categories: { name: string; slug: string } | null
   regions: { name: string } | null
   primary_photo?: string | null
 }
@@ -23,8 +24,6 @@ type Business = Database['public']['Tables']['businesses']['Row'] & {
 interface FeaturedBusinessCarouselProps {
   businesses: Business[]
 }
-
-const DEFAULT_BUSINESS_IMAGE = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop&q=80'
 
 export function FeaturedBusinessCarousel({ businesses }: FeaturedBusinessCarouselProps) {
   const autoplayPlugin = useRef(
@@ -51,7 +50,7 @@ export function FeaturedBusinessCarousel({ businesses }: FeaturedBusinessCarouse
       >
         <CarouselContent className="-ml-4">
           {businesses.map((business) => {
-            const imageUrl = business.primary_photo || DEFAULT_BUSINESS_IMAGE
+            const imageUrl = business.primary_photo || getCategoryImage(business.categories?.slug || '')
 
             return (
               <CarouselItem key={business.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
@@ -59,7 +58,7 @@ export function FeaturedBusinessCarousel({ businesses }: FeaturedBusinessCarouse
                   href={`/businesses/${business.slug}`}
                   className="group block"
                 >
-                  <div className="relative h-[180px] rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-emerald-200 hover:shadow-2xl transition-all duration-300">
+                  <div className="relative h-[180px] rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-emerald-200 hover:shadow-2xl transition-[border-color,box-shadow] duration-300">
                     {/* Background Image with Overlay */}
                     <div className="absolute inset-0">
                       <Image
@@ -121,13 +120,13 @@ export function FeaturedBusinessCarousel({ businesses }: FeaturedBusinessCarouse
                         {business.phone && (
                           <button
                             onClick={(e) => handlePhoneClick(e, business.phone)}
-                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50"
+                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-xs font-semibold transition-colors shadow-lg"
                           >
                             <Phone className="w-3.5 h-3.5" />
                             Call
                           </button>
                         )}
-                        <div className="flex items-center gap-1 px-3 py-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition-all group/details">
+                        <div className="flex items-center gap-1 px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition-colors group/details">
                           <span>Details</span>
                           <ArrowRight className="w-3 h-3 transition-transform group-hover/details:translate-x-0.5" />
                         </div>
@@ -142,8 +141,8 @@ export function FeaturedBusinessCarousel({ businesses }: FeaturedBusinessCarouse
 
         {/* Navigation Arrows */}
         <div className="hidden md:block">
-          <CarouselPrevious className="-left-12 h-10 w-10 border-2 border-emerald-200 bg-white text-gray-900 shadow-lg hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all" />
-          <CarouselNext className="-right-12 h-10 w-10 border-2 border-emerald-200 bg-white text-gray-900 shadow-lg hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all" />
+          <CarouselPrevious className="-left-12 h-10 w-10 border-2 border-border bg-card text-foreground shadow-lg hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors" />
+          <CarouselNext className="-right-12 h-10 w-10 border-2 border-border bg-card text-foreground shadow-lg hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors" />
         </div>
       </Carousel>
 

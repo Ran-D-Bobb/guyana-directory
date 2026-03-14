@@ -32,24 +32,28 @@ CREATE TRIGGER set_tourism_hero_videos_updated_at
 ALTER TABLE tourism_hero_videos ENABLE ROW LEVEL SECURITY;
 
 -- Public can view active videos
+DROP POLICY IF EXISTS "Public can view active tourism hero videos" ON tourism_hero_videos;
 CREATE POLICY "Public can view active tourism hero videos"
   ON tourism_hero_videos
   FOR SELECT
   USING (is_active = true);
 
 -- Admins can view all videos
+DROP POLICY IF EXISTS "Admins can view all tourism hero videos" ON tourism_hero_videos;
 CREATE POLICY "Admins can view all tourism hero videos"
   ON tourism_hero_videos
   FOR SELECT
   USING (is_admin());
 
 -- Admins can insert videos
+DROP POLICY IF EXISTS "Admins can insert tourism hero videos" ON tourism_hero_videos;
 CREATE POLICY "Admins can insert tourism hero videos"
   ON tourism_hero_videos
   FOR INSERT
   WITH CHECK (is_admin());
 
 -- Admins can update videos
+DROP POLICY IF EXISTS "Admins can update tourism hero videos" ON tourism_hero_videos;
 CREATE POLICY "Admins can update tourism hero videos"
   ON tourism_hero_videos
   FOR UPDATE
@@ -57,6 +61,7 @@ CREATE POLICY "Admins can update tourism hero videos"
   WITH CHECK (is_admin());
 
 -- Admins can delete videos
+DROP POLICY IF EXISTS "Admins can delete tourism hero videos" ON tourism_hero_videos;
 CREATE POLICY "Admins can delete tourism hero videos"
   ON tourism_hero_videos
   FOR DELETE
@@ -78,11 +83,13 @@ ON CONFLICT (id) DO UPDATE SET
 -- Storage policies for tourism hero videos
 
 -- Allow anyone to view tourism hero videos (public bucket)
+DROP POLICY IF EXISTS "Anyone can view tourism hero videos" ON storage.objects;
 CREATE POLICY "Anyone can view tourism hero videos"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'tourism-hero-videos');
 
 -- Allow admins to upload tourism hero videos
+DROP POLICY IF EXISTS "Admins can upload tourism hero videos" ON storage.objects;
 CREATE POLICY "Admins can upload tourism hero videos"
 ON storage.objects FOR INSERT
 WITH CHECK (
@@ -90,6 +97,7 @@ WITH CHECK (
 );
 
 -- Allow admins to update tourism hero videos
+DROP POLICY IF EXISTS "Admins can update tourism hero videos" ON storage.objects;
 CREATE POLICY "Admins can update tourism hero videos"
 ON storage.objects FOR UPDATE
 USING (
@@ -97,6 +105,7 @@ USING (
 );
 
 -- Allow admins to delete tourism hero videos
+DROP POLICY IF EXISTS "Admins can delete tourism hero videos" ON storage.objects;
 CREATE POLICY "Admins can delete tourism hero videos"
 ON storage.objects FOR DELETE
 USING (

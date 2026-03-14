@@ -64,7 +64,7 @@ export default function AmenitiesStep({
     <div className="space-y-5">
       {/* Amenities */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">
+        <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-3">
           Property Amenities
         </h3>
         <CheckboxGrid
@@ -86,18 +86,18 @@ export default function AmenitiesStep({
 
       {/* Utilities Included */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">
+        <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-3">
           Utilities Included
         </h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3" role="group" aria-label="Utilities Included">
           {UTILITIES.map((utility) => (
             <label
               key={utility.value}
               className={`
-                flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all min-h-[48px]
                 ${formData.utilities_included.includes(utility.value)
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  ? 'border-emerald-500 bg-emerald-50'
+                  : 'border-[hsl(var(--border))] hover:border-emerald-300 hover:bg-[hsl(var(--muted))]'
                 }
               `}
             >
@@ -110,12 +110,12 @@ export default function AmenitiesStep({
                     : formData.utilities_included.filter(u => u !== utility.value)
                   onChange('utilities_included', newUtilities)
                 }}
-                className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+                className="h-5 w-5 text-emerald-600 rounded border-[hsl(var(--border))] focus:ring-emerald-500"
               />
               <span className={`text-sm font-medium ${
                 formData.utilities_included.includes(utility.value)
-                  ? 'text-blue-900'
-                  : 'text-gray-700'
+                  ? 'text-emerald-900'
+                  : 'text-[hsl(var(--foreground))]'
               }`}>
                 {utility.label}
               </span>
@@ -126,18 +126,18 @@ export default function AmenitiesStep({
 
       {/* House Rules */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">
+        <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-3">
           House Rules
         </h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3" role="group" aria-label="House Rules">
           {HOUSE_RULES.map((rule) => (
             <label
               key={rule.value}
               className={`
-                flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all min-h-[48px]
                 ${formData.house_rules.includes(rule.value)
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  ? 'border-emerald-500 bg-emerald-50'
+                  : 'border-[hsl(var(--border))] hover:border-emerald-300 hover:bg-[hsl(var(--muted))]'
                 }
               `}
             >
@@ -150,12 +150,12 @@ export default function AmenitiesStep({
                     : formData.house_rules.filter(r => r !== rule.value)
                   onChange('house_rules', newRules)
                 }}
-                className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+                className="h-5 w-5 text-emerald-600 rounded border-[hsl(var(--border))] focus:ring-emerald-500"
               />
               <span className={`text-sm font-medium ${
                 formData.house_rules.includes(rule.value)
-                  ? 'text-blue-900'
-                  : 'text-gray-700'
+                  ? 'text-emerald-900'
+                  : 'text-[hsl(var(--foreground))]'
               }`}>
                 {rule.label}
               </span>
@@ -165,14 +165,14 @@ export default function AmenitiesStep({
       </div>
 
       {/* Info box */}
-      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
         <div className="flex gap-3">
           <div className="flex-shrink-0">
-            <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
           </div>
-          <div className="text-sm text-purple-800">
+          <div className="text-sm text-emerald-800">
             <p className="font-medium mb-1">Why amenities matter</p>
             <p>Properties with detailed amenity information get 3x more inquiries. Highlight what makes your property special!</p>
           </div>

@@ -5,6 +5,10 @@ import { Header } from "@/components/Header";
 import { Toaster } from "sonner";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { ConsoleEasterEgg } from "@/components/ConsoleEasterEgg";
+import { ScrollToTop } from "@/components/ScrollToTop";
+import { MainLayoutShell } from "@/components/MainLayoutShell";
 // TODO: Re-enable when push notifications are fully configured
 // import { PushProvider } from "@/components/providers/PushProvider";
 
@@ -74,14 +78,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`light ${playfair.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <body className="antialiased font-sans min-h-screen min-h-dvh">
-        <QueryProvider>
-          <Header />
-          {children}
-          <Toaster position="top-center" richColors />
-          <InstallPrompt />
-        </QueryProvider>
+        <a href="#main-content" className="skip-link">Skip to content</a>
+        <ThemeProvider>
+          <QueryProvider>
+            <MainLayoutShell>
+              <Header />
+            </MainLayoutShell>
+            <div id="main-content">{children}</div>
+            <MainLayoutShell>
+              <Toaster position="top-center" richColors />
+              <InstallPrompt />
+              <ConsoleEasterEgg />
+              <ScrollToTop />
+            </MainLayoutShell>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

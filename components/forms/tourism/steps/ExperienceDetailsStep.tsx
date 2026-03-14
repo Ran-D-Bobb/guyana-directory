@@ -55,7 +55,7 @@ export function ExperienceDetailsStep({
 
       {/* Group Size */}
       <div className="space-y-4">
-        <label className="block text-sm font-medium text-gray-900">
+        <label className="block text-sm font-medium text-[hsl(var(--foreground))]">
           Group Size
         </label>
         <div className="grid grid-cols-2 gap-4">
@@ -76,7 +76,7 @@ export function ExperienceDetailsStep({
             max={100}
           />
         </div>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">
           What&apos;s the min/max number of people per group?
         </p>
       </div>
@@ -103,30 +103,34 @@ export function ExperienceDetailsStep({
 
       {/* Booking Required */}
       <div className="space-y-3">
-        <label className="block text-sm font-medium text-gray-900">
+        <label className="block text-sm font-medium text-[hsl(var(--foreground))]">
           Booking Required?
         </label>
-        <div className="flex gap-3">
+        <div className="flex gap-3" role="radiogroup" aria-label="Booking Required">
           <button
             type="button"
+            role="radio"
+            aria-checked={formData.booking_required}
             onClick={() => onChange('booking_required', true)}
             className={cn(
-              'flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all',
+              'flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all duration-200 min-h-[48px]',
               formData.booking_required
-                ? 'border-purple-600 bg-purple-50 text-purple-700'
-                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                : 'border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:border-emerald-300'
             )}
           >
             Yes, advance booking required
           </button>
           <button
             type="button"
+            role="radio"
+            aria-checked={!formData.booking_required}
             onClick={() => onChange('booking_required', false)}
             className={cn(
-              'flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all',
+              'flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all duration-200 min-h-[48px]',
               !formData.booking_required
-                ? 'border-purple-600 bg-purple-50 text-purple-700'
-                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                : 'border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:border-emerald-300'
             )}
           >
             No, walk-ins welcome

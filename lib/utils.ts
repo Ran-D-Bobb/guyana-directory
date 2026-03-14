@@ -32,3 +32,31 @@ export function getAuthRedirectUrl(path: string = '/auth/callback'): string {
   // For local dev and web, use current origin
   return `${window.location.origin}${path}`
 }
+
+/**
+ * Format a Guyana phone number for display.
+ * Strips non-digits, removes country code prefix (592),
+ * and formats as XXX XXXX (7-digit local format).
+ */
+export function formatPhoneDisplay(phone: string | null): string | null {
+  if (!phone) return null
+  const digits = phone.replace(/\D/g, '')
+
+  // Remove Guyana country code (592) if present
+  let local = digits
+  if (local.startsWith('592') && local.length >= 10) {
+    local = local.slice(3)
+  }
+  // Remove leading 1 (international prefix) + 592
+  if (local.startsWith('1592') && local.length >= 11) {
+    local = digits.slice(4)
+  }
+
+  // Format 7-digit number as XXX XXXX
+  if (local.length === 7) {
+    return `${local.slice(0, 3)} ${local.slice(3)}`
+  }
+
+  // Return cleaned number if non-standard length
+  return local
+}

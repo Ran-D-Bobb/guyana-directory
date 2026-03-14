@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { AuthButton } from './AuthButton'
 import { UserMenu } from './UserMenu'
 import { BottomNav } from './BottomNav'
+import { ThemeToggle } from './ThemeToggle'
 import { isAdmin } from '@/lib/admin'
 import { Compass, Calendar, Key, ShoppingBag, Sparkles, Navigation } from 'lucide-react'
 
@@ -30,7 +31,7 @@ export async function Header() {
     <>
       {/* Top Header - Mobile: 56px, Desktop: 72px */}
       <header
-        className="bg-white/95 backdrop-blur-xl shadow-md fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50"
+        className="bg-white/95 dark:bg-[hsl(0,0%,12%)]/95 backdrop-blur-xl shadow-md fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50 dark:border-white/10"
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
         <nav className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
@@ -54,20 +55,20 @@ export async function Header() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900 tracking-tight">
+                <span className="text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                   Waypoint
                 </span>
-                <span className="text-[10px] md:text-xs font-medium text-gray-500 tracking-wide uppercase hidden sm:block">
+                <span className="text-[10px] md:text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wide uppercase hidden sm:block">
                   Discover Guyana
                 </span>
               </div>
             </Link>
 
             {/* Center Navigation - Desktop Only */}
-            <div className="hidden lg:flex items-center gap-1 bg-gray-50/80 rounded-2xl px-2 py-2 border border-gray-200/50">
+            <div className="hidden lg:flex items-center gap-1 bg-gray-50/80 dark:bg-white/5 rounded-2xl px-2 py-2 border border-gray-200/50 dark:border-white/10">
               <Link
                 href="/discover"
-                className="group relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-amber-600 transition-colors hover:bg-white hover:shadow-md min-h-[44px]"
+                className="group relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors hover:bg-white hover:shadow-md min-h-[44px]"
               >
                 <Navigation className="h-4 w-4" />
                 <span>Near Me</span>
@@ -76,7 +77,7 @@ export async function Header() {
 
               <Link
                 href="/businesses"
-                className="group relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-emerald-600 transition-colors hover:bg-white hover:shadow-md min-h-[44px]"
+                className="group relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-emerald-600 transition-colors hover:bg-white hover:shadow-md min-h-[44px]"
               >
                 <ShoppingBag className="h-4 w-4" />
                 <span>Shopping</span>
@@ -85,7 +86,7 @@ export async function Header() {
 
               <Link
                 href="/tourism"
-                className="group relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-emerald-600 transition-colors hover:bg-white hover:shadow-md min-h-[44px]"
+                className="group relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-emerald-600 transition-colors hover:bg-white hover:shadow-md min-h-[44px]"
               >
                 <Compass className="h-4 w-4" />
                 <span>Explore</span>
@@ -94,7 +95,7 @@ export async function Header() {
 
               <Link
                 href="/events"
-                className="group relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-purple-600 transition-colors hover:bg-white hover:shadow-md min-h-[44px]"
+                className="group relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-purple-600 transition-colors hover:bg-white hover:shadow-md min-h-[44px]"
               >
                 <Calendar className="h-4 w-4" />
                 <span>Events</span>
@@ -103,7 +104,7 @@ export async function Header() {
 
               <Link
                 href="/rentals"
-                className="group relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors hover:bg-white hover:shadow-md min-h-[44px]"
+                className="group relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 transition-colors hover:bg-white hover:shadow-md min-h-[44px]"
               >
                 <Key className="h-4 w-4" />
                 <span>Stays</span>
@@ -112,7 +113,8 @@ export async function Header() {
             </div>
 
             {/* Right Side */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
+              <ThemeToggle />
               {!user ? (
                 // Guest User - Just Auth Button on Mobile
                 <>

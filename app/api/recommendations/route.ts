@@ -9,8 +9,14 @@ export async function POST(request: NextRequest) {
     // Get current user
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Parse request body
-    const body = await request.json()
+    // Parse request body (handle aborted requests with empty body)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let body: any
+    try {
+      body = await request.json()
+    } catch {
+      body = {}
+    }
     const rawLimit = body.limit ?? 6
     const limit = Math.min(Math.max(1, Number(rawLimit) || 6), 20)
     const recentlyViewedCategories = (body.recentlyViewedCategories || []).slice(0, 10)

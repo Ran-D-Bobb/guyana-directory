@@ -50,7 +50,6 @@ export function LocationInput({
   className,
   apiKey,
 }: LocationInputProps) {
-  const [isFocused, setIsFocused] = useState(false)
   const [isTouched, setIsTouched] = useState(false)
   const [searchQuery, setSearchQuery] = useState(value?.formatted_address || '')
   const [suggestions, setSuggestions] = useState<GeoapifyFeature[]>([])
@@ -65,6 +64,9 @@ export function LocationInput({
 
   const showError = error && isTouched
   const showSuccess = !error && value && isTouched && required
+
+  const errorId = `${name}-error`
+  const helperId = `${name}-helper`
 
   // Reverse geocode coordinates to get address
   const reverseGeocode = useCallback(async (lat: number, lon: number): Promise<string> => {
@@ -106,7 +108,6 @@ export function LocationInput({
         setGeoState('success')
         setIsTouched(true)
 
-        // Reset state after a moment
         setTimeout(() => setGeoState('idle'), 2000)
       },
       (err) => {
@@ -128,7 +129,7 @@ export function LocationInput({
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 60000, // Accept cached position up to 1 minute old
+        maximumAge: 60000,
       }
     )
   }, [onChange, reverseGeocode])
@@ -181,12 +182,10 @@ export function LocationInput({
     setShowSuggestions(true)
     setSelectedSuggestion(-1)
 
-    // Clear existing timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current)
     }
 
-    // Set new timer
     debounceTimerRef.current = setTimeout(() => {
       fetchSuggestions(inputValue)
     }, 300)
@@ -236,9 +235,7 @@ export function LocationInput({
   }
 
   const handleBlur = () => {
-    setIsFocused(false)
     setIsTouched(true)
-    // Delay to allow click on suggestion
     setTimeout(() => {
       setShowSuggestions(false)
     }, 200)
@@ -275,13 +272,12 @@ export function LocationInput({
     <div className={cn('w-full', className)}>
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-700 mb-1.5"
+        className="block text-sm font-medium text-[hsl(var(--foreground))] mb-1.5"
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
-      {/* Three input methods section */}
       <div className="space-y-3">
         {/* Method 1: Use my current location button */}
         <button
@@ -289,13 +285,13 @@ export function LocationInput({
           onClick={handleUseMyLocation}
           disabled={geoState === 'loading'}
           className={cn(
-            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-dashed',
+            'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed',
             'transition-all duration-200',
             'min-h-[48px]',
-            geoState === 'loading' && 'bg-gray-50 border-gray-300 cursor-wait',
+            geoState === 'loading' && 'bg-[hsl(var(--muted))] border-[hsl(var(--border))] cursor-wait',
             geoState === 'success' && 'bg-emerald-50 border-emerald-400 text-emerald-700',
             geoState === 'error' && 'bg-red-50 border-red-300 text-red-700',
-            geoState === 'idle' && 'bg-white border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400'
+            geoState === 'idle' && 'bg-[hsl(var(--background))] border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400'
           )}
         >
           {geoState === 'loading' ? (
@@ -327,16 +323,16 @@ export function LocationInput({
         {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
+            <div className="w-full border-t border-[hsl(var(--border))]" />
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="px-2 bg-white text-gray-500">or search by address</span>
+            <span className="px-2 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))]">or search by address</span>
           </div>
         </div>
 
         {/* Method 2: Address search */}
         <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]">
             <Search className="w-5 h-5" />
           </div>
 
@@ -348,7 +344,6 @@ export function LocationInput({
             value={searchQuery}
             onChange={e => handleInputChange(e.target.value)}
             onFocus={() => {
-              setIsFocused(true)
               if (suggestions.length > 0) {
                 setShowSuggestions(true)
               }
@@ -358,33 +353,36 @@ export function LocationInput({
             placeholder="Search for an address..."
             required={required}
             autoComplete="off"
+            aria-invalid={showError ? true : undefined}
+            aria-required={required || undefined}
+            aria-describedby={showError ? errorId : helperText ? helperId : undefined}
             className={cn(
-              'w-full pl-10 pr-10 py-2.5 md:py-2',
-              'border rounded-lg',
-              'text-gray-900 placeholder:text-gray-400',
+              'w-full pl-10 pr-10 py-3',
+              'border rounded-xl',
+              'bg-[hsl(var(--background))]',
+              'text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]',
               'focus:outline-none focus:ring-2 focus:ring-offset-0',
               'transition-all duration-200',
-              'min-h-[44px] md:min-h-[40px]',
+              'min-h-[48px] md:min-h-[44px]',
               showError &&
-                'border-red-300 focus:border-red-500 focus:ring-red-500/20',
+                'border-red-500 focus:border-red-500 focus:ring-red-500/20',
               showSuccess &&
-                'border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20',
+                'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20',
               !showError &&
                 !showSuccess &&
-                'border-gray-300 focus:border-emerald-500 focus:ring-emerald-500/20',
-              isFocused && 'ring-2'
+                'border-[hsl(var(--border))] focus:border-emerald-500 focus:ring-emerald-500/20'
             )}
           />
 
           {/* Loading/Clear icons */}
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
             {isLoading ? (
-              <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+              <Loader2 className="w-5 h-5 text-[hsl(var(--muted-foreground))] animate-spin" />
             ) : searchQuery ? (
               <button
                 type="button"
                 onClick={handleClear}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
                 tabIndex={-1}
               >
                 <X className="w-5 h-5" />
@@ -396,7 +394,7 @@ export function LocationInput({
           {showSuggestions && suggestions.length > 0 && (
             <div
               ref={suggestionsRef}
-              className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+              className="absolute z-50 w-full mt-1 bg-[hsl(var(--background))] border border-[hsl(var(--border))] rounded-xl shadow-lg max-h-60 overflow-y-auto"
             >
               {suggestions.map((feature, index) => (
                 <button
@@ -404,21 +402,22 @@ export function LocationInput({
                   type="button"
                   onClick={() => handleSuggestionClick(feature)}
                   className={cn(
-                    'w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors',
-                    'border-b border-gray-100 last:border-b-0',
-                    'focus:outline-none focus:bg-gray-50',
-                    selectedSuggestion === index && 'bg-gray-50'
+                    'w-full px-4 py-3 text-left hover:bg-[hsl(var(--muted))] transition-colors',
+                    'border-b border-[hsl(var(--border))] last:border-b-0',
+                    'focus:outline-none focus:bg-[hsl(var(--muted))]',
+                    'first:rounded-t-xl last:rounded-b-xl',
+                    selectedSuggestion === index && 'bg-[hsl(var(--muted))]'
                   )}
                 >
                   <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <MapPin className="w-4 h-4 text-[hsl(var(--muted-foreground))] mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-[hsl(var(--foreground))] truncate">
                         {feature.properties.address_line1 ||
                           feature.properties.formatted}
                       </p>
                       {feature.properties.address_line2 && (
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">
                           {feature.properties.address_line2}
                         </p>
                       )}
@@ -431,22 +430,23 @@ export function LocationInput({
         </div>
 
         {/* Helper text or error message */}
-        {showError ? (
-          <p className="text-sm text-red-600 flex items-start gap-1">
-            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+        {showError && (
+          <p id={errorId} className="text-sm text-red-600">
             {error}
           </p>
-        ) : (
-          helperText && <p className="text-sm text-gray-500">{helperText}</p>
+        )}
+
+        {helperText && !showError && (
+          <p id={helperId} className="text-sm text-[hsl(var(--muted-foreground))]">{helperText}</p>
         )}
 
         {/* Divider before map */}
         <div className="relative pt-1">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
+            <div className="w-full border-t border-[hsl(var(--border))]" />
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="px-2 bg-white text-gray-500">or tap on the map</span>
+            <span className="px-2 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))]">or tap on the map</span>
           </div>
         </div>
 
@@ -465,7 +465,7 @@ export function LocationInput({
 
         {/* Selected location display */}
         {value && (
-          <div className="text-sm text-gray-700 bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+          <div className="text-sm bg-emerald-50 rounded-xl p-3 border border-emerald-200">
             <div className="flex items-start gap-2">
               <MapPin className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -477,8 +477,8 @@ export function LocationInput({
               <button
                 type="button"
                 onClick={handleClear}
+                aria-label="Clear location"
                 className="text-emerald-600 hover:text-emerald-800 transition-colors p-1"
-                title="Clear location"
               >
                 <X className="w-4 h-4" />
               </button>

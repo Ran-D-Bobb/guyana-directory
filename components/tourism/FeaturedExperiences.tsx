@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight, Sparkles, MapPin, Clock, Star, ArrowRight } from 'lucide-react'
 import { Database } from '@/types/supabase'
+import { getFallbackImage } from '@/lib/category-images'
 
 type TourismExperience = Database['public']['Tables']['tourism_experiences']['Row'] & {
   tourism_categories: { name: string; icon: string } | null
@@ -15,8 +16,6 @@ type TourismExperience = Database['public']['Tables']['tourism_experiences']['Ro
 interface FeaturedExperiencesProps {
   experiences: TourismExperience[]
 }
-
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80'
 
 export function FeaturedExperiences({ experiences }: FeaturedExperiencesProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -80,7 +79,7 @@ export function FeaturedExperiences({ experiences }: FeaturedExperiencesProps) {
         >
           {experiences.map((experience, index) => {
             const photos = Array.isArray(experience.tourism_photos) ? experience.tourism_photos : []
-            const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || DEFAULT_IMAGE
+            const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || getFallbackImage(experience.tourism_categories?.name, 'tourism')
 
             return (
               <Link

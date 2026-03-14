@@ -1,12 +1,11 @@
 import { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { DiscoverPageClient } from '@/components/discover/DiscoverPageClient';
-import { Compass, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Discover Around You | Waypoint',
+  title: 'Near Me | Waypoint',
   description:
-    'Find hidden gems, local favorites, and unique experiences near you in Guyana.',
+    'Find businesses, restaurants, and services near you in Guyana.',
 };
 
 // Revalidate every 5 minutes
@@ -22,7 +21,6 @@ export default async function DiscoverPage() {
     { data: rentals },
     { data: events },
   ] = await Promise.all([
-    // Businesses with photos and category info
     supabase
       .from('businesses')
       .select(
@@ -30,14 +28,14 @@ export default async function DiscoverPage() {
         id, name, slug, description, rating, review_count,
         is_featured, is_verified, latitude, longitude,
         phone, email, address,
-        categories:category_id (name),
+        categories:category_id (name, slug),
         business_photos (image_url, is_primary)
       `
       )
+      .eq('is_active', true)
       .order('rating', { ascending: false, nullsFirst: false })
       .limit(100),
 
-    // Tourism experiences
     supabase
       .from('tourism_experiences')
       .select(
@@ -53,7 +51,6 @@ export default async function DiscoverPage() {
       .order('rating', { ascending: false, nullsFirst: false })
       .limit(100),
 
-    // Rentals
     supabase
       .from('rentals')
       .select(
@@ -61,7 +58,7 @@ export default async function DiscoverPage() {
         id, name, slug, description, rating, review_count,
         is_featured, latitude, longitude,
         whatsapp_number, email, address, price_per_month,
-        rental_categories:category_id (name),
+        rental_categories:category_id (name, slug),
         rental_photos (image_url, is_primary)
       `
       )
@@ -69,14 +66,13 @@ export default async function DiscoverPage() {
       .order('rating', { ascending: false, nullsFirst: false })
       .limit(100),
 
-    // Events (upcoming only)
     supabase
       .from('events')
       .select(
         `
         id, title, slug, description,
         is_featured, location, image_url, latitude, longitude,
-        event_categories:category_id (name)
+        event_categories:category_id (name, slug)
       `
       )
       .gte('end_date', new Date().toISOString())
@@ -177,73 +173,9 @@ export default async function DiscoverPage() {
     address: e.location,
   }));
 
-  const totalCount =
-    processedBusinesses.length +
-    processedTourism.length +
-    processedRentals.length +
-    processedEvents.length;
-
   return (
-    <div className="min-h-screen bg-[hsl(var(--jungle-50))] pb-20 lg:pb-0">
-      {/* Hero Header */}
-      <header className="relative overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 gradient-mesh-dark" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--jungle-900))]/95 via-[hsl(var(--jungle-800))]/90 to-[hsl(var(--jungle-700))]/85" />
-
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[hsl(var(--gold-500))]/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[hsl(var(--jungle-400))]/20 rounded-full blur-2xl -translate-x-1/2 translate-y-1/2" />
-
-        {/* Noise overlay */}
-        <div className="absolute inset-0 noise-overlay opacity-30" />
-
-        <div className="relative max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(var(--gold-500))]/20 border border-[hsl(var(--gold-500))]/30 mb-6">
-              <Sparkles className="w-4 h-4 text-[hsl(var(--gold-400))]" />
-              <span className="text-sm font-medium text-[hsl(var(--gold-300))]">
-                {totalCount} Experiences to Discover
-              </span>
-            </div>
-
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white mb-6 leading-[1.1]">
-              Discover
-              <span className="block text-gradient-gold animate-text-shimmer bg-[length:200%_auto]">
-                Around You
-              </span>
-            </h1>
-
-            <p className="text-lg lg:text-xl text-[hsl(var(--jungle-200))] max-w-xl leading-relaxed">
-              Hidden gems, local favorites, and unique experiences — all waiting
-              to be found near you.
-            </p>
-
-            {/* Quick stats */}
-            <div className="flex flex-wrap gap-6 mt-8">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-[hsl(var(--gold-500))]/20 flex items-center justify-center">
-                  <Compass className="w-5 h-5 text-[hsl(var(--gold-400))]" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-white">
-                    {totalCount}
-                  </div>
-                  <div className="text-sm text-[hsl(var(--gold-300))]">
-                    Experiences
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom wave */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[hsl(var(--jungle-50))] to-transparent" />
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-[hsl(var(--background))] pb-20 lg:pb-0">
+      <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <DiscoverPageClient
           businesses={processedBusinesses}
           tourism={processedTourism}

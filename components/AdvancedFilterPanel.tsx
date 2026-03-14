@@ -133,8 +133,8 @@ export function AdvancedFilterPanel({ regions, businessCount, categoryName }: Ad
               onClick={() => toggleFilter('verified')}
               className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 currentVerified
-                  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
               }`}
             >
               <BadgeCheck className="h-4 w-4" />
@@ -147,8 +147,8 @@ export function AdvancedFilterPanel({ regions, businessCount, categoryName }: Ad
               onClick={() => toggleFilter('featured')}
               className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 currentFeatured
-                  ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-secondary text-secondary-foreground shadow-sm'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
               }`}
             >
               <Sparkles className="h-4 w-4" />
@@ -163,8 +163,8 @@ export function AdvancedFilterPanel({ regions, businessCount, categoryName }: Ad
                 onClick={() => updateFilter('rating', currentRating === rating ? 'all' : rating)}
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   currentRating === rating
-                    ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/30'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-foreground text-background shadow-sm'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
                 <Star className="h-4 w-4" />

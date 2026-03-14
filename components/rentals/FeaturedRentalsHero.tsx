@@ -13,6 +13,7 @@ import {
   Sparkles,
   ArrowRight
 } from 'lucide-react'
+import { getFallbackImage } from '@/lib/category-images'
 
 interface FeaturedRental {
   id: string
@@ -41,7 +42,7 @@ interface FeaturedRentalsHeroProps {
   rentals: FeaturedRental[]
 }
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80'
+const HERO_DEFAULT_IMAGE = '/images/defaults/rental-hero.jpg'
 
 export function FeaturedRentalsHero({ rentals }: FeaturedRentalsHeroProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -128,7 +129,7 @@ export function FeaturedRentalsHero({ rentals }: FeaturedRentalsHeroProps) {
       {featuredRentals.map((rental, index) => {
         const photo = rental.rental_photos?.find(p => p.is_primary)?.image_url
           || rental.rental_photos?.[0]?.image_url
-          || DEFAULT_IMAGE
+          || getFallbackImage(rental.rental_categories?.name, 'rental')
         return (
           <div
             key={rental.id}
@@ -306,7 +307,7 @@ export function FeaturedRentalsHero({ rentals }: FeaturedRentalsHeroProps) {
           {featuredRentals.map((rental, index) => {
             const thumb = rental.rental_photos?.find(p => p.is_primary)?.image_url
               || rental.rental_photos?.[0]?.image_url
-              || DEFAULT_IMAGE
+              || HERO_DEFAULT_IMAGE
             return (
               <button
                 key={rental.id}

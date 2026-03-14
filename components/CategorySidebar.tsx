@@ -86,8 +86,8 @@ export function CategorySidebar({ categories, currentCategorySlug }: CategorySid
               )}
             </Link>
 
-            {/* Category Links */}
-            {categories.map((category) => {
+            {/* Category Links — hide categories with 0 businesses */}
+            {categories.filter(c => (c.business_count ?? 0) > 0).map((category) => {
               const IconComponent = category.icon ? iconMap[category.icon as keyof typeof iconMap] || Store : Store
               const isActive = currentCategorySlug === category.slug
 

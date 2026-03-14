@@ -20,9 +20,7 @@ import {
   Package,
   Phone
 } from 'lucide-react'
-
-// Default tourism experience image from Unsplash
-const DEFAULT_TOURISM_IMAGE = 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1200&q=80'
+import { getFallbackImage } from '@/lib/category-images'
 
 // Revalidate every 2 minutes
 export const revalidate = 120
@@ -123,7 +121,7 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
 
   // Get primary photo or first photo
   const photos = Array.isArray(experience.tourism_photos) ? experience.tourism_photos : []
-  const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || DEFAULT_TOURISM_IMAGE
+  const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || getFallbackImage(experience.tourism_categories?.name, 'tourism')
 
   // JSON-LD structured data for TouristAttraction
   const jsonLd = {

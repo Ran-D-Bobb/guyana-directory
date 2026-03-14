@@ -44,10 +44,10 @@ export function AuthButton({ user }: AuthButtonProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <Link href="/auth/signup">
+      <Link href="/auth/signup" className="hidden sm:block">
         <Button
           variant="outline"
-          className="text-sm md:text-base px-4 py-2 md:px-5 md:py-2.5 h-9 md:h-10 font-medium border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+          className="text-sm md:text-base px-4 py-2 md:px-5 md:py-2.5 h-9 md:h-10 font-medium border-primary text-primary hover:bg-primary/5"
         >
           Sign Up
         </Button>
@@ -56,10 +56,9 @@ export function AuthButton({ user }: AuthButtonProps) {
         <DropdownMenuTrigger asChild>
           <Button
             disabled={isLoading}
-            className="group relative overflow-hidden bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300 active:scale-95 text-sm md:text-base px-4 py-2 md:px-5 md:py-2.5 h-9 md:h-10 border-0 font-semibold tracking-wide"
+            className="bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-[background-color,box-shadow] duration-200 active:scale-95 text-sm md:text-base px-4 py-2 md:px-5 md:py-2.5 h-9 md:h-10 border-0 font-semibold"
           >
-            <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-            <span className="relative font-semibold">Sign In</span>
+            <span className="font-semibold">Sign In</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-64 p-3 bg-white border border-gray-200 shadow-xl">

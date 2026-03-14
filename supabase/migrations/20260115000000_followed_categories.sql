@@ -19,16 +19,19 @@ alter table followed_categories enable row level security;
 
 -- RLS Policies
 -- Users can view their own followed categories
+drop policy if exists "Users can view own followed categories" on followed_categories;
 create policy "Users can view own followed categories"
   on followed_categories for select
   using (auth.uid() = user_id);
 
 -- Users can follow categories (insert)
+drop policy if exists "Users can follow categories" on followed_categories;
 create policy "Users can follow categories"
   on followed_categories for insert
   with check (auth.uid() = user_id);
 
 -- Users can unfollow categories (delete)
+drop policy if exists "Users can unfollow categories" on followed_categories;
 create policy "Users can unfollow categories"
   on followed_categories for delete
   using (auth.uid() = user_id);

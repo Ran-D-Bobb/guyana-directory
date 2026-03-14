@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { AdminStatCard } from '@/components/admin/AdminStatCard'
+import { AuditDateFilter } from '@/components/admin/AuditDateFilter'
 
 // Type definitions for audit logs
 type AdminAction =
@@ -422,31 +423,7 @@ export default async function AdminAuditLogPage({
                 <Calendar size={14} />
                 Date Range:
               </span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  name="from"
-                  form="filter-form"
-                  defaultValue={fromDate || ''}
-                  className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-slate-300 focus:outline-none"
-                  onChange={(e) => {
-                    const url = buildFilterUrl({ from: e.target.value, page: undefined })
-                    window.location.href = url
-                  }}
-                />
-                <span className="text-slate-400">to</span>
-                <input
-                  type="date"
-                  name="to"
-                  form="filter-form"
-                  defaultValue={toDate || ''}
-                  className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-slate-300 focus:outline-none"
-                  onChange={(e) => {
-                    const url = buildFilterUrl({ to: e.target.value, page: undefined })
-                    window.location.href = url
-                  }}
-                />
-              </div>
+              <AuditDateFilter fromDate={fromDate} toDate={toDate} />
             </div>
           </div>
 

@@ -187,6 +187,30 @@ export async function bulkUnfeatureBusinesses(ids: string[]): Promise<BulkOperat
   )
 }
 
+export async function bulkShowBusinesses(ids: string[]): Promise<BulkOperationResult> {
+  return bulkUpdateField(
+    'businesses',
+    ids,
+    'is_active',
+    true,
+    'business',
+    'reactivate',
+    getBusinessName
+  )
+}
+
+export async function bulkHideBusinesses(ids: string[]): Promise<BulkOperationResult> {
+  return bulkUpdateField(
+    'businesses',
+    ids,
+    'is_active',
+    false,
+    'business',
+    'unapprove',
+    getBusinessName
+  )
+}
+
 export async function bulkDeleteBusinesses(ids: string[]): Promise<BulkOperationResult> {
   return bulkDelete('businesses', ids, 'business', getBusinessName)
 }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { HomeFeedClient } from '@/components/home'
 import type { FeedItem } from '@/components/home'
+import { getCategoryImage, getFallbackImage } from '@/lib/category-images'
 
 export const revalidate = 60
 
@@ -27,10 +28,11 @@ export default async function Home() {
       .select(`
         id, name, slug, description, rating, review_count,
         is_featured, is_verified,
-        categories:category_id (name),
+        categories:category_id (name, slug),
         regions:region_id (name),
         business_photos (image_url, is_primary)
       `)
+      .eq('is_active', true)
       .order('rating', { ascending: false, nullsFirst: false })
       .limit(24),
 
@@ -54,7 +56,7 @@ export default async function Home() {
       .select(`
         id, name, slug, description, rating, review_count, price_per_month,
         is_featured,
-        rental_categories:category_id (name),
+        rental_categories:category_id (name, slug),
         regions:region_id (name),
         rental_photos (image_url, is_primary)
       `)
@@ -68,7 +70,7 @@ export default async function Home() {
       .select(`
         id, title, slug, description, image_url, interest_count, location,
         is_featured,
-        event_categories:category_id (name)
+        event_categories:category_id (name, slug)
       `)
       .gte('end_date', new Date().toISOString())
       .order('start_date', { ascending: true })
@@ -88,23 +90,27 @@ export default async function Home() {
   // Transform to FeedItem format
   const feedItems: FeedItem[] = [
     // Businesses
-    ...(businesses || []).map((b): FeedItem => ({
-      id: b.id,
-      type: 'business',
-      name: b.name,
-      slug: b.slug,
-      description: b.description,
-      image_url: getPrimaryImage(
-        b.business_photos as { image_url: string; is_primary: boolean }[] | null,
-        'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80'
-      ),
-      rating: b.rating,
-      review_count: b.review_count || 0,
-      category_name: (b.categories as { name: string } | null)?.name || null,
-      is_featured: b.is_featured || false,
-      is_verified: b.is_verified || false,
-      location: (b.regions as { name: string } | null)?.name || null,
-    })),
+    ...(businesses || []).map((b): FeedItem => {
+      const catSlug = (b.categories as { name: string; slug: string } | null)?.slug
+      const fallback = getCategoryImage(catSlug || '')
+      return {
+        id: b.id,
+        type: 'business',
+        name: b.name,
+        slug: b.slug,
+        description: b.description,
+        image_url: getPrimaryImage(
+          b.business_photos as { image_url: string; is_primary: boolean }[] | null,
+          fallback
+        ),
+        rating: b.rating,
+        review_count: b.review_count || 0,
+        category_name: (b.categories as { name: string } | null)?.name || null,
+        is_featured: b.is_featured || false,
+        is_verified: b.is_verified || false,
+        location: (b.regions as { name: string } | null)?.name || null,
+      }
+    }),
 
     // Tourism experiences
     ...(experiences || []).map((exp): FeedItem => ({
@@ -115,7 +121,7 @@ export default async function Home() {
       description: exp.description,
       image_url: getPrimaryImage(
         exp.tourism_photos as { image_url: string; is_primary: boolean }[] | null,
-        'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=600&q=80'
+        getFallbackImage((exp.tourism_categories as { name: string } | null)?.name || null, 'tourism')
       ),
       rating: exp.rating,
       review_count: exp.review_count || 0,
@@ -135,7 +141,7 @@ export default async function Home() {
       description: r.description,
       image_url: getPrimaryImage(
         r.rental_photos as { image_url: string; is_primary: boolean }[] | null,
-        'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80'
+        getFallbackImage((r.rental_categories as { name: string } | null)?.name || null, 'rental')
       ),
       rating: r.rating,
       review_count: r.review_count || 0,
@@ -153,7 +159,7 @@ export default async function Home() {
       name: e.title,
       slug: e.slug,
       description: e.description,
-      image_url: e.image_url || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
+      image_url: e.image_url || getFallbackImage((e.event_categories as { name: string } | null)?.name || null, 'event'),
       rating: null,
       review_count: e.interest_count || 0,
       category_name: (e.event_categories as { name: string } | null)?.name || null,

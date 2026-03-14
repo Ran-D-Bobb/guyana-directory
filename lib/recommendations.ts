@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/types/supabase'
 import type { FeedItem } from '@/components/home'
+import { getFallbackImage } from '@/lib/category-images'
 
 interface CategoryWeight {
   categoryId: string
@@ -172,11 +173,12 @@ export async function getRecommendations(
     .select(`
       id, name, slug, description, rating, review_count,
       is_featured, is_verified,
-      categories:category_id (name),
+      categories:category_id (name, slug),
       regions:region_id (name),
       business_photos (image_url, is_primary)
     `)
     .in('category_id', topCategoryIds)
+    .eq('is_active', true)
     .order('rating', { ascending: false, nullsFirst: false })
     .limit(limit * 2) // Fetch more to have buffer after filtering
 
@@ -193,13 +195,14 @@ export async function getRecommendations(
 
   // Filter out excluded businesses and transform to FeedItem format
   const getPrimaryImage = (
-    photos: { image_url: string; is_primary: boolean | null }[] | null
+    photos: { image_url: string; is_primary: boolean | null }[] | null,
+    categoryName: string | null
   ): string => {
     if (!photos || !Array.isArray(photos) || photos.length === 0) {
-      return 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80'
+      return getFallbackImage(categoryName, 'business')
     }
     const primary = photos.find((p) => p.is_primary)
-    return primary?.image_url || photos[0]?.image_url || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80'
+    return primary?.image_url || photos[0]?.image_url || getFallbackImage(categoryName, 'business')
   }
 
   const filteredBusinesses = businesses
@@ -213,7 +216,8 @@ export async function getRecommendations(
     slug: b.slug,
     description: b.description,
     image_url: getPrimaryImage(
-      b.business_photos as { image_url: string; is_primary: boolean | null }[] | null
+      b.business_photos as { image_url: string; is_primary: boolean | null }[] | null,
+      (b.categories as { name: string } | null)?.name || null
     ),
     rating: b.rating,
     review_count: b.review_count || 0,
@@ -242,24 +246,26 @@ export async function getFallbackRecommendations(
     .select(`
       id, name, slug, description, rating, review_count,
       is_featured, is_verified,
-      categories:category_id (name),
+      categories:category_id (name, slug),
       regions:region_id (name),
       business_photos (image_url, is_primary)
     `)
+    .eq('is_active', true)
     .order('is_featured', { ascending: false })
     .order('rating', { ascending: false, nullsFirst: false })
     .limit(limit)
 
   if (!businesses) return []
 
-  const getPrimaryImage = (
-    photos: { image_url: string; is_primary: boolean | null }[] | null
+  const getPrimaryImageFallback = (
+    photos: { image_url: string; is_primary: boolean | null }[] | null,
+    categoryName: string | null
   ): string => {
     if (!photos || !Array.isArray(photos) || photos.length === 0) {
-      return 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80'
+      return getFallbackImage(categoryName, 'business')
     }
     const primary = photos.find((p) => p.is_primary)
-    return primary?.image_url || photos[0]?.image_url || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80'
+    return primary?.image_url || photos[0]?.image_url || getFallbackImage(categoryName, 'business')
   }
 
   return businesses.map((b) => ({
@@ -268,8 +274,9 @@ export async function getFallbackRecommendations(
     name: b.name,
     slug: b.slug,
     description: b.description,
-    image_url: getPrimaryImage(
-      b.business_photos as { image_url: string; is_primary: boolean | null }[] | null
+    image_url: getPrimaryImageFallback(
+      b.business_photos as { image_url: string; is_primary: boolean | null }[] | null,
+      (b.categories as { name: string } | null)?.name || null
     ),
     rating: b.rating,
     review_count: b.review_count || 0,

@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import * as Icons from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import Image from 'next/image';
+import { getTourismCategoryImage } from '@/lib/category-images';
 
 interface TourismCategoryCardProps {
   category: {
@@ -18,25 +19,9 @@ interface TourismCategoryCardProps {
   imageUrl?: string;
 }
 
-// Tourism category-specific images (using Unsplash)
-const categoryImages: { [key: string]: string } = {
-  'nature-wildlife': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=600&fit=crop', // Rainforest
-  'adventure': 'https://images.unsplash.com/photo-1533692328991-08159ff19fca?w=800&h=600&fit=crop', // Kayaking
-  'culture': 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop', // Cultural performance
-  'eco-lodges': 'https://images.unsplash.com/photo-1618767689160-da3fb810aad7?w=800&h=600&fit=crop', // Eco lodge
-  'tours-guides': 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&h=600&fit=crop', // Tour guide
-  'water-activities': 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=600&fit=crop', // Water activity
-  'food-culinary': 'https://images.unsplash.com/photo-1555126634-323283e090fa?w=800&h=600&fit=crop', // Local cuisine
-  'history-heritage': 'https://images.unsplash.com/photo-1569163139394-de4798aa62b6?w=800&h=600&fit=crop', // Colonial architecture
-  'photography': 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=800&h=600&fit=crop', // Photography
-  'bird-watching': 'https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=800&h=600&fit=crop', // Bird
-  'expeditions': 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=800&h=600&fit=crop', // Expedition
-  'transfers': 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&h=600&fit=crop', // Transfer vehicle
-};
-
 export default function TourismCategoryCard({ category, experienceCount = 0, imageUrl }: TourismCategoryCardProps) {
   const IconComponent = (Icons as unknown as Record<string, LucideIcon>)[category.icon] || Icons.MapPin;
-  const categoryImage = imageUrl || categoryImages[category.slug] || categoryImages['nature-wildlife'];
+  const categoryImage = imageUrl || getTourismCategoryImage(category.slug);
 
   return (
     <Link href={`/tourism/category/${category.slug}`}>

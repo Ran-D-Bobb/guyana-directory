@@ -38,7 +38,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           .from('businesses')
           .select(`
             id, name, slug, description, rating, review_count,
-            categories:category_id (name),
+            categories:category_id (name, slug),
             regions:region_id (name),
             business_photos (image_url, is_primary),
             business_tags (
@@ -46,6 +46,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               category_tags:tag_id (name, slug)
             )
           `)
+          .eq('is_active', true)
           .or(`name.plfts.${searchTerm},description.ilike.%${searchTerm}%`)
           .order('is_featured', { ascending: false })
           .order('rating', { ascending: false, nullsFirst: false })
@@ -83,7 +84,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           .from('rentals')
           .select(`
             id, name, slug, description, rating, review_count, price_per_month,
-            rental_categories:category_id (name),
+            rental_categories:category_id (name, slug),
             regions:region_id (name),
             rental_photos (image_url, is_primary)
           `)
@@ -100,7 +101,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           .from('events')
           .select(`
             id, title, slug, description, image_url, location, start_date, interest_count,
-            event_categories:category_id (name)
+            event_categories:category_id (name, slug)
           `)
           .gt('start_date', new Date().toISOString())
           .or(`title.plfts.${searchTerm},description.ilike.%${searchTerm}%`)
@@ -132,11 +133,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         .from('businesses')
         .select(`
           id, name, slug, description, rating, review_count,
-          categories:category_id (name),
+          categories:category_id (name, slug),
           regions:region_id (name),
           business_photos (image_url, is_primary),
           business_tags (tag_id, category_tags:tag_id (name, slug))
         `)
+        .eq('is_active', true)
         .in('id', missingIds)
         .limit(10)
 
@@ -271,22 +273,22 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {/* Results */}
       <main className="max-w-5xl mx-auto px-6 py-8">
         {!searchTerm ? (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-gray-400" />
+          <div className="text-center py-16 animate-fade-up">
+            <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="w-8 h-8 text-emerald-400" />
             </div>
             <p className="text-gray-600 text-lg">
-              Start typing to search across all listings
+              What are you looking for in Guyana?
             </p>
           </div>
         ) : totalResults === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-16 animate-fade-up">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
               <Search className="w-8 h-8 text-gray-400" />
             </div>
-            <p className="text-gray-900 text-lg font-medium mb-2">No results found</p>
+            <p className="text-gray-900 text-lg font-medium mb-2">No luck this time</p>
             <p className="text-gray-500">
-              Try different keywords or browse categories
+              Try different keywords or browse our categories to discover something new.
             </p>
           </div>
         ) : (

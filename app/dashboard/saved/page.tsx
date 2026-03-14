@@ -18,13 +18,12 @@ import {
 } from 'lucide-react'
 import { SaveBusinessButton } from '@/components/SaveBusinessButton'
 import { SavedPageTabs } from './SavedPageTabs'
+import { getFallbackImage } from '@/lib/category-images'
 
 export const metadata = {
   title: 'Saved - Waypoint',
   description: 'Your saved businesses and interested events',
 }
-
-const DEFAULT_BUSINESS_IMAGE = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80'
 
 export default async function SavedPage() {
   const supabase = await createClient()
@@ -55,7 +54,7 @@ export default async function SavedPage() {
         review_count,
         is_verified,
         is_featured,
-        categories:category_id (name),
+        categories:category_id (name, slug),
         regions:region_id (name),
         business_photos (image_url, is_primary)
       )
@@ -189,7 +188,7 @@ export default async function SavedPage() {
                   <Link href={`/businesses/${business.slug}`} className="block">
                     <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
                       <Image
-                        src={business.primary_photo || DEFAULT_BUSINESS_IMAGE}
+                        src={business.primary_photo || getFallbackImage(business.categories?.name, 'business')}
                         alt={business.name}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"

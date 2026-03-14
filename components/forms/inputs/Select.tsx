@@ -40,15 +40,14 @@ export function Select({
   const showError = error && isTouched
   const showSuccess = !error && value && isTouched && required
 
-  const handleBlur = () => {
-    setIsTouched(true)
-  }
+  const errorId = `${name}-error`
+  const helperId = `${name}-helper`
 
   return (
     <div className={cn('w-full', className)}>
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-900 mb-1.5"
+        className="block text-sm font-medium text-[hsl(var(--foreground))] mb-1.5"
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -60,27 +59,29 @@ export function Select({
           name={name}
           value={value}
           onChange={e => onChange(e.target.value)}
-          onBlur={handleBlur}
+          onBlur={() => setIsTouched(true)}
           required={required}
+          aria-invalid={showError ? true : undefined}
+          aria-required={required || undefined}
+          aria-describedby={showError ? errorId : helperText ? helperId : undefined}
           className={cn(
             'w-full px-4 py-3',
             'border rounded-xl',
-            'bg-white',
-            'text-gray-900',
+            'bg-[hsl(var(--background))]',
+            value ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--muted-foreground))]',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             'transition-all duration-200',
-            'min-h-[48px]',
+            'min-h-[48px] md:min-h-[44px]',
             'appearance-none cursor-pointer',
             'pr-10',
             showError &&
-              'border-red-500 focus:border-red-500 focus:ring-red-100',
+              'border-red-500 focus:border-red-500 focus:ring-red-500/20',
             showSuccess &&
-              'border-gray-900 focus:border-gray-900 focus:ring-gray-100',
+              'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20',
             !showError &&
               !showSuccess &&
-              'border-gray-200 focus:border-gray-900 focus:ring-gray-100'
+              'border-[hsl(var(--border))] focus:border-emerald-500 focus:ring-emerald-500/20'
           )}
-          style={{ color: value ? '#111827' : '#9ca3af' }}
         >
           <option value="" disabled>
             {placeholder}
@@ -92,28 +93,27 @@ export function Select({
           ))}
         </select>
 
-        {/* Icon container */}
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
           {showSuccess && (
-            <Check className="w-5 h-5 text-gray-900" />
+            <Check className="w-5 h-5 text-emerald-500" />
           )}
           {showError && (
             <AlertCircle className="w-5 h-5 text-red-500" />
           )}
-          <ChevronDown className="w-5 h-5 text-gray-400" />
+          <ChevronDown className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
         </div>
       </div>
 
-      {/* Helper text or error message */}
-      {showError ? (
-        <p className="text-sm text-red-500 mt-1.5 flex items-start gap-1">
-          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+      {showError && (
+        <p id={errorId} className="text-sm text-red-600 mt-1.5">
           {error}
         </p>
-      ) : (
-        helperText && (
-          <p className="text-sm text-gray-500 mt-1.5">{helperText}</p>
-        )
+      )}
+
+      {helperText && !showError && (
+        <p id={helperId} className="text-sm text-[hsl(var(--muted-foreground))] mt-1.5">
+          {helperText}
+        </p>
       )}
     </div>
   )

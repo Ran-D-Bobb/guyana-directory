@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { createStaticClient } from '@/lib/supabase/static'
@@ -10,6 +11,7 @@ import { MobileCategoryFilterBar } from '@/components/MobileCategoryFilterBar'
 import { FollowCategoryButton } from '@/components/FollowCategoryButton'
 import { BusinessFilterPanel } from '@/components/BusinessFilterPanel'
 import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
+import { getCategoryImage } from '@/lib/category-images'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -122,7 +124,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     .from('businesses')
     .select(`
       *,
-      categories:category_id (name),
+      categories:category_id (name, slug),
       regions:region_id (name),
       business_photos (
         image_url,
@@ -134,6 +136,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       )
     `)
     .eq('category_id', category.id)
+    .eq('is_active', true)
 
   // Apply filters
   if (region && region !== 'all') {
@@ -183,6 +186,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     .from('businesses')
     .select('id', { count: 'exact', head: true })
     .eq('category_id', category.id)
+    .eq('is_active', true)
 
   if (region && region !== 'all') {
     countQuery = countQuery.eq('region_id', region)
@@ -270,17 +274,25 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           />
         </Suspense>
 
-        {/* Content Container */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
-          {/* Category Header - Desktop Only */}
-          <div className="hidden lg:block mb-6">
-            <div className="flex items-start justify-between gap-4">
+        {/* Category Hero Banner - Desktop Only */}
+        <div className="hidden lg:block relative h-48 overflow-hidden">
+          <Image
+            src={getCategoryImage(slug)}
+            alt={category.name}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8">
+            <div className="flex items-end justify-between gap-4 max-w-screen-2xl mx-auto">
               <div>
-                <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">
+                <h1 className="text-3xl lg:text-4xl font-extrabold text-white mb-1 drop-shadow-lg">
                   {category.name}
                 </h1>
                 {category.description && (
-                  <p className="text-lg text-gray-600 max-w-3xl">
+                  <p className="text-base text-white/80 max-w-2xl drop-shadow">
                     {category.description}
                   </p>
                 )}
@@ -295,6 +307,10 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               />
             </div>
           </div>
+        </div>
+
+        {/* Content Container */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
 
           {/* Desktop Filter Panel with Tags */}
           <div className="hidden lg:block mb-6">

@@ -15,19 +15,19 @@ CREATE INDEX IF NOT EXISTS idx_saved_businesses_business_id ON saved_businesses(
 ALTER TABLE saved_businesses ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for saved_businesses
--- Users can view their own saved businesses
+DROP POLICY IF EXISTS "Users can view their own saved businesses" ON saved_businesses;
 CREATE POLICY "Users can view their own saved businesses"
   ON saved_businesses
   FOR SELECT
   USING (auth.uid() = user_id);
 
--- Users can add businesses to their favorites
+DROP POLICY IF EXISTS "Users can save businesses" ON saved_businesses;
 CREATE POLICY "Users can save businesses"
   ON saved_businesses
   FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
--- Users can remove businesses from their favorites
+DROP POLICY IF EXISTS "Users can unsave businesses" ON saved_businesses;
 CREATE POLICY "Users can unsave businesses"
   ON saved_businesses
   FOR DELETE

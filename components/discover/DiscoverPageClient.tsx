@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { MapPin, Navigation, Compass, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { MapPin, Navigation, Dices, SlidersHorizontal, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import {
   calculateDistance,
@@ -11,16 +11,14 @@ import {
   filterByRadius,
 } from '@/lib/geolocation';
 import { LocationPermissionModal } from './LocationPermissionModal';
-import { DiscoverFilters } from './DiscoverFilters';
-import { DiscoverCard } from './DiscoverCard';
 import { DiscoverCardList } from './DiscoverCardList';
-import { SurpriseMeButton } from './SurpriseMeButton';
 import type {
   DiscoverItem,
   DiscoverFiltersState,
   DiscoverItemType,
 } from '@/types/discover';
 import { DEFAULT_RADIUS_KM } from '@/types/discover';
+import { cn } from '@/lib/utils';
 
 interface RawItem {
   id: string;
@@ -49,12 +47,32 @@ interface DiscoverPageClientProps {
   events: RawItem[];
 }
 
+const TYPE_PILLS: {
+  value: DiscoverItemType | 'all';
+  label: string;
+}[] = [
+  { value: 'all', label: 'All' },
+  { value: 'business', label: 'Businesses' },
+  { value: 'tourism', label: 'Experiences' },
+  { value: 'rental', label: 'Rentals' },
+  { value: 'event', label: 'Events' },
+];
+
+const DISTANCE_PRESETS = [
+  { value: 2, label: '2 km' },
+  { value: 5, label: '5 km' },
+  { value: 10, label: '10 km' },
+  { value: 25, label: '25 km' },
+  { value: 50, label: 'All' },
+];
+
 export function DiscoverPageClient({
   businesses,
   tourism,
   rentals,
   events,
 }: DiscoverPageClientProps) {
+  const router = useRouter();
   const {
     coords,
     status,
@@ -64,7 +82,7 @@ export function DiscoverPageClient({
   } = useUserLocation();
 
   const [showModal, setShowModal] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showFilters, setShowFilters] = useState(false);
 
   const [filters, setFilters] = useState<DiscoverFiltersState>({
     type: 'all',
@@ -86,17 +104,17 @@ export function DiscoverPageClient({
     }
   }, [status, coords]);
 
-  // Combine and process all items
-  const allItems = useMemo(() => {
-    if (!coords) return [];
+  const hasLocation = !!coords;
 
+  // Build all items (with or without distance)
+  const allItems = useMemo(() => {
     const processItems = (
       items: RawItem[],
       type: DiscoverItemType
     ): DiscoverItem[] => {
       return items.map((item) => {
         const distance =
-          item.latitude && item.longitude
+          coords && item.latitude && item.longitude
             ? calculateDistance(coords.lat, coords.lng, item.latitude, item.longitude)
             : Infinity;
 
@@ -110,8 +128,8 @@ export function DiscoverPageClient({
           rating: item.rating,
           review_count: item.review_count || 0,
           distance_meters: distance,
-          distance_label: formatDistance(distance),
-          distance_tier: getDistanceTier(distance),
+          distance_label: distance < Infinity ? formatDistance(distance) : '',
+          distance_tier: distance < Infinity ? getDistanceTier(distance) : 'adventure',
           category_name: item.category_name,
           is_featured: item.is_featured || false,
           is_verified: item.is_verified || false,
@@ -131,23 +149,28 @@ export function DiscoverPageClient({
       ...processItems(events, 'event'),
     ];
 
-    // Sort by distance
-    return allProcessed.sort((a, b) => a.distance_meters - b.distance_meters);
-  }, [businesses, tourism, rentals, events, coords]);
+    if (hasLocation) {
+      return allProcessed.sort((a, b) => a.distance_meters - b.distance_meters);
+    }
+    // Without location: featured first, then by rating
+    return allProcessed.sort((a, b) => {
+      if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1;
+      return (b.rating || 0) - (a.rating || 0);
+    });
+  }, [businesses, tourism, rentals, events, coords, hasLocation]);
 
-  // Apply filters and sorting
+  // Apply filters
   const filteredItems = useMemo(() => {
     let items = allItems;
 
-    // Filter by type
     if (filters.type !== 'all') {
       items = items.filter((item) => item.type === filters.type);
     }
 
-    // Filter by radius
-    items = filterByRadius(items, filters.radiusKm);
+    if (hasLocation) {
+      items = filterByRadius(items, filters.radiusKm);
+    }
 
-    // Sort
     switch (filters.sortBy) {
       case 'rating':
         items = [...items].sort((a, b) => (b.rating || 0) - (a.rating || 0));
@@ -157,12 +180,11 @@ export function DiscoverPageClient({
         break;
       case 'distance':
       default:
-        // Already sorted by distance from allItems
         break;
     }
 
     return items;
-  }, [allItems, filters]);
+  }, [allItems, filters, hasLocation]);
 
   const handleFilterChange = (newFilters: Partial<DiscoverFiltersState>) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -170,189 +192,268 @@ export function DiscoverPageClient({
 
   const handleRequestLocation = async () => {
     await requestPermission();
-    // Modal will be closed automatically by the useEffect when status becomes 'granted'
   };
 
-  // Loading/requesting state - show skeleton
-  if (status === 'requesting') {
-    return (
-      <div className="space-y-6">
-        {/* Skeleton filters */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 animate-pulse">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-200" />
-              <div className="space-y-2">
-                <div className="h-4 w-32 bg-gray-200 rounded" />
-                <div className="h-3 w-24 bg-gray-200 rounded" />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <div className="h-9 w-24 bg-gray-200 rounded-lg" />
-              <div className="h-9 w-20 bg-gray-200 rounded-lg" />
-            </div>
+  // Surprise me
+  const handleSurpriseMe = () => {
+    const qualityItems = filteredItems.filter(
+      (item) =>
+        item.is_featured ||
+        item.is_verified ||
+        (item.rating && item.rating >= 3.5) ||
+        item.review_count > 0
+    );
+    const pool = qualityItems.length > 0 ? qualityItems : filteredItems;
+    if (pool.length === 0) return;
+
+    const randomItem = pool[Math.floor(Math.random() * pool.length)];
+    const pathMap = {
+      business: '/businesses',
+      tourism: '/tourism',
+      rental: '/rentals',
+      event: '/events',
+    };
+    router.push(`${pathMap[randomItem.type]}/${randomItem.slug}`);
+  };
+
+  const activeFilterCount =
+    (filters.type !== 'all' ? 1 : 0) +
+    (filters.sortBy !== 'distance' ? 1 : 0) +
+    (hasLocation && filters.radiusKm !== DEFAULT_RADIUS_KM ? 1 : 0);
+
+  return (
+    <>
+      {/* Page header */}
+      <div className="pt-6 pb-4 sm:pt-8">
+        <div className="flex items-end justify-between gap-4 mb-1">
+          <div>
+            <h1 className="font-display text-2xl sm:text-3xl text-foreground leading-tight">
+              Near Me
+            </h1>
+            {hasLocation ? (
+              <p className="text-sm text-muted-foreground mt-1">
+                {filteredItems.length} {filteredItems.length === 1 ? 'place' : 'places'} within {filters.radiusKm} km
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground mt-1">
+                Showing {filteredItems.length} popular places
+              </p>
+            )}
           </div>
-          <div className="flex gap-2 mb-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-10 w-24 bg-gray-200 rounded-full" />
-            ))}
+
+          <div className="flex items-center gap-2 shrink-0">
+            {!hasLocation && status !== 'requesting' && (
+              <button
+                onClick={() => setShowModal(true)}
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg',
+                  'bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]',
+                  'hover:bg-[hsl(var(--primary))]/15 transition-colors'
+                )}
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Use location</span>
+                <span className="sm:hidden">Location</span>
+              </button>
+            )}
+            {filteredItems.length > 0 && (
+              <button
+                onClick={handleSurpriseMe}
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg',
+                  'bg-[hsl(var(--gold-100))] text-[hsl(var(--gold-800))]',
+                  'hover:bg-[hsl(var(--gold-200))] transition-colors'
+                )}
+                title="Go to a random place"
+              >
+                <Dices className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Surprise me</span>
+              </button>
+            )}
           </div>
-          <div className="h-8 bg-gray-200 rounded-full" />
+        </div>
+      </div>
+
+      {/* Filter bar */}
+      <div className="sticky top-0 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 bg-[hsl(var(--background))]/95 backdrop-blur-sm border-b border-[hsl(var(--border))]">
+        <div className="flex items-center gap-2 py-3 overflow-x-auto scrollbar-hide">
+          {/* Type pills */}
+          {TYPE_PILLS.map((pill) => (
+            <button
+              key={pill.value}
+              onClick={() => handleFilterChange({ type: pill.value })}
+              className={cn(
+                'px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors shrink-0',
+                filters.type === pill.value
+                  ? 'bg-foreground text-background'
+                  : 'bg-[hsl(var(--muted))] text-muted-foreground hover:text-foreground'
+              )}
+            >
+              {pill.label}
+            </button>
+          ))}
+
+          <div className="w-px h-6 bg-[hsl(var(--border))] shrink-0 mx-1" />
+
+          {/* Distance presets (only with location) */}
+          {hasLocation && (
+            <>
+              {DISTANCE_PRESETS.map((preset) => (
+                <button
+                  key={preset.value}
+                  onClick={() => handleFilterChange({ radiusKm: preset.value })}
+                  className={cn(
+                    'px-3 py-1.5 rounded-full text-sm font-medium transition-colors shrink-0',
+                    filters.radiusKm === preset.value
+                      ? 'bg-[hsl(var(--primary))] text-white'
+                      : 'bg-[hsl(var(--muted))] text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {preset.label}
+                </button>
+              ))}
+
+              <div className="w-px h-6 bg-[hsl(var(--border))] shrink-0 mx-1" />
+            </>
+          )}
+
+          {/* Sort toggle */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={cn(
+              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors shrink-0',
+              showFilters || activeFilterCount > 0
+                ? 'bg-foreground text-background'
+                : 'bg-[hsl(var(--muted))] text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            Sort
+            {activeFilterCount > 0 && !showFilters && (
+              <span className="w-4 h-4 rounded-full bg-[hsl(var(--primary))] text-white text-xs flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
 
-        {/* Skeleton cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden animate-pulse">
-              <div className="h-48 bg-gray-200" />
-              <div className="p-4 space-y-3">
-                <div className="h-5 w-3/4 bg-gray-200 rounded" />
-                <div className="h-4 w-1/2 bg-gray-200 rounded" />
-                <div className="h-4 w-1/3 bg-gray-200 rounded" />
+        {/* Expandable sort row */}
+        {showFilters && (
+          <div className="pb-3 flex items-center gap-2 border-t border-[hsl(var(--border))] pt-3">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider shrink-0">Sort by</span>
+            {(['distance', 'rating', 'popular'] as const).map((sort) => (
+              <button
+                key={sort}
+                onClick={() => handleFilterChange({ sortBy: sort })}
+                disabled={sort === 'distance' && !hasLocation}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                  filters.sortBy === sort
+                    ? 'bg-foreground text-background'
+                    : 'bg-[hsl(var(--muted))] text-muted-foreground hover:text-foreground',
+                  sort === 'distance' && !hasLocation && 'opacity-40 cursor-not-allowed'
+                )}
+              >
+                {sort === 'distance' ? 'Nearest' : sort === 'rating' ? 'Top Rated' : 'Most Reviews'}
+              </button>
+            ))}
+
+            {activeFilterCount > 0 && (
+              <button
+                onClick={() => {
+                  handleFilterChange({ type: 'all', sortBy: hasLocation ? 'distance' : 'rating', radiusKm: DEFAULT_RADIUS_KM });
+                  setShowFilters(false);
+                }}
+                className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              >
+                <X className="w-3 h-3" />
+                Reset
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Location banner — shown when denied/unavailable */}
+      {(status === 'denied' || status === 'error') && (
+        <div className="mt-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-[hsl(var(--gold-50))] border border-[hsl(var(--gold-200))]">
+          <MapPin className="w-4 h-4 text-[hsl(var(--gold-600))] shrink-0" />
+          <p className="text-sm text-[hsl(var(--gold-800))] flex-1">
+            Location unavailable — showing popular places instead.
+          </p>
+          <button
+            onClick={() => setShowModal(true)}
+            className="text-sm font-medium text-[hsl(var(--primary))] hover:underline shrink-0"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {status === 'requesting' && (
+        <div className="mt-6 space-y-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="flex gap-4 p-4 rounded-xl bg-[hsl(var(--card))] animate-pulse">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-lg bg-[hsl(var(--muted))]" />
+              <div className="flex-1 space-y-3 py-1">
+                <div className="h-4 w-2/3 bg-[hsl(var(--muted))] rounded" />
+                <div className="h-3 w-1/3 bg-[hsl(var(--muted))] rounded" />
+                <div className="h-3 w-1/2 bg-[hsl(var(--muted))] rounded" />
               </div>
             </div>
           ))}
         </div>
-      </div>
-    );
-  }
+      )}
 
-  // No location state
-  if (!coords) {
-    return (
-      <>
+      {/* Results — list view by default for local utility */}
+      {status !== 'requesting' && filteredItems.length > 0 && (
+        <div className="mt-4 space-y-3">
+          {filteredItems.map((item) => (
+            <DiscoverCardList
+              key={`${item.type}-${item.id}`}
+              item={item}
+              showDistance={hasLocation}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {status !== 'requesting' && filteredItems.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-          {/* Animated illustration */}
-          <div className="relative mb-8">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
-              <Compass className="w-16 h-16 text-emerald-600 animate-[spin_8s_linear_infinite]" />
-            </div>
-            <div className="absolute -top-2 -right-2 w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center animate-bounce">
-              <MapPin className="w-6 h-6 text-amber-600" />
-            </div>
-            <div className="absolute -bottom-1 -left-1 w-8 h-8 rounded-full bg-emerald-500 animate-ping opacity-75" />
+          <div className="w-16 h-16 rounded-2xl bg-[hsl(var(--muted))] flex items-center justify-center mb-4">
+            <MapPin className="w-7 h-7 text-muted-foreground" />
           </div>
-
-          <h2 className="text-3xl font-display font-bold text-gray-900 mb-3">
-            Enable Location
-          </h2>
-          <p className="text-gray-600 max-w-md mb-8 text-lg">
-            To discover amazing experiences around you, we need to know where you are.
-            Your location is never stored or shared.
-          </p>
-
-          <Button
-            onClick={() => setShowModal(true)}
-            size="lg"
-            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-xl shadow-emerald-500/30 text-lg px-8 py-6 h-auto"
-          >
-            <Navigation className="w-6 h-6 mr-3" />
-            Enable Location
-          </Button>
-
-          <p className="text-sm text-gray-400 mt-6">
-            We only use your location while you&apos;re using the app
-          </p>
-        </div>
-
-        <LocationPermissionModal
-          open={showModal}
-          onClose={() => setShowModal(false)}
-          onRequestLocation={handleRequestLocation}
-          isLoading={isLoading}
-          error={error}
-        />
-      </>
-    );
-  }
-
-  return (
-    <>
-      {/* Sticky Filters */}
-      <div className="sticky top-0 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 py-4 bg-[hsl(var(--jungle-50))]/95 backdrop-blur-sm">
-        <DiscoverFilters
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          totalResults={filteredItems.length}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
-      </div>
-
-      {/* Surprise Me Button - Floating */}
-      {filteredItems.length > 0 && (
-        <div className="flex justify-end mb-4">
-          <SurpriseMeButton items={filteredItems} />
-        </div>
-      )}
-
-      {/* Results */}
-      {filteredItems.length > 0 ? (
-        viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredItems.map((item, index) => (
-              <div
-                key={`${item.type}-${item.id}`}
-                className="animate-fade-up"
-                style={{ animationDelay: `${Math.min(index * 50, 400)}ms` }}
-              >
-                <DiscoverCard item={item} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredItems.map((item, index) => (
-              <div
-                key={`${item.type}-${item.id}`}
-                className="animate-fade-up"
-                style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
-              >
-                <DiscoverCardList item={item} />
-              </div>
-            ))}
-          </div>
-        )
-      ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          {/* Empty state illustration */}
-          <div className="relative mb-8">
-            <div className="w-28 h-28 rounded-full bg-gray-100 flex items-center justify-center">
-              <Search className="w-14 h-14 text-gray-300" />
-            </div>
-            <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-              <span className="text-2xl">🔍</span>
-            </div>
-          </div>
-
-          <h3 className="text-2xl font-display font-bold text-gray-900 mb-3">
-            No results found
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Nothing nearby
           </h3>
-          <p className="text-gray-600 max-w-md mb-8">
-            We couldn&apos;t find anything within {filters.radiusKm} km.
-            Try expanding your search area or changing filters.
+          <p className="text-sm text-muted-foreground max-w-sm mb-6">
+            {hasLocation
+              ? `No results within ${filters.radiusKm} km. Try widening your search.`
+              : 'Enable location to find places near you.'}
           </p>
-
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Button
-              variant="outline"
-              onClick={() => handleFilterChange({ radiusKm: 50 })}
-              className="border-emerald-200 hover:bg-emerald-50"
-            >
-              <MapPin className="w-4 h-4 mr-2" />
-              Search 50 km
-            </Button>
-            <Button
-              onClick={() => handleFilterChange({ radiusKm: 50, type: 'all' })}
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
-              Show Everything
-            </Button>
+          <div className="flex gap-3">
+            {hasLocation ? (
+              <button
+                onClick={() => handleFilterChange({ radiusKm: 50, type: 'all' })}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-foreground text-background hover:opacity-90 transition-opacity"
+              >
+                Search everywhere
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowModal(true)}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-[hsl(var(--primary))] text-white hover:opacity-90 transition-opacity"
+              >
+                Enable location
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {/* Modal */}
+      {/* Location permission modal */}
       <LocationPermissionModal
         open={showModal}
         onClose={() => setShowModal(false)}

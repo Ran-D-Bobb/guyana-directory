@@ -39,11 +39,13 @@ export function CheckboxGrid({
 
   return (
     <div className={cn('w-full', className)}>
-      <label className="block text-sm font-medium text-gray-700 mb-3">
+      <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-3">
         {label}
       </label>
 
       <div
+        role="group"
+        aria-label={label}
         className={cn(
           'grid gap-3',
           columns === 2 && 'grid-cols-2',
@@ -58,49 +60,48 @@ export function CheckboxGrid({
             <button
               key={option.value}
               type="button"
+              role="checkbox"
+              aria-checked={isSelected}
               onClick={() => toggleOption(option.value)}
               className={cn(
                 'relative flex items-center gap-3 p-3',
-                'border-2 rounded-lg',
+                'border-2 rounded-xl',
                 'transition-all duration-200',
-                'min-h-[44px]', // Touch target for mobile
+                'min-h-[48px]',
                 'text-left',
                 'hover:border-emerald-300',
                 isSelected
                   ? 'border-emerald-500 bg-emerald-50'
-                  : 'border-gray-300 bg-white'
+                  : 'border-[hsl(var(--border))] bg-[hsl(var(--background))]'
               )}
             >
-              {/* Checkbox indicator */}
               <div
                 className={cn(
                   'w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0',
                   'transition-all duration-200',
                   isSelected
                     ? 'bg-emerald-500 border-emerald-500'
-                    : 'bg-white border-gray-300'
+                    : 'bg-[hsl(var(--background))] border-[hsl(var(--border))]'
                 )}
               >
                 {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
               </div>
 
-              {/* Icon (if provided) */}
               {option.icon && (
                 <div
                   className={cn(
                     'w-5 h-5 flex-shrink-0',
-                    isSelected ? 'text-emerald-600' : 'text-gray-500'
+                    isSelected ? 'text-emerald-600' : 'text-[hsl(var(--muted-foreground))]'
                   )}
                 >
                   {option.icon}
                 </div>
               )}
 
-              {/* Label */}
               <span
                 className={cn(
                   'text-sm font-medium flex-1',
-                  isSelected ? 'text-emerald-900' : 'text-gray-700'
+                  isSelected ? 'text-emerald-900' : 'text-[hsl(var(--foreground))]'
                 )}
               >
                 {option.label}
@@ -110,16 +111,14 @@ export function CheckboxGrid({
         })}
       </div>
 
-      {/* Selected count */}
       {selected.length > 0 && (
         <p className="text-sm text-emerald-600 mt-2 font-medium">
           {selected.length} selected
         </p>
       )}
 
-      {/* Helper text */}
       {helperText && (
-        <p className="text-sm text-gray-500 mt-2">{helperText}</p>
+        <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">{helperText}</p>
       )}
     </div>
   )

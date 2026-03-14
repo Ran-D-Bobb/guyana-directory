@@ -29,22 +29,28 @@ CREATE INDEX IF NOT EXISTS idx_categories_display_order ON categories(display_or
 CREATE INDEX IF NOT EXISTS idx_regions_display_order ON regions(display_order);
 
 -- Add RLS policies for admin management of categories
+DROP POLICY IF EXISTS "Admins can insert categories" ON categories;
 CREATE POLICY "Admins can insert categories" ON categories
   FOR INSERT WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can update categories" ON categories;
 CREATE POLICY "Admins can update categories" ON categories
   FOR UPDATE USING (is_admin());
 
+DROP POLICY IF EXISTS "Admins can delete categories" ON categories;
 CREATE POLICY "Admins can delete categories" ON categories
   FOR DELETE USING (is_admin());
 
 -- Add RLS policies for admin management of regions
+DROP POLICY IF EXISTS "Admins can insert regions" ON regions;
 CREATE POLICY "Admins can insert regions" ON regions
   FOR INSERT WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can update regions" ON regions;
 CREATE POLICY "Admins can update regions" ON regions
   FOR UPDATE USING (is_admin());
 
+DROP POLICY IF EXISTS "Admins can delete regions" ON regions;
 CREATE POLICY "Admins can delete regions" ON regions
   FOR DELETE USING (is_admin());
 

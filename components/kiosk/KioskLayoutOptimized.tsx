@@ -6,8 +6,6 @@ import '@/app/kiosk/kiosk.css'
 
 interface KioskLayoutOptimizedProps {
   children: ReactNode
-  /** Show debug info in development mode */
-  showDebugInfo?: boolean
   /** Enable full-screen mode on mount */
   enableFullScreen?: boolean
 }
@@ -32,7 +30,6 @@ interface KioskLayoutOptimizedProps {
  */
 export default function KioskLayoutOptimized({
   children,
-  showDebugInfo = false,
   enableFullScreen = false,
 }: KioskLayoutOptimizedProps) {
   const kioskConfig = useKioskResolution()
@@ -122,104 +119,8 @@ export default function KioskLayoutOptimized({
       data-orientation={kioskConfig.orientation}
       data-device-type={kioskConfig.deviceType}
     >
-      {/* Debug Info Overlay (Development Only) */}
-      {showDebugInfo && process.env.NODE_ENV === 'development' && (
-        <DebugInfoOverlay config={kioskConfig} isFullScreen={isFullScreen} onExitFullScreen={exitFullScreen} />
-      )}
-
       {/* Main Kiosk Content */}
       {children}
-    </div>
-  )
-}
-
-/**
- * Debug Info Overlay - Shows kiosk configuration in development
- */
-function DebugInfoOverlay({
-  config,
-  isFullScreen,
-  onExitFullScreen,
-}: {
-  config: KioskConfig
-  isFullScreen: boolean
-  onExitFullScreen: () => void
-}) {
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  return (
-    <div className="fixed top-4 right-4 z-[9999] font-mono text-xs">
-      {/* Toggle Button */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="bg-yellow-500 text-black px-3 py-2 rounded-lg font-bold shadow-lg hover:bg-yellow-400 transition-colors"
-      >
-        {isExpanded ? '✕ Close Debug' : '🔍 Debug Info'}
-      </button>
-
-      {/* Debug Panel */}
-      {isExpanded && (
-        <div className="mt-2 bg-black/90 text-green-400 p-4 rounded-lg shadow-2xl backdrop-blur-sm max-w-md border-2 border-green-500">
-          <h3 className="text-yellow-400 font-bold mb-3 text-sm">KIOSK DEBUG INFO</h3>
-
-          <div className="space-y-2">
-            <DebugRow label="Resolution" value={`${config.width} × ${config.height}`} />
-            <DebugRow label="Type" value={config.resolution.toUpperCase()} />
-            <DebugRow label="Orientation" value={config.orientation} />
-            <DebugRow label="Device Type" value={config.deviceType} />
-            <DebugRow label="Scale Factor" value={config.scale.toFixed(2)} />
-            <DebugRow label="Grid Columns" value={config.gridColumns.toString()} />
-            <DebugRow label="Card Size" value={`${config.cardWidth} × ${config.cardHeight}`} />
-            <DebugRow label="Button Size" value={`${config.primaryButtonWidth} × ${config.primaryButtonHeight}`} />
-            <DebugRow label="Touch Target" value={`${config.touchTargetMin}px min`} />
-            <DebugRow label="Nav Height" value={`${config.navHeight}px`} />
-            <DebugRow label="QR Code Size" value={`${config.qrCodeSize}px`} />
-            <DebugRow label="Text Scale" value={config.textScale.toFixed(2)} />
-            <DebugRow label="Touch Support" value={config.isTouch ? 'YES' : 'NO'} />
-            <DebugRow label="Full-Screen" value={isFullScreen ? 'YES' : 'NO'} />
-          </div>
-
-          {/* Full-Screen Controls */}
-          {isFullScreen && (
-            <button
-              onClick={onExitFullScreen}
-              className="mt-3 w-full bg-red-600 text-white px-3 py-2 rounded font-bold hover:bg-red-500 transition-colors"
-            >
-              Exit Full-Screen
-            </button>
-          )}
-
-          {/* Recommendations */}
-          <div className="mt-4 pt-3 border-t border-green-700">
-            <h4 className="text-yellow-400 font-bold mb-2">Recommendations:</h4>
-            <ul className="text-xs space-y-1">
-              {config.resolution === 'unknown' && (
-                <li className="text-orange-400">⚠️ Unknown resolution - using fallback config</li>
-              )}
-              {config.width < 1366 && (
-                <li className="text-orange-400">⚠️ Screen too small for optimal kiosk experience</li>
-              )}
-              {!config.isTouch && <li className="text-blue-400">ℹ️ Touch not detected - using mouse input</li>}
-              {config.orientation === 'portrait' && (
-                <li className="text-blue-400">ℹ️ Portrait mode - using single column layout</li>
-              )}
-              {config.resolution === 'fullhd' && <li className="text-green-400">✓ Optimal resolution detected</li>}
-            </ul>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-/**
- * Debug Row Component - Helper for debug overlay
- */
-function DebugRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between items-center">
-      <span className="text-gray-400">{label}:</span>
-      <span className="text-green-400 font-bold">{value}</span>
     </div>
   )
 }

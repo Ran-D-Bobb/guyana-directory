@@ -2,38 +2,44 @@
 -- This provides accountability and transparency for the 3-person admin team
 
 -- Create enum for admin actions
-CREATE TYPE admin_action AS ENUM (
-  'create',
-  'update',
-  'delete',
-  'verify',
-  'unverify',
-  'feature',
-  'unfeature',
-  'approve',
-  'unapprove',
-  'suspend',
-  'ban',
-  'reactivate',
-  'dismiss_flag'
-);
+DO $$ BEGIN
+  CREATE TYPE admin_action AS ENUM (
+    'create',
+    'update',
+    'delete',
+    'verify',
+    'unverify',
+    'feature',
+    'unfeature',
+    'approve',
+    'unapprove',
+    'suspend',
+    'ban',
+    'reactivate',
+    'dismiss_flag'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Create enum for entity types
-CREATE TYPE admin_entity_type AS ENUM (
-  'business',
-  'review',
-  'event',
-  'tourism',
-  'rental',
-  'user',
-  'photo',
-  'category',
-  'region',
-  'timeline'
-);
+DO $$ BEGIN
+  CREATE TYPE admin_entity_type AS ENUM (
+    'business',
+    'review',
+    'event',
+    'tourism',
+    'rental',
+    'user',
+    'photo',
+    'category',
+    'region',
+    'timeline'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Create the audit logs table
-CREATE TABLE admin_audit_logs (
+CREATE TABLE IF NOT EXISTS admin_audit_logs (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   admin_id uuid NOT NULL REFERENCES profiles(id) ON DELETE SET NULL,
   action admin_action NOT NULL,
@@ -46,19 +52,20 @@ CREATE TABLE admin_audit_logs (
 );
 
 -- Create indexes for efficient querying
-CREATE INDEX idx_audit_logs_admin_id ON admin_audit_logs(admin_id);
-CREATE INDEX idx_audit_logs_action ON admin_audit_logs(action);
-CREATE INDEX idx_audit_logs_entity_type ON admin_audit_logs(entity_type);
-CREATE INDEX idx_audit_logs_created_at ON admin_audit_logs(created_at DESC);
-CREATE INDEX idx_audit_logs_entity_id ON admin_audit_logs(entity_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_admin_id ON admin_audit_logs(admin_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON admin_audit_logs(action);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_entity_type ON admin_audit_logs(entity_type);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON admin_audit_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_entity_id ON admin_audit_logs(entity_id);
 
 -- Full-text search index for entity_name
-CREATE INDEX idx_audit_logs_entity_name ON admin_audit_logs USING gin(to_tsvector('english', entity_name));
+CREATE INDEX IF NOT EXISTS idx_audit_logs_entity_name ON admin_audit_logs USING gin(to_tsvector('english', entity_name));
 
 -- RLS Policies
 ALTER TABLE admin_audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- Only admins can view audit logs
+DROP POLICY IF EXISTS "Admins can view audit logs" ON admin_audit_logs;
 CREATE POLICY "Admins can view audit logs"
   ON admin_audit_logs
   FOR SELECT
@@ -66,6 +73,7 @@ CREATE POLICY "Admins can view audit logs"
   USING (is_admin());
 
 -- Only admins can insert audit logs
+DROP POLICY IF EXISTS "Admins can insert audit logs" ON admin_audit_logs;
 CREATE POLICY "Admins can insert audit logs"
   ON admin_audit_logs
   FOR INSERT

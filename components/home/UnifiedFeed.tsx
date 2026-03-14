@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import { FeedCard, type FeedItem } from './FeedCard';
-import { Compass, RefreshCw, Frown } from 'lucide-react';
+import { Compass, RefreshCw, TreePalm } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ScrollReveal } from '@/components/ScrollReveal';
 
 interface UnifiedFeedProps {
   items: FeedItem[];
@@ -11,6 +12,24 @@ interface UnifiedFeedProps {
 }
 
 const ITEMS_PER_PAGE = 20;
+
+const EMPTY_MESSAGES = [
+  { heading: 'Nothing here yet', body: 'New gems are added every day — check back soon or try different filters.' },
+  { heading: 'Still exploring...', body: 'We couldn\'t find a match this time. Broaden your search and discover more of Guyana.' },
+  { heading: 'The trail went quiet', body: 'No listings matched your criteria. Try another category or remove some filters.' },
+];
+
+const LOADING_MESSAGES = [
+  'Scanning the coastland...',
+  'Checking the interior...',
+  'Peeking into the market...',
+  'Rounding up the best spots...',
+  'Almost there...',
+];
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 export function UnifiedFeed({ items, isLoading }: UnifiedFeedProps) {
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
@@ -26,19 +45,23 @@ export function UnifiedFeed({ items, isLoading }: UnifiedFeedProps) {
     setVisibleCount((prev) => Math.min(prev + ITEMS_PER_PAGE, items.length));
   };
 
+  // Stable random picks (picked once per mount via useMemo)
+  const emptyMsg = useMemo(() => pickRandom(EMPTY_MESSAGES), []);
+  const loadingMsg = useMemo(() => pickRandom(LOADING_MESSAGES), []);
+
   // Empty State
   if (!isLoading && items.length === 0) {
     return (
       <div className="py-16 px-4 text-center animate-fade-up">
         <div className="max-w-md mx-auto">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-            <Frown className="w-10 h-10 text-gray-400" />
+          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center animate-float">
+            <TreePalm className="w-10 h-10 text-emerald-500" />
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            No results found
+            {emptyMsg.heading}
           </h3>
           <p className="text-gray-500 mb-6">
-            Try adjusting your filters or check back later for new listings.
+            {emptyMsg.body}
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -76,31 +99,42 @@ export function UnifiedFeed({ items, isLoading }: UnifiedFeedProps) {
       {/* Grid of Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
         {visibleItems.map((item, index) => (
-          <FeedCard
+          <ScrollReveal
             key={`${item.type}-${item.id}`}
-            item={item}
-            index={index}
-          />
+            variant="fade-up"
+            delay={Math.min((index % 4) * 75, 225)}
+            duration={500}
+          >
+            <FeedCard
+              item={item}
+              index={index}
+            />
+          </ScrollReveal>
         ))}
       </div>
 
       {/* Loading Skeleton */}
       {isLoading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 lg:gap-6 mt-6">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-2xl overflow-hidden bg-white shadow-sm animate-pulse"
-            >
-              <div className="aspect-[4/3] bg-gray-200" />
-              <div className="p-4 space-y-3">
-                <div className="h-3 w-20 bg-gray-200 rounded" />
-                <div className="h-5 w-3/4 bg-gray-200 rounded" />
-                <div className="h-4 w-1/2 bg-gray-200 rounded" />
+        <>
+          <p className="text-center text-sm text-gray-400 font-medium mt-4 mb-3 animate-pulse">
+            {loadingMsg}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-2xl overflow-hidden bg-white shadow-sm animate-pulse"
+              >
+                <div className="aspect-[4/3] bg-gray-200" />
+                <div className="p-4 space-y-3">
+                  <div className="h-3 w-20 bg-gray-200 rounded" />
+                  <div className="h-5 w-3/4 bg-gray-200 rounded" />
+                  <div className="h-4 w-1/2 bg-gray-200 rounded" />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Load More Button - 48px min height for touch */}
@@ -129,7 +163,7 @@ export function UnifiedFeed({ items, isLoading }: UnifiedFeedProps) {
       {!hasMore && items.length > ITEMS_PER_PAGE && (
         <div className="mt-8 text-center animate-fade-up">
           <p className="text-sm text-gray-400">
-            You&apos;ve seen all {items.length} results
+            You&apos;ve explored all {items.length} listings — nice work!
           </p>
         </div>
       )}

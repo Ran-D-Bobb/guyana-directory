@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Bed, Bath, MapPin, BadgeCheck, Sparkles, Star, ArrowUpRight } from 'lucide-react'
 import { Database } from '@/types/supabase'
+import { getFallbackImage } from '@/lib/category-images'
 
 type Rental = Database['public']['Tables']['rentals']['Row'] & {
   rental_photos: Array<{
@@ -26,8 +27,6 @@ interface RentalCardProps {
   variant?: 'default' | 'featured' | 'compact'
 }
 
-const DEFAULT_RENTAL_IMAGE = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80'
-
 export function RentalCard({ rental }: RentalCardProps) {
   const photos = rental.rental_photos
     ?.sort((a, b) => {
@@ -36,7 +35,7 @@ export function RentalCard({ rental }: RentalCardProps) {
       return (a.display_order || 0) - (b.display_order || 0)
     }) || []
 
-  const displayPhoto = photos[0]?.image_url || DEFAULT_RENTAL_IMAGE
+  const displayPhoto = photos[0]?.image_url || getFallbackImage(rental.rental_categories?.name, 'rental')
 
   const formatPrice = (pricePerMonth?: number | null, pricePerNight?: number | null) => {
     if (pricePerNight) {

@@ -89,17 +89,17 @@ export function InstallPrompt() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-in slide-in-from-bottom duration-300">
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-4 mx-auto max-w-md relative">
+      <div className="bg-card border border-border rounded-2xl shadow-lg p-4 mx-auto max-w-md relative">
         <button
           onClick={handleDismiss}
-          className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600"
+          className="absolute top-3 right-3 p-1 text-muted-foreground hover:text-foreground"
           aria-label="Dismiss"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-12 h-12 bg-[#0d5c4b] rounded-xl flex items-center justify-center overflow-hidden">
+          <div className="flex-shrink-0 w-12 h-12 bg-primary rounded-xl flex items-center justify-center overflow-hidden">
             <Image
               src="/icons/icon-192x192.png"
               alt="Waypoint"
@@ -110,8 +110,8 @@ export function InstallPrompt() {
           </div>
 
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900">Install Waypoint</h3>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <h3 className="font-semibold text-foreground">Install Waypoint</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">
               Add to your home screen for quick access
             </p>
           </div>
@@ -119,14 +119,14 @@ export function InstallPrompt() {
 
         {isIOS ? (
           <div className="mt-4 space-y-3">
-            <div className="flex items-center gap-3 text-sm text-gray-600">
-              <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex-shrink-0 w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
                 <Share className="w-4 h-4" />
               </div>
               <span>Tap the <strong>Share</strong> button in Safari</span>
             </div>
-            <div className="flex items-center gap-3 text-sm text-gray-600">
-              <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex-shrink-0 w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
                 <Plus className="w-4 h-4" />
               </div>
               <span>Select <strong>&ldquo;Add to Home Screen&rdquo;</strong></span>
@@ -142,7 +142,7 @@ export function InstallPrompt() {
         ) : (
           <Button
             onClick={handleInstallClick}
-            className="w-full mt-4 bg-[#0d5c4b] hover:bg-[#0a4a3c]"
+            className="w-full mt-4 bg-primary hover:bg-primary/90"
           >
             <Download className="w-4 h-4 mr-2" />
             Install App

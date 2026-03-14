@@ -235,8 +235,8 @@ export function MobileCategoryFilterBar({
             </span>
           </Link>
 
-          {/* Category Pills */}
-          {categories.map((category) => {
+          {/* Category Pills — hide categories with 0 businesses */}
+          {categories.filter(c => (c.business_count ?? 0) > 0).map((category) => {
             const IconComponent = category.icon ? iconMap[category.icon as keyof typeof iconMap] || Store : Store
             const isActive = currentCategorySlug === category.slug
 

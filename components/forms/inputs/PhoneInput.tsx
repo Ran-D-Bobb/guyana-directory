@@ -16,6 +16,21 @@ interface PhoneInputProps {
   className?: string
 }
 
+// Format Guyanese phone numbers correctly
+function formatPhone(digits: string): string {
+  if (!digits) return ''
+  // 7 digits: local Guyana number → XXX-XXXX
+  if (digits.length === 7) {
+    return digits.replace(/(\d{3})(\d{4})/, '$1-$2')
+  }
+  // 10 digits starting with 592: international Guyana → 592 XXX-XXXX
+  if (digits.length === 10 && digits.startsWith('592')) {
+    return digits.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2-$3')
+  }
+  // Fallback: return digits as-is
+  return digits
+}
+
 export function PhoneInput({
   label,
   name,
@@ -27,16 +42,13 @@ export function PhoneInput({
   helperText = 'Include country code (e.g., 592 for Guyana)',
   className,
 }: PhoneInputProps) {
-  const [isFocused, setIsFocused] = useState(false)
   const [isTouched, setIsTouched] = useState(false)
 
   const showError = error && isTouched
   const showSuccess = !error && value && isTouched && required
 
-  const handleBlur = () => {
-    setIsFocused(false)
-    setIsTouched(true)
-  }
+  const errorId = `${name}-error`
+  const helperId = `${name}-helper`
 
   // Format phone number as user types
   const handleChange = (newValue: string) => {
@@ -46,22 +58,20 @@ export function PhoneInput({
   }
 
   // Display formatted phone number
-  const displayValue = value
-    ? value.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')
-    : ''
+  const displayValue = formatPhone(value)
 
   return (
     <div className={cn('w-full', className)}>
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-700 mb-1.5"
+        className="block text-sm font-medium text-[hsl(var(--foreground))] mb-1.5"
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
       <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]">
           <Phone className="w-5 h-5" />
         </div>
 
@@ -71,30 +81,31 @@ export function PhoneInput({
           type="tel"
           value={displayValue}
           onChange={e => handleChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={handleBlur}
+          onBlur={() => setIsTouched(true)}
           placeholder={`+${defaultCountryCode} XXX-XXXX`}
           required={required}
+          aria-invalid={showError ? true : undefined}
+          aria-required={required || undefined}
+          aria-describedby={showError ? errorId : helperText ? helperId : undefined}
           className={cn(
-            'w-full px-3 py-2.5 md:py-2',
-            'border rounded-lg',
-            'text-gray-900 placeholder:text-gray-400',
+            'w-full px-4 py-3',
+            'border rounded-xl',
+            'bg-[hsl(var(--background))]',
+            'text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             'transition-all duration-200',
-            'min-h-[44px] md:min-h-[40px]', // Minimum touch target for mobile
+            'min-h-[48px] md:min-h-[44px]',
             'pl-10 pr-10',
             showError &&
-              'border-red-300 focus:border-red-500 focus:ring-red-500/20',
+              'border-red-500 focus:border-red-500 focus:ring-red-500/20',
             showSuccess &&
-              'border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20',
+              'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20',
             !showError &&
               !showSuccess &&
-              'border-gray-300 focus:border-emerald-500 focus:ring-emerald-500/20',
-            isFocused && 'ring-2'
+              'border-[hsl(var(--border))] focus:border-emerald-500 focus:ring-emerald-500/20'
           )}
         />
 
-        {/* Success/Error icon */}
         {showSuccess && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500">
             <Check className="w-5 h-5" />
@@ -107,16 +118,16 @@ export function PhoneInput({
         )}
       </div>
 
-      {/* Helper text or error message */}
-      {showError ? (
-        <p className="text-sm text-red-600 mt-1 flex items-start gap-1">
-          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+      {showError && (
+        <p id={errorId} className="text-sm text-red-600 mt-1.5">
           {error}
         </p>
-      ) : (
-        helperText && (
-          <p className="text-sm text-gray-500 mt-1">{helperText}</p>
-        )
+      )}
+
+      {helperText && !showError && (
+        <p id={helperId} className="text-sm text-[hsl(var(--muted-foreground))] mt-1.5">
+          {helperText}
+        </p>
       )}
     </div>
   )

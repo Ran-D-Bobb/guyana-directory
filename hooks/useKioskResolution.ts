@@ -110,22 +110,44 @@ function getKioskConfig(width: number, height: number): KioskConfig {
   }
 
   // 4K / Ultra HD (3840x2160 or larger)
-  if (width >= 2560) {
+  if (width >= 3200) {
     return {
       width,
       height,
       resolution: '4k',
       orientation: 'landscape',
       scale: 1.5,
-      gridColumns: 4, // More columns for ultra-wide displays
+      gridColumns: 4,
       cardWidth: 600,
       cardHeight: 600,
       primaryButtonWidth: 480,
       primaryButtonHeight: 180,
-      touchTargetMin: 120, // Larger touch targets for big screens
+      touchTargetMin: 120,
       qrCodeSize: 600,
       navHeight: 120,
       textScale: 1.5,
+      isTouch,
+      deviceType: 'kiosk-large',
+    }
+  }
+
+  // QHD / 2K / Smartboards (2560x1440 to 3199) — e.g. Huawei IdeaHub
+  if (width >= 2560) {
+    return {
+      width,
+      height,
+      resolution: '4k',
+      orientation: 'landscape',
+      scale: 1.2,
+      gridColumns: 4,
+      cardWidth: 480,
+      cardHeight: 480,
+      primaryButtonWidth: 384,
+      primaryButtonHeight: 144,
+      touchTargetMin: 100,
+      qrCodeSize: 480,
+      navHeight: 100,
+      textScale: 1.2,
       isTouch,
       deviceType: 'kiosk-large',
     }
@@ -262,45 +284,24 @@ export function useKioskResolution(): KioskConfig {
 export function applyKioskCSS(config: KioskConfig) {
   const root = document.documentElement
 
-  // Apply CSS custom properties
+  // Set --kiosk-scale — all tokens in kiosk.css use calc(base * var(--kiosk-scale))
+  // so setting this single property scales EVERYTHING (text, spacing, layout, touch targets)
   root.style.setProperty('--kiosk-scale', config.scale.toString())
   root.style.setProperty('--kiosk-orientation', config.orientation)
-  root.style.setProperty('--kiosk-card-width', `${config.cardWidth}px`)
-  root.style.setProperty('--kiosk-card-height', `${config.cardHeight}px`)
-  root.style.setProperty('--kiosk-button-primary-width', `${config.primaryButtonWidth}px`)
-  root.style.setProperty('--kiosk-button-primary-height', `${config.primaryButtonHeight}px`)
-  root.style.setProperty('--kiosk-qr-size', `${config.qrCodeSize}px`)
-  root.style.setProperty('--kiosk-nav-height', `${config.navHeight}px`)
-  root.style.setProperty('--kiosk-touch-min', `${config.touchTargetMin}px`)
 
-  // Apply text scale
-  if (config.textScale !== 1) {
-    // Multiply all text sizes by text scale
-    const textSizes = {
-      '--kiosk-text-xs': 24,
-      '--kiosk-text-sm': 28,
-      '--kiosk-text-base': 32,
-      '--kiosk-text-lg': 40,
-      '--kiosk-text-xl': 48,
-      '--kiosk-text-2xl': 56,
-      '--kiosk-text-3xl': 64,
-      '--kiosk-text-4xl': 72,
-      '--kiosk-text-5xl': 96,
-      '--kiosk-text-hero': 120,
-    }
-
-    Object.entries(textSizes).forEach(([key, baseSize]) => {
-      root.style.setProperty(key, `${Math.round(baseSize * config.textScale)}px`)
-    })
+  // Portrait-specific layout overrides (wider cards for narrow vertical layout)
+  if (config.orientation === 'portrait') {
+    root.style.setProperty('--kiosk-card-width', `${config.cardWidth}px`)
+    root.style.setProperty('--kiosk-card-height', `${config.cardHeight}px`)
+    root.style.setProperty('--kiosk-button-primary-width', `${config.primaryButtonWidth}px`)
+    root.style.setProperty('--kiosk-button-primary-height', `${config.primaryButtonHeight}px`)
   }
 
-  // Debug logging
   if (process.env.NODE_ENV === 'development') {
     console.log('[Kiosk CSS Applied]', {
       scale: config.scale,
-      cardSize: `${config.cardWidth}x${config.cardHeight}`,
-      buttonSize: `${config.primaryButtonWidth}x${config.primaryButtonHeight}`,
-      navHeight: config.navHeight,
+      resolution: config.resolution,
+      deviceType: config.deviceType,
     })
   }
 }

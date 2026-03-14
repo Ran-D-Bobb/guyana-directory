@@ -28,7 +28,6 @@ export function PasswordInput({
   showStrengthIndicator = false,
   className,
 }: PasswordInputProps) {
-  const [isFocused, setIsFocused] = useState(false)
   const [isTouched, setIsTouched] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
@@ -38,16 +37,13 @@ export function PasswordInput({
   const requirements = getPasswordRequirements(value)
   const requirementsMet = Object.values(requirements).filter(Boolean).length
 
-  const handleBlur = () => {
-    setIsFocused(false)
-    setIsTouched(true)
-  }
+  const errorId = `${name}-error`
 
   return (
     <div className={cn('w-full', className)}>
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-900 mb-1.5"
+        className="block text-sm font-medium text-[hsl(var(--foreground))] mb-1.5"
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -60,35 +56,35 @@ export function PasswordInput({
           type={showPassword ? 'text' : 'password'}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={handleBlur}
+          onBlur={() => setIsTouched(true)}
           placeholder={placeholder}
           required={required}
+          aria-invalid={showError ? true : undefined}
+          aria-required={required || undefined}
+          aria-describedby={showError ? errorId : undefined}
           className={cn(
             'w-full px-4 py-3 pr-20',
             'border rounded-xl',
-            'bg-white',
-            'text-gray-900 placeholder:text-gray-400',
+            'bg-[hsl(var(--background))]',
+            'text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             'transition-all duration-200',
-            'min-h-[48px]',
+            'min-h-[48px] md:min-h-[44px]',
             showError &&
-              'border-red-500 focus:border-red-500 focus:ring-red-100',
+              'border-red-500 focus:border-red-500 focus:ring-red-500/20',
             showSuccess &&
-              'border-gray-900 focus:border-gray-900 focus:ring-gray-100',
+              'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20',
             !showError &&
               !showSuccess &&
-              'border-gray-200 focus:border-gray-900 focus:ring-gray-100',
-            isFocused && !showError && 'ring-2 ring-gray-100'
+              'border-[hsl(var(--border))] focus:border-emerald-500 focus:ring-emerald-500/20'
           )}
         />
 
-        {/* Show/Hide password toggle */}
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
-          tabIndex={-1}
+          aria-label={showPassword ? 'Hide password' : 'Show password'}
+          className="absolute right-10 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors p-1"
         >
           {showPassword ? (
             <EyeOff className="w-5 h-5" />
@@ -97,9 +93,8 @@ export function PasswordInput({
           )}
         </button>
 
-        {/* Success/Error icon */}
         {showSuccess && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-900">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500">
             <Check className="w-5 h-5" />
           </div>
         )}
@@ -110,18 +105,14 @@ export function PasswordInput({
         )}
       </div>
 
-      {/* Error message */}
       {showError && (
-        <p className="text-sm text-red-500 mt-1.5 flex items-start gap-1">
-          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+        <p id={errorId} className="text-sm text-red-600 mt-1.5">
           {error}
         </p>
       )}
 
-      {/* Password strength indicator */}
       {showStrengthIndicator && value && !showError && (
         <div className="mt-2 space-y-2">
-          {/* Strength bar */}
           <div className="flex gap-1">
             {[1, 2, 3, 4].map((level) => (
               <div
@@ -134,63 +125,62 @@ export function PasswordInput({
                       : requirementsMet >= 3
                         ? 'bg-yellow-500'
                         : 'bg-orange-500'
-                    : 'bg-gray-200'
+                    : 'bg-[hsl(var(--border))]'
                 )}
               />
             ))}
           </div>
 
-          {/* Requirements list */}
           <div className="grid grid-cols-2 gap-1 text-xs">
             <div
               className={cn(
                 'flex items-center gap-1',
-                requirements.minLength ? 'text-emerald-600' : 'text-gray-400'
+                requirements.minLength ? 'text-emerald-600' : 'text-[hsl(var(--muted-foreground))]'
               )}
             >
               {requirements.minLength ? (
                 <Check className="w-3 h-3" />
               ) : (
-                <div className="w-3 h-3 rounded-full border border-gray-300" />
+                <div className="w-3 h-3 rounded-full border border-[hsl(var(--border))]" />
               )}
               8+ characters
             </div>
             <div
               className={cn(
                 'flex items-center gap-1',
-                requirements.hasUppercase ? 'text-emerald-600' : 'text-gray-400'
+                requirements.hasUppercase ? 'text-emerald-600' : 'text-[hsl(var(--muted-foreground))]'
               )}
             >
               {requirements.hasUppercase ? (
                 <Check className="w-3 h-3" />
               ) : (
-                <div className="w-3 h-3 rounded-full border border-gray-300" />
+                <div className="w-3 h-3 rounded-full border border-[hsl(var(--border))]" />
               )}
               Uppercase
             </div>
             <div
               className={cn(
                 'flex items-center gap-1',
-                requirements.hasLowercase ? 'text-emerald-600' : 'text-gray-400'
+                requirements.hasLowercase ? 'text-emerald-600' : 'text-[hsl(var(--muted-foreground))]'
               )}
             >
               {requirements.hasLowercase ? (
                 <Check className="w-3 h-3" />
               ) : (
-                <div className="w-3 h-3 rounded-full border border-gray-300" />
+                <div className="w-3 h-3 rounded-full border border-[hsl(var(--border))]" />
               )}
               Lowercase
             </div>
             <div
               className={cn(
                 'flex items-center gap-1',
-                requirements.hasNumber ? 'text-emerald-600' : 'text-gray-400'
+                requirements.hasNumber ? 'text-emerald-600' : 'text-[hsl(var(--muted-foreground))]'
               )}
             >
               {requirements.hasNumber ? (
                 <Check className="w-3 h-3" />
               ) : (
-                <div className="w-3 h-3 rounded-full border border-gray-300" />
+                <div className="w-3 h-3 rounded-full border border-[hsl(var(--border))]" />
               )}
               Number
             </div>

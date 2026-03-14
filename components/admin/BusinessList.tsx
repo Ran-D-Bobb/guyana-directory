@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import {
   Building2,
   Eye,
+  EyeOff,
   Star,
   Edit,
   ExternalLink,
@@ -33,6 +34,8 @@ import {
   bulkUnverifyBusinesses,
   bulkFeatureBusinesses,
   bulkUnfeatureBusinesses,
+  bulkShowBusinesses,
+  bulkHideBusinesses,
   bulkDeleteBusinesses,
 } from '@/lib/bulk-actions'
 
@@ -44,6 +47,7 @@ interface Business {
   description?: string | null
   is_verified?: boolean | null
   is_featured?: boolean | null
+  is_active?: boolean | null
   view_count?: number | null
   rating?: number | null
   review_count?: number | null
@@ -106,6 +110,24 @@ function BusinessListInner({ businesses, hasActiveFilters }: BusinessListProps) 
       variant: 'default',
     },
     {
+      label: 'Show',
+      icon: <Eye size={16} />,
+      onClick: async (ids) => {
+        await bulkShowBusinesses(ids)
+        router.refresh()
+      },
+      variant: 'success',
+    },
+    {
+      label: 'Hide',
+      icon: <EyeOff size={16} />,
+      onClick: async (ids) => {
+        await bulkHideBusinesses(ids)
+        router.refresh()
+      },
+      variant: 'warning',
+    },
+    {
       label: 'Delete',
       icon: <Trash2 size={16} />,
       onClick: async (ids) => {
@@ -156,7 +178,7 @@ function BusinessListInner({ businesses, hasActiveFilters }: BusinessListProps) 
         {businesses.map((business) => (
           <div
             key={business.id}
-            className="p-4 hover:bg-slate-50/50 transition-colors"
+            className={`p-4 hover:bg-slate-50/50 transition-colors ${business.is_active === false ? 'opacity-60 bg-slate-50' : ''}`}
           >
             <div className="flex items-start gap-4">
               {/* Checkbox */}
@@ -190,6 +212,12 @@ function BusinessListInner({ businesses, hasActiveFilters }: BusinessListProps) 
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
                             <Sparkles size={12} />
                             Featured
+                          </span>
+                        )}
+                        {business.is_active === false && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                            <EyeOff size={12} />
+                            Hidden
                           </span>
                         )}
                       </div>
@@ -254,6 +282,7 @@ function BusinessListInner({ businesses, hasActiveFilters }: BusinessListProps) 
                       businessName={business.name}
                       isVerified={business.is_verified || false}
                       isFeatured={business.is_featured || false}
+                      isActive={business.is_active !== false}
                     />
                   </div>
                 </div>

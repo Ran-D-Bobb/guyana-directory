@@ -53,10 +53,12 @@ export function ForYouSection({ className }: ForYouSectionProps) {
 
   // Fetch recommendations
   useEffect(() => {
-    const fetchRecommendations = async () => {
-      // Wait for recently viewed data to load
-      if (!recentlyViewedLoaded) return
+    // Wait for recently viewed data to load
+    if (!recentlyViewedLoaded) return
 
+    const abortController = new AbortController()
+
+    const fetchRecommendations = async () => {
       setIsLoading(true)
       setError(null)
 
@@ -68,6 +70,7 @@ export function ForYouSection({ className }: ForYouSectionProps) {
             recentlyViewedCategories,
             limit: 6,
           }),
+          signal: abortController.signal,
         })
 
         if (!response.ok) {
@@ -79,14 +82,20 @@ export function ForYouSection({ className }: ForYouSectionProps) {
         setBasedOn(data.basedOn || null)
         setHasActivity(data.hasActivity || false)
       } catch (err) {
+        // Ignore abort errors (component unmounted or navigation)
+        if (err instanceof DOMException && err.name === 'AbortError') return
         console.error('Error fetching recommendations:', err)
         setError('Unable to load recommendations')
       } finally {
-        setIsLoading(false)
+        if (!abortController.signal.aborted) {
+          setIsLoading(false)
+        }
       }
     }
 
     fetchRecommendations()
+
+    return () => abortController.abort()
   }, [recentlyViewedLoaded, recentlyViewedCategories])
 
   // Don't show if not logged in and no recently viewed activity
@@ -160,22 +169,17 @@ export function ForYouSection({ className }: ForYouSectionProps) {
 
       {/* Sign-in prompt for anonymous users */}
       {!isLoggedIn && hasActivity && (
-        <div className="mb-4 p-3 rounded-lg bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200/50">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-full bg-amber-100">
-              <User className="w-4 h-4 text-amber-600" />
+        <div className="mb-4 p-2.5 sm:p-3 rounded-lg bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200/50">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 rounded-full bg-amber-100">
+              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-amber-900">
-                Get personalized recommendations
-              </p>
-              <p className="text-xs text-amber-700">
-                Sign in to save favorites and get better suggestions
-              </p>
-            </div>
+            <p className="flex-1 min-w-0 text-xs sm:text-sm font-medium text-amber-900">
+              Sign in for personalized picks
+            </p>
             <Link
               href="/"
-              className="px-3 py-1.5 text-xs font-semibold bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors whitespace-nowrap"
+              className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs font-semibold bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors whitespace-nowrap"
             >
               Sign in
             </Link>
@@ -187,7 +191,7 @@ export function ForYouSection({ className }: ForYouSectionProps) {
       <div className="md:hidden -mx-4 px-4">
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
           {recommendations.map((item, index) => (
-            <div key={item.id} className="flex-shrink-0 w-[280px] snap-start">
+            <div key={item.id} className="flex-shrink-0 w-[clamp(260px,75vw,300px)] snap-start">
               <FeedCard item={item} index={index} />
             </div>
           ))}

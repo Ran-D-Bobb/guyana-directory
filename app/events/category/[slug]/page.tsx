@@ -2,12 +2,9 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { createStaticClient } from '@/lib/supabase/static'
 import { notFound } from 'next/navigation'
-import { EventCategorySidebar } from '@/components/EventCategorySidebar'
-import { EventPageClient } from '@/components/EventPageClient'
-import { MobileEventCategoryFilterBar } from '@/components/MobileEventCategoryFilterBar'
-import { EventFilterPanel } from '@/components/EventFilterPanel'
-import { getEventCategoriesWithCounts } from '@/lib/category-counts'
-import { fetchFilteredEvents } from '@/lib/events'
+import { mapUnifiedEvents } from '@/lib/events'
+import type { UnifiedEvent } from '@/types/unified-events'
+import { EventsNetflixPage, type EventCategory } from '@/components/events'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -25,27 +22,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
+// Revalidate every 5 minutes
+export const revalidate = 300
+
 interface EventCategoryPageProps {
-  params: Promise<{
-    slug: string
-  }>
+  params: Promise<{ slug: string }>
   searchParams: Promise<{
     time?: string
-    sort?: string
     q?: string
-    region?: string
-    source?: string
-    page?: string
   }>
 }
 
-const ITEMS_PER_PAGE = 24
+// ─── Page Component ─────────────────────────────────────────────────
 
 export default async function EventCategoryPage({ params, searchParams }: EventCategoryPageProps) {
   const { slug } = await params
-  const { time = 'upcoming', sort = 'featured', q, region, source, page = '1' } = await searchParams
+  const { time, q } = await searchParams
   const supabase = await createClient()
-  const currentPage = Math.max(1, parseInt(page) || 1)
+  const now = new Date().toISOString()
 
   // Fetch the category
   const { data: category } = await supabase
@@ -58,82 +52,44 @@ export default async function EventCategoryPage({ params, searchParams }: EventC
     notFound()
   }
 
-  // Fetch all event categories with counts based on time filter
-  const validTimeFilter = ['upcoming', 'ongoing', 'past', 'all'].includes(time) ? time as 'upcoming' | 'ongoing' | 'past' | 'all' : 'upcoming'
+  // Build query for events in this category
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let query = (supabase as any)
+    .from('all_events')
+    .select('*')
+    .eq('category_id', category.id)
 
-  // Parallelize independent data fetches
-  const [categoriesWithCount, regionsResult, eventsResult] = await Promise.all([
-    getEventCategoriesWithCounts(validTimeFilter),
-    supabase.from('regions').select('*').order('name'),
-    fetchFilteredEvents(
-      supabase,
-      { category: category.id, time, region, source, q, sort },
-      currentPage,
-      ITEMS_PER_PAGE,
-    ),
+  // Apply search filter
+  if (q && q.trim()) {
+    const safeQ = q.replace(/[%_(),.*]/g, ' ').trim()
+    if (safeQ) {
+      query = query.or(`title.plfts.${safeQ},description.ilike.%${safeQ}%,location.ilike.%${safeQ}%`)
+    }
+  }
+
+  // Only show upcoming + ongoing events
+  query = query.or(`start_date.gt.${now},and(start_date.lte.${now},end_date.gte.${now})`)
+
+  // Parallelize: events + all categories for nav
+  const [eventsResult, allCategoriesResult] = await Promise.all([
+    query.order('start_date', { ascending: true }).limit(100),
+    supabase.from('event_categories').select('name, slug, icon').order('name'),
   ])
 
-  const regions = regionsResult.data
-  const { events, pagination } = eventsResult
+  const eventsData = eventsResult.data
+  const allEvents = mapUnifiedEvents((eventsData || []) as UnifiedEvent[])
+  const allCategories = (allCategoriesResult.data || []) as EventCategory[]
 
   return (
-    <div className="min-h-screen bg-gray-50 flex pb-0 lg:pb-0">
-      {/* Desktop Event Category Sidebar */}
-      <EventCategorySidebar categories={categoriesWithCount} currentCategorySlug={slug} />
-
-      {/* Main Content Area - scrollable on desktop */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
-        {/* Mobile Header - Sticky */}
-        <div className="lg:hidden sticky top-0 z-40 bg-white border-b-0 px-4 py-4 shadow-sm">
-          <h1 className="text-2xl font-extrabold text-gray-900 mb-1">
-            {category.name}
-          </h1>
-          <p className="text-sm text-gray-600 mt-2">
-            <span className="font-semibold text-gray-900">{pagination.totalItems}</span> events
-          </p>
-        </div>
-
-        {/* Mobile Category & Filter Bar */}
-        <MobileEventCategoryFilterBar
-          categories={categoriesWithCount}
-          currentCategorySlug={slug}
-          regions={regions || []}
-        />
-
-        {/* Content Container */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
-          {/* Category Header - Desktop Only */}
-          <div className="hidden lg:block mb-6">
-            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">
-              {category.name} Events
-            </h1>
-            <p className="text-lg text-gray-600 max-w-3xl">
-              Discover {category.name.toLowerCase()} events happening in Guyana
-            </p>
-          </div>
-
-          {/* Desktop Filter Panel */}
-          <div className="hidden lg:block sticky top-0 z-30 mb-8 -mx-2 px-2 py-2 bg-gradient-to-b from-gray-50 via-gray-50 to-transparent">
-            <EventFilterPanel
-              regions={regions || []}
-              currentFilters={{
-                region,
-                time,
-                sort,
-                source,
-                q,
-              }}
-            />
-          </div>
-
-          {/* Events Grid */}
-          <EventPageClient
-            events={events}
-            searchParams={{ category: category.id, time, sort, q, region }}
-            pagination={pagination}
-          />
-        </main>
-      </div>
-    </div>
+    <EventsNetflixPage
+      heroEvents={[]}
+      eventRows={[]}
+      listEvents={allEvents}
+      categories={allCategories}
+      searchQuery={q}
+      basePath={`/events/category/${slug}`}
+      pageTitle={category.name}
+      activeCategory={slug}
+    />
   )
 }

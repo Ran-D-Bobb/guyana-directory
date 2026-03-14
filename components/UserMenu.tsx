@@ -10,9 +10,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { LayoutGrid, Heart, Shield, LogOut, ChevronRight, Building2, Star, BarChart3 } from 'lucide-react'
+import { LayoutGrid, Heart, Shield, LogOut, ChevronRight, Building2, Star, BarChart3, Settings, Sun, Moon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 
 interface UserMenuProps {
   user: User
@@ -23,6 +24,7 @@ interface UserMenuProps {
 export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
   const router = useRouter()
   const supabase = createClient()
+  const { resolvedTheme, setTheme } = useTheme()
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -59,7 +61,7 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
 
       <DropdownMenuContent
         align="end"
-        className="w-72 p-2 shadow-2xl border border-gray-100 bg-white/95 backdrop-blur-xl rounded-2xl"
+        className="w-72 p-2 shadow-2xl border border-gray-100 dark:border-white/10 bg-white/95 dark:bg-[hsl(0,0%,12%)]/95 backdrop-blur-xl rounded-2xl"
         sideOffset={12}
       >
         {/* Profile Link - Hero Style */}
@@ -76,7 +78,7 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-900 truncate">{userName}</p>
+                <p className="font-semibold text-gray-900 dark:text-white truncate">{userName}</p>
                 <div className="flex items-center gap-1.5">
                   {accountType === 'business' && (
                     <Building2 className="w-3 h-3 text-[hsl(var(--jungle-600))]" />
@@ -104,8 +106,8 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <Building2 className="h-4.5 w-4.5 text-[hsl(var(--jungle-600))]" />
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium text-gray-700 group-hover:text-gray-900">My Business</span>
-                    <p className="text-xs text-gray-400">Manage your listing</p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">My Business</span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Manage your listing</p>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -119,8 +121,8 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <LayoutGrid className="h-4.5 w-4.5 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium text-gray-700 group-hover:text-gray-900">All Listings</span>
-                    <p className="text-xs text-gray-400">Business, events & more</p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">All Listings</span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Business, events & more</p>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -134,8 +136,8 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <BarChart3 className="h-4.5 w-4.5 text-amber-600" />
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium text-gray-700 group-hover:text-gray-900">Dashboard</span>
-                    <p className="text-xs text-gray-400">Analytics & insights</p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">Dashboard</span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Analytics & insights</p>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -151,8 +153,8 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <Heart className="h-4.5 w-4.5 text-rose-500" />
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium text-gray-700 group-hover:text-gray-900">Saved</span>
-                    <p className="text-xs text-gray-400">Favorites & interested</p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">Saved</span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Favorites & interested</p>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -166,8 +168,8 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <Star className="h-4.5 w-4.5 text-amber-500" />
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium text-gray-700 group-hover:text-gray-900">My Reviews</span>
-                    <p className="text-xs text-gray-400">Your ratings & feedback</p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">My Reviews</span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Your ratings & feedback</p>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -195,15 +197,48 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
 
         <DropdownMenuSeparator className="my-2" />
 
+        {/* Theme Toggle */}
+        <DropdownMenuItem
+          onClick={(e) => {
+            e.preventDefault()
+            setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+          }}
+          className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors group"
+        >
+          <div className="h-9 w-9 rounded-lg bg-gray-100 dark:bg-white/10 group-hover:bg-gray-200 dark:group-hover:bg-white/15 flex items-center justify-center transition-colors">
+            {resolvedTheme === 'dark' ? (
+              <Sun className="h-4.5 w-4.5 text-amber-400" />
+            ) : (
+              <Moon className="h-4.5 w-4.5 text-gray-500" />
+            )}
+          </div>
+          <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">
+            {resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          </span>
+        </DropdownMenuItem>
+
+        {/* Settings */}
+        <DropdownMenuItem asChild>
+          <Link
+            href="/dashboard/settings"
+            className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors group"
+          >
+            <div className="h-9 w-9 rounded-lg bg-gray-100 dark:bg-white/10 group-hover:bg-gray-200 dark:group-hover:bg-white/15 flex items-center justify-center transition-colors">
+              <Settings className="h-4.5 w-4.5 text-gray-500 dark:text-gray-400" />
+            </div>
+            <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">Settings</span>
+          </Link>
+        </DropdownMenuItem>
+
         {/* Sign Out */}
         <DropdownMenuItem
           onClick={handleSignOut}
-          className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 transition-colors group"
+          className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors group"
         >
-          <div className="h-9 w-9 rounded-lg bg-gray-100 group-hover:bg-gray-200 flex items-center justify-center transition-colors">
-            <LogOut className="h-4.5 w-4.5 text-gray-500" />
+          <div className="h-9 w-9 rounded-lg bg-gray-100 dark:bg-white/10 group-hover:bg-gray-200 dark:group-hover:bg-white/15 flex items-center justify-center transition-colors">
+            <LogOut className="h-4.5 w-4.5 text-gray-500 dark:text-gray-400" />
           </div>
-          <span className="font-medium text-gray-600 group-hover:text-gray-900">Sign out</span>
+          <span className="font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">Sign out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

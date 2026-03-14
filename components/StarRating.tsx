@@ -68,8 +68,10 @@ export function StarRating({
   }
 
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
-      {stars}
+    <div className={`flex items-center gap-1 ${className}`} role="img" aria-label={`${rating.toFixed(1)} out of ${maxStars} stars`}>
+      <div aria-hidden="true" className="flex items-center gap-0.5">
+        {stars}
+      </div>
       {showNumber && (
         <span className="text-sm font-medium text-gray-700 ml-1">
           {rating.toFixed(1)}

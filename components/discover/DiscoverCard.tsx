@@ -15,6 +15,7 @@ import { StarRating } from '@/components/StarRating';
 import type { DiscoverItem, DiscoverItemType } from '@/types/discover';
 import { getDistanceTierStyles } from '@/lib/geolocation';
 import { cn } from '@/lib/utils';
+import { getFallbackImage } from '@/lib/category-images';
 
 interface DiscoverCardProps {
   item: DiscoverItem;
@@ -50,9 +51,6 @@ const TYPE_CONFIG: Record<
   },
 };
 
-const DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80';
-
 function formatDistanceValue(meters: number): string {
   if (meters === Infinity) return 'Unknown';
   if (meters < 1000) return `${Math.round(meters)} m`;
@@ -72,7 +70,7 @@ export function DiscoverCard({ item }: DiscoverCardProps) {
       {/* Image with Overlay */}
       <div className="relative w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
         <Image
-          src={item.image_url || DEFAULT_IMAGE}
+          src={item.image_url || getFallbackImage(item.category_name, item.type)}
           alt={item.name}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -124,7 +122,7 @@ export function DiscoverCard({ item }: DiscoverCardProps) {
           >
             {formatDistanceValue(item.distance_meters)}
           </span>
-          <span className="text-[10px] font-medium text-white/90 drop-shadow-md pr-1">
+          <span className="text-[11px] font-medium text-white/90 drop-shadow-md pr-1">
             {item.distance_label}
           </span>
         </div>
@@ -146,7 +144,7 @@ export function DiscoverCard({ item }: DiscoverCardProps) {
       {/* Content */}
       <div className="p-4">
         {/* Name */}
-        <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1 group-hover:text-emerald-600 transition-colors">
+        <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-primary transition-colors">
           {item.name}
         </h3>
 

@@ -31,16 +31,13 @@ export function DateTimePicker({
   helperText,
   className,
 }: DateTimePickerProps) {
-  const [isFocused, setIsFocused] = useState(false)
   const [isTouched, setIsTouched] = useState(false)
 
   const showError = error && isTouched
   const showSuccess = !error && value && isTouched && required
 
-  const handleBlur = () => {
-    setIsFocused(false)
-    setIsTouched(true)
-  }
+  const errorId = `${name}-error`
+  const helperId = `${name}-helper`
 
   // Determine input type based on mode
   const inputType =
@@ -57,14 +54,14 @@ export function DateTimePicker({
     <div className={cn('w-full', className)}>
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-700 mb-1.5"
+        className="block text-sm font-medium text-[hsl(var(--foreground))] mb-1.5"
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
       <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] pointer-events-none">
           <Icon className="w-5 h-5" />
         </div>
 
@@ -74,32 +71,33 @@ export function DateTimePicker({
           type={inputType}
           value={value}
           onChange={e => onChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={handleBlur}
+          onBlur={() => setIsTouched(true)}
           min={min}
           max={max}
           required={required}
+          aria-invalid={showError ? true : undefined}
+          aria-required={required || undefined}
+          aria-describedby={showError ? errorId : helperText ? helperId : undefined}
           className={cn(
-            'w-full px-3 py-2.5 md:py-2',
-            'border rounded-lg',
-            'text-gray-900',
+            'w-full px-4 py-3',
+            'border rounded-xl',
+            'bg-[hsl(var(--background))]',
+            'text-[hsl(var(--foreground))]',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             'transition-all duration-200',
-            'min-h-[44px] md:min-h-[40px]', // Minimum touch target for mobile
+            'min-h-[48px] md:min-h-[44px]',
             'pl-10 pr-10',
-            !value && 'text-gray-400',
+            !value && 'text-[hsl(var(--muted-foreground))]',
             showError &&
-              'border-red-300 focus:border-red-500 focus:ring-red-500/20',
+              'border-red-500 focus:border-red-500 focus:ring-red-500/20',
             showSuccess &&
-              'border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20',
+              'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20',
             !showError &&
               !showSuccess &&
-              'border-gray-300 focus:border-emerald-500 focus:ring-emerald-500/20',
-            isFocused && 'ring-2'
+              'border-[hsl(var(--border))] focus:border-emerald-500 focus:ring-emerald-500/20'
           )}
         />
 
-        {/* Success/Error icon */}
         {showSuccess && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500">
             <Check className="w-5 h-5" />
@@ -112,16 +110,16 @@ export function DateTimePicker({
         )}
       </div>
 
-      {/* Helper text or error message */}
-      {showError ? (
-        <p className="text-sm text-red-600 mt-1 flex items-start gap-1">
-          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+      {showError && (
+        <p id={errorId} className="text-sm text-red-600 mt-1.5">
           {error}
         </p>
-      ) : (
-        helperText && (
-          <p className="text-sm text-gray-500 mt-1">{helperText}</p>
-        )
+      )}
+
+      {helperText && !showError && (
+        <p id={helperId} className="text-sm text-[hsl(var(--muted-foreground))] mt-1.5">
+          {helperText}
+        </p>
       )}
     </div>
   )

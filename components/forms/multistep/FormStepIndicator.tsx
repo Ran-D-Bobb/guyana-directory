@@ -24,7 +24,7 @@ export function FormStepIndicator({
       <div className={cn('flex flex-col items-center gap-2', className)}>
         {/* Step counter */}
         {showStepCount && (
-          <span className="text-xs font-medium text-gray-500">
+          <span className="text-xs font-medium text-[hsl(var(--muted-foreground))]">
             Step {currentStep + 1} of {totalSteps}
           </span>
         )}
@@ -43,7 +43,7 @@ export function FormStepIndicator({
                     ? 'w-8 bg-emerald-600 ring-2 ring-emerald-100'
                     : isCompleted
                     ? 'w-2.5 bg-emerald-600'
-                    : 'w-2.5 bg-gray-300'
+                    : 'w-2.5 bg-[hsl(var(--border))]'
                 )}
                 initial={false}
                 animate={{
@@ -72,16 +72,16 @@ export function FormStepIndicator({
       {/* Step counter */}
       {showStepCount && (
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium text-gray-500">
+          <span className="text-xs font-medium text-[hsl(var(--muted-foreground))]">
             Step {currentStep + 1} of {totalSteps}
           </span>
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-[hsl(var(--muted-foreground))]">
             {Math.round(progress)}% complete
           </span>
         </div>
       )}
 
-      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-[hsl(var(--border))] rounded-full overflow-hidden">
         <motion.div
           className="h-full bg-emerald-600"
           initial={{ width: 0 }}

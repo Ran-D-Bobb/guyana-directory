@@ -4,6 +4,7 @@ import { createStaticClient } from '@/lib/supabase/static'
 import { notFound } from 'next/navigation'
 import { RentalDetailClient } from './RentalDetailClient'
 import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
+import { getFallbackImage } from '@/lib/category-images'
 
 // Revalidate every 2 minutes
 export const revalidate = 120
@@ -109,7 +110,7 @@ export default async function RentalDetailPage({
   }) || []
 
   // Default image if no photos
-  const defaultImage = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop'
+  const defaultImage = getFallbackImage(rental.rental_categories?.name, 'rental')
 
   // Get primary image for recently viewed
   const primaryImage = photos[0]?.image_url || defaultImage

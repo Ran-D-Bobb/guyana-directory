@@ -1,6 +1,6 @@
 'use client';
 
-import { Navigation, Loader2, X, Compass, Sparkles } from 'lucide-react';
+import { Navigation, Loader2, X, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LocationPermissionModalProps {
@@ -21,107 +21,85 @@ export function LocationPermissionModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-[hsl(158_64%_6%/0.95)] backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
+      {/* Sheet / Modal */}
       <div
         className={cn(
-          'relative z-10 w-full max-w-md mx-4',
-          'bg-[hsl(158_55%_10%)] rounded-3xl',
-          'border border-[hsl(160_40%_20%/0.5)]',
-          'shadow-2xl shadow-black/50',
-          'overflow-hidden',
-          'animate-fade-in-scale'
+          'relative z-10 w-full sm:max-w-sm sm:mx-4',
+          'bg-[hsl(var(--card))]',
+          'rounded-t-2xl sm:rounded-2xl',
+          'border border-[hsl(var(--border))]',
+          'shadow-xl',
+          'animate-in slide-in-from-bottom sm:fade-in sm:zoom-in-95',
+          'duration-200'
         )}
       >
-        {/* Gradient glow effect */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Close button */}
+        {/* Close */}
         <button
           onClick={onClose}
-          className={cn(
-            'absolute top-4 right-4 z-20',
-            'w-10 h-10 rounded-full',
-            'flex items-center justify-center',
-            'text-emerald-300/60 hover:text-emerald-200',
-            'hover:bg-emerald-500/10',
-            'transition-all duration-200'
-          )}
+          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--muted))] transition-colors"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
-        {/* Content */}
-        <div className="relative p-8 pt-10">
-          {/* Header with icon */}
-          <div className="text-center mb-8">
-            <div className="relative inline-flex mb-6">
-              {/* Main icon container */}
-              <div
-                className={cn(
-                  'w-24 h-24 rounded-2xl rotate-6',
-                  'bg-gradient-to-br from-emerald-500/20 to-teal-600/20',
-                  'border border-emerald-500/30',
-                  'flex items-center justify-center',
-                  'shadow-lg shadow-emerald-500/10'
-                )}
-              >
-                <Compass className="w-12 h-12 text-emerald-400 -rotate-6" />
-              </div>
-              {/* Floating sparkle */}
-              <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/30 animate-float">
-                <Sparkles className="w-4 h-4 text-amber-900" />
-              </div>
-            </div>
-
-            <h2 className="font-display text-3xl text-emerald-50 mb-3">
-              Discover Around You
-            </h2>
-            <p className="text-emerald-200/70 text-base leading-relaxed max-w-xs mx-auto">
-              Find hidden gems, local favorites, and unique experiences nearby.
-            </p>
+        <div className="p-6 pt-8 text-center">
+          {/* Icon */}
+          <div className="w-14 h-14 rounded-2xl bg-[hsl(var(--primary))]/10 flex items-center justify-center mx-auto mb-4">
+            <MapPin className="w-7 h-7 text-[hsl(var(--primary))]" />
           </div>
 
-          {/* Enable Location Button */}
+          <h2 className="font-display text-xl text-foreground mb-2">
+            Find places near you
+          </h2>
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto mb-6">
+            See what&apos;s closest and get distances to businesses, restaurants, and more.
+            Your location stays on your device.
+          </p>
+
+          {/* CTA */}
           <button
             onClick={onRequestLocation}
             disabled={isLoading}
             className={cn(
-              'w-full py-4 px-6 rounded-2xl',
-              'bg-gradient-to-r from-emerald-500 to-teal-500',
-              'hover:from-emerald-400 hover:to-teal-400',
-              'text-white font-semibold text-lg',
-              'flex items-center justify-center gap-3',
-              'shadow-xl shadow-emerald-500/30',
-              'transition-all duration-300',
-              'hover:shadow-emerald-500/40 hover:scale-[1.02]',
-              'disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100',
-              'group'
+              'w-full py-3 px-6 rounded-xl',
+              'bg-[hsl(var(--primary))] text-white',
+              'hover:opacity-90',
+              'font-medium text-[15px]',
+              'flex items-center justify-center gap-2.5',
+              'transition-opacity',
+              'disabled:opacity-60 disabled:cursor-not-allowed'
             )}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-6 h-6 animate-spin" />
-                <span>Finding your location...</span>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Finding you...
               </>
             ) : (
               <>
-                <Navigation className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-                <span>Enable Location</span>
+                <Navigation className="w-5 h-5" />
+                Enable location
               </>
             )}
           </button>
 
-          {/* Error Message */}
+          {/* Skip */}
+          <button
+            onClick={onClose}
+            className="mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Skip for now
+          </button>
+
+          {/* Error */}
           {error && (
-            <div className="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-300">
+            <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
               {error}
             </div>
           )}

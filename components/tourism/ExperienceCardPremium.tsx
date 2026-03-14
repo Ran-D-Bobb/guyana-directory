@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Clock, Star, Heart, Sparkles, ShieldCheck, Award, Eye } from 'lucide-react'
 import { Database } from '@/types/supabase'
+import { getFallbackImage } from '@/lib/category-images'
 
 type TourismExperience = Database['public']['Tables']['tourism_experiences']['Row'] & {
   tourism_categories: { name: string; icon: string } | null
@@ -16,8 +17,6 @@ interface ExperienceCardPremiumProps {
   experience: TourismExperience
   priority?: boolean
 }
-
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80'
 
 // Difficulty badge colors
 const difficultyStyles: Record<string, string> = {
@@ -33,7 +32,8 @@ export function ExperienceCardPremium({ experience, priority = false }: Experien
 
   // Get primary photo
   const photos = Array.isArray(experience.tourism_photos) ? experience.tourism_photos : []
-  const primaryPhoto = imageError ? DEFAULT_IMAGE : (photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || DEFAULT_IMAGE)
+  const categoryFallback = getFallbackImage(experience.tourism_categories?.name, 'tourism')
+  const primaryPhoto = imageError ? categoryFallback : (photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || categoryFallback)
 
   // Determine which badge to show (only show one primary badge)
   const primaryBadge = experience.is_featured ? 'featured'

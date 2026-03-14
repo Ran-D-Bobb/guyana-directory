@@ -105,7 +105,7 @@ export function MapPreview({
   return (
     <div className={cn('w-full', className)}>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-medium text-gray-700">Location preview</p>
+        <p className="text-xs font-medium text-[hsl(var(--foreground))]">Location preview</p>
         <button
           type="button"
           onClick={handleOpenInGoogleMaps}
@@ -119,7 +119,7 @@ export function MapPreview({
       <div
         ref={containerRef}
         className={cn(
-          'relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200',
+          'relative w-full h-48 bg-[hsl(var(--muted))] rounded-lg overflow-hidden border-2 border-[hsl(var(--border))]',
           isDragging && 'cursor-grabbing'
         )}
       >
@@ -135,7 +135,7 @@ export function MapPreview({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <div className="text-center text-gray-400">
+            <div className="text-center text-[hsl(var(--muted-foreground))]">
               <MapPin className="w-8 h-8 mx-auto mb-2" />
               <p className="text-sm">Loading map...</p>
             </div>
@@ -203,7 +203,7 @@ export function MapPreview({
 
       {/* Draggable hint */}
       {draggable && (
-        <div className="mt-2 flex items-start gap-1.5 text-xs text-gray-500">
+        <div className="mt-2 flex items-start gap-1.5 text-xs text-[hsl(var(--muted-foreground))]">
           <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
           <p>Drag the marker to adjust the exact location if needed</p>
         </div>

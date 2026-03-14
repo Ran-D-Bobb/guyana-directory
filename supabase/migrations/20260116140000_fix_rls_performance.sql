@@ -42,6 +42,7 @@ CREATE POLICY "Business photos are viewable by everyone" ON business_photos
   FOR SELECT USING (true);
 
 -- Separate policies for INSERT, UPDATE, DELETE with optimized auth calls
+DROP POLICY IF EXISTS "Business owners can insert their photos" ON business_photos;
 CREATE POLICY "Business owners can insert their photos" ON business_photos
   FOR INSERT WITH CHECK (
     EXISTS (
@@ -51,6 +52,7 @@ CREATE POLICY "Business owners can insert their photos" ON business_photos
     )
   );
 
+DROP POLICY IF EXISTS "Business owners can update their photos" ON business_photos;
 CREATE POLICY "Business owners can update their photos" ON business_photos
   FOR UPDATE USING (
     EXISTS (
@@ -60,6 +62,7 @@ CREATE POLICY "Business owners can update their photos" ON business_photos
     )
   );
 
+DROP POLICY IF EXISTS "Business owners can delete their photos" ON business_photos;
 CREATE POLICY "Business owners can delete their photos" ON business_photos
   FOR DELETE USING (
     EXISTS (
@@ -111,12 +114,15 @@ CREATE POLICY "Event categories are viewable by everyone" ON event_categories
   FOR SELECT USING (true);
 
 -- Separate admin policies for modification
+DROP POLICY IF EXISTS "Admins can insert event categories" ON event_categories;
 CREATE POLICY "Admins can insert event categories" ON event_categories
   FOR INSERT WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can update event categories" ON event_categories;
 CREATE POLICY "Admins can update event categories" ON event_categories
   FOR UPDATE USING (is_admin());
 
+DROP POLICY IF EXISTS "Admins can delete event categories" ON event_categories;
 CREATE POLICY "Admins can delete event categories" ON event_categories
   FOR DELETE USING (is_admin());
 
@@ -153,12 +159,15 @@ CREATE POLICY "Business event types are viewable by everyone" ON business_event_
   FOR SELECT USING (true);
 
 -- Separate admin policies for modification
+DROP POLICY IF EXISTS "Admins can insert business event types" ON business_event_types;
 CREATE POLICY "Admins can insert business event types" ON business_event_types
   FOR INSERT WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can update business event types" ON business_event_types;
 CREATE POLICY "Admins can update business event types" ON business_event_types
   FOR UPDATE USING (is_admin());
 
+DROP POLICY IF EXISTS "Admins can delete business event types" ON business_event_types;
 CREATE POLICY "Admins can delete business event types" ON business_event_types
   FOR DELETE USING (is_admin());
 
@@ -226,12 +235,15 @@ CREATE POLICY "Tourism categories viewable by everyone" ON tourism_categories
   FOR SELECT USING (true);
 
 -- Separate admin policies for modification
+DROP POLICY IF EXISTS "Admins can insert tourism categories" ON tourism_categories;
 CREATE POLICY "Admins can insert tourism categories" ON tourism_categories
   FOR INSERT WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can update tourism categories" ON tourism_categories;
 CREATE POLICY "Admins can update tourism categories" ON tourism_categories
   FOR UPDATE USING (is_admin());
 
+DROP POLICY IF EXISTS "Admins can delete tourism categories" ON tourism_categories;
 CREATE POLICY "Admins can delete tourism categories" ON tourism_categories
   FOR DELETE USING (is_admin());
 
@@ -263,6 +275,7 @@ CREATE POLICY "Tourism photos viewable by everyone" ON tourism_photos
   FOR SELECT USING (true);
 
 -- Separate policies for modification
+DROP POLICY IF EXISTS "Operators can insert own experience photos" ON tourism_photos;
 CREATE POLICY "Operators can insert own experience photos" ON tourism_photos
   FOR INSERT WITH CHECK (
     EXISTS (
@@ -272,6 +285,7 @@ CREATE POLICY "Operators can insert own experience photos" ON tourism_photos
     )
   );
 
+DROP POLICY IF EXISTS "Operators can update own experience photos" ON tourism_photos;
 CREATE POLICY "Operators can update own experience photos" ON tourism_photos
   FOR UPDATE USING (
     EXISTS (
@@ -281,6 +295,7 @@ CREATE POLICY "Operators can update own experience photos" ON tourism_photos
     )
   );
 
+DROP POLICY IF EXISTS "Operators can delete own experience photos" ON tourism_photos;
 CREATE POLICY "Operators can delete own experience photos" ON tourism_photos
   FOR DELETE USING (
     EXISTS (
@@ -411,12 +426,15 @@ CREATE POLICY "Anyone can view rental categories" ON rental_categories
   FOR SELECT USING (true);
 
 -- Separate admin policies for modification
+DROP POLICY IF EXISTS "Admins can insert rental categories" ON rental_categories;
 CREATE POLICY "Admins can insert rental categories" ON rental_categories
   FOR INSERT WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can update rental categories" ON rental_categories;
 CREATE POLICY "Admins can update rental categories" ON rental_categories
   FOR UPDATE USING (is_admin());
 
+DROP POLICY IF EXISTS "Admins can delete rental categories" ON rental_categories;
 CREATE POLICY "Admins can delete rental categories" ON rental_categories
   FOR DELETE USING (is_admin());
 
@@ -518,6 +536,7 @@ CREATE POLICY "Anyone can view rental review photos" ON rental_review_photos
   FOR SELECT USING (true);
 
 -- Separate policies for modification
+DROP POLICY IF EXISTS "Review authors can insert review photos" ON rental_review_photos;
 CREATE POLICY "Review authors can insert review photos" ON rental_review_photos
   FOR INSERT WITH CHECK (
     EXISTS (
@@ -527,6 +546,7 @@ CREATE POLICY "Review authors can insert review photos" ON rental_review_photos
     )
   );
 
+DROP POLICY IF EXISTS "Review authors can update review photos" ON rental_review_photos;
 CREATE POLICY "Review authors can update review photos" ON rental_review_photos
   FOR UPDATE USING (
     EXISTS (
@@ -536,6 +556,7 @@ CREATE POLICY "Review authors can update review photos" ON rental_review_photos
     )
   );
 
+DROP POLICY IF EXISTS "Review authors can delete review photos" ON rental_review_photos;
 CREATE POLICY "Review authors can delete review photos" ON rental_review_photos
   FOR DELETE USING (
     EXISTS (
@@ -672,6 +693,7 @@ CREATE POLICY "Users can flag photos" ON photo_flags
   WITH CHECK ((select auth.uid()) = user_id);
 
 -- Single SELECT policy combining user's own flags and admin access
+DROP POLICY IF EXISTS "Users can view own flags, admins can view all" ON photo_flags;
 CREATE POLICY "Users can view own flags, admins can view all" ON photo_flags
   FOR SELECT TO authenticated
   USING ((select auth.uid()) = user_id OR is_admin());
