@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { RentalCard } from '@/components/RentalCard'
 import { RentalCategorySidebar } from '@/components/RentalCategorySidebar'
@@ -7,13 +8,15 @@ import { MobileRentalCategoryFilterBar } from '@/components/MobileRentalCategory
 import { RentalFilterPanel } from '@/components/RentalFilterPanel'
 import { FeaturedRentalsHero } from '@/components/rentals/FeaturedRentalsHero'
 import { getRentalCategoriesWithCounts } from '@/lib/category-counts'
-import { Home, Search, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Home, Search, SlidersHorizontal, AlertTriangle, RefreshCw } from 'lucide-react'
+import { Pagination } from '@/components/Pagination'
+import { getSelectedRegionSlug, resolveRegionFilter } from '@/lib/regions'
 
 // Revalidate every 5 minutes
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'Browse Rentals - Guyana Directory',
+  title: 'Browse Stays',
   description: 'Find apartments, houses, vacation homes, and more in Guyana',
 }
 
@@ -39,6 +42,11 @@ export default async function RentalsPage({
   const params = await searchParams
   const currentPage = Math.max(1, parseInt(params.page || '1') || 1)
 
+  // Resolve region: use URL param if present, otherwise fall back to cookie
+  const cookieStore = await cookies()
+  const effectiveRegion = params.region || getSelectedRegionSlug(cookieStore)
+  const regionFilterIds = await resolveRegionFilter(supabase, effectiveRegion)
+
   // Check if any filters are applied
   const hasFilters = params.q || params.category || params.beds || params.baths ||
     params.price_min || params.price_max || params.region || params.amenities ||
@@ -61,7 +69,7 @@ export default async function RentalsPage({
     rental_photos?: Array<{ image_url: string; is_primary?: boolean | null; display_order?: number | null }>
   }> = []
   if (!hasFilters) {
-    const { data: featured } = await supabase
+    let featuredQuery = supabase
       .from('rentals')
       .select(`
         id, name, slug, description, price_per_month, price_per_night,
@@ -72,6 +80,8 @@ export default async function RentalsPage({
       `)
       .eq('is_approved', true)
       .eq('is_featured', true)
+    if (regionFilterIds) featuredQuery = featuredQuery.in('region_id', regionFilterIds)
+    const { data: featured } = await featuredQuery
       .order('created_at', { ascending: false })
       .limit(5)
 
@@ -95,7 +105,8 @@ export default async function RentalsPage({
     query = query.or(`name.ilike.%${safeSearchTerm}%,description.ilike.%${safeSearchTerm}%,location_details.ilike.%${safeSearchTerm}%`)
   }
 
-  // Apply category filter
+  // Resolve category slug to ID once (reused for count query)
+  let resolvedCategoryId: string | null = null
   if (params.category) {
     const { data: category } = await supabase
       .from('rental_categories')
@@ -103,8 +114,9 @@ export default async function RentalsPage({
       .eq('slug', params.category)
       .single()
 
-    if (category) {
-      query = query.eq('category_id', category.id)
+    resolvedCategoryId = category?.id || null
+    if (resolvedCategoryId) {
+      query = query.eq('category_id', resolvedCategoryId)
     }
   }
 
@@ -137,16 +149,8 @@ export default async function RentalsPage({
   }
 
   // Apply region filter
-  if (params.region) {
-    const { data: region } = await supabase
-      .from('regions')
-      .select('id')
-      .eq('slug', params.region)
-      .single()
-
-    if (region) {
-      query = query.eq('region_id', region.id)
-    }
+  if (regionFilterIds) {
+    query = query.in('region_id', regionFilterIds)
   }
 
   // Apply amenities filter
@@ -210,15 +214,8 @@ export default async function RentalsPage({
   if (safeSearchTerm) {
     countQuery = countQuery.or(`name.ilike.%${safeSearchTerm}%,description.ilike.%${safeSearchTerm}%,location_details.ilike.%${safeSearchTerm}%`)
   }
-  if (params.category) {
-    const { data: category } = await supabase
-      .from('rental_categories')
-      .select('id')
-      .eq('slug', params.category)
-      .single()
-    if (category) {
-      countQuery = countQuery.eq('category_id', category.id)
-    }
+  if (resolvedCategoryId) {
+    countQuery = countQuery.eq('category_id', resolvedCategoryId)
   }
   if (params.beds) {
     const beds = params.beds === '4+' ? 4 : parseInt(params.beds)
@@ -242,15 +239,8 @@ export default async function RentalsPage({
   if (params.price_max) {
     countQuery = countQuery.lte('price_per_month', parseInt(params.price_max))
   }
-  if (params.region) {
-    const { data: region } = await supabase
-      .from('regions')
-      .select('id')
-      .eq('slug', params.region)
-      .single()
-    if (region) {
-      countQuery = countQuery.eq('region_id', region.id)
-    }
+  if (regionFilterIds) {
+    countQuery = countQuery.in('region_id', regionFilterIds)
   }
 
   const { count: totalCount } = await countQuery
@@ -263,7 +253,36 @@ export default async function RentalsPage({
 
   if (error) {
     console.error('Error fetching rentals:', JSON.stringify(error, null, 2))
-    return <div>Error loading rentals: {error.message || 'Unknown error'}</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-red-100 mb-6">
+            <AlertTriangle className="w-10 h-10 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            Unable to load properties
+          </h2>
+          <p className="text-gray-500 text-lg mb-6">
+            We had trouble loading rental listings. Please try again in a moment.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/rentals"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Try Again
+            </Link>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 px-6 py-3 border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+            >
+              Go Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // Get categories with counts
@@ -279,6 +298,9 @@ export default async function RentalsPage({
   const currentCategory = params.category
     ? categoriesWithCounts.find(c => c.slug === params.category)
     : null
+
+  const totalRentals = totalCount || 0
+  const totalPages = Math.ceil(totalRentals / ITEMS_PER_PAGE)
 
   return (
     <div className="min-h-screen flex">
@@ -300,7 +322,7 @@ export default async function RentalsPage({
             {/* Header Row */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                <div className="h-10 w-10 rounded-xl bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
                   <Home className="h-5 w-5 text-white" strokeWidth={2.5} />
                 </div>
                 <div>
@@ -326,6 +348,15 @@ export default async function RentalsPage({
                   className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm text-gray-900 placeholder:text-gray-500 transition-all"
                 />
               </div>
+              {/* Preserve active filters on search submit */}
+              {params.category && <input type="hidden" name="category" value={params.category} />}
+              {params.beds && <input type="hidden" name="beds" value={params.beds} />}
+              {params.baths && <input type="hidden" name="baths" value={params.baths} />}
+              {params.price_min && <input type="hidden" name="price_min" value={params.price_min} />}
+              {params.price_max && <input type="hidden" name="price_max" value={params.price_max} />}
+              {params.region && <input type="hidden" name="region" value={params.region} />}
+              {params.sort && <input type="hidden" name="sort" value={params.sort} />}
+              {params.amenities && <input type="hidden" name="amenities" value={params.amenities} />}
             </form>
 
             {/* Desktop Filter Panel */}
@@ -399,7 +430,7 @@ export default async function RentalsPage({
               </div>
             ) : (
               <div className="text-center py-20 animate-fade-up">
-                <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-100 to-teal-100 mb-6 shadow-lg">
+                <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-emerald-100 mb-6 shadow-lg">
                   <Home className="w-12 h-12 text-emerald-600" />
                 </div>
                 <h3 className="font-display text-2xl text-gray-900 mb-3">
@@ -410,7 +441,7 @@ export default async function RentalsPage({
                 </p>
                 <Link
                   href="/rentals"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-full shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all hover:scale-105"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-full shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all hover:scale-105"
                 >
                   <SlidersHorizontal className="w-4 h-4" />
                   Clear All Filters
@@ -419,78 +450,29 @@ export default async function RentalsPage({
             )}
 
             {/* Pagination */}
-            {(() => {
-              const totalRentals = totalCount || 0
-              const totalPages = Math.ceil(totalRentals / ITEMS_PER_PAGE)
-
-              if (totalPages <= 1) return null
-
-              const goToPage = (page: number) => {
-                const urlParams = new URLSearchParams()
-                if (params.q) urlParams.set('q', params.q)
-                if (params.category) urlParams.set('category', params.category)
-                if (params.beds) urlParams.set('beds', params.beds)
-                if (params.baths) urlParams.set('baths', params.baths)
-                if (params.price_min) urlParams.set('price_min', params.price_min)
-                if (params.price_max) urlParams.set('price_max', params.price_max)
-                if (params.region) urlParams.set('region', params.region)
-                if (params.sort) urlParams.set('sort', params.sort)
-                if (params.amenities) urlParams.set('amenities', params.amenities)
-                urlParams.set('page', page.toString())
-                return `/rentals?${urlParams.toString()}`
-              }
-
-              return (
-                <div className="mt-12 animate-fade-up" style={{ animationDelay: '1000ms' }}>
-                  <nav className="flex items-center justify-center gap-1" aria-label="Pagination">
-                    <Link
-                      href={currentPage > 1 ? goToPage(currentPage - 1) : '#'}
-                      className={`p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 ${currentPage <= 1 ? 'opacity-50 pointer-events-none' : ''}`}
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </Link>
-
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(page => {
-                        if (totalPages <= 7) return true
-                        if (page === 1 || page === totalPages) return true
-                        if (Math.abs(page - currentPage) <= 1) return true
-                        return false
-                      })
-                      .map((page, index, arr) => {
-                        const showEllipsis = index > 0 && page - arr[index - 1] > 1
-                        return (
-                          <span key={page} className="flex items-center">
-                            {showEllipsis && <span className="px-2 text-gray-400">...</span>}
-                            <Link
-                              href={goToPage(page)}
-                              className={`min-w-[40px] h-10 flex items-center justify-center rounded-lg font-medium transition-colors ${
-                                currentPage === page
-                                  ? 'bg-emerald-600 text-white'
-                                  : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
-                              }`}
-                              aria-current={currentPage === page ? 'page' : undefined}
-                            >
-                              {page}
-                            </Link>
-                          </span>
-                        )
-                      })}
-
-                    <Link
-                      href={currentPage < totalPages ? goToPage(currentPage + 1) : '#'}
-                      className={`p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 ${currentPage >= totalPages ? 'opacity-50 pointer-events-none' : ''}`}
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </Link>
-                  </nav>
-
-                  <p className="text-center text-sm text-gray-500 mt-4">
-                    Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, totalRentals)} of {totalRentals} properties
-                  </p>
-                </div>
-              )
-            })()}
+            {totalPages > 1 && (
+              <div className="mt-12 animate-fade-up" style={{ animationDelay: '1000ms' }}>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  baseUrl="/rentals"
+                  searchParams={{
+                    q: params.q,
+                    category: params.category,
+                    beds: params.beds,
+                    baths: params.baths,
+                    price_min: params.price_min,
+                    price_max: params.price_max,
+                    region: params.region,
+                    sort: params.sort,
+                    amenities: params.amenities,
+                  }}
+                />
+                <p className="text-center text-sm text-gray-500 mt-4">
+                  Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, totalRentals)} of {totalRentals} properties
+                </p>
+              </div>
+            )}
           </div>
         </main>
       </div>

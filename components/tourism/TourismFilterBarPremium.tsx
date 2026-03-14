@@ -14,6 +14,7 @@ import {
   TrendingUp,
   DollarSign
 } from 'lucide-react'
+import { getRegionDisplayName } from '@/lib/regions'
 
 interface TourismFilterBarPremiumProps {
   regions?: Array<{ id: string; name: string }>
@@ -80,7 +81,7 @@ function FilterDropdown({ label, icon: Icon, iconColor, options, value, onChange
         onClick={() => setIsOpen(!isOpen)}
         className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
           hasValue
-            ? 'bg-gray-900 text-white border-gray-900 shadow-lg'
+            ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white shadow-lg'
             : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:shadow-sm'
         }`}
       >
@@ -90,7 +91,7 @@ function FilterDropdown({ label, icon: Icon, iconColor, options, value, onChange
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 min-w-[180px] bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute top-full left-0 mt-2 min-w-[180px] bg-white dark:bg-[hsl(0,0%,14%)] rounded-xl shadow-2xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
           <button
             onClick={() => { onChange(''); setIsOpen(false) }}
             className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${
@@ -153,7 +154,7 @@ export function TourismFilterBarPremium({ regions = [], currentFilters = {} }: T
   }
 
   return (
-    <div className="relative z-10 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 p-4">
+    <div className="relative z-10 bg-white/90 dark:bg-[hsl(0,0%,12%)]/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 p-4">
       <div className="flex items-center gap-3 flex-wrap">
         {/* Filter Label */}
         <div className="flex items-center gap-2 pr-4 border-r border-gray-200">
@@ -191,7 +192,7 @@ export function TourismFilterBarPremium({ regions = [], currentFilters = {} }: T
             label="Location"
             icon={MapPin}
             iconColor="text-teal-500"
-            options={regions.map(r => ({ value: r.id, label: r.name }))}
+            options={regions.map(r => ({ value: r.id, label: getRegionDisplayName(null, r.name) }))}
             value={currentFilters.region || ''}
             onChange={(v) => updateFilters('region', v)}
             allLabel="All Locations"
@@ -229,7 +230,7 @@ export function TourismFilterBarPremium({ regions = [], currentFilters = {} }: T
         {activeFilterCount > 0 && (
           <button
             onClick={clearFilters}
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg text-xs font-medium transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg text-xs font-medium transition-colors"
           >
             <X className="w-3.5 h-3.5" />
             Clear ({activeFilterCount})

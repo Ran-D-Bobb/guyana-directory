@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import Image from 'next/image'
-import KioskQRCode from './KioskQRCode'
+import { QRCodeSVG } from 'qrcode.react'
 import type { KioskExperience } from '@/app/kiosk/KioskHomePage'
 
 interface KioskExperienceDetailProps {
@@ -11,21 +10,23 @@ interface KioskExperienceDetailProps {
 
 /**
  * Experience detail content for the overlay.
- * Left 60%: hero image. Right 40%: scrollable info + QR.
+ * Left 60%: hero image. Right 40%: scrollable info + inline QR.
  */
 export default function KioskExperienceDetail({ experience }: KioskExperienceDetailProps) {
-  const [showQR, setShowQR] = useState(false)
   const detailUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/tourism/${experience.slug}`
 
   return (
-    <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-      {/* Left: Hero Image */}
+    <div style={{ display: 'flex', width: '100%', height: '100%', background: 'var(--kiosk-bg-cinema)' }}>
+      {/* Left: Hero Image — slightly wider to eliminate sub-pixel gap */}
       <div
         style={{
-          width: '60%',
+          width: 'calc(60% + 2px)',
           height: '100%',
           position: 'relative',
           overflow: 'hidden',
+          background: 'var(--kiosk-bg-cinema)',
+          marginRight: '-2px',
+          zIndex: 1,
         }}
       >
         {experience.image_url ? (
@@ -76,6 +77,10 @@ export default function KioskExperienceDetail({ experience }: KioskExperienceDet
           display: 'flex',
           flexDirection: 'column',
           gap: 'var(--kiosk-sp-24)',
+          position: 'relative',
+          zIndex: 2,
+          background: 'var(--kiosk-bg-cinema)',
+          boxShadow: '-4px 0 0 0 var(--kiosk-bg-cinema)',
         }}
       >
         {/* Category badge */}
@@ -182,52 +187,44 @@ export default function KioskExperienceDetail({ experience }: KioskExperienceDet
           </p>
         </div>
 
-        {/* QR Code section */}
+        {/* Inline QR Code */}
         <div
           className="kiosk-glass"
           style={{
             padding: 'var(--kiosk-sp-24)',
-            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--kiosk-sp-24)',
             marginTop: 'auto',
           }}
         >
-          <p style={{ fontSize: 'var(--kiosk-text-16)', color: 'var(--kiosk-text-secondary)', marginBottom: 'var(--kiosk-sp-16)' }}>
-            Scan to view full details on your phone
-          </p>
-          <button
-            onClick={() => setShowQR(true)}
-            className="kiosk-btn-cta"
+          <div
             style={{
-              padding: 'var(--kiosk-sp-16) var(--kiosk-sp-32)',
-              fontSize: 'var(--kiosk-text-20)',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 'var(--kiosk-sp-8)',
-              minHeight: 'var(--kiosk-touch-sm)',
+              background: 'white',
+              padding: 'var(--kiosk-sp-8)',
+              borderRadius: 'var(--kiosk-radius-sm)',
+              flexShrink: 0,
+              lineHeight: 0,
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="3" width="7" height="7" />
-              <rect x="14" y="3" width="7" height="7" />
-              <rect x="3" y="14" width="7" height="7" />
-              <rect x="14" y="14" width="3" height="3" />
-              <path d="M21 14h-3v3h3zM18 17h3v3h-3zM14 17h1v3h-1z" />
-            </svg>
-            Save to Phone
-          </button>
+            <QRCodeSVG
+              value={detailUrl}
+              size={120}
+              level="M"
+              fgColor="#000000"
+              bgColor="#ffffff"
+            />
+          </div>
+          <div>
+            <p style={{ fontSize: 'var(--kiosk-text-18)', color: 'white', fontWeight: 700, margin: 0, marginBottom: 'var(--kiosk-sp-6)' }}>
+              Save to Phone
+            </p>
+            <p style={{ fontSize: 'var(--kiosk-text-14)', color: 'var(--kiosk-text-muted)', margin: 0 }}>
+              Scan this QR code to view full details on your device
+            </p>
+          </div>
         </div>
       </div>
-
-      {/* QR Modal */}
-      {showQR && (
-        <KioskQRCode
-          url={detailUrl}
-          title={experience.name}
-          onClose={() => setShowQR(false)}
-        />
-      )}
     </div>
   )
 }

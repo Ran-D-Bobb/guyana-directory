@@ -118,6 +118,7 @@ export default function KioskLayoutOptimized({
       data-resolution={kioskConfig.resolution}
       data-orientation={kioskConfig.orientation}
       data-device-type={kioskConfig.deviceType}
+      style={{ background: 'var(--kiosk-bg-cinema, #080f0c)', overflow: 'hidden' }}
     >
       {/* Main Kiosk Content */}
       {children}

@@ -18,9 +18,41 @@ import {
   Calendar,
   CheckCircle2,
   Package,
-  Phone
+  Phone,
+  ArrowRight
 } from 'lucide-react'
 import { getFallbackImage } from '@/lib/category-images'
+import { TourismStickyCTA } from './TourismStickyCTA'
+import { TourismPhotoGallery } from './TourismDetailClient'
+
+// Convert human-readable duration to ISO 8601 for JSON-LD
+function toIsoDuration(duration: string): string {
+  const lower = duration.toLowerCase().trim()
+
+  // Match patterns like "2 hours", "3 hour", "1.5 hours"
+  const hourMatch = lower.match(/^(\d+(?:\.\d+)?)\s*hours?$/)
+  if (hourMatch) {
+    const h = parseFloat(hourMatch[1])
+    if (Number.isInteger(h)) return `PT${h}H`
+    const wholeH = Math.floor(h)
+    const mins = Math.round((h - wholeH) * 60)
+    return wholeH > 0 ? `PT${wholeH}H${mins}M` : `PT${mins}M`
+  }
+
+  // "half day" → ~4 hours
+  if (lower.includes('half') && lower.includes('day')) return 'PT4H'
+  // "full day" → ~8 hours
+  if (lower.includes('full') && lower.includes('day')) return 'PT8H'
+
+  // Match "X days" / "X nights" / "X weeks"
+  const dayMatch = lower.match(/^(\d+)\s*(?:days?|nights?)$/)
+  if (dayMatch) return `P${dayMatch[1]}D`
+  const weekMatch = lower.match(/^(\d+)\s*weeks?$/)
+  if (weekMatch) return `P${parseInt(weekMatch[1]) * 7}D`
+
+  // Fallback: return the raw string (Google may still partially parse it)
+  return duration
+}
 
 // Revalidate every 2 minutes
 export const revalidate = 120
@@ -83,11 +115,6 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
   const { slug } = await params
   const supabase = await createClient()
 
-  // Get current user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
   // Fetch the experience with category, region, and photos
   const { data: experience } = await supabase
     .from('tourism_experiences')
@@ -109,19 +136,47 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
     notFound()
   }
 
-  // Check if current user has saved this experience
-  if (user) {
-    await supabase
-      .from('tourism_saved_experiences')
-      .select('id')
-      .eq('experience_id', experience.id)
-      .eq('user_id', user.id)
-      .single()
-  }
-
   // Get primary photo or first photo
   const photos = Array.isArray(experience.tourism_photos) ? experience.tourism_photos : []
   const primaryPhoto = photos.find(p => p.is_primary)?.image_url || photos[0]?.image_url || getFallbackImage(experience.tourism_categories?.name, 'tourism')
+
+  // Fetch related experiences (same category, excluding current)
+  let relatedExperiences: Array<{
+    id: string
+    name: string
+    slug: string
+    price_from: number | null
+    rating: number | null
+    review_count: number | null
+    duration: string | null
+    tourism_categories: { name: string } | null
+    regions: { name: string } | null
+    tourism_photos: Array<{ image_url: string; is_primary: boolean | null }> | null
+  }> = []
+
+  if (experience.tourism_category_id) {
+    const { data } = await supabase
+      .from('tourism_experiences')
+      .select(`
+        id, name, slug, price_from, rating, review_count, duration,
+        tourism_categories:tourism_category_id (name),
+        regions:region_id (name),
+        tourism_photos:tourism_photos (image_url, is_primary)
+      `)
+      .eq('is_approved', true)
+      .eq('tourism_category_id', experience.tourism_category_id)
+      .neq('id', experience.id)
+      .order('rating', { ascending: false })
+      .limit(4)
+    relatedExperiences = data || []
+  }
+
+  // Sort photos: primary first, then by display_order
+  const sortedPhotos = [...photos].sort((a, b) => {
+    if (a.is_primary && !b.is_primary) return -1
+    if (!a.is_primary && b.is_primary) return 1
+    return (a.display_order ?? 0) - (b.display_order ?? 0)
+  })
 
   // JSON-LD structured data for TouristAttraction
   const jsonLd = {
@@ -146,7 +201,7 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
         availability: 'https://schema.org/InStock',
       },
     } : {}),
-    ...(experience.duration ? { timeRequired: experience.duration } : {}),
+    ...(experience.duration ? { timeRequired: toIsoDuration(experience.duration) } : {}),
   }
 
   return (
@@ -171,9 +226,9 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
         location={experience.regions?.name}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50/30 to-teal-50/20">
+      <div className="min-h-screen bg-gray-50 dark:bg-[hsl(0,0%,5%)]">
         {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 shadow-sm dark:border-[hsl(0,0%,18%)]">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <Link
             href="/tourism"
@@ -185,38 +240,32 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 animate-fade-in">
+      <main className="max-w-7xl mx-auto px-4 py-8 pb-24 lg:pb-8 animate-fade-in">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6 animate-slide-in">
-            {/* Experience Image */}
-            <div className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-              <div className="aspect-video w-full relative overflow-hidden">
-                <Image
-                  src={primaryPhoto}
-                  alt={experience.name}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 800px"
-                  priority
-                />
-                {/* Gradient overlay on hover */}
-                <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/60 via-emerald-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-            </div>
+            {/* Photo Gallery */}
+            <TourismPhotoGallery
+              photos={sortedPhotos}
+              experienceName={experience.name}
+              defaultImage={primaryPhoto}
+            />
+
+            {/* Sentinel: sticky CTA becomes visible when this scrolls out of view */}
+            <div id="tourism-hero-sentinel" aria-hidden="true" />
 
             {/* Experience Details */}
-            <div className="bg-white rounded-2xl shadow-md p-8 hover:shadow-lg transition-shadow duration-300">
+            <div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100 hover:shadow-lg transition-shadow duration-300">
               {/* Badges */}
               <div className="flex flex-wrap gap-2.5 mb-6">
                 {experience.is_featured && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-full shadow-md animate-scale-in">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold bg-amber-500 text-white rounded-full shadow-sm">
                     <Sparkles className="w-4 h-4" />
                     Featured
                   </span>
                 )}
                 {experience.is_verified && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full shadow-md">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold bg-emerald-600 text-white rounded-full shadow-sm">
                     <CheckCircle2 className="w-4 h-4" />
                     Verified
                   </span>
@@ -229,7 +278,7 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
               </div>
 
               {/* Title */}
-              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text">
+              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
                 {experience.name}
               </h1>
 
@@ -301,7 +350,7 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
               {experience.description && (
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="w-1 h-8 bg-gradient-to-b from-emerald-600 to-teal-600 rounded-full" />
+                    <span className="w-1 h-8 bg-emerald-600 rounded-full" />
                     About This Experience
                   </h2>
                   <div className="text-gray-700 whitespace-pre-line leading-relaxed text-lg pl-5 border-l-2 border-emerald-100">
@@ -382,7 +431,7 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-24 space-y-6 hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 sticky top-24 space-y-6 hover:shadow-xl transition-shadow duration-300">
               {/* Price */}
               {experience.price_from !== null && (
                 <div className="pb-6 border-b-2 border-gray-100">
@@ -399,7 +448,7 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
                 <div className="pb-6 border-b-2 border-gray-100">
                   <a
                     href={`tel:${experience.phone}`}
-                    className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold text-lg py-6 shadow-lg hover:shadow-xl transform transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-center gap-2 rounded-lg"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-lg py-6 shadow-lg hover:shadow-xl transform transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-center gap-2 rounded-lg"
                   >
                     <Phone className="h-6 w-6" />
                     <span>Book Now</span>
@@ -413,7 +462,7 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
                   <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">
                     Tour Operator
                   </h3>
-                  <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl hover:shadow-md transition-all duration-200">
+                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200">
                     <p className="font-bold text-gray-900 text-lg mb-1">{experience.operator_name}</p>
                     {experience.operator_license && (
                       <p className="text-xs text-gray-600 mb-2">
@@ -451,8 +500,86 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
             </div>
           </div>
         </div>
+
+        {/* Related Experiences */}
+        {relatedExperiences && relatedExperiences.length > 0 && (
+          <section className="mt-12 pt-8 border-t border-gray-200">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                More {experience.tourism_categories?.name || 'Similar'} Experiences
+              </h2>
+              <Link
+                href={`/tourism${experience.tourism_category_id ? `?category=${experience.tourism_category_id}` : ''}`}
+                className="hidden sm:inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-medium text-sm transition-colors"
+              >
+                View all
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {relatedExperiences.map((related) => {
+                const relPhotos = Array.isArray(related.tourism_photos) ? related.tourism_photos : []
+                const relPhoto = relPhotos.find((p: { is_primary: boolean | null }) => p.is_primary)?.image_url || relPhotos[0]?.image_url || getFallbackImage((related.tourism_categories as { name: string } | null)?.name, 'tourism')
+
+                return (
+                  <Link
+                    key={related.id}
+                    href={`/tourism/${related.slug}`}
+                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 border border-gray-100"
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <Image
+                        src={relPhoto}
+                        alt={related.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                      {related.price_from !== null && (
+                        <div className="absolute bottom-3 right-3 px-2.5 py-1.5 bg-white/90 backdrop-blur-sm rounded-lg shadow">
+                          <div className="text-xs text-gray-500">From</div>
+                          <div className="text-base font-bold text-emerald-600 leading-tight">
+                            GYD {related.price_from.toLocaleString()}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-gray-900 line-clamp-2 group-hover:text-emerald-600 transition-colors mb-2">
+                        {related.name}
+                      </h3>
+                      <div className="flex items-center gap-3 text-sm text-gray-600">
+                        {(related.regions as { name: string } | null)?.name && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-teal-500" />
+                            {(related.regions as { name: string }).name}
+                          </span>
+                        )}
+                        {related.rating && related.rating > 0 && (
+                          <span className="flex items-center gap-1">
+                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                            {related.rating.toFixed(1)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </section>
+        )}
       </main>
       </div>
+
+      {/* Sticky mobile CTA - visible after scrolling past hero */}
+      <TourismStickyCTA
+        priceFrom={experience.price_from}
+        priceNotes={experience.price_notes}
+        phone={experience.phone}
+        email={experience.email}
+      />
     </>
   )
 }

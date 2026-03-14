@@ -47,10 +47,10 @@ export function RentalCategorySidebar({ categories }: RentalCategorySidebarProps
         }`}
       >
         {/* Header */}
-        <div className="h-16 border-b border-gray-200/50 flex items-center justify-between px-4 bg-gradient-to-r from-white/50 to-transparent">
+        <div className="h-16 border-b border-gray-200/50 flex items-center justify-between px-4">
           {!isCollapsed && (
             <Link href="/rentals" className="flex items-center gap-3 group">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:shadow-emerald-500/40 transition-all group-hover:scale-105">
+              <div className="h-10 w-10 rounded-xl bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:shadow-emerald-500/40 transition-all group-hover:scale-105">
                 <Home className="h-5 w-5 text-white" strokeWidth={2.5} />
               </div>
               <div>
@@ -82,7 +82,7 @@ export function RentalCategorySidebar({ categories }: RentalCategorySidebarProps
               href="/rentals"
               className={`flex items-center gap-3 px-3 py-3.5 rounded-xl transition-all duration-300 group relative ${
                 pathname === '/rentals'
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30'
                   : 'hover:bg-gray-100/80 text-gray-700'
               }`}
             >
@@ -131,7 +131,7 @@ export function RentalCategorySidebar({ categories }: RentalCategorySidebarProps
                   href={`/rentals/category/${category.slug}`}
                   className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group relative ${
                     isActive
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30'
+                      ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30'
                       : 'hover:bg-gray-100/80 text-gray-700'
                   }`}
                   style={{ animationDelay: `${index * 50}ms` }}
@@ -174,10 +174,10 @@ export function RentalCategorySidebar({ categories }: RentalCategorySidebarProps
 
         {/* Footer */}
         {!isCollapsed && (
-          <div className="p-4 border-t border-gray-200/50 bg-gradient-to-t from-gray-50/50 to-transparent">
+          <div className="p-4 border-t border-gray-200/50">
             <Link
               href="/list-rental"
-              className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold rounded-xl shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-amber-500 hover:bg-amber-400 text-white font-bold rounded-xl shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <Sparkles className="w-4 h-4" />
               List Your Property

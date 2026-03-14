@@ -48,12 +48,12 @@ export default function KioskHomeHub({
 
   // Group experiences by category for per-category rows
   const categoriesWithExperiences = categories
-    .filter(c => c.experience_count >= 2)
+    .filter(c => c.experience_count >= 1)
     .map(category => ({
       ...category,
       experiences: allExperiences.filter(e => e.category_name === category.name),
     }))
-    .filter(c => c.experiences.length >= 2)
+    .filter(c => c.experiences.length >= 1)
 
   // Separate events into "soon" (7 days) and "later"
   const now = new Date()
@@ -96,6 +96,7 @@ export default function KioskHomeHub({
       {/* Scrollable content */}
       <div
         ref={scrollContainerRef}
+        className="kiosk-home-scroll"
         style={{
           flex: 1,
           overflowY: 'auto',
@@ -156,7 +157,9 @@ export default function KioskHomeHub({
         {/* ═══════════════════════════════════════════════════════════════
            SECTION 1: EXPERIENCES
            Featured Experiences + Per-Category Experience Rows
+           Only shown if there are experiences to display
            ═══════════════════════════════════════════════════════════════ */}
+        {(featuredExperiences.length > 0 || categoriesWithExperiences.length > 0) && (
         <div ref={experiencesSectionRef} style={{ paddingTop: 'var(--kiosk-sp-32)' }}>
           {/* Section divider */}
           <div
@@ -229,11 +232,14 @@ export default function KioskHomeHub({
             </KioskContentRow>
           ))}
         </div>
+        )}
 
         {/* ═══════════════════════════════════════════════════════════════
            SECTION 2: EVENTS
            Happening Now & Soon + Upcoming Events + Annual Festivals
+           Only shown if there are events to display
            ═══════════════════════════════════════════════════════════════ */}
+        {(soonEvents.length > 0 || laterEvents.length > 0 || timelineEvents.length > 0) && (
         <div ref={eventsSectionRef} style={{ paddingTop: 'var(--kiosk-sp-48)' }}>
           {/* Section divider */}
           <div
@@ -312,32 +318,15 @@ export default function KioskHomeHub({
               onOpenEvent={(evt) => onOpenTimelineEvent(evt, timelineEvents)}
             />
           )}
-
-          {/* Empty state for events */}
-          {soonEvents.length === 0 && laterEvents.length === 0 && timelineEvents.length === 0 && (
-            <div
-              style={{
-                padding: 'var(--kiosk-sp-48) var(--kiosk-sp-64)',
-                textAlign: 'center',
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 'var(--kiosk-text-20)',
-                  color: 'var(--kiosk-text-muted)',
-                  fontStyle: 'italic',
-                }}
-              >
-                No upcoming events at this time
-              </p>
-            </div>
-          )}
         </div>
+        )}
 
         {/* ═══════════════════════════════════════════════════════════════
            SECTION 3: CATEGORIES
            Visual grid of tourism categories with images
+           Only shown if there are categories with experiences
            ═══════════════════════════════════════════════════════════════ */}
+        {categories.filter(c => allExperiences.some(e => e.category_name === c.name)).length > 0 && (
         <div ref={categoriesSectionRef} style={{ paddingTop: 'var(--kiosk-sp-48)' }}>
           {/* Section divider */}
           <div
@@ -400,7 +389,7 @@ export default function KioskHomeHub({
             </p>
           </div>
 
-          {/* Horizontal scrolling category cards */}
+          {/* Horizontal scrolling category cards — only show categories that have experiences */}
           <div
             className="kiosk-content-row"
             style={{
@@ -412,12 +401,13 @@ export default function KioskHomeHub({
               scrollSnapType: 'x mandatory',
             }}
           >
-            {categories.map(category => (
+            {categories
+              .filter(category => allExperiences.some(e => e.category_name === category.name))
+              .map(category => (
               <KioskCategoryCard
                 key={category.id}
                 category={category}
                 onClick={() => {
-                  // Find experiences for this category and open first one
                   const catExperiences = allExperiences.filter(e => e.category_name === category.name)
                   if (catExperiences.length > 0) {
                     onOpenExperience(catExperiences[0], catExperiences)
@@ -427,6 +417,7 @@ export default function KioskHomeHub({
             ))}
           </div>
         </div>
+        )}
       </div>
 
       {/* Navigation Pill */}

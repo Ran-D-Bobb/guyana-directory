@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { X, MapPin, ChevronDown, SlidersHorizontal, Star, Sparkles, Clock, BadgeCheck } from 'lucide-react'
+import { getRegionDisplayName } from '@/lib/regions'
 
 interface BusinessFilterPanelProps {
   regions?: Array<{ id: string; name: string; slug: string | null }>
@@ -144,7 +145,8 @@ export function BusinessFilterPanel({ regions = [], currentFilters = {}, categor
   }
 
   // Get display labels
-  const regionLabel = regions.find(r => r.id === currentFilters.region || r.slug === currentFilters.region)?.name || 'Location'
+  const matchedRegion = regions.find(r => r.id === currentFilters.region || r.slug === currentFilters.region)
+  const regionLabel = matchedRegion ? getRegionDisplayName(matchedRegion.slug, matchedRegion.name) : 'Location'
 
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/80 p-3 relative z-40">
@@ -186,7 +188,7 @@ export function BusinessFilterPanel({ regions = [], currentFilters = {}, categor
                       : 'hover:bg-gray-100 text-gray-700'
                   }`}
                 >
-                  {region.name}
+                  {getRegionDisplayName(region.slug, region.name)}
                 </button>
               ))}
             </div>

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { X, Wifi, Wind, Car, BedDouble, Bath, DollarSign, MapPin, ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { getRegionDisplayName } from '@/lib/regions'
 
 interface RentalFilterPanelProps {
   regions?: Array<{ name: string; slug: string }>
@@ -67,8 +68,8 @@ function FilterDropdown({
         onClick={onToggle}
         className={`group flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border ${
           hasValue
-            ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-lg shadow-emerald-500/25'
-            : 'glass text-gray-700 hover:bg-white/90 border-white/50'
+            ? 'bg-emerald-600 text-white border-transparent shadow-lg shadow-emerald-500/25'
+            : 'glass text-gray-700 hover:bg-white/90 border-white/50 dark:border-white/10'
         }`}
       >
         <div className={`p-1 rounded-lg ${hasValue ? 'bg-white/20' : iconGradient}`}>
@@ -79,7 +80,7 @@ function FilterDropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 glass rounded-2xl shadow-2xl border border-white/30 p-4 z-[100] min-w-[220px] animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full left-0 mt-2 glass rounded-2xl shadow-2xl border border-white/30 dark:border-white/10 p-4 z-[100] min-w-[220px] animate-in fade-in slide-in-from-top-2 duration-200">
           {children}
         </div>
       )}
@@ -166,17 +167,18 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
   const bedsLabel = currentFilters.beds ? `${currentFilters.beds} Bed${currentFilters.beds === '1' ? '' : 's'}` : 'Beds'
   const bathsLabel = currentFilters.baths ? `${currentFilters.baths} Bath${currentFilters.baths === '1' ? '' : 's'}` : 'Baths'
   const priceLabel = currentFilters.price_min || currentFilters.price_max
-    ? `$${currentFilters.price_min || '0'} - $${currentFilters.price_max || '∞'}`
+    ? `GYD ${Number(currentFilters.price_min || 0).toLocaleString()} - ${currentFilters.price_max ? `GYD ${Number(currentFilters.price_max).toLocaleString()}` : '∞'}`
     : 'Price'
-  const regionLabel = regions.find(r => r.slug === currentFilters.region)?.name || 'Location'
+  const matchedRegion = regions.find(r => r.slug === currentFilters.region)
+  const regionLabel = matchedRegion ? getRegionDisplayName(matchedRegion.slug, matchedRegion.name) : 'Location'
 
   return (
-    <div className="glass rounded-2xl p-4 relative z-40 border border-white/40 shadow-lg">
+    <div className="glass rounded-2xl p-4 relative z-40 border border-white/40 dark:border-white/10 shadow-lg">
       <div className="flex items-center gap-3 flex-wrap">
         {/* Filter Label */}
         <div className="flex items-center gap-2.5 pr-4 border-r border-gray-200/50">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 shadow-md">
-            <SlidersHorizontal className="h-4 w-4 text-white" />
+          <div className="p-2 rounded-xl bg-gray-800 dark:bg-gray-200 shadow-md">
+            <SlidersHorizontal className="h-4 w-4 text-white dark:text-gray-800" />
           </div>
           <span className="text-sm font-bold text-gray-700">Filters</span>
         </div>
@@ -192,7 +194,7 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
                 onClick={() => toggleAmenity(amenity.value)}
                 className={`group flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/25'
+                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/25'
                     : 'bg-white/60 text-gray-600 hover:bg-white hover:shadow-md border border-gray-100'
                 }`}
                 title={amenity.value}
@@ -208,7 +210,7 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
         <FilterDropdown
           label={bedsLabel}
           icon={BedDouble}
-          iconGradient="bg-gradient-to-br from-blue-500 to-indigo-500"
+          iconGradient="bg-blue-600"
           isOpen={openDropdown === 'beds'}
           onToggle={() => toggleDropdown('beds')}
           hasValue={!!currentFilters.beds}
@@ -221,7 +223,7 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
                 onClick={() => { updateFilters('beds', beds); setOpenDropdown(null) }}
                 className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   (currentFilters.beds || '') === beds
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
+                    ? 'bg-blue-600 text-white shadow-md'
                     : 'bg-gray-100/80 text-gray-700 hover:bg-gray-200/80'
                 }`}
               >
@@ -235,7 +237,7 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
         <FilterDropdown
           label={bathsLabel}
           icon={Bath}
-          iconGradient="bg-gradient-to-br from-purple-500 to-pink-500"
+          iconGradient="bg-purple-600"
           isOpen={openDropdown === 'baths'}
           onToggle={() => toggleDropdown('baths')}
           hasValue={!!currentFilters.baths}
@@ -248,7 +250,7 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
                 onClick={() => { updateFilters('baths', baths); setOpenDropdown(null) }}
                 className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   (currentFilters.baths || '') === baths
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
+                    ? 'bg-purple-600 text-white shadow-md'
                     : 'bg-gray-100/80 text-gray-700 hover:bg-gray-200/80'
                 }`}
               >
@@ -262,7 +264,7 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
         <FilterDropdown
           label={priceLabel}
           icon={DollarSign}
-          iconGradient="bg-gradient-to-br from-green-500 to-emerald-500"
+          iconGradient="bg-emerald-600"
           isOpen={openDropdown === 'price'}
           onToggle={() => toggleDropdown('price')}
           hasValue={!!(currentFilters.price_min || currentFilters.price_max)}
@@ -277,10 +279,10 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
                   placeholder="0"
                   value={localPriceMin}
                   onChange={(e) => setLocalPriceMin(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 bg-white dark:bg-[hsl(0,0%,15%)] border border-gray-200 rounded-xl text-sm dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
               </div>
-              <span className="text-gray-300 mt-5">—</span>
+              <span className="text-gray-300 dark:text-gray-500 mt-5">—</span>
               <div className="flex-1">
                 <label className="text-xs text-gray-500 mb-1 block">Max</label>
                 <input
@@ -288,13 +290,13 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
                   placeholder="∞"
                   value={localPriceMax}
                   onChange={(e) => setLocalPriceMax(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 bg-white dark:bg-[hsl(0,0%,15%)] border border-gray-200 rounded-xl text-sm dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
               </div>
             </div>
             <button
               onClick={applyPriceFilter}
-              className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg"
+              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg"
             >
               Apply Price Filter
             </button>
@@ -306,7 +308,7 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
           <FilterDropdown
             label={regionLabel}
             icon={MapPin}
-            iconGradient="bg-gradient-to-br from-rose-500 to-red-500"
+            iconGradient="bg-rose-600"
             isOpen={openDropdown === 'region'}
             onToggle={() => toggleDropdown('region')}
             hasValue={!!currentFilters.region}
@@ -317,7 +319,7 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
                 onClick={() => { updateFilters('region', ''); setOpenDropdown(null) }}
                 className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   !currentFilters.region
-                    ? 'bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-md'
+                    ? 'bg-rose-600 text-white shadow-md'
                     : 'hover:bg-gray-100/80 text-gray-700'
                 }`}
               >
@@ -329,11 +331,11 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
                   onClick={() => { updateFilters('region', region.slug); setOpenDropdown(null) }}
                   className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                     currentFilters.region === region.slug
-                      ? 'bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-md'
+                      ? 'bg-rose-600 text-white shadow-md'
                       : 'hover:bg-gray-100/80 text-gray-700'
                   }`}
                 >
-                  {region.name}
+                  {getRegionDisplayName(region.slug, region.name)}
                 </button>
               ))}
             </div>
@@ -351,7 +353,7 @@ export function RentalFilterPanel({ regions = [], currentFilters = {} }: RentalF
               onClick={() => updateFilters('sort', option.value === 'newest' ? '' : option.value)}
               className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${
                 (currentFilters.sort || 'newest') === option.value
-                  ? 'bg-gray-900 text-white shadow-md'
+                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md'
                   : 'text-gray-500 hover:bg-white/80 hover:text-gray-700 hover:shadow-sm'
               }`}
             >

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { TourismHero, HeroVideo } from '@/components/tourism/TourismHero'
 import { TourismCategoryPills } from '@/components/tourism/TourismCategoryPills'
@@ -7,6 +8,7 @@ import { TourismFilterBarPremium } from '@/components/tourism/TourismFilterBarPr
 import { TourismPageClientPremium } from '@/components/tourism/TourismPageClientPremium'
 import { MobileTourismCategoryFilterBar } from '@/components/MobileTourismCategoryFilterBar'
 import { getTourismCategoriesWithCounts } from '@/lib/category-counts'
+import { getSelectedRegionSlug, resolveRegionFilter } from '@/lib/regions'
 
 export const metadata: Metadata = {
   title: 'Tourism Experiences in Guyana',
@@ -35,6 +37,51 @@ interface TourismPageProps {
 
 const ITEMS_PER_PAGE = 24
 
+// Sanitize search input: strip Postgres pattern/special chars and backslashes
+function sanitizeSearch(raw: string | undefined): string {
+  return raw ? raw.replace(/[%_(),.*\\]/g, ' ').trim() : ''
+}
+
+// Apply shared tourism filters to any Supabase query builder (data or count)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyTourismFilters<T extends { eq: (...args: any[]) => T; ilike: (...args: any[]) => T; or: (...args: any[]) => T; in: (...args: any[]) => T }>(
+  query: T,
+  filters: { category?: string; difficulty?: string; duration?: string; regionIds?: string[] | null; safeQ?: string }
+): T {
+  const { category, difficulty, duration, regionIds, safeQ } = filters
+
+  if (category && category !== 'all') {
+    query = query.eq('tourism_category_id', category)
+  }
+  if (difficulty && difficulty !== 'all') {
+    query = query.eq('difficulty_level', difficulty)
+  }
+  if (duration && duration !== 'all') {
+    switch (duration) {
+      case 'quick':
+        query = query.ilike('duration', '%hour%')
+        break
+      case 'half_day':
+        query = query.ilike('duration', '%half%day%')
+        break
+      case 'full_day':
+        query = query.ilike('duration', '%full%day%')
+        break
+      case 'multi_day':
+        query = query.or('duration.ilike.%week%,duration.ilike.%multi%,duration.ilike.%night%')
+        break
+    }
+  }
+  if (regionIds) {
+    query = query.in('region_id', regionIds)
+  }
+  if (safeQ) {
+    query = query.or(`name.plfts.${safeQ},description.ilike.%${safeQ}%,location_details.ilike.%${safeQ}%`)
+  }
+
+  return query
+}
+
 export default async function TourismPage({ searchParams }: TourismPageProps) {
   const { category, difficulty, duration, sort = 'featured', q, region, page = '1' } = await searchParams
   const supabase = await createClient()
@@ -44,8 +91,7 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
   const categoriesWithCount = await getTourismCategoriesWithCounts()
 
   // Fetch hero videos
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: heroVideosData } = await (supabase as any)
+  const { data: heroVideosData } = await supabase
     .from('tourism_hero_videos')
     .select('*')
     .eq('is_active', true)
@@ -59,55 +105,27 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
     .select('*')
     .order('name')
 
+  // Resolve region: use URL param if present, otherwise fall back to cookie
+  const cookieStore = await cookies()
+  const effectiveRegion = region || getSelectedRegionSlug(cookieStore)
+  const regionFilterIds = await resolveRegionFilter(supabase, effectiveRegion)
+
+  const safeQ = sanitizeSearch(q)
+  const filterParams = { category, difficulty, duration, regionIds: regionFilterIds, safeQ }
+
   // Build the query for tourism experiences
-  let query = supabase
-    .from('tourism_experiences')
-    .select(`
-      *,
-      tourism_categories:tourism_category_id (name, icon),
-      regions:region_id (name),
-      tourism_photos:tourism_photos (image_url, is_primary, display_order)
-    `)
-    .eq('is_approved', true)
-
-  // Apply category filter if selected
-  if (category && category !== 'all') {
-    query = query.eq('tourism_category_id', category)
-  }
-
-  // Apply difficulty filter if selected
-  if (difficulty && difficulty !== 'all') {
-    query = query.eq('difficulty_level', difficulty)
-  }
-
-  // Apply duration filter if selected (duration is stored as text like "2 hours", "Half Day", etc.)
-  if (duration && duration !== 'all') {
-    switch (duration) {
-      case 'quick':
-        query = query.or('duration.ilike.%hour%,duration.ilike.%1%,duration.ilike.%2%')
-        break
-      case 'half_day':
-        query = query.ilike('duration', '%half%')
-        break
-      case 'full_day':
-        query = query.ilike('duration', '%full%')
-        break
-      case 'multi_day':
-        query = query.or('duration.ilike.%day%,duration.ilike.%week%,duration.ilike.%multi%')
-        break
-    }
-  }
-
-  // Apply region filter if selected
-  if (region && region !== 'all') {
-    query = query.eq('region_id', region)
-  }
-
-  // Apply search filter using full-text search on name + ILIKE fallback
-  const safeQ = q ? q.replace(/[%_(),.*]/g, ' ').trim() : ''
-  if (safeQ) {
-    query = query.or(`name.plfts.${safeQ},description.ilike.%${safeQ}%,location_details.ilike.%${safeQ}%`)
-  }
+  let query = applyTourismFilters(
+    supabase
+      .from('tourism_experiences')
+      .select(`
+        *,
+        tourism_categories:tourism_category_id (name, icon),
+        regions:region_id (name),
+        tourism_photos:tourism_photos (image_url, is_primary, display_order)
+      `)
+      .eq('is_approved', true),
+    filterParams
+  )
 
   // Apply sorting
   switch (sort) {
@@ -130,40 +148,13 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
   }
 
   // Build count query with same filters
-  let countQuery = supabase
-    .from('tourism_experiences')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_approved', true)
-
-  if (category && category !== 'all') {
-    countQuery = countQuery.eq('tourism_category_id', category)
-  }
-  if (difficulty && difficulty !== 'all') {
-    countQuery = countQuery.eq('difficulty_level', difficulty)
-  }
-  if (region && region !== 'all') {
-    countQuery = countQuery.eq('region_id', region)
-  }
-  // Apply duration filter to count query (must match data query)
-  if (duration && duration !== 'all') {
-    switch (duration) {
-      case 'quick':
-        countQuery = countQuery.or('duration.ilike.%hour%,duration.ilike.%1%,duration.ilike.%2%')
-        break
-      case 'half_day':
-        countQuery = countQuery.ilike('duration', '%half%')
-        break
-      case 'full_day':
-        countQuery = countQuery.ilike('duration', '%full%')
-        break
-      case 'multi_day':
-        countQuery = countQuery.or('duration.ilike.%day%,duration.ilike.%week%,duration.ilike.%multi%')
-        break
-    }
-  }
-  if (safeQ) {
-    countQuery = countQuery.or(`name.plfts.${safeQ},description.ilike.%${safeQ}%,location_details.ilike.%${safeQ}%`)
-  }
+  const countQuery = applyTourismFilters(
+    supabase
+      .from('tourism_experiences')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_approved', true),
+    filterParams
+  )
 
   const { count: totalCount } = await countQuery
 
@@ -181,22 +172,37 @@ export default async function TourismPage({ searchParams }: TourismPageProps) {
     }
   }
 
-  // Get featured experiences for the carousel (only if no filters applied)
   const hasFilters = !!(category || difficulty || duration || region || q)
-  const featuredExperiences = !hasFilters
-    ? experiences?.filter(e => e.is_featured).slice(0, 6) || []
-    : []
 
-  // Non-featured experiences for the main grid
-  const gridExperiences = hasFilters
-    ? experiences || []
-    : experiences?.filter(e => !featuredExperiences.includes(e)) || []
+  // Fetch featured experiences separately so they don't consume pagination slots
+  let featuredExperiences: typeof experiences = []
+  if (!hasFilters && currentPage === 1) {
+    let featuredQuery = supabase
+      .from('tourism_experiences')
+      .select(`
+        *,
+        tourism_categories:tourism_category_id (name, icon),
+        regions:region_id (name),
+        tourism_photos:tourism_photos (image_url, is_primary, display_order)
+      `)
+      .eq('is_approved', true)
+      .eq('is_featured', true)
+    if (regionFilterIds) featuredQuery = featuredQuery.in('region_id', regionFilterIds)
+    const { data: featured } = await featuredQuery
+      .order('rating', { ascending: false })
+      .limit(6)
+
+    featuredExperiences = featured || []
+  }
+
+  // All paginated experiences go to the grid (featured carousel is separate)
+  const gridExperiences = experiences || []
 
   const totalExperiences = totalCount || 0
   const totalPages = Math.ceil(totalExperiences / ITEMS_PER_PAGE)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
+    <div className="min-h-screen bg-gray-50 dark:bg-[hsl(0,0%,5%)]">
       {/* Hero Section - Only show when no search/filters */}
       {!hasFilters && (
         <TourismHero totalExperiences={totalExperiences} videos={heroVideos} />

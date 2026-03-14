@@ -72,7 +72,10 @@
       "Bash(curl -sL -o history-heritage.jpg \"https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&auto=format&fit=crop&q=80\")",
       "Bash(curl -sL -o transfers.jpg \"https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=800&auto=format&fit=crop&q=80\")",
       "Bash(curl -sL -o sports.jpg \"https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=800&auto=format&fit=crop&q=80\")",
-      "WebFetch(domain:developers.google.com)"
+      "WebFetch(domain:developers.google.com)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_resize"
     ]
   },
   "outputStyle": "default"

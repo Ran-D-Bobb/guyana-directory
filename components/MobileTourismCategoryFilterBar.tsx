@@ -118,17 +118,21 @@ export function MobileTourismCategoryFilterBar({
     }
   }, [currentCategorySlug])
 
-  // Build URL with current search params preserved
-  const buildCategoryUrl = (categorySlug?: string) => {
+  // Build URL with current search params preserved (uses ?category=id like desktop pills)
+  const buildCategoryUrl = (categoryId?: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete('page')
-    const queryString = params.toString()
-
-    if (!categorySlug) {
-      return queryString ? `/tourism?${queryString}` : '/tourism'
+    if (categoryId) {
+      params.set('category', categoryId)
+    } else {
+      params.delete('category')
     }
-    return queryString ? `/tourism/category/${categorySlug}?${queryString}` : `/tourism/category/${categorySlug}`
+    const queryString = params.toString()
+    return `/tourism${queryString ? `?${queryString}` : ''}`
   }
+
+  // Determine active category from URL search param
+  const activeCategoryId = searchParams.get('category') || ''
 
   return (
     <>
@@ -162,16 +166,16 @@ export function MobileTourismCategoryFilterBar({
           {/* All Experiences Pill */}
           <Link
             href={buildCategoryUrl()}
-            data-active={!currentCategorySlug}
+            data-active={!activeCategoryId}
             className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all ${
-              !currentCategorySlug
+              !activeCategoryId
                 ? 'bg-teal-500 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            <Check className={`h-3.5 w-3.5 ${!currentCategorySlug ? 'opacity-100' : 'opacity-0 w-0'}`} />
+            <Check className={`h-3.5 w-3.5 ${!activeCategoryId ? 'opacity-100' : 'opacity-0 w-0'}`} />
             <span>All</span>
-            <span className={`text-xs ${!currentCategorySlug ? 'text-white/80' : 'text-gray-500'}`}>
+            <span className={`text-xs ${!activeCategoryId ? 'text-white/80' : 'text-gray-500'}`}>
               {categories.reduce((sum, c) => sum + (c.experience_count || 0), 0)}
             </span>
           </Link>
@@ -179,12 +183,12 @@ export function MobileTourismCategoryFilterBar({
           {/* Category Pills */}
           {categories.map((category) => {
             const IconComponent = category.icon ? iconMap[category.icon as keyof typeof iconMap] || Plane : Plane
-            const isActive = currentCategorySlug === category.slug
+            const isActive = activeCategoryId === category.id
 
             return (
               <Link
                 key={category.id}
-                href={buildCategoryUrl(category.slug)}
+                href={buildCategoryUrl(category.id)}
                 data-active={isActive}
                 className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all ${
                   isActive

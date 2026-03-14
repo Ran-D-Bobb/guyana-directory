@@ -4,14 +4,8 @@ import { useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight, Sparkles, MapPin, Clock, Star, ArrowRight } from 'lucide-react'
-import { Database } from '@/types/supabase'
+import { TourismExperience } from '@/types/tourism'
 import { getFallbackImage } from '@/lib/category-images'
-
-type TourismExperience = Database['public']['Tables']['tourism_experiences']['Row'] & {
-  tourism_categories: { name: string; icon: string } | null
-  regions: { name: string } | null
-  tourism_photos: Array<{ image_url: string; is_primary: boolean | null; display_order?: number | null }> | null
-}
 
 interface FeaturedExperiencesProps {
   experiences: TourismExperience[]
@@ -38,7 +32,7 @@ export function FeaturedExperiences({ experiences }: FeaturedExperiencesProps) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500">
+            <div className="p-1.5 rounded-lg bg-amber-500">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <span className="text-sm font-semibold text-amber-600 uppercase tracking-wider">Handpicked</span>
@@ -52,14 +46,14 @@ export function FeaturedExperiences({ experiences }: FeaturedExperiencesProps) {
         <div className="hidden lg:flex items-center gap-2">
           <button
             onClick={() => scroll('left')}
-            className="p-2.5 rounded-full bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+            className="p-2.5 rounded-full bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm dark:border-[hsl(0,0%,25%)] dark:hover:border-[hsl(0,0%,35%)]"
             aria-label="Scroll left"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={() => scroll('right')}
-            className="p-2.5 rounded-full bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+            className="p-2.5 rounded-full bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm dark:border-[hsl(0,0%,25%)] dark:hover:border-[hsl(0,0%,35%)]"
             aria-label="Scroll right"
           >
             <ChevronRight className="w-5 h-5" />
@@ -70,8 +64,8 @@ export function FeaturedExperiences({ experiences }: FeaturedExperiencesProps) {
       {/* Carousel */}
       <div className="relative -mx-4 sm:-mx-6 lg:-mx-8">
         {/* Gradient Fades */}
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
 
         <div
           ref={scrollRef}
@@ -85,7 +79,7 @@ export function FeaturedExperiences({ experiences }: FeaturedExperiencesProps) {
               <Link
                 key={experience.id}
                 href={`/tourism/${experience.slug}`}
-                className="group flex-shrink-0 w-[320px] lg:w-[380px] bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100"
+                className="group flex-shrink-0 w-[320px] lg:w-[380px] bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500 hover:-translate-y-1 border border-gray-100"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Image */}
@@ -94,7 +88,7 @@ export function FeaturedExperiences({ experiences }: FeaturedExperiencesProps) {
                     src={primaryPhoto}
                     alt={experience.name}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 768px) 320px, 380px"
                   />
 
@@ -103,7 +97,7 @@ export function FeaturedExperiences({ experiences }: FeaturedExperiencesProps) {
 
                   {/* Featured Badge */}
                   <div className="absolute top-4 left-4">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 text-white text-xs font-bold rounded-full shadow-lg">
                       <Sparkles className="w-3.5 h-3.5" />
                       Featured
                     </span>

@@ -4,6 +4,7 @@ import { createStaticClient } from '@/lib/supabase/static'
 import { notFound } from 'next/navigation'
 import { RentalDetailClient } from './RentalDetailClient'
 import { RecentlyViewedTracker } from '@/components/RecentlyViewedTracker'
+import { RentalViewTracker } from '@/components/RentalViewTracker'
 import { getFallbackImage } from '@/lib/category-images'
 
 // Revalidate every 2 minutes
@@ -34,19 +35,34 @@ export async function generateMetadata({
   const { slug } = await params
   const { data: rental } = await supabase
     .from('rentals')
-    .select('name, description')
+    .select('name, description, rental_categories(name), regions(name), rental_photos(image_url, is_primary)')
     .eq('slug', slug)
     .single()
 
   if (!rental) {
     return {
-      title: 'Property Not Found - Guyana Directory',
+      title: 'Property Not Found | Waypoint',
     }
   }
 
+  const photo = Array.isArray(rental.rental_photos)
+    ? rental.rental_photos.find((p: { is_primary: boolean | null }) => p.is_primary)?.image_url || rental.rental_photos[0]?.image_url
+    : null
+  const categoryName = (rental.rental_categories as { name: string } | null)?.name || ''
+  const regionName = (rental.regions as { name: string } | null)?.name || ''
+  const description = rental.description
+    ? rental.description.slice(0, 155)
+    : `${rental.name} - ${categoryName} in ${regionName}, Guyana.`
+
   return {
-    title: `${rental.name} - Rentals - Guyana Directory`,
-    description: rental.description || `Rent ${rental.name} in Guyana`,
+    title: `${rental.name} - Stays`,
+    description,
+    alternates: { canonical: `/rentals/${slug}` },
+    openGraph: {
+      title: `${rental.name} | Waypoint`,
+      description,
+      ...(photo ? { images: [{ url: photo, width: 1200, height: 630, alt: rental.name }] } : {}),
+    },
   }
 }
 
@@ -83,7 +99,7 @@ export default async function RentalDetailPage({
     .order('created_at', { ascending: false })
 
   // Get similar properties (same property type, different property)
-  const { data: similarRentals } = await supabase
+  const { data: similarRentalsRaw } = await supabase
     .from('rentals')
     .select(`
       *,
@@ -94,7 +110,16 @@ export default async function RentalDetailPage({
     .eq('property_type', rental.property_type)
     .eq('is_approved', true)
     .neq('id', rental.id)
+    .neq('slug', rental.slug)
     .limit(4)
+
+  // Deduplicate by slug in case of data issues
+  const seenSlugs = new Set<string>()
+  const similarRentals = (similarRentalsRaw || []).filter((r) => {
+    if (seenSlugs.has(r.slug)) return false
+    seenSlugs.add(r.slug)
+    return true
+  })
 
   // Sort photos (primary first, then by display_order)
   interface RentalPhoto {
@@ -115,8 +140,45 @@ export default async function RentalDetailPage({
   // Get primary image for recently viewed
   const primaryImage = photos[0]?.image_url || defaultImage
 
+  // JSON-LD structured data for LodgingBusiness
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LodgingBusiness',
+    name: rental.name,
+    description: rental.description || undefined,
+    url: `https://waypointgy.com/rentals/${rental.slug}`,
+    image: primaryImage,
+    ...(rental.regions ? {
+      address: {
+        '@type': 'PostalAddress',
+        addressRegion: (rental.regions as { name: string }).name,
+        addressCountry: 'GY',
+        ...(rental.location_details ? { streetAddress: rental.location_details } : {}),
+      },
+    } : {}),
+    ...(rental.price_per_month ? {
+      priceRange: `GYD ${rental.price_per_month.toLocaleString()}/month`,
+    } : {}),
+    ...(rental.rating ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: rental.rating,
+        reviewCount: reviews?.length || 0,
+      },
+    } : {}),
+  }
+
   return (
     <>
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+
+      {/* Track view count */}
+      <RentalViewTracker rentalId={rental.id} />
+
       {/* Track recently viewed */}
       <RecentlyViewedTracker
         type="rental"
@@ -133,7 +195,7 @@ export default async function RentalDetailPage({
         photos={photos}
         defaultImage={defaultImage}
         reviews={reviews || []}
-        similarRentals={similarRentals || []}
+        similarRentals={similarRentals}
       />
     </>
   )

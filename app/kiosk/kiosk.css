@@ -676,6 +676,10 @@
   outline: 4px solid var(--kiosk-warning-400);
   outline-offset: 4px;
 }
+.kiosk-overlay-container:focus-visible,
+.kiosk-overlay-backdrop:focus-visible {
+  outline: none;
+}
 
 /* ============================================
    GLOBAL KIOSK OPTIMIZATIONS
@@ -870,10 +874,10 @@
    Subtle pixel-shift prevents static elements from burning into displays.
    ========================================================================== */
 @keyframes kiosk-pixel-shift {
-  0%, 100% { transform: translate(0, 0); }
-  25% { transform: translate(1px, 1px); }
-  50% { transform: translate(-1px, 0); }
-  75% { transform: translate(0, -1px); }
+  0%, 100% { transform: scale(1.002) translate(0, 0); }
+  25% { transform: scale(1.002) translate(1px, 1px); }
+  50% { transform: scale(1.002) translate(-1px, 0); }
+  75% { transform: scale(1.002) translate(0, -1px); }
 }
 
 .kiosk-burn-protect {
@@ -962,7 +966,7 @@
 /* Detail overlay slide-up entrance */
 @keyframes kiosk-overlay-enter {
   from { transform: translateY(100vh); opacity: 0.5; }
-  to   { transform: translateY(0); opacity: 1; }
+  to   { transform: none; opacity: 1; }
 }
 
 /* Detail overlay slide-down exit */
@@ -1043,6 +1047,15 @@
   background: var(--kiosk-gradient-card);
 }
 
+/* Hide scrollbar on main kiosk scroll container */
+.kiosk-home-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.kiosk-home-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 /* Content row — horizontal scroll-snap rail */
 .kiosk-content-row {
   display: flex;
@@ -1072,15 +1085,28 @@
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  z-index: var(--kiosk-z-modal);
+  z-index: calc(var(--kiosk-z-nav) + 10);
 }
 
 /* Detail overlay container */
 .kiosk-overlay-container {
   position: fixed;
   inset: 0;
-  z-index: calc(var(--kiosk-z-modal) + 1);
+  z-index: calc(var(--kiosk-z-nav) + 11);
   animation: kiosk-overlay-enter 600ms var(--kiosk-ease-expo) forwards;
+  border: none;
+  outline: none;
+}
+
+/* Hide all scrollbars inside kiosk layout */
+.kiosk-overlay-container *::-webkit-scrollbar,
+.kiosk-overlay-container::-webkit-scrollbar {
+  display: none;
+}
+.kiosk-overlay-container *,
+.kiosk-overlay-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .kiosk-overlay-container.exiting {

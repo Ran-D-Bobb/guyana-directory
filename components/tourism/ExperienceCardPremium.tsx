@@ -3,15 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Clock, Star, Heart, Sparkles, ShieldCheck, Award, Eye } from 'lucide-react'
-import { Database } from '@/types/supabase'
+import { MapPin, Clock, Star, Sparkles, ShieldCheck, Award, Eye } from 'lucide-react'
+import { TourismExperience } from '@/types/tourism'
 import { getFallbackImage } from '@/lib/category-images'
-
-type TourismExperience = Database['public']['Tables']['tourism_experiences']['Row'] & {
-  tourism_categories: { name: string; icon: string } | null
-  regions: { name: string } | null
-  tourism_photos: Array<{ image_url: string; is_primary: boolean | null; display_order?: number | null }> | null
-}
 
 interface ExperienceCardPremiumProps {
   experience: TourismExperience
@@ -27,7 +21,6 @@ const difficultyStyles: Record<string, string> = {
 }
 
 export function ExperienceCardPremium({ experience, priority = false }: ExperienceCardPremiumProps) {
-  const [isLiked, setIsLiked] = useState(false)
   const [imageError, setImageError] = useState(false)
 
   // Get primary photo
@@ -41,16 +34,10 @@ export function ExperienceCardPremium({ experience, priority = false }: Experien
     : experience.is_verified ? 'verified'
     : null
 
-  const handleLikeClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsLiked(!isLiked)
-  }
-
   return (
     <Link
       href={`/tourism/${experience.slug}`}
-      className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 border border-gray-100/80"
+      className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500 hover:-translate-y-0.5 border border-gray-100/80"
     >
       {/* Image Container - 4:3 Aspect Ratio */}
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-emerald-100 via-teal-50 to-emerald-50">
@@ -58,7 +45,7 @@ export function ExperienceCardPremium({ experience, priority = false }: Experien
           src={primaryPhoto}
           alt={experience.name}
           fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           priority={priority}
           onError={() => setImageError(true)}
@@ -67,41 +54,26 @@ export function ExperienceCardPremium({ experience, priority = false }: Experien
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
 
-        {/* Top Row: Badge + Like Button */}
+        {/* Top Row: Badge */}
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
-          {/* Primary Badge */}
           {primaryBadge === 'featured' && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg animate-scale-in">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 text-white text-xs font-bold rounded-full shadow-sm">
               <Sparkles className="w-3.5 h-3.5" />
               Featured
             </span>
           )}
           {primaryBadge === 'approved' && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-600 to-lime-600 text-white text-xs font-bold rounded-full shadow-lg">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-full shadow-sm">
               <Award className="w-3.5 h-3.5" />
               TA Approved
             </span>
           )}
           {primaryBadge === 'verified' && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-full shadow-lg">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-full shadow-sm">
               <ShieldCheck className="w-3.5 h-3.5" />
               Verified
             </span>
           )}
-          {!primaryBadge && <div />}
-
-          {/* Like Button */}
-          <button
-            onClick={handleLikeClick}
-            className={`p-2.5 rounded-full backdrop-blur-md transition-all duration-200 ${
-              isLiked
-                ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
-                : 'bg-white/20 text-white hover:bg-white/30'
-            }`}
-            aria-label={isLiked ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            <Heart className={`w-4 h-4 transition-transform ${isLiked ? 'fill-current scale-110' : 'group-hover:scale-110'}`} />
-          </button>
         </div>
 
         {/* Bottom Row: Category + Price */}

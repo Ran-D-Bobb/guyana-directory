@@ -41,7 +41,7 @@ export function TourismEmptyState({ hasFilters = false, onClearFilters }: Touris
       <p className="text-gray-500 text-lg max-w-md mx-auto mb-8">
         {hasFilters
           ? 'Try adjusting your filters or explore different categories to discover amazing experiences.'
-          : 'We&apos;re curating incredible tourism experiences in Guyana. Check back soon for new adventures!'
+          : "We're curating incredible tourism experiences in Guyana. Check back soon for new adventures!"
         }
       </p>
 

@@ -1,11 +1,14 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { AuthButton } from './AuthButton'
 import { UserMenu } from './UserMenu'
 import { BottomNav } from './BottomNav'
 import { ThemeToggle } from './ThemeToggle'
+import { RegionSelector } from './RegionSelector'
 import { isAdmin } from '@/lib/admin'
+import { REGION_COOKIE, DEFAULT_REGION, getRegionDisplayName } from '@/lib/regions'
 import { Compass, Calendar, Key, ShoppingBag, Sparkles, Navigation } from 'lucide-react'
 
 export async function Header() {
@@ -26,6 +29,40 @@ export async function Header() {
       .single()
     accountType = profile?.account_type ?? null
   }
+
+  // Fetch regions and current selection for region selector
+  const cookieStore = await cookies()
+  const currentRegionSlug = cookieStore.get(REGION_COOKIE)?.value || DEFAULT_REGION
+
+  const { data: allRegions } = await supabase
+    .from('regions')
+    .select('name, slug')
+    .order('name')
+
+  const regionOptions = [
+    { slug: 'all', name: 'All Guyana', displayName: 'All Guyana' },
+    ...(allRegions || [])
+      .filter(r => r.slug)
+      .sort((a, b) => {
+        // Pin Georgetown first
+        if (a.slug === 'georgetown') return -1
+        if (b.slug === 'georgetown') return 1
+        // Then sort by region number
+        const aDisplay = getRegionDisplayName(a.slug, a.name)
+        const bDisplay = getRegionDisplayName(b.slug, b.name)
+        const aNum = aDisplay.match(/Region (\d+)/)?.[1]
+        const bNum = bDisplay.match(/Region (\d+)/)?.[1]
+        if (aNum && bNum) return parseInt(aNum) - parseInt(bNum)
+        if (aNum) return 1
+        if (bNum) return -1
+        return a.name.localeCompare(b.name)
+      })
+      .map(r => ({
+        slug: r.slug!,
+        name: r.name,
+        displayName: getRegionDisplayName(r.slug!, r.name),
+      })),
+  ]
 
   return (
     <>
@@ -63,6 +100,11 @@ export async function Header() {
                 </span>
               </div>
             </Link>
+
+            {/* Region Selector - Mobile */}
+            <div className="lg:hidden">
+              <RegionSelector currentSlug={currentRegionSlug} regions={regionOptions} />
+            </div>
 
             {/* Center Navigation - Desktop Only */}
             <div className="hidden lg:flex items-center gap-1 bg-gray-50/80 dark:bg-white/5 rounded-2xl px-2 py-2 border border-gray-200/50 dark:border-white/10">
@@ -114,6 +156,10 @@ export async function Header() {
 
             {/* Right Side */}
             <div className="flex items-center gap-2 md:gap-3">
+              {/* Region Selector - Desktop */}
+              <div className="hidden lg:block">
+                <RegionSelector currentSlug={currentRegionSlug} regions={regionOptions} />
+              </div>
               <ThemeToggle />
               {!user ? (
                 // Guest User - Just Auth Button on Mobile

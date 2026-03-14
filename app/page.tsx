@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { HomeFeedClient } from '@/components/home'
 import type { FeedItem } from '@/components/home'
 import { getCategoryImage, getFallbackImage } from '@/lib/category-images'
+import { getSelectedRegionSlug, resolveRegionFilter, getRegionDisplayName } from '@/lib/regions'
 
 export const revalidate = 60
 
@@ -14,6 +16,9 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const supabase = await createClient()
+  const cookieStore = await cookies()
+  const regionSlug = getSelectedRegionSlug(cookieStore)
+  const regionIds = await resolveRegionFilter(supabase, regionSlug)
 
   // Fetch all items from each table in parallel (more items for the feed)
   const [
@@ -23,58 +28,66 @@ export default async function Home() {
     { data: events },
   ] = await Promise.all([
     // Businesses - fetch for the feed
-    supabase
-      .from('businesses')
-      .select(`
-        id, name, slug, description, rating, review_count,
-        is_featured, is_verified,
-        categories:category_id (name, slug),
-        regions:region_id (name),
-        business_photos (image_url, is_primary)
-      `)
-      .eq('is_active', true)
-      .order('rating', { ascending: false, nullsFirst: false })
-      .limit(24),
+    (() => {
+      let q = supabase
+        .from('businesses')
+        .select(`
+          id, name, slug, description, rating, review_count,
+          is_featured, is_verified,
+          categories:category_id (name, slug),
+          regions:region_id (name, slug),
+          business_photos (image_url, is_primary)
+        `)
+        .eq('is_active', true)
+      if (regionIds) q = q.in('region_id', regionIds)
+      return q.order('rating', { ascending: false, nullsFirst: false }).limit(24)
+    })(),
 
     // Tourism experiences
-    supabase
-      .from('tourism_experiences')
-      .select(`
-        id, name, slug, description, rating, review_count, price_from,
-        is_featured, is_verified,
-        tourism_categories:tourism_category_id (name),
-        regions:region_id (name),
-        tourism_photos (image_url, is_primary)
-      `)
-      .eq('is_approved', true)
-      .order('rating', { ascending: false, nullsFirst: false })
-      .limit(24),
+    (() => {
+      let q = supabase
+        .from('tourism_experiences')
+        .select(`
+          id, name, slug, description, rating, review_count, price_from,
+          is_featured, is_verified,
+          tourism_categories:tourism_category_id (name),
+          regions:region_id (name, slug),
+          tourism_photos (image_url, is_primary)
+        `)
+        .eq('is_approved', true)
+      if (regionIds) q = q.in('region_id', regionIds)
+      return q.order('rating', { ascending: false, nullsFirst: false }).limit(24)
+    })(),
 
     // Rentals
-    supabase
-      .from('rentals')
-      .select(`
-        id, name, slug, description, rating, review_count, price_per_month,
-        is_featured,
-        rental_categories:category_id (name, slug),
-        regions:region_id (name),
-        rental_photos (image_url, is_primary)
-      `)
-      .eq('is_approved', true)
-      .order('rating', { ascending: false, nullsFirst: false })
-      .limit(24),
+    (() => {
+      let q = supabase
+        .from('rentals')
+        .select(`
+          id, name, slug, description, rating, review_count, price_per_month,
+          is_featured,
+          rental_categories:category_id (name, slug),
+          regions:region_id (name, slug),
+          rental_photos (image_url, is_primary)
+        `)
+        .eq('is_approved', true)
+      if (regionIds) q = q.in('region_id', regionIds)
+      return q.order('rating', { ascending: false, nullsFirst: false }).limit(24)
+    })(),
 
     // Events - upcoming only
-    supabase
-      .from('events')
-      .select(`
-        id, title, slug, description, image_url, interest_count, location,
-        is_featured,
-        event_categories:category_id (name, slug)
-      `)
-      .gte('end_date', new Date().toISOString())
-      .order('start_date', { ascending: true })
-      .limit(12),
+    (() => {
+      let q = supabase
+        .from('events')
+        .select(`
+          id, title, slug, description, image_url, interest_count, location,
+          is_featured,
+          event_categories:category_id (name, slug)
+        `)
+        .gte('end_date', new Date().toISOString())
+      if (regionIds) q = q.in('region_id', regionIds)
+      return q.order('start_date', { ascending: true }).limit(12)
+    })(),
   ])
 
   // Helper to get primary image from photo array
@@ -108,7 +121,10 @@ export default async function Home() {
         category_name: (b.categories as { name: string } | null)?.name || null,
         is_featured: b.is_featured || false,
         is_verified: b.is_verified || false,
-        location: (b.regions as { name: string } | null)?.name || null,
+        location: (() => {
+          const reg = b.regions as { name: string; slug?: string } | null
+          return reg ? getRegionDisplayName(reg.slug || null, reg.name) : null
+        })(),
       }
     }),
 
@@ -128,7 +144,10 @@ export default async function Home() {
       category_name: (exp.tourism_categories as { name: string } | null)?.name || null,
       is_featured: exp.is_featured || false,
       is_verified: exp.is_verified || false,
-      location: (exp.regions as { name: string } | null)?.name || null,
+      location: (() => {
+        const reg = exp.regions as { name: string; slug?: string } | null
+        return reg ? getRegionDisplayName(reg.slug || null, reg.name) : null
+      })(),
       price_display: exp.price_from ? `From GYD ${exp.price_from.toLocaleString()}` : null,
     })),
 
@@ -148,7 +167,10 @@ export default async function Home() {
       category_name: (r.rental_categories as { name: string } | null)?.name || null,
       is_featured: r.is_featured || false,
       is_verified: false,
-      location: (r.regions as { name: string } | null)?.name || null,
+      location: (() => {
+        const reg = r.regions as { name: string; slug?: string } | null
+        return reg ? getRegionDisplayName(reg.slug || null, reg.name) : null
+      })(),
       price_display: r.price_per_month ? `GYD ${r.price_per_month.toLocaleString()}/mo` : null,
     })),
 

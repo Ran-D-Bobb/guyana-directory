@@ -160,7 +160,7 @@ export function FeaturedRentalsHero({ rentals }: FeaturedRentalsHeroProps) {
         <div className="w-full lg:w-3/5 space-y-3 sm:space-y-4">
           {/* Badge */}
           <div
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold shadow-lg transition-all duration-700 ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 text-white text-xs font-bold shadow-sm transition-all duration-700 ${
               isTransitioning ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'
             }`}
             style={{ transitionDelay: '100ms' }}
@@ -254,7 +254,7 @@ export function FeaturedRentalsHero({ rentals }: FeaturedRentalsHeroProps) {
 
             <Link
               href={`/rentals/${currentRental.slug}`}
-              className="group flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-sm font-semibold rounded-full shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-300 hover:scale-105 active:scale-95"
+              className="group flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold rounded-full shadow-sm transition-colors duration-300 active:scale-95"
             >
               <span>View</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -268,14 +268,14 @@ export function FeaturedRentalsHero({ rentals }: FeaturedRentalsHeroProps) {
         <>
           <button
             onClick={prevSlide}
-            className="hidden sm:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 transition-all active:scale-95"
+            className="hidden sm:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all active:scale-95"
             aria-label="Previous property"
           >
             <ChevronLeft className="w-6 h-6 text-white" />
           </button>
           <button
             onClick={nextSlide}
-            className="hidden sm:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 transition-all active:scale-95"
+            className="hidden sm:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all active:scale-95"
             aria-label="Next property"
           >
             <ChevronRight className="w-6 h-6 text-white" />
@@ -285,18 +285,20 @@ export function FeaturedRentalsHero({ rentals }: FeaturedRentalsHeroProps) {
 
       {/* Slide Indicators */}
       {featuredRentals.length > 1 && (
-        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2">
+        <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center">
           {featuredRentals.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`transition-all duration-500 rounded-full ${
+              className="relative flex items-center justify-center w-11 h-11"
+              aria-label={`Go to slide ${index + 1}`}
+            >
+              <span className={`block transition-all duration-500 rounded-full ${
                 index === currentIndex
                   ? 'w-8 sm:w-10 h-1.5 sm:h-2 bg-white'
                   : 'w-1.5 sm:w-2 h-1.5 sm:h-2 bg-white/40 hover:bg-white/60'
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
+              }`} />
+            </button>
           ))}
         </div>
       )}

@@ -82,9 +82,10 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
     setActiveIndex(prev => (prev + 1) % heroVideos.length)
   }, [showVideoA, playVideo, heroVideos.length])
 
-  // Auto-cycle: use admin-set duration, or wait for video to finish
+  // Auto-cycle: use admin-set duration, or wait for video to finish (respects reduced motion)
   useEffect(() => {
     if (!hasLoaded || !hasMultipleVideos) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const currentVideoData = showVideoA ? heroVideos[videoAIndex] : heroVideos[videoBIndex]
     const currentVideo = showVideoA ? videoARef.current : videoBRef.current
@@ -244,18 +245,20 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
 
       {/* Video Indicators */}
       <div className="absolute top-4 right-4 z-20">
-        <div className="flex items-center gap-1.5 px-3 py-2 bg-black/40 backdrop-blur-sm rounded-full">
+        <div className="flex items-center gap-0 px-1 py-0.5 bg-black/40 backdrop-blur-sm rounded-full">
           {heroVideos.map((_, index) => (
             <button
               key={index}
               onClick={() => switchToVideo(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${
+              className="relative flex items-center justify-center w-11 h-11"
+              aria-label={`Switch to video ${index + 1}`}
+            >
+              <span className={`block h-2 rounded-full transition-all duration-300 ${
                 index === activeIndex
                   ? 'bg-white w-6'
                   : 'bg-white/50 hover:bg-white/70 w-2'
-              }`}
-              aria-label={`Switch to video ${index + 1}`}
-            />
+              }`} />
+            </button>
           ))}
         </div>
       </div>
@@ -273,7 +276,7 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
         {/* Headline */}
         <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl text-white font-bold leading-[1.1] mb-4 animate-fade-up delay-100">
           Explore the
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-amber-200 animate-text-shimmer">
+          <span className="block text-emerald-300">
             Land of Many Waters
           </span>
         </h1>
@@ -298,7 +301,7 @@ export function TourismHero({ totalExperiences = 0, videos }: TourismHeroProps) 
               />
               <button
                 type="submit"
-                className="absolute right-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/25 transition-all duration-200 hover:-translate-y-0.5"
+                className="absolute right-2 px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold rounded-xl shadow-sm transition-colors duration-200"
               >
                 Search
               </button>

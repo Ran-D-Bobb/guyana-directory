@@ -22,7 +22,7 @@ export default function KioskExperienceCard({ experience, onClick }: KioskExperi
         borderRadius: 'var(--kiosk-radius-lg)',
         overflow: 'hidden',
         position: 'relative',
-        border: '1px solid var(--kiosk-border-subtle)',
+        border: 'none',
         cursor: 'pointer',
         background: 'var(--kiosk-bg-elevated)',
         flexShrink: 0,
@@ -33,12 +33,10 @@ export default function KioskExperienceCard({ experience, onClick }: KioskExperi
       className="kiosk-ripple"
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)'
-        e.currentTarget.style.borderColor = 'var(--kiosk-primary-500)'
         e.currentTarget.style.boxShadow = '0 16px 48px rgba(16, 185, 129, 0.2)'
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = ''
-        e.currentTarget.style.borderColor = 'var(--kiosk-border-subtle)'
         e.currentTarget.style.boxShadow = ''
       }}
     >

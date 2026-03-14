@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { mapUnifiedEvents } from '@/lib/events'
 import type { UnifiedEvent } from '@/types/unified-events'
 import type { MappedEvent } from '@/lib/events'
 import { EventsNetflixPage, type EventRowData, type EventCategory } from '@/components/events'
+import { getSelectedRegionSlug, resolveRegionFilter } from '@/lib/regions'
 
 export const metadata: Metadata = {
   title: 'Events & Festivals in Guyana',
@@ -172,6 +174,11 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const supabase = await createClient()
   const now = new Date().toISOString()
 
+  // Resolve region: use URL param if present, otherwise fall back to cookie
+  const cookieStore = await cookies()
+  const effectiveRegion = region || getSelectedRegionSlug(cookieStore)
+  const regionFilterIds = await resolveRegionFilter(supabase, effectiveRegion)
+
   // Build the main query — fetch upcoming + ongoing events
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase as any)
@@ -187,8 +194,8 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   }
 
   // Apply region filter
-  if (region && region !== 'all') {
-    query = query.eq('region_id', region)
+  if (regionFilterIds) {
+    query = query.in('region_id', regionFilterIds)
   }
 
   // Only show upcoming + ongoing events (not past)

@@ -1,14 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Clock, Star, Users, Sparkles, ShieldCheck, Award } from 'lucide-react'
-import { Database } from '@/types/supabase'
+import { TourismExperience } from '@/types/tourism'
 import { getFallbackImage } from '@/lib/category-images'
-
-type TourismExperience = Database['public']['Tables']['tourism_experiences']['Row'] & {
-  tourism_categories: { name: string; icon: string } | null
-  regions: { name: string } | null
-  tourism_photos: Array<{ image_url: string; is_primary: boolean | null; display_order?: number | null }> | null
-}
 
 interface ExperienceCardProps {
   experience: TourismExperience

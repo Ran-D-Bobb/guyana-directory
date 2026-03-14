@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { CategorySidebar } from '@/components/CategorySidebar'
 import { BusinessesPageClient } from '@/components/BusinessesPageClient'
@@ -7,6 +8,7 @@ import { MobileCategoryFilterBar } from '@/components/MobileCategoryFilterBar'
 import { BusinessFilterPanel } from '@/components/BusinessFilterPanel'
 import { BusinessSearch } from '@/components/BusinessSearch'
 import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
+import { getSelectedRegionSlug, resolveRegionFilter } from '@/lib/regions'
 
 export const metadata: Metadata = {
   title: 'Local Businesses in Guyana',
@@ -116,22 +118,10 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
     }
   }
 
-  // Resolve region slug to ID if needed
-  let regionId: string | null = null
-  if (region && region !== 'all') {
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(region)
-    if (isUUID) {
-      regionId = region
-    } else {
-      // Look up region by slug
-      const { data: regionData } = await supabase
-        .from('regions')
-        .select('id')
-        .eq('slug', region)
-        .single()
-      regionId = regionData?.id || null
-    }
-  }
+  // Resolve region: use URL param if present, otherwise fall back to cookie
+  const cookieStore = await cookies()
+  const effectiveRegion = region || getSelectedRegionSlug(cookieStore)
+  const regionFilterIds = await resolveRegionFilter(supabase, effectiveRegion)
 
   // Build the query for businesses
   let query = supabase
@@ -156,9 +146,9 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
     query = query.eq('category_id', categoryId)
   }
 
-  // Apply region filter if selected
-  if (regionId) {
-    query = query.eq('region_id', regionId)
+  // Apply region filter if selected (uses children for parent regions)
+  if (regionFilterIds) {
+    query = query.in('region_id', regionFilterIds)
   }
 
   // Apply search filter using full-text search on name + ILIKE fallback
@@ -220,8 +210,8 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
   if (categoryId) {
     countQuery = countQuery.eq('category_id', categoryId)
   }
-  if (regionId) {
-    countQuery = countQuery.eq('region_id', regionId)
+  if (regionFilterIds) {
+    countQuery = countQuery.in('region_id', regionFilterIds)
   }
   if (q && q.trim()) {
     const safeQ = q.replace(/[%_(),.*]/g, ' ').trim()

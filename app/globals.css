@@ -1508,3 +1508,170 @@ select option {
 .dark .hover\:border-red-300:hover {
   border-color: hsl(0 35% 30%);
 }
+
+/* =====================================================
+   DARK MODE — Green / Teal / Emerald / Indigo
+   Covers rental & tourism detail pages.
+   ===================================================== */
+
+/* Green */
+.dark .bg-green-50 {
+  background-color: hsl(140 25% 12%);
+}
+.dark .bg-green-100 {
+  background-color: hsl(140 30% 16%);
+}
+.dark .text-green-600 {
+  color: hsl(140 55% 55%);
+}
+.dark .text-green-700 {
+  color: hsl(140 50% 60%);
+}
+.dark .text-green-800 {
+  color: hsl(140 45% 70%);
+}
+.dark .hover\:bg-green-50:hover {
+  background-color: hsl(140 28% 14%);
+}
+
+/* Teal */
+.dark .bg-teal-50 {
+  background-color: hsl(170 25% 12%);
+}
+.dark .bg-teal-100 {
+  background-color: hsl(170 30% 16%);
+}
+.dark .text-teal-500 {
+  color: hsl(170 55% 55%);
+}
+.dark .hover\:bg-teal-100:hover {
+  background-color: hsl(170 30% 18%);
+}
+
+/* Emerald (50-level tints — solid emerald buttons already work) */
+.dark .bg-emerald-50 {
+  background-color: hsl(160 25% 11%);
+}
+.dark .border-emerald-100 {
+  border-color: hsl(160 25% 18%);
+}
+.dark .border-emerald-200 {
+  border-color: hsl(160 25% 22%);
+}
+.dark .hover\:bg-emerald-200:hover {
+  background-color: hsl(160 30% 20%);
+}
+
+/* Indigo */
+.dark .bg-indigo-100 {
+  background-color: hsl(240 25% 16%);
+}
+.dark .text-indigo-600 {
+  color: hsl(240 55% 65%);
+}
+
+/* --- Missing colored borders for detail pages --- */
+.dark .border-blue-100 {
+  border-color: hsl(210 25% 20%);
+}
+.dark .border-blue-200 {
+  border-color: hsl(210 25% 25%);
+}
+.dark .border-amber-100 {
+  border-color: hsl(45 25% 18%);
+}
+.dark .border-amber-200 {
+  border-color: hsl(45 25% 22%);
+}
+.dark .border-green-300 {
+  border-color: hsl(140 25% 25%);
+}
+.dark .hover\:border-green-300:hover {
+  border-color: hsl(140 30% 30%);
+}
+.dark .hover\:border-green-500:hover {
+  border-color: hsl(140 40% 35%);
+}
+.dark .hover\:border-amber-500:hover {
+  border-color: hsl(45 40% 35%);
+}
+
+/* --- Hover colored backgrounds for detail pages --- */
+.dark .hover\:bg-cyan-100:hover {
+  background-color: hsl(195 30% 18%);
+}
+.dark .hover\:bg-orange-100:hover {
+  background-color: hsl(30 30% 18%);
+}
+.dark .hover\:bg-purple-100:hover {
+  background-color: hsl(280 30% 18%);
+}
+.dark .hover\:bg-amber-100:hover {
+  background-color: hsl(45 30% 15%);
+}
+
+/* --- Gradient stop for from-gray-50 --- */
+.dark .from-gray-50 {
+  --tw-gradient-from: hsl(0 0% 7%);
+}
+
+/* --- White backgrounds with opacity variants --- */
+.dark .bg-white\/60 {
+  background-color: hsl(0 0% 12% / 0.6);
+}
+.dark .bg-white\/70 {
+  background-color: hsl(0 0% 12% / 0.7);
+}
+
+/* --- Gray backgrounds with opacity --- */
+.dark .bg-gray-100\/80 {
+  background-color: hsl(0 0% 16% / 0.8);
+}
+
+/* --- Border opacity variants --- */
+.dark .border-gray-200\/50 {
+  border-color: hsl(0 0% 20% / 0.5);
+}
+
+/* --- Hover backgrounds with opacity --- */
+.dark .hover\:bg-white\/90:hover {
+  background-color: hsl(0 0% 16% / 0.9);
+}
+.dark .hover\:bg-white\/80:hover {
+  background-color: hsl(0 0% 16% / 0.8);
+}
+.dark .hover\:bg-gray-100\/80:hover {
+  background-color: hsl(0 0% 20% / 0.8);
+}
+.dark .hover\:bg-gray-200\/80:hover {
+  background-color: hsl(0 0% 25% / 0.8);
+}
+
+/* --- Gradient stops --- */
+.dark .from-white {
+  --tw-gradient-from: hsl(0 0% 7%);
+}
+
+/* --- Rose colors for clear filter button --- */
+.dark .text-rose-600 {
+  color: hsl(350 55% 65%);
+}
+.dark .border-rose-200 {
+  border-color: hsl(350 25% 22%);
+}
+.dark .hover\:bg-rose-50:hover {
+  background-color: hsl(350 25% 14%);
+}
+
+/* --- Additional gradient stops for page backgrounds --- */
+.dark .via-gray-50 {
+  --tw-gradient-via: hsl(0 0% 7%);
+}
+.dark .to-white {
+  --tw-gradient-to: hsl(0 0% 7%);
+}
+
+/* --- Dark border for inverted bg-gray-900 elements --- */
+.dark .border-gray-900 {
+  border-color: hsl(0 0% 80%);
+}

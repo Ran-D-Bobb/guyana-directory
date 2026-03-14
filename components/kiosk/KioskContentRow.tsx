@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect, ReactNode } from 'react'
+import { useRef, useState, useEffect, useCallback, ReactNode } from 'react'
 
 interface KioskContentRowProps {
   title: string
@@ -11,12 +11,18 @@ interface KioskContentRowProps {
 
 /**
  * Horizontal scroll-snap rail for content cards.
- * Netflix-style row with title and scroll arrows.
+ * Netflix-style row with title, scroll arrows, and touch/mouse drag.
  */
 export default function KioskContentRow({ title, children, subtitle }: KioskContentRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
+
+  // Drag state
+  const isDragging = useRef(false)
+  const startX = useRef(0)
+  const scrollLeftStart = useRef(0)
+  const hasDragged = useRef(false)
 
   const checkScroll = () => {
     const el = scrollRef.current
@@ -47,6 +53,52 @@ export default function KioskContentRow({ title, children, subtitle }: KioskCont
       behavior: 'smooth',
     })
   }
+
+  // Mouse drag handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    const el = scrollRef.current
+    if (!el) return
+    isDragging.current = true
+    hasDragged.current = false
+    startX.current = e.pageX
+    scrollLeftStart.current = el.scrollLeft
+    el.style.scrollSnapType = 'none'
+    el.style.scrollBehavior = 'auto'
+    el.style.cursor = 'grabbing'
+    el.style.userSelect = 'none'
+  }, [])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging.current) return
+    const el = scrollRef.current
+    if (!el) return
+    e.preventDefault()
+    const dx = e.pageX - startX.current
+    if (Math.abs(dx) > 5) hasDragged.current = true
+    el.scrollLeft = scrollLeftStart.current - dx
+  }, [])
+
+  const handleMouseUp = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    isDragging.current = false
+    el.style.scrollSnapType = ''
+    el.style.scrollBehavior = ''
+    el.style.cursor = ''
+    el.style.userSelect = ''
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    if (isDragging.current) handleMouseUp()
+  }, [handleMouseUp])
+
+  // Prevent click on child cards when drag occurred
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    if (hasDragged.current) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+  }, [])
 
   return (
     <div style={{ marginBottom: 'var(--kiosk-sp-40)' }}>
@@ -114,8 +166,17 @@ export default function KioskContentRow({ title, children, subtitle }: KioskCont
         </div>
       </div>
 
-      {/* Scrollable row */}
-      <div ref={scrollRef} className="kiosk-content-row kiosk-stagger-enter">
+      {/* Scrollable row with drag support */}
+      <div
+        ref={scrollRef}
+        className="kiosk-content-row kiosk-stagger-enter"
+        style={{ cursor: 'grab' }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onClickCapture={handleClick}
+      >
         {children}
       </div>
     </div>

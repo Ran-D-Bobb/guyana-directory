@@ -83,8 +83,8 @@ export function TourismCategoryPills({ categories, currentCategoryId }: TourismC
   return (
     <div className="relative">
       {/* Gradient fade edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none lg:hidden" />
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none lg:hidden" />
+      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-[hsl(0,0%,12%)] to-transparent z-10 pointer-events-none lg:hidden" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-[hsl(0,0%,12%)] to-transparent z-10 pointer-events-none lg:hidden" />
 
       {/* Scrollable container */}
       <div className="flex gap-2 overflow-x-auto scrollbar-hide py-1 px-1 -mx-1 lg:flex-wrap lg:overflow-visible">
@@ -93,7 +93,7 @@ export function TourismCategoryPills({ categories, currentCategoryId }: TourismC
           href={buildCategoryUrl()}
           className={`flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-200 border ${
             !currentCategoryId
-              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-transparent shadow-lg shadow-emerald-500/25'
+              ? 'bg-emerald-600 text-white border-transparent shadow-lg shadow-emerald-500/25'
               : 'bg-white text-gray-700 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50'
           }`}
         >
