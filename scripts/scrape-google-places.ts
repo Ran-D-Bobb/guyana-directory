@@ -134,8 +134,8 @@ interface PlaceDetail {
   regularOpeningHours?: {
     openNow?: boolean
     periods?: Array<{
-      open: { dayOfWeek: number; hour: number; minute: number }
-      close?: { dayOfWeek: number; hour: number; minute: number }
+      open: { day: number; hour: number; minute: number }
+      close?: { day: number; hour: number; minute: number }
     }>
     weekdayDescriptions?: string[]
   }
@@ -299,7 +299,7 @@ function findNearestRegion(
 
 /**
  * Maps New API regularOpeningHours to our hours format.
- * dayOfWeek: 0=Sunday through 6=Saturday.
+ * Google Places API (New) returns `day` as an integer 0-6 (0=Sunday through 6=Saturday).
  */
 function mapHours(
   openingHours?: PlaceDetail['regularOpeningHours']
@@ -313,7 +313,8 @@ function mapHours(
   const hours: Record<string, unknown> = {}
 
   for (const period of openingHours.periods) {
-    const dayName = dayNames[period.open.dayOfWeek]
+    const dayName = dayNames[period.open.day]
+    if (!dayName) continue
     const openTime = `${String(period.open.hour).padStart(2, '0')}:${String(period.open.minute).padStart(2, '0')}`
     const closeTime = period.close
       ? `${String(period.close.hour).padStart(2, '0')}:${String(period.close.minute).padStart(2, '0')}`
