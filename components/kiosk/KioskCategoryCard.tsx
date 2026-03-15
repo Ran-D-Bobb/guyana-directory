@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { getTourismCategoryImage } from '@/lib/category-images'
-import type { KioskCategory } from '@/app/kiosk/KioskHomePage'
+import type { KioskCategory } from '@/app/[locale]/kiosk/KioskHomePage'
 
 interface KioskCategoryCardProps {
   category: KioskCategory

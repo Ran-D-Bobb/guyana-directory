@@ -10,6 +10,7 @@ import {
   ArrowUpDown,
   Check,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { FeedItemType } from './FeedCard';
 
@@ -30,50 +31,6 @@ interface CategoryFilterPillsProps {
   };
 }
 
-const FILTER_OPTIONS: {
-  type: FilterType;
-  label: string;
-  icon: React.ElementType;
-  activeClass: string;
-}[] = [
-  {
-    type: 'all',
-    label: 'All',
-    icon: Compass,
-    activeClass: 'bg-emerald-600 text-white border-emerald-600',
-  },
-  {
-    type: 'business',
-    label: 'Shops',
-    icon: Store,
-    activeClass: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-amber-500',
-  },
-  {
-    type: 'tourism',
-    label: 'Experiences',
-    icon: Palmtree,
-    activeClass: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-500',
-  },
-  {
-    type: 'rental',
-    label: 'Stays',
-    icon: Home,
-    activeClass: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-500',
-  },
-  {
-    type: 'event',
-    label: 'Events',
-    icon: Calendar,
-    activeClass: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-500',
-  },
-];
-
-const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'popular', label: 'Popular' },
-  { value: 'rating', label: 'Top Rated' },
-];
-
 export function CategoryFilterPills({
   activeType,
   onTypeChange,
@@ -81,10 +38,55 @@ export function CategoryFilterPills({
   onSortChange,
   counts,
 }: CategoryFilterPillsProps) {
+  const t = useTranslations('filters');
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showSortMenu, setShowSortMenu] = useState(false);
 
-  const currentSortLabel = SORT_OPTIONS.find(o => o.value === sortBy)?.label || 'Featured';
+  const FILTER_OPTIONS: {
+    type: FilterType;
+    label: string;
+    icon: React.ElementType;
+    activeClass: string;
+  }[] = [
+    {
+      type: 'all',
+      label: t('all'),
+      icon: Compass,
+      activeClass: 'bg-emerald-600 text-white border-emerald-600',
+    },
+    {
+      type: 'business',
+      label: t('businesses'),
+      icon: Store,
+      activeClass: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-amber-500',
+    },
+    {
+      type: 'tourism',
+      label: t('experiences'),
+      icon: Palmtree,
+      activeClass: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-500',
+    },
+    {
+      type: 'rental',
+      label: t('stays'),
+      icon: Home,
+      activeClass: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-500',
+    },
+    {
+      type: 'event',
+      label: t('events'),
+      icon: Calendar,
+      activeClass: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-500',
+    },
+  ];
+
+  const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+    { value: 'featured', label: t('sortFeatured') },
+    { value: 'popular', label: t('sortPopular') },
+    { value: 'rating', label: t('sortRating') },
+  ];
+
+  const currentSortLabel = SORT_OPTIONS.find(o => o.value === sortBy)?.label || t('sortFeatured');
 
   return (
     <div className="sticky top-14 md:top-[72px] z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -142,7 +144,7 @@ export function CategoryFilterPills({
                 'active:scale-95',
                 showSortMenu && 'bg-gray-50 border-gray-300'
               )}
-              aria-label={`Sort by ${currentSortLabel}`}
+              aria-label={t('sortAriaLabel', { sortLabel: currentSortLabel })}
             >
               <ArrowUpDown className="w-4 h-4" />
             </button>
@@ -173,7 +175,7 @@ export function CategoryFilterPills({
                 />
                 <div className="sm:hidden absolute right-0 top-12 z-50 w-40 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden animate-fade-in">
                   <div className="px-3 py-2 border-b border-gray-100">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Sort by</span>
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">{t('sortBy')}</span>
                   </div>
                   {SORT_OPTIONS.map((option) => (
                     <button

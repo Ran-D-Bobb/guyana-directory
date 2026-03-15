@@ -14,7 +14,7 @@ export const getBusinessCategoriesWithCounts = unstable_cache(
     const { data: categories } = await supabase
       .from('categories')
       .select(`
-        *,
+        *, name_es, description_es,
         businesses(count)
       `)
       .order('name')
@@ -46,7 +46,7 @@ async function _getEventCategoriesWithCounts(timeFilter: 'upcoming' | 'ongoing' 
   // Fetch categories first
   const { data: categories } = await supabase
     .from('event_categories')
-    .select('*')
+    .select('*, name_es')
     .order('name')
 
   if (!categories) return []
@@ -73,7 +73,7 @@ async function _getEventCategoriesWithCounts(timeFilter: 'upcoming' | 'ongoing' 
       const { data: allCategories } = await supabase
         .from('event_categories')
         .select(`
-          *,
+          *, name_es,
           events(count)
         `)
         .order('name')
@@ -128,7 +128,7 @@ export const getTourismCategoriesWithCounts = unstable_cache(
     // Note: The count will include all experiences - we filter for approved below
     const { data: categories } = await supabase
       .from('tourism_categories')
-      .select('*')
+      .select('*, name_es, description_es')
       .order('display_order')
 
     if (!categories) return []
@@ -170,7 +170,7 @@ export const getRentalCategoriesWithCounts = unstable_cache(
 
     const { data: categories } = await supabase
       .from('rental_categories')
-      .select('*')
+      .select('*, name_es, description_es')
       .order('name')
 
     if (!categories) return []

@@ -4,10 +4,13 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { ChevronRight, ChevronLeft, Home, Building, Building2, Hotel, BedDouble, Briefcase, Store, Users, Mountain, Palmtree, Sparkles, type LucideIcon } from 'lucide-react'
+import { useLocale } from 'next-intl'
+import { getLocalizedName } from '@/lib/i18n-helpers'
 
 interface RentalCategory {
   id: string
   name: string
+  name_es?: string | null
   slug: string
   icon: string
   listing_count?: number
@@ -35,6 +38,7 @@ const iconMap: Record<string, LucideIcon> = {
 export function RentalCategorySidebar({ categories }: RentalCategorySidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const pathname = usePathname()
+  const locale = useLocale()
 
   const totalListings = categories.reduce((sum, cat) => sum + (cat.listing_count || cat.count || 0), 0)
 
@@ -151,7 +155,7 @@ export function RentalCategorySidebar({ categories }: RentalCategorySidebarProps
                   </div>
                   {!isCollapsed && (
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold truncate text-sm">{category.name}</div>
+                      <div className="font-semibold truncate text-sm">{getLocalizedName(category, locale)}</div>
                       {count > 0 ? (
                         <div className={`text-xs ${isActive ? 'text-white/80' : 'text-gray-500'}`}>
                           {count} {count === 1 ? 'property' : 'properties'}

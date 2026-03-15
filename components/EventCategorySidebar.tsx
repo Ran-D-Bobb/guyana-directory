@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ChevronRight, ChevronLeft, Calendar, Music, GraduationCap, Users, PartyPopper, Trophy, Briefcase, Utensils, Palette, Heart, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 import { Database } from '@/types/supabase'
+import { getLocalizedName } from '@/lib/i18n-helpers'
 
 type EventCategory = Database['public']['Tables']['event_categories']['Row'] & {
   event_count?: number
@@ -23,6 +25,7 @@ const iconMap: Record<string, LucideIcon> = {
 export function EventCategorySidebar({ categories, currentCategorySlug }: EventCategorySidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const pathname = usePathname()
+  const locale = useLocale()
 
   return (
     <>
@@ -123,7 +126,7 @@ export function EventCategorySidebar({ categories, currentCategorySlug }: EventC
                   </div>
                   {!isCollapsed && (
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{category.name}</div>
+                      <div className="font-medium truncate">{getLocalizedName(category, locale)}</div>
                       {category.event_count !== undefined && (
                         <div className={`text-xs ${isActive ? 'text-white/80' : 'text-gray-500'}`}>
                           {category.event_count} {category.event_count === 1 ? 'event' : 'events'}

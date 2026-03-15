@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ChevronRight, ChevronLeft, Store, ShoppingBag, UtensilsCrossed, Wrench, Briefcase, Shirt, Home as HomeIcon, Heart, Laptop, GraduationCap, Music, Camera, Dumbbell, Leaf, Car, Plane, PawPrint, Baby, Gift, Coffee, Package, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 import { Database } from '@/types/supabase'
+import { getLocalizedName } from '@/lib/i18n-helpers'
 
 type Category = Database['public']['Tables']['categories']['Row'] & {
   business_count?: number
@@ -24,6 +26,7 @@ const iconMap: Record<string, LucideIcon> = {
 export function CategorySidebar({ categories, currentCategorySlug }: CategorySidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const pathname = usePathname()
+  const locale = useLocale()
 
   return (
     <>
@@ -109,7 +112,7 @@ export function CategorySidebar({ categories, currentCategorySlug }: CategorySid
                   </div>
                   {!isCollapsed && (
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold truncate">{category.name}</div>
+                      <div className="font-semibold truncate">{getLocalizedName(category, locale)}</div>
                       {category.business_count !== undefined && category.business_count > 0 && (
                         <div className={`text-xs ${isActive ? 'text-white/80' : 'text-gray-500'}`}>
                           {category.business_count} {category.business_count === 1 ? 'business' : 'businesses'}

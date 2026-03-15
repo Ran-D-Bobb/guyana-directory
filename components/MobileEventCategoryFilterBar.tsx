@@ -26,7 +26,9 @@ import {
   Tag,
   type LucideIcon
 } from 'lucide-react'
+import { useLocale } from 'next-intl'
 import { Database } from '@/types/supabase'
+import { getLocalizedName } from '@/lib/i18n-helpers'
 
 type EventCategory = Database['public']['Tables']['event_categories']['Row'] & {
   event_count?: number
@@ -52,6 +54,7 @@ export function MobileEventCategoryFilterBar({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const locale = useLocale()
 
   // Local filter state
   const [localRegion, setLocalRegion] = useState(searchParams.get('region') || 'all')
@@ -192,7 +195,7 @@ export function MobileEventCategoryFilterBar({
                 }`}
               >
                 <IconComponent className="h-3.5 w-3.5" />
-                <span>{category.name}</span>
+                <span>{getLocalizedName(category, locale)}</span>
                 {category.event_count !== undefined && (
                   <span className={`text-xs ${isActive ? 'text-white/80' : 'text-gray-500'}`}>
                     {category.event_count}

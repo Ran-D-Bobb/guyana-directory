@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 interface RentalViewTrackerProps {
   rentalId: string
@@ -14,26 +15,14 @@ export function RentalViewTracker({ rentalId }: RentalViewTrackerProps) {
     hasTracked.current = true
 
     const sessionKey = `viewed_rental_${rentalId}`
-    if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey)) {
-      return
-    }
+    if (sessionStorage.getItem(sessionKey)) return
 
-    const trackView = async () => {
-      try {
-        await fetch('/api/track-rental-view', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rentalId }),
-        })
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem(sessionKey, '1')
-        }
-      } catch (error) {
-        console.error('Failed to track rental view:', error)
-      }
-    }
-
-    trackView()
+    const supabase = createClient()
+    supabase.rpc('increment_rental_view_count', { rental_id: rentalId })
+      .then(
+        () => { sessionStorage.setItem(sessionKey, '1') },
+        () => {}
+      )
   }, [rentalId])
 
   return null

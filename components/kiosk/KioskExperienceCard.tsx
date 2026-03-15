@@ -1,7 +1,7 @@
 'use client'
 
-import Image from 'next/image'
-import type { KioskExperience } from '@/app/kiosk/KioskHomePage'
+import KioskMedia from './KioskMedia'
+import type { KioskExperience } from '@/app/[locale]/kiosk/KioskHomePage'
 
 interface KioskExperienceCardProps {
   experience: KioskExperience
@@ -40,19 +40,15 @@ export default function KioskExperienceCard({ experience, onClick }: KioskExperi
         e.currentTarget.style.boxShadow = ''
       }}
     >
-      {/* Image */}
-      {experience.image_url ? (
-        <Image
-          src={experience.image_url}
-          alt={experience.name}
-          fill
-          className="object-cover"
-          sizes="400px"
-          style={{ transition: 'transform 0.6s var(--kiosk-ease-expo)' }}
-        />
-      ) : (
-        <div style={{ position: 'absolute', inset: 0, background: 'var(--kiosk-gradient-tropical)' }} />
-      )}
+      {/* Media (video or image) */}
+      <KioskMedia
+        videoUrl={experience.video_url}
+        imageUrl={experience.image_url}
+        posterUrl={experience.video_thumbnail_url}
+        alt={experience.name}
+        sizes="400px"
+        style={{ transition: 'transform 0.6s var(--kiosk-ease-expo)' }}
+      />
 
       {/* Card gradient overlay */}
       <div

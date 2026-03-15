@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import KioskContentRow from './KioskContentRow'
 import KioskExperienceCard from './KioskExperienceCard'
-import type { KioskExperience, KioskCategory } from '@/app/kiosk/KioskHomePage'
+import type { KioskExperience, KioskCategory } from '@/app/[locale]/kiosk/KioskHomePage'
 import { getTourismCategoryImage } from '@/lib/category-images'
 
 interface KioskCategoryBrowserProps {

@@ -1,8 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    if (!rateLimit(ip).success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
+
     const supabase = await createClient()
     const body = await request.json()
 
@@ -17,6 +23,14 @@ export async function POST(request: NextRequest) {
     if (!interaction_type || !session_id) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Validate session_id format
+    if (!/^[a-zA-Z0-9_-]{1,128}$/.test(session_id)) {
+      return NextResponse.json(
+        { error: 'Invalid session_id' },
         { status: 400 }
       )
     }
@@ -84,7 +98,7 @@ export async function POST(request: NextRequest) {
       type: interaction_type,
       experience_id,
       session_id,
-      metadata,
+      metadata: metadata ? String(JSON.stringify(metadata)).slice(0, 500) : undefined,
       timestamp: new Date().toISOString()
     })
 

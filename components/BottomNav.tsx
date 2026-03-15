@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 
 interface BottomNavProps {
@@ -27,18 +28,18 @@ function NearMeIcon({ active }: { active: boolean }) {
   )
 }
 
-function ShoppingIcon({ active }: { active: boolean }) {
+function BusinessesIcon({ active }: { active: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round" stroke="currentColor">
-      <path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-      <path d="M3 9l1.5-5h15L21 9" />
-      <path d="M7 9v1.5a2.5 2.5 0 005 0V9" />
-      <path d="M12 9v1.5a2.5 2.5 0 005 0V9" />
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
+      <path d="M12 12v.01" />
+      <path d="M2 12h20" />
     </svg>
   )
 }
 
-function ExploreIcon({ active }: { active: boolean }) {
+function ExperiencesIcon({ active }: { active: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round" stroke="currentColor">
       <circle cx="12" cy="12" r="9" />
@@ -75,16 +76,17 @@ function StaysIcon({ active }: { active: boolean }) {
 }
 
 const NAV_ICON_MAP: Record<string, React.ComponentType<{ active: boolean }>> = {
-  Home: HomeIcon,
-  'Near Me': NearMeIcon,
-  Shopping: ShoppingIcon,
-  Explore: ExploreIcon,
-  Events: EventsIcon,
-  Stays: StaysIcon,
+  home: HomeIcon,
+  nearMe: NearMeIcon,
+  businesses: BusinessesIcon,
+  experiences: ExperiencesIcon,
+  events: EventsIcon,
+  stays: StaysIcon,
 }
 
 export function BottomNav({}: BottomNavProps) {
   const pathname = usePathname()
+  const t = useTranslations('nav')
 
   // Hide bottom nav on form creation/edit pages for better UX
   const hideOnPaths = [
@@ -102,32 +104,32 @@ export function BottomNav({}: BottomNavProps) {
 
   const navItems = [
     {
-      name: 'Home',
+      key: 'home' as const,
       href: '/',
       isActive: pathname === '/',
     },
     {
-      name: 'Near Me',
+      key: 'nearMe' as const,
       href: '/discover',
       isActive: pathname.startsWith('/discover'),
     },
     {
-      name: 'Shopping',
+      key: 'businesses' as const,
       href: '/businesses',
       isActive: pathname.startsWith('/businesses'),
     },
     {
-      name: 'Explore',
+      key: 'experiences' as const,
       href: '/tourism',
       isActive: pathname.startsWith('/tourism'),
     },
     {
-      name: 'Events',
+      key: 'events' as const,
       href: '/events',
       isActive: pathname.startsWith('/events') && !pathname.includes('my-events'),
     },
     {
-      name: 'Stays',
+      key: 'stays' as const,
       href: '/rentals',
       isActive: pathname.startsWith('/rentals'),
     },
@@ -141,11 +143,11 @@ export function BottomNav({}: BottomNavProps) {
       <div className="flex items-center justify-around px-2 pt-1.5 pb-2 max-w-lg mx-auto">
         {navItems.map((item) => {
           const isActive = item.isActive
-          const Icon = NAV_ICON_MAP[item.name]
+          const Icon = NAV_ICON_MAP[item.key]
 
           return (
             <Link
-              key={item.name}
+              key={item.key}
               href={item.href}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 rounded-lg transition-all',
@@ -162,7 +164,7 @@ export function BottomNav({}: BottomNavProps) {
                   isActive ? 'font-bold' : 'font-medium'
                 )}
               >
-                {item.name}
+                {t(item.key)}
               </span>
             </Link>
           )

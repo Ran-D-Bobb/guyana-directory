@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { User } from '@supabase/supabase-js'
+import { useTranslations } from 'next-intl'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,8 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
+  const t = useTranslations('userMenu')
+  const tCommon = useTranslations('common')
   const router = useRouter()
   const supabase = createClient()
   const { resolvedTheme, setTheme } = useTheme()
@@ -49,7 +52,7 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
     <DropdownMenu>
       <DropdownMenuTrigger
         className="focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--jungle-500))] focus-visible:ring-offset-2 rounded-full"
-        aria-label="User menu"
+        aria-label={t('ariaLabel')}
       >
         <Avatar className="h-10 w-10 ring-2 ring-white/50 hover:ring-[hsl(var(--jungle-400))] transition-all duration-200 shadow-md cursor-pointer">
           <AvatarImage src={userAvatar} alt={userName} />
@@ -84,7 +87,7 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <Building2 className="w-3 h-3 text-[hsl(var(--jungle-600))]" />
                   )}
                   <p className="text-xs text-[hsl(var(--jungle-600))] font-medium">
-                    {accountType === 'business' ? 'Business Account' : 'Personal Account'}
+                    {accountType === 'business' ? t('businessAccount') : t('personalAccount')}
                   </p>
                 </div>
               </div>
@@ -106,8 +109,8 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <Building2 className="h-4.5 w-4.5 text-[hsl(var(--jungle-600))]" />
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">My Business</span>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">Manage your listing</p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{t('myBusiness')}</span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{t('manageListing')}</p>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -121,8 +124,8 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <LayoutGrid className="h-4.5 w-4.5 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">All Listings</span>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">Business, events & more</p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{t('allListings')}</span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{t('allListingsDesc')}</p>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -136,8 +139,8 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <BarChart3 className="h-4.5 w-4.5 text-amber-600" />
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">Dashboard</span>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">Analytics & insights</p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{t('dashboard')}</span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{t('analyticsInsights')}</p>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -153,8 +156,8 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <Heart className="h-4.5 w-4.5 text-rose-500" />
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">Saved</span>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">Favorites & interested</p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{t('saved')}</span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{t('savedDesc')}</p>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -168,8 +171,8 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                     <Star className="h-4.5 w-4.5 text-amber-500" />
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">My Reviews</span>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">Your ratings & feedback</p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{t('myReviews')}</span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{t('myReviewsDesc')}</p>
                   </div>
                 </Link>
               </DropdownMenuItem>
@@ -189,7 +192,7 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
                 <div className="h-9 w-9 rounded-lg bg-white/20 flex items-center justify-center">
                   <Shield className="h-4.5 w-4.5 text-white" />
                 </div>
-                <span className="font-semibold text-white">Admin Panel</span>
+                <span className="font-semibold text-white">{t('adminPanel')}</span>
               </Link>
             </DropdownMenuItem>
           </>
@@ -213,7 +216,7 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
             )}
           </div>
           <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">
-            {resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            {resolvedTheme === 'dark' ? tCommon('lightMode') : tCommon('darkMode')}
           </span>
         </DropdownMenuItem>
 
@@ -226,7 +229,7 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
             <div className="h-9 w-9 rounded-lg bg-gray-100 dark:bg-white/10 group-hover:bg-gray-200 dark:group-hover:bg-white/15 flex items-center justify-center transition-colors">
               <Settings className="h-4.5 w-4.5 text-gray-500 dark:text-gray-400" />
             </div>
-            <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">Settings</span>
+            <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{t('settings')}</span>
           </Link>
         </DropdownMenuItem>
 
@@ -238,7 +241,7 @@ export function UserMenu({ user, isAdmin, accountType }: UserMenuProps) {
           <div className="h-9 w-9 rounded-lg bg-gray-100 dark:bg-white/10 group-hover:bg-gray-200 dark:group-hover:bg-white/15 flex items-center justify-center transition-colors">
             <LogOut className="h-4.5 w-4.5 text-gray-500 dark:text-gray-400" />
           </div>
-          <span className="font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">Sign out</span>
+          <span className="font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">{t('signOut')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

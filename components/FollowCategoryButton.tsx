@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Bell, BellOff, Loader2, Plus, Check } from 'lucide-react'
@@ -19,15 +19,36 @@ export function FollowCategoryButton({
   categoryId,
   categoryName,
   initialIsFollowing,
-  userId,
+  userId: serverUserId,
   variant = 'icon-label',
   size = 'md',
   className = '',
 }: FollowCategoryButtonProps) {
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
+  const [userId, setUserId] = useState<string | null>(serverUserId)
   const [isPending, startTransition] = useTransition()
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  // When server doesn't provide userId (e.g. ISR-cached pages),
+  // resolve auth and follow status client-side
+  useEffect(() => {
+    if (serverUserId) return
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      setUserId(user.id)
+      supabase
+        .from('followed_categories')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('category_id', categoryId)
+        .single()
+        .then(({ data }) => {
+          if (data) setIsFollowing(true)
+        })
+    })
+  }, [serverUserId, categoryId])
 
   const handleToggleFollow = async (e: React.MouseEvent) => {
     e.preventDefault()

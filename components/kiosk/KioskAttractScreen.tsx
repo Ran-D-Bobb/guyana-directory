@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import Image from 'next/image'
 import KioskProgressBar from './KioskProgressBar'
+import KioskMedia from './KioskMedia'
 
 interface Experience {
   id: string
@@ -10,6 +10,8 @@ interface Experience {
   name: string
   description: string
   image_url: string | null
+  video_url?: string | null
+  video_thumbnail_url?: string | null
   rating: number
   category_name: string
   price_from: number
@@ -95,7 +97,7 @@ export default function KioskAttractScreen({ experiences, onTapToExplore }: Kios
       }}
     >
       {/* Current Slide — Ken Burns */}
-      <SlideImage
+      <SlideMedia
         key={`current-${currentIndex}`}
         experience={current}
         isActive={true}
@@ -104,7 +106,7 @@ export default function KioskAttractScreen({ experiences, onTapToExplore }: Kios
 
       {/* Next Slide — Crossfade in */}
       {next && (
-        <SlideImage
+        <SlideMedia
           key={`next-${nextIndex}`}
           experience={next}
           isActive={true}
@@ -377,9 +379,9 @@ export default function KioskAttractScreen({ experiences, onTapToExplore }: Kios
 }
 
 /* ------------------------------------------------------------------
-   SlideImage — single slide with Ken Burns effect
+   SlideMedia — single slide with Ken Burns (images) or video playback
    ------------------------------------------------------------------ */
-function SlideImage({
+function SlideMedia({
   experience,
   isActive,
   isFadingOut,
@@ -413,30 +415,17 @@ function SlideImage({
         zIndex: isCrossfadingIn ? 2 : 1,
       }}
     >
-      {experience.image_url ? (
-        <Image
-          src={experience.image_url}
-          alt={experience.name}
-          fill
-          className="object-cover"
-          priority={true}
-          sizes="100vw"
-          style={{
-            animation: isActive ? 'kiosk-ken-burns-slow 12s ease-in-out forwards' : undefined,
-          }}
-        />
-      ) : (
-        /* Animated gradient fallback */
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'var(--kiosk-gradient-tropical)',
-            animation: 'kiosk-gradient-shift 8s ease-in-out infinite',
-            backgroundSize: '200% 200%',
-          }}
-        />
-      )}
+      <KioskMedia
+        videoUrl={experience.video_url}
+        imageUrl={experience.image_url}
+        posterUrl={experience.video_thumbnail_url}
+        alt={experience.name}
+        sizes="100vw"
+        kenBurns={isActive}
+        kenBurnsDuration={12}
+        kenBurnsStyle={kenBurnsStyle}
+        priority
+      />
     </div>
   )
 }

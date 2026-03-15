@@ -8,7 +8,7 @@ import KioskEventCard from './KioskEventCard'
 import KioskCategoryCard from './KioskCategoryCard'
 import KioskHolidayTimeline from './KioskHolidayTimeline'
 import KioskNavigationPill from './KioskNavigationPill'
-import type { KioskExperience, KioskEvent, KioskCategory, KioskTimelineEvent } from '@/app/kiosk/KioskHomePage'
+import type { KioskExperience, KioskEvent, KioskCategory, KioskTimelineEvent } from '@/app/[locale]/kiosk/KioskHomePage'
 
 interface KioskHomeHubProps {
   featuredExperiences: KioskExperience[]

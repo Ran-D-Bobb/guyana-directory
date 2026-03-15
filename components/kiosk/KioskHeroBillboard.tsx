@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import Image from 'next/image'
 import KioskProgressBar from './KioskProgressBar'
-import type { KioskExperience, KioskEvent } from '@/app/kiosk/KioskHomePage'
+import KioskMedia from './KioskMedia'
+import type { KioskExperience, KioskEvent } from '@/app/[locale]/kiosk/KioskHomePage'
 
 type HeroItem =
   | { type: 'experience'; data: KioskExperience }
@@ -75,6 +75,8 @@ export default function KioskHeroBillboard({
   const title = isExperience ? exp!.name : evt!.title
   const description = isExperience ? exp!.description : (evt!.description || '')
   const imageUrl = isExperience ? exp!.image_url : evt!.image_url
+  const videoUrl = isExperience ? exp!.video_url : null
+  const videoPoster = isExperience ? (exp!.video_thumbnail_url || exp!.image_url) : null
   const categoryLabel = isExperience ? exp!.category_name : (evt!.category_name || evt!.event_type_name || 'Event')
 
   const handleClick = () => {
@@ -101,21 +103,16 @@ export default function KioskHeroBillboard({
           transition: 'opacity 0.6s ease-in-out',
         }}
       >
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={title}
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-            style={{
-              animation: 'kiosk-ken-burns-slow 15s ease-in-out forwards',
-            }}
-          />
-        ) : (
-          <div style={{ position: 'absolute', inset: 0, background: 'var(--kiosk-gradient-tropical)' }} />
-        )}
+        <KioskMedia
+          videoUrl={videoUrl}
+          imageUrl={imageUrl}
+          posterUrl={videoPoster}
+          alt={title}
+          sizes="100vw"
+          kenBurns
+          kenBurnsDuration={15}
+          priority
+        />
       </div>
 
       {/* Left gradient for text readability */}

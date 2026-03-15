@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { resetPasswordSchema, type ResetPasswordFormData } from '@/lib/validations/auth'
 import { PasswordInput } from '@/components/forms/inputs/PasswordInput'
@@ -13,6 +14,7 @@ import { Loader2, CheckCircle, AlertTriangle, ArrowLeft } from 'lucide-react'
 export function ResetPasswordForm() {
   const router = useRouter()
   const supabase = createClient()
+  const t = useTranslations('auth')
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [hasValidSession, setHasValidSession] = useState<boolean | null>(null)
@@ -63,9 +65,9 @@ export function ResetPasswordForm() {
 
       if (error) {
         if (error.message.includes('same as')) {
-          setErrors({ password: 'New password must be different from your current password' })
+          setErrors({ password: t('samePasswordError') })
         } else {
-          toast.error('Failed to reset password', {
+          toast.error(t('failedToResetPassword'), {
             description: error.message,
           })
         }
@@ -73,8 +75,8 @@ export function ResetPasswordForm() {
       }
 
       setIsSuccess(true)
-      toast.success('Password updated', {
-        description: 'Your password has been successfully reset.',
+      toast.success(t('passwordUpdatedToast'), {
+        description: t('passwordUpdatedToastDesc'),
       })
 
       // Sign out and redirect to login after a short delay
@@ -83,7 +85,7 @@ export function ResetPasswordForm() {
         router.push('/auth/login')
       }, 2000)
     } catch (error) {
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpectedError'))
       console.error('Reset password error:', error)
     } finally {
       setIsLoading(false)
@@ -95,7 +97,7 @@ export function ResetPasswordForm() {
     return (
       <div className="text-center py-8">
         <Loader2 className="w-8 h-8 animate-spin text-gray-400 mx-auto" />
-        <p className="text-gray-500 mt-4">Verifying your reset link...</p>
+        <p className="text-gray-500 mt-4">{t('verifyingResetLink')}</p>
       </div>
     )
   }
@@ -107,20 +109,20 @@ export function ResetPasswordForm() {
         <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
           <AlertTriangle className="w-8 h-8 text-red-600" />
         </div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Link expired</h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t('linkExpiredTitle')}</h2>
         <p className="text-gray-600 mb-6">
-          This password reset link has expired or is invalid.
+          {t('linkExpiredBody')}
         </p>
         <div className="space-y-3">
           <Link href="/auth/forgot-password">
             <Button className="w-full bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))]">
-              Request new reset link
+              {t('requestNewResetLink')}
             </Button>
           </Link>
           <Link href="/auth/login">
             <Button variant="ghost" className="w-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to sign in
+              {t('backToSignIn')}
             </Button>
           </Link>
         </div>
@@ -135,12 +137,12 @@ export function ResetPasswordForm() {
         <div className="mx-auto w-16 h-16 bg-[hsl(var(--jungle-100))] rounded-full flex items-center justify-center mb-4">
           <CheckCircle className="w-8 h-8 text-[hsl(var(--jungle-500))]" />
         </div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Password updated</h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t('passwordUpdatedTitle')}</h2>
         <p className="text-gray-600 mb-6">
-          Your password has been successfully reset.
+          {t('passwordUpdatedBody')}
         </p>
         <p className="text-sm text-gray-500">
-          Redirecting to sign in...
+          {t('redirectingToSignIn')}
         </p>
       </div>
     )
@@ -150,24 +152,24 @@ export function ResetPasswordForm() {
     <div className="w-full">
       <form onSubmit={handleSubmit} className="space-y-4">
         <PasswordInput
-          label="New password"
+          label={t('newPassword')}
           name="password"
           value={formData.password}
           onChange={updateField('password')}
           required
           error={errors.password}
-          placeholder="Enter new password"
+          placeholder={t('newPasswordPlaceholder')}
           showStrengthIndicator
         />
 
         <PasswordInput
-          label="Confirm new password"
+          label={t('confirmNewPassword')}
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={updateField('confirmPassword')}
           required
           error={errors.confirmPassword}
-          placeholder="Confirm new password"
+          placeholder={t('confirmNewPasswordPlaceholder')}
         />
 
         <Button
@@ -178,7 +180,7 @@ export function ResetPasswordForm() {
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
           ) : (
-            'Reset password'
+            t('resetPasswordButton')
           )}
         </Button>
       </form>

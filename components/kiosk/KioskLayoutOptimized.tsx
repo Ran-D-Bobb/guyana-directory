@@ -2,7 +2,7 @@
 
 import { useEffect, useState, ReactNode } from 'react'
 import { useKioskResolution, applyKioskCSS, type KioskConfig } from '@/hooks/useKioskResolution'
-import '@/app/kiosk/kiosk.css'
+import '@/app/[locale]/kiosk/kiosk.css'
 
 interface KioskLayoutOptimizedProps {
   children: ReactNode

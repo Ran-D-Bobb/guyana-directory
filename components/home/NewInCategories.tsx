@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { Bell, Sparkles, ChevronRight, Star, MapPin, Loader2, Folder, Store, ShoppingBag, UtensilsCrossed, Wrench, Briefcase, Shirt, Home, Heart, Laptop, GraduationCap, Music, Camera, Dumbbell, Leaf, Car, Plane, PawPrint, Baby, Gift, Coffee, Package, type LucideIcon } from 'lucide-react';
 import { getCategoryImage } from '@/lib/category-images';
@@ -30,6 +31,7 @@ interface FollowedCategoryWithBusinesses {
 }
 
 export function NewInCategories() {
+  const t = useTranslations('home');
   const [userId, setUserId] = useState<string | null>(null);
   const [categoriesWithBusinesses, setCategoriesWithBusinesses] = useState<FollowedCategoryWithBusinesses[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,44 +70,55 @@ export function NewInCategories() {
         return;
       }
 
-      // Fetch new businesses for each category (last 7 days)
+      // Fetch new businesses for all followed categories in a single query (last 7 days)
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-      const categoriesWithBusinessesData: FollowedCategoryWithBusinesses[] = [];
+      const categoryIds = categoriesWithNew.map((c: { category_id: string }) => c.category_id);
+      const { data: allNewBusinesses } = await supabase
+        .from('businesses')
+        .select(`
+          id, name, slug, rating, category_id,
+          regions:region_id (name),
+          business_photos (image_url, is_primary)
+        `)
+        .in('category_id', categoryIds)
+        .eq('is_active', true)
+        .gte('created_at', oneWeekAgo.toISOString())
+        .order('created_at', { ascending: false });
 
-      for (const category of categoriesWithNew) {
-        const { data: businesses } = await supabase
-          .from('businesses')
-          .select(`
-            id, name, slug, rating,
-            regions:region_id (name),
-            business_photos (image_url, is_primary)
-          `)
-          .eq('category_id', category.category_id)
-          .eq('is_active', true)
-          .gte('created_at', oneWeekAgo.toISOString())
-          .order('created_at', { ascending: false })
-          .limit(6);
-
-        if (businesses && businesses.length > 0) {
-          categoriesWithBusinessesData.push({
-            ...category,
-            businesses: businesses.map((b) => ({
-              id: b.id,
-              name: b.name,
-              slug: b.slug,
-              rating: b.rating,
-              region_name: (b.regions as { name: string } | null)?.name || null,
-              image_url: Array.isArray(b.business_photos)
-                ? b.business_photos.find((p) => p.is_primary)?.image_url ||
-                  b.business_photos[0]?.image_url ||
-                  null
-                : null,
-            })),
-          });
+      // Group by category_id, limit 6 per category
+      const businessesByCategory = new Map<string, typeof allNewBusinesses>();
+      for (const biz of (allNewBusinesses || [])) {
+        const catId = biz.category_id;
+        if (!catId) continue;
+        const group = businessesByCategory.get(catId) || [];
+        if (group.length < 6) {
+          group.push(biz);
+          businessesByCategory.set(catId, group);
         }
       }
+
+      const categoriesWithBusinessesData: FollowedCategoryWithBusinesses[] = categoriesWithNew
+        .filter((cat: { category_id: string }) => {
+          const businesses = businessesByCategory.get(cat.category_id);
+          return businesses && businesses.length > 0;
+        })
+        .map((cat: { category_id: string; category_name: string; category_slug: string; category_icon: string; new_this_week: number }) => ({
+          ...cat,
+          businesses: (businessesByCategory.get(cat.category_id) || []).map((b) => ({
+            id: b.id,
+            name: b.name,
+            slug: b.slug,
+            rating: b.rating,
+            region_name: (b.regions as { name: string } | null)?.name || null,
+            image_url: Array.isArray(b.business_photos)
+              ? b.business_photos.find((p) => p.is_primary)?.image_url ||
+                b.business_photos[0]?.image_url ||
+                null
+              : null,
+          })),
+        }));
 
       setCategoriesWithBusinesses(categoriesWithBusinessesData);
       setIsLoading(false);
@@ -146,7 +159,7 @@ export function NewInCategories() {
         <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
           <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
         </div>
-        <h2 className="text-section-title-lg font-bold text-gray-900">New in Your Categories</h2>
+        <h2 className="text-section-title-lg font-bold text-gray-900">{t('newInCategories')}</h2>
       </div>
 
       {/* Categories with New Businesses */}
@@ -166,7 +179,7 @@ export function NewInCategories() {
                     <h3 className="font-semibold text-gray-900">{category.category_name}</h3>
                     <p className="text-sm text-emerald-600 flex items-center gap-1">
                       <Sparkles className="w-3.5 h-3.5" />
-                      {category.new_this_week} new this week
+                      {t('newThisWeek', { count: category.new_this_week })}
                     </p>
                   </div>
                 </div>
@@ -174,7 +187,7 @@ export function NewInCategories() {
                   href={`/businesses?category=${category.category_id}`}
                   className="flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700"
                 >
-                  View all
+                  {t('recommendedViewAll')}
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -199,7 +212,7 @@ export function NewInCategories() {
                             sizes="140px"
                           />
                           <div className="absolute top-2 left-2 px-2 py-0.5 bg-primary text-primary-foreground text-[11px] font-bold rounded-full uppercase">
-                            New
+                            {t('newBadge')}
                           </div>
                         </div>
                         <h4 className="font-medium text-sm text-gray-900 group-hover:text-emerald-600 line-clamp-1">
@@ -236,7 +249,7 @@ export function NewInCategories() {
                           sizes="(max-width: 1024px) 33vw, 16vw"
                         />
                         <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full uppercase">
-                          New
+                          {t('newBadge')}
                         </div>
                       </div>
                       <h4 className="font-medium text-sm text-gray-900 group-hover:text-emerald-600 line-clamp-1">

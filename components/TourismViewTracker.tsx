@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 interface TourismViewTrackerProps {
   experienceId: string
@@ -13,30 +14,15 @@ export function TourismViewTracker({ experienceId }: TourismViewTrackerProps) {
     if (hasTracked.current) return
     hasTracked.current = true
 
-    // Deduplicate within the same session
     const sessionKey = `viewed_tourism_${experienceId}`
-    if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey)) {
-      return
-    }
+    if (sessionStorage.getItem(sessionKey)) return
 
-    const trackView = async () => {
-      try {
-        await fetch('/api/track-tourism-view', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ experienceId }),
-        })
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem(sessionKey, '1')
-        }
-      } catch (error) {
-        console.error('Failed to track tourism view:', error)
-      }
-    }
-
-    trackView()
+    const supabase = createClient()
+    supabase.rpc('increment_tourism_view_count', { experience_id: experienceId })
+      .then(
+        () => { sessionStorage.setItem(sessionKey, '1') },
+        () => {}
+      )
   }, [experienceId])
 
   return null

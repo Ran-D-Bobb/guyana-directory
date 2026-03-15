@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Sparkles, User, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { FeedCard, type FeedItem } from './FeedCard'
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed'
 import { createClient } from '@/lib/supabase/client'
@@ -13,6 +14,7 @@ interface ForYouSectionProps {
 }
 
 export function ForYouSection({ className }: ForYouSectionProps) {
+  const t = useTranslations('home')
   const [recommendations, setRecommendations] = useState<FeedItem[]>([])
   const [basedOn, setBasedOn] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -45,8 +47,8 @@ export function ForYouSection({ className }: ForYouSectionProps) {
   useEffect(() => {
     const checkAuth = async () => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      setIsLoggedIn(!!user)
+      const { data: { session } } = await supabase.auth.getSession()
+      setIsLoggedIn(!!session?.user)
     }
     checkAuth()
   }, [])
@@ -140,18 +142,17 @@ export function ForYouSection({ className }: ForYouSectionProps) {
               <Sparkles className="w-4 h-4" />
             </div>
             <h2 className="text-section-title-lg font-bold text-gray-900">
-              Recommended for You
+              {t('recommended')}
             </h2>
           </div>
           {basedOn && hasActivity && (
             <p className="text-sm text-gray-500 flex items-center gap-1.5">
-              <span>Based on your interest in</span>
-              <span className="font-medium text-emerald-600">{basedOn}</span>
+              {t('recommendedBasedOn', { category: basedOn })}
             </p>
           )}
           {!hasActivity && (
             <p className="text-sm text-gray-500">
-              Popular picks you might like
+              {t('recommendedPopular')}
             </p>
           )}
         </div>
@@ -161,7 +162,7 @@ export function ForYouSection({ className }: ForYouSectionProps) {
             href="/businesses"
             className="flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
           >
-            <span className="hidden sm:inline">View all</span>
+            <span className="hidden sm:inline">{t('recommendedViewAll')}</span>
             <ChevronRight className="w-4 h-4" />
           </Link>
         )}
@@ -175,13 +176,13 @@ export function ForYouSection({ className }: ForYouSectionProps) {
               <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
             </div>
             <p className="flex-1 min-w-0 text-xs sm:text-sm font-medium text-amber-900">
-              Sign in for personalized picks
+              {t('recommendedSignIn')}
             </p>
             <Link
               href="/"
               className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs font-semibold bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors whitespace-nowrap"
             >
-              Sign in
+              {t('recommendedSignInAction')}
             </Link>
           </div>
         </div>
@@ -207,7 +208,7 @@ export function ForYouSection({ className }: ForYouSectionProps) {
       {isLoggedIn && !hasActivity && (
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-500">
-            Save and review businesses to get personalized recommendations
+            {t('recommendedSignInHint')}
           </p>
         </div>
       )}

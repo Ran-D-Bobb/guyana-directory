@@ -1,21 +1,25 @@
 import Link from 'next/link'
 import { Mail, ArrowUpRight } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 
-const discoverLinks = [
-  { label: 'Businesses', href: '/businesses' },
-  { label: 'Experiences', href: '/tourism' },
-  { label: 'Stays', href: '/rentals' },
-  { label: 'Events', href: '/events' },
-]
+export async function FooterMinimal() {
+  const t = await getTranslations('footer')
+  const tNav = await getTranslations('nav')
 
-const listLinks = [
-  { label: 'Add business', href: '/dashboard/my-business' },
-  { label: 'Add experience', href: '/dashboard/my-tourism' },
-  { label: 'List property', href: '/dashboard/my-rentals' },
-  { label: 'Post event', href: '/dashboard/my-events' },
-]
+  const discoverLinks = [
+    { label: tNav('businesses'), href: '/businesses' },
+    { label: tNav('experiences'), href: '/tourism' },
+    { label: tNav('stays'), href: '/rentals' },
+    { label: tNav('events'), href: '/events' },
+  ]
 
-export function FooterMinimal() {
+  const listLinks = [
+    { label: t('addBusiness'), href: '/dashboard/my-business' },
+    { label: t('addExperience'), href: '/dashboard/my-tourism' },
+    { label: t('addStay'), href: '/dashboard/my-rentals' },
+    { label: t('addEvent'), href: '/dashboard/my-events' },
+  ]
+
   return (
     <footer className="bg-gray-950 text-white relative overflow-hidden">
       {/* Subtle top accent line */}
@@ -27,11 +31,11 @@ export function FooterMinimal() {
           <div>
             <Link href="/" className="inline-block mb-2">
               <span className="text-xl md:text-2xl font-display font-semibold text-white">
-                Waypoint
+                {t('brand')}
               </span>
             </Link>
             <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
-              Guyana&apos;s discovery platform for businesses, experiences, stays, and events.
+              {t('tagline')}
             </p>
           </div>
           <a
@@ -39,7 +43,7 @@ export function FooterMinimal() {
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors text-sm font-medium self-start sm:self-auto"
           >
             <Mail className="w-4 h-4" />
-            Contact us
+            {t('contactUs')}
           </a>
         </div>
 
@@ -48,7 +52,7 @@ export function FooterMinimal() {
           {/* Discover */}
           <div>
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-              Discover
+              {t('discover')}
             </h3>
             <ul className="space-y-3">
               {discoverLinks.map((item) => (
@@ -67,7 +71,7 @@ export function FooterMinimal() {
           {/* List with us */}
           <div>
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-              List with us
+              {t('listWithUs')}
             </h3>
             <ul className="space-y-3">
               {listLinks.map((item) => (
@@ -86,17 +90,17 @@ export function FooterMinimal() {
           {/* Company - visible on md+ to fill the grid nicely */}
           <div className="hidden md:block">
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-              Company
+              {t('company')}
             </h3>
             <ul className="space-y-3">
               <li>
                 <Link href="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">
-                  Privacy Policy
+                  {t('privacyPolicy')}
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="text-sm text-gray-400 hover:text-white transition-colors">
-                  Terms of Service
+                  {t('termsOfService')}
                 </Link>
               </li>
             </ul>
@@ -105,16 +109,16 @@ export function FooterMinimal() {
           {/* Stay connected */}
           <div className="col-span-2 md:col-span-1">
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-              Stay connected
+              {t('stayConnected')}
             </h3>
             <p className="text-sm text-gray-500 mb-3">
-              Follow us for exclusive deals and updates.
+              {t('socialTagline')}
             </p>
             <a
               href="mailto:info@waypointguyana.com"
               className="inline-flex items-center gap-1.5 text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
             >
-              Get in touch
+              {t('getInTouch')}
               <ArrowUpRight className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -124,18 +128,18 @@ export function FooterMinimal() {
         <div className="pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-gray-600 text-xs">
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-            <span>Made with pride in Guyana</span>
+            <span>{t('madeWith')}</span>
           </div>
           <div className="flex items-center gap-4 md:hidden text-gray-600 text-xs">
             <Link href="/privacy" className="hover:text-gray-400 transition-colors">
-              Privacy
+              {t('privacy')}
             </Link>
             <Link href="/terms" className="hover:text-gray-400 transition-colors">
-              Terms
+              {t('terms')}
             </Link>
           </div>
           <p className="text-gray-600 text-xs">
-            © {new Date().getFullYear()} Waypoint. All rights reserved.
+            {t('copyright', { year: new Date().getFullYear() })}
           </p>
         </div>
       </div>

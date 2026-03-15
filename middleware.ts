@@ -1,11 +1,47 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import createIntlMiddleware from 'next-intl/middleware'
+import { routing } from './i18n/routing'
 import { isAdmin } from '@/lib/admin'
 
 // Allowed reason codes to prevent forwarding arbitrary text in URLs
 const ALLOWED_REASON_CODES = new Set([
   'spam', 'harassment', 'fraud', 'tos_violation', 'inappropriate_content', 'other'
 ])
+
+const intlMiddleware = createIntlMiddleware(routing)
+
+// Strip locale prefix from pathname to get the "logical" path for auth checks
+function getPathWithoutLocale(pathname: string): string {
+  for (const locale of routing.locales) {
+    if (locale === routing.defaultLocale) continue // Default locale has no prefix
+    if (pathname.startsWith(`/${locale}/`)) {
+      return pathname.slice(locale.length + 1)
+    }
+    if (pathname === `/${locale}`) {
+      return '/'
+    }
+  }
+  return pathname
+}
+
+// Get the current locale from the pathname
+function getLocaleFromPath(pathname: string): string {
+  for (const locale of routing.locales) {
+    if (locale === routing.defaultLocale) continue
+    if (pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`) {
+      return locale
+    }
+  }
+  return routing.defaultLocale
+}
+
+// Build a locale-aware redirect URL
+function localizedRedirect(request: NextRequest, path: string, locale: string): NextResponse {
+  const url = request.nextUrl.clone()
+  url.pathname = locale === routing.defaultLocale ? path : `/${locale}${path}`
+  return NextResponse.redirect(url)
+}
 
 // Helper to check if user is blocked (suspended or banned)
 // failClosed: if true, DB errors result in isBlocked: true (used for admin routes)
@@ -59,13 +95,24 @@ async function checkUserStatus(supabase: ReturnType<typeof createServerClient>, 
 }
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+  const pathname = request.nextUrl.pathname
+
+  // 1. Run next-intl middleware for locale detection and URL rewriting
+  const intlResponse = intlMiddleware(request)
+
+  // If intl middleware issued a redirect (e.g. removing /en prefix), return immediately
+  if (intlResponse.status >= 300 && intlResponse.status < 400) {
+    return intlResponse
+  }
+
+  // 2. Determine the logical pathname (without locale prefix) for auth checks
+  const logicalPath = getPathWithoutLocale(pathname)
+  const locale = getLocaleFromPath(pathname)
 
   // Add pathname to headers so layout can check if we're in kiosk mode
-  supabaseResponse.headers.set('x-pathname', request.nextUrl.pathname)
+  intlResponse.headers.set('x-pathname', pathname)
 
+  // 3. Create Supabase client that reads from request and writes to intlResponse
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -76,13 +123,8 @@ export async function middleware(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          // Preserve pathname header after recreating response
-          supabaseResponse.headers.set('x-pathname', request.nextUrl.pathname)
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, {
+            intlResponse.cookies.set(name, value, {
               ...options,
               // Ensure cookies work properly on mobile browsers during OAuth
               sameSite: 'lax',
@@ -95,25 +137,32 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh session if expired - required for Server Components
-  // https://supabase.com/docs/guides/auth/server-side/nextjs
+  // 4. Auth checks using the logical (locale-stripped) pathname
+  const isProtectedRoute = logicalPath.startsWith('/dashboard') || logicalPath.startsWith('/admin')
+  const isAuthPage = logicalPath.startsWith('/auth/') &&
+    !logicalPath.includes('/callback') &&
+    !logicalPath.includes('/verify-email') &&
+    !logicalPath.includes('/reset-password')
+  const isBlockedPage = logicalPath === '/blocked'
+
+  // Only run full auth verification on routes that need it.
+  if (!isProtectedRoute && !isAuthPage && !isBlockedPage) {
+    await supabase.auth.getSession()
+    return intlResponse
+  }
+
+  // Protected/auth routes — full server-side user verification
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Check user status for authenticated users on protected routes
-  // Skip check for blocked page to prevent redirect loops
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
-                           request.nextUrl.pathname.startsWith('/admin')
-  const isBlockedPage = request.nextUrl.pathname === '/blocked'
-
   if (user && isProtectedRoute && !isBlockedPage) {
-    const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
+    const isAdminRoute = logicalPath.startsWith('/admin')
     const userStatus = await checkUserStatus(supabase, user.id, isAdminRoute)
 
     if (userStatus.isBlocked) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/blocked'
+      redirectUrl.pathname = locale === routing.defaultLocale ? '/blocked' : `/${locale}/blocked`
       redirectUrl.searchParams.set('status', userStatus.status)
       if (userStatus.reason) {
         redirectUrl.searchParams.set('reason', userStatus.reason)
@@ -129,23 +178,19 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (logicalPath.startsWith('/dashboard')) {
     if (!user) {
-      const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/auth/login'
-      redirectUrl.searchParams.set('redirected', 'true')
-      return NextResponse.redirect(redirectUrl)
+      return localizedRedirect(request, '/auth/login', locale)
     }
 
     // Check if email is verified for email/password users
-    // OAuth users (google) are automatically verified
     const provider = user.app_metadata?.provider
     const isEmailProvider = provider === 'email'
     const emailConfirmed = user.email_confirmed_at
 
     if (isEmailProvider && !emailConfirmed) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/auth/verify-email'
+      redirectUrl.pathname = locale === routing.defaultLocale ? '/auth/verify-email' : `/${locale}/auth/verify-email`
       if (user.email) {
         redirectUrl.searchParams.set('email', user.email)
       }
@@ -154,29 +199,21 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users away from auth pages (except callback routes)
-  const isAuthPage = request.nextUrl.pathname.startsWith('/auth/') &&
-    !request.nextUrl.pathname.includes('/callback') &&
-    !request.nextUrl.pathname.includes('/verify-email') &&
-    !request.nextUrl.pathname.includes('/reset-password')
-
   if (isAuthPage && user && user.email_confirmed_at) {
-    return NextResponse.redirect(new URL('/', request.url))
+    return localizedRedirect(request, '/', locale)
   }
 
   // Protect admin routes - require both authentication AND admin status
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  if (logicalPath.startsWith('/admin')) {
     if (!user) {
-      const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/auth/login'
-      redirectUrl.searchParams.set('redirected', 'true')
-      return NextResponse.redirect(redirectUrl)
+      return localizedRedirect(request, '/auth/login', locale)
     }
 
     // Check email verification for email/password users
     const provider = user.app_metadata?.provider
     if (provider === 'email' && !user.email_confirmed_at) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/auth/verify-email'
+      redirectUrl.pathname = locale === routing.defaultLocale ? '/auth/verify-email' : `/${locale}/auth/verify-email`
       if (user.email) {
         redirectUrl.searchParams.set('email', user.email)
       }
@@ -185,13 +222,13 @@ export async function middleware(request: NextRequest) {
 
     if (!isAdmin(user)) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/'
+      redirectUrl.pathname = locale === routing.defaultLocale ? '/' : `/${locale}`
       redirectUrl.searchParams.set('unauthorized', 'true')
       return NextResponse.redirect(redirectUrl)
     }
   }
 
-  return supabaseResponse
+  return intlResponse
 }
 
 export const config = {
@@ -201,7 +238,6 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],

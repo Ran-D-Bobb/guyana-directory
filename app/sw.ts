@@ -116,7 +116,15 @@ const serwist = new Serwist({
         ],
       }),
     },
-    // API routes
+    // Admin/auth API routes - never cache
+    {
+      matcher({ url }) {
+        return url.pathname.startsWith("/api/admin") ||
+               url.pathname.startsWith("/api/recommendations");
+      },
+      handler: new NetworkOnly(),
+    },
+    // Public API routes - cache briefly
     {
       matcher({ url }) {
         return url.pathname.startsWith("/api/");

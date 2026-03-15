@@ -394,28 +394,34 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          description_es: string | null
           display_order: number | null
           icon: string
           id: string
           name: string
+          name_es: string | null
           slug: string
         }
         Insert: {
           created_at?: string | null
           description?: string | null
+          description_es?: string | null
           display_order?: number | null
           icon: string
           id?: string
           name: string
+          name_es?: string | null
           slug: string
         }
         Update: {
           created_at?: string | null
           description?: string | null
+          description_es?: string | null
           display_order?: number | null
           icon?: string
           id?: string
           name?: string
+          name_es?: string | null
           slug?: string
         }
         Relationships: []
@@ -458,23 +464,29 @@ export type Database = {
       event_categories: {
         Row: {
           created_at: string | null
+          description_es: string | null
           icon: string | null
           id: string
           name: string
+          name_es: string | null
           slug: string
         }
         Insert: {
           created_at?: string | null
+          description_es?: string | null
           icon?: string | null
           id?: string
           name: string
+          name_es?: string | null
           slug: string
         }
         Update: {
           created_at?: string | null
+          description_es?: string | null
           icon?: string | null
           id?: string
           name?: string
+          name_es?: string | null
           slug?: string
         }
         Relationships: []
@@ -644,6 +656,52 @@ export type Database = {
           },
         ]
       }
+      followed_organisers: {
+        Row: {
+          business_id: string | null
+          created_at: string | null
+          id: string
+          organiser_user_id: string | null
+          user_id: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string | null
+          id?: string
+          organiser_user_id?: string | null
+          user_id: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string | null
+          id?: string
+          organiser_user_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followed_organisers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "followed_organisers_organiser_user_id_fkey"
+            columns: ["organiser_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "followed_organisers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       photo_flags: {
         Row: {
           created_at: string
@@ -787,30 +845,36 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          description_es: string | null
           display_order: number | null
           icon: string
           id: string
           name: string
+          name_es: string | null
           slug: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           description?: string | null
+          description_es?: string | null
           display_order?: number | null
           icon: string
           id?: string
           name: string
+          name_es?: string | null
           slug: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           description?: string | null
+          description_es?: string | null
           display_order?: number | null
           icon?: string
           id?: string
           name?: string
+          name_es?: string | null
           slug?: string
           updated_at?: string | null
         }
@@ -1534,31 +1598,37 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          description_es: string | null
           display_order: number | null
           icon: string
           id: string
           is_active: boolean | null
           name: string
+          name_es: string | null
           slug: string
         }
         Insert: {
           created_at?: string | null
           description?: string | null
+          description_es?: string | null
           display_order?: number | null
           icon: string
           id?: string
           is_active?: boolean | null
           name: string
+          name_es?: string | null
           slug: string
         }
         Update: {
           created_at?: string | null
           description?: string | null
+          description_es?: string | null
           display_order?: number | null
           icon?: string
           id?: string
           is_active?: boolean | null
           name?: string
+          name_es?: string | null
           slug?: string
         }
         Relationships: []
@@ -1610,6 +1680,8 @@ export type Database = {
           tourism_category_id: string | null
           updated_at: string | null
           user_preference_data: Json | null
+          video_thumbnail_url: string | null
+          video_url: string | null
           view_count: number | null
           website: string | null
           what_to_bring: string[] | null
@@ -1662,6 +1734,8 @@ export type Database = {
           tourism_category_id?: string | null
           updated_at?: string | null
           user_preference_data?: Json | null
+          video_thumbnail_url?: string | null
+          video_url?: string | null
           view_count?: number | null
           website?: string | null
           what_to_bring?: string[] | null
@@ -1714,6 +1788,8 @@ export type Database = {
           tourism_category_id?: string | null
           updated_at?: string | null
           user_preference_data?: Json | null
+          video_thumbnail_url?: string | null
+          video_url?: string | null
           view_count?: number | null
           website?: string | null
           what_to_bring?: string[] | null
@@ -2128,6 +2204,25 @@ export type Database = {
           new_this_week: number
         }[]
       }
+      get_followed_organiser_events: {
+        Args: { p_limit?: number; p_user_id: string }
+        Returns: {
+          category_icon: string
+          category_name: string
+          event_end_date: string
+          event_id: string
+          event_image_url: string
+          event_interest_count: number
+          event_is_featured: boolean
+          event_location: string
+          event_slug: string
+          event_start_date: string
+          event_title: string
+          organiser_name: string
+          organiser_slug: string
+          organiser_type: string
+        }[]
+      }
       get_new_businesses_this_week: {
         Args: { p_category_id: string }
         Returns: number
@@ -2175,6 +2270,10 @@ export type Database = {
       increment_event_views: { Args: { event_id: string }; Returns: undefined }
       increment_event_whatsapp_clicks: {
         Args: { event_id: string }
+        Returns: undefined
+      }
+      increment_rental_view_count: {
+        Args: { rental_id: string }
         Returns: undefined
       }
       increment_tourism_view_count: {

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { loginSchema, type LoginFormData } from '@/lib/validations/auth'
 import { TextInput } from '@/components/forms/inputs/TextInput'
@@ -15,6 +16,7 @@ import { getAuthRedirectUrl } from '@/lib/utils'
 
 export function LoginForm() {
   const supabase = createClient()
+  const t = useTranslations('auth')
   const [isLoading, setIsLoading] = useState(false)
   const [showUnverifiedWarning, setShowUnverifiedWarning] = useState(false)
   const [unverifiedEmail, setUnverifiedEmail] = useState('')
@@ -63,18 +65,18 @@ export function LoginForm() {
       if (error) {
         // Handle specific errors
         if (error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid credentials', {
-            description: 'Please check your email and password.',
+          toast.error(t('invalidCredentials'), {
+            description: t('invalidCredentialsDesc'),
           })
-          setErrors({ password: 'Invalid email or password' })
+          setErrors({ password: t('invalidEmailOrPassword') })
         } else if (error.message.includes('Email not confirmed')) {
           setShowUnverifiedWarning(true)
           setUnverifiedEmail(formData.email)
-          toast.error('Email not verified', {
-            description: 'Please check your email for the verification link.',
+          toast.error(t('emailNotVerifiedError'), {
+            description: t('emailNotVerifiedErrorDesc'),
           })
         } else {
-          toast.error('Sign in failed', {
+          toast.error(t('signInFailed'), {
             description: error.message,
           })
         }
@@ -82,12 +84,12 @@ export function LoginForm() {
       }
 
       if (data.user) {
-        toast.success('Welcome back!')
+        toast.success(t('welcomeBackToast'))
         // Use hard navigation to ensure server components re-fetch auth state
         window.location.href = '/'
       }
     } catch (error) {
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpectedError'))
       console.error('Login error:', error)
     } finally {
       setIsLoading(false)
@@ -106,16 +108,16 @@ export function LoginForm() {
       })
 
       if (error) {
-        toast.error('Failed to resend email', {
+        toast.error(t('failedToResendEmail'), {
           description: error.message,
         })
       } else {
-        toast.success('Verification email sent', {
-          description: 'Please check your inbox.',
+        toast.success(t('verificationEmailSent'), {
+          description: t('verificationEmailSentDesc'),
         })
       }
     } catch {
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpectedError'))
     } finally {
       setIsLoading(false)
     }
@@ -132,9 +134,9 @@ export function LoginForm() {
           <div className="flex gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm text-amber-800 font-medium">Email not verified</p>
+              <p className="text-sm text-amber-800 font-medium">{t('emailNotVerified')}</p>
               <p className="text-sm text-amber-700 mt-1">
-                Please verify your email before signing in.
+                {t('emailNotVerifiedBody')}
               </p>
               <button
                 type="button"
@@ -142,7 +144,7 @@ export function LoginForm() {
                 disabled={isLoading}
                 className="text-sm text-amber-700 underline hover:text-amber-800 mt-2"
               >
-                Resend verification email
+                {t('resendVerificationLink')}
               </button>
             </div>
           </div>
@@ -151,24 +153,24 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <TextInput
-          label="Email"
+          label={t('emailLabel')}
           name="email"
           type="email"
           value={formData.email}
           onChange={updateField('email')}
           required
           error={errors.email}
-          placeholder="you@example.com"
+          placeholder={t('emailPlaceholder')}
         />
 
         <PasswordInput
-          label="Password"
+          label={t('passwordLabel')}
           name="password"
           value={formData.password}
           onChange={updateField('password')}
           required
           error={errors.password}
-          placeholder="Enter your password"
+          placeholder={t('passwordPlaceholder')}
         />
 
         <div className="flex justify-end">
@@ -176,7 +178,7 @@ export function LoginForm() {
             href="/auth/forgot-password"
             className="text-sm text-[hsl(var(--jungle-500))] hover:text-[hsl(var(--jungle-700))] transition-colors"
           >
-            Forgot password?
+            {t('forgotPasswordLink')}
           </Link>
         </div>
 
@@ -188,15 +190,15 @@ export function LoginForm() {
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
           ) : (
-            'Sign in'
+            t('signInButton')
           )}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-[hsl(var(--jungle-600))]">
-        Don&apos;t have an account?{' '}
+        {t('dontHaveAccount')}{' '}
         <Link href="/auth/signup" className="font-medium text-[hsl(var(--jungle-500))] hover:text-[hsl(var(--jungle-700))] transition-colors">
-          Sign up
+          {t('signUp')}
         </Link>
       </p>
     </div>

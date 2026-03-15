@@ -41,7 +41,7 @@ const config: CapacitorConfig = {
     },
   },
   android: {
-    allowMixedContent: true,
+    allowMixedContent: false,
     backgroundColor: '#0d5c4b',
   },
   ios: {

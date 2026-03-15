@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { CheckCircle2, ArrowRight, Home, Plus } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -122,10 +123,10 @@ export function FormSuccessScreen({
             asChild={!!primaryAction.href}
           >
             {primaryAction.href ? (
-              <a href={primaryAction.href}>
+              <Link href={primaryAction.href}>
                 {primaryAction.icon || <ArrowRight className="w-4 h-4 mr-2" />}
                 {primaryAction.label}
-              </a>
+              </Link>
             ) : (
               <>
                 {primaryAction.icon || <ArrowRight className="w-4 h-4 mr-2" />}
@@ -144,10 +145,10 @@ export function FormSuccessScreen({
             asChild={!!secondaryAction.href}
           >
             {secondaryAction.href ? (
-              <a href={secondaryAction.href}>
+              <Link href={secondaryAction.href}>
                 {secondaryAction.icon || <Home className="w-4 h-4 mr-2" />}
                 {secondaryAction.label}
-              </a>
+              </Link>
             ) : (
               <>
                 {secondaryAction.icon || <Home className="w-4 h-4 mr-2" />}

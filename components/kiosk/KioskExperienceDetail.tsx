@@ -1,8 +1,8 @@
 'use client'
 
-import Image from 'next/image'
 import { QRCodeSVG } from 'qrcode.react'
-import type { KioskExperience } from '@/app/kiosk/KioskHomePage'
+import KioskMedia from './KioskMedia'
+import type { KioskExperience } from '@/app/[locale]/kiosk/KioskHomePage'
 
 interface KioskExperienceDetailProps {
   experience: KioskExperience
@@ -29,19 +29,16 @@ export default function KioskExperienceDetail({ experience }: KioskExperienceDet
           zIndex: 1,
         }}
       >
-        {experience.image_url ? (
-          <Image
-            src={experience.image_url}
-            alt={experience.name}
-            fill
-            className="object-cover"
-            sizes="60vw"
-            priority
-            style={{ animation: 'kiosk-ken-burns-slow 20s ease-in-out forwards' }}
-          />
-        ) : (
-          <div style={{ position: 'absolute', inset: 0, background: 'var(--kiosk-gradient-tropical)' }} />
-        )}
+        <KioskMedia
+          videoUrl={experience.video_url}
+          imageUrl={experience.image_url}
+          posterUrl={experience.video_thumbnail_url}
+          alt={experience.name}
+          sizes="60vw"
+          kenBurns
+          kenBurnsDuration={20}
+          priority
+        />
 
         {/* Gradient overlay for right-side bleed */}
         <div

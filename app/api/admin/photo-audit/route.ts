@@ -17,10 +17,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { photoId, businessName, imageUrl } = await request.json()
+    const { photoId, businessName } = await request.json()
 
-    if (!photoId) {
-      return NextResponse.json({ error: 'photoId is required' }, { status: 400 })
+    if (!photoId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(photoId)) {
+      return NextResponse.json({ error: 'Invalid photoId' }, { status: 400 })
     }
 
     // Use service role client to bypass RLS
@@ -48,11 +48,11 @@ export async function DELETE(request: NextRequest) {
 
     if (error) {
       console.error('Failed to delete photo:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to delete photo' }, { status: 500 })
     }
 
     // Try to delete from storage
-    const photoUrl = imageUrl || photo.image_url
+    const photoUrl = photo.image_url
     if (photoUrl?.includes('supabase')) {
       try {
         const url = new URL(photoUrl)

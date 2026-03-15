@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { signUpSchema, type SignUpFormData } from '@/lib/validations/auth'
 import { TextInput } from '@/components/forms/inputs/TextInput'
@@ -17,6 +18,7 @@ type AccountType = 'personal' | 'business'
 
 export function SignUpForm() {
   const supabase = createClient()
+  const t = useTranslations('auth')
   const [step, setStep] = useState<'type' | 'form'>('type')
   const [accountType, setAccountType] = useState<AccountType | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -68,12 +70,12 @@ export function SignUpForm() {
 
       if (error) {
         if (error.message.includes('already registered')) {
-          setErrors({ email: 'An account with this email already exists' })
-          toast.error('Account already exists', {
-            description: 'Please sign in instead or use a different email.',
+          setErrors({ email: t('emailAlreadyRegistered') })
+          toast.error(t('accountAlreadyExists'), {
+            description: t('accountAlreadyExistsDesc'),
           })
         } else {
-          toast.error('Sign up failed', {
+          toast.error(t('signUpFailed'), {
             description: error.message,
           })
         }
@@ -81,14 +83,14 @@ export function SignUpForm() {
       }
 
       if (data.user) {
-        toast.success('Account created!', {
-          description: 'Please check your email to verify your account.',
+        toast.success(t('accountCreated'), {
+          description: t('accountCreatedDesc'),
         })
         // Redirect to verify-email page so user knows to check their email
         window.location.href = `/auth/verify-email?email=${encodeURIComponent(formData.email)}`
       }
     } catch (error) {
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpectedError'))
       console.error('Sign up error:', error)
     } finally {
       setIsLoading(false)
@@ -100,10 +102,10 @@ export function SignUpForm() {
     return (
       <div className="w-full">
         <h3 className="text-base font-semibold text-[hsl(var(--jungle-800))] text-center mb-1">
-          Choose your account type
+          {t('chooseAccountType')}
         </h3>
         <p className="text-sm text-[hsl(var(--jungle-600))] text-center mb-6">
-          This helps us personalize your experience
+          {t('chooseAccountTypeHint')}
         </p>
 
         <div className="space-y-3">
@@ -126,7 +128,7 @@ export function SignUpForm() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold text-[hsl(var(--jungle-800))]">Personal</p>
+                  <p className="font-semibold text-[hsl(var(--jungle-800))]">{t('personalAccount')}</p>
                   {accountType === 'personal' && (
                     <div className="w-5 h-5 rounded-full bg-[hsl(var(--jungle-500))] flex items-center justify-center">
                       <Check className="w-3 h-3 text-white" />
@@ -134,7 +136,7 @@ export function SignUpForm() {
                   )}
                 </div>
                 <p className="text-sm text-[hsl(var(--jungle-600))] mt-0.5">
-                  Discover businesses, write reviews, save favorites
+                  {t('personalAccountDesc')}
                 </p>
               </div>
             </div>
@@ -159,7 +161,7 @@ export function SignUpForm() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold text-[hsl(var(--jungle-800))]">Business</p>
+                  <p className="font-semibold text-[hsl(var(--jungle-800))]">{t('businessAccount')}</p>
                   {accountType === 'business' && (
                     <div className="w-5 h-5 rounded-full bg-[hsl(var(--jungle-500))] flex items-center justify-center">
                       <Check className="w-3 h-3 text-white" />
@@ -167,7 +169,7 @@ export function SignUpForm() {
                   )}
                 </div>
                 <p className="text-sm text-[hsl(var(--jungle-600))] mt-0.5">
-                  List your business, manage listings, track analytics
+                  {t('businessAccountDesc')}
                 </p>
               </div>
             </div>
@@ -180,13 +182,13 @@ export function SignUpForm() {
           disabled={!accountType}
           className="w-full h-12 mt-6 bg-[hsl(var(--jungle-600))] hover:bg-[hsl(var(--jungle-700))] text-white font-medium transition-all disabled:opacity-40"
         >
-          Continue
+          {t('continueButton')}
         </Button>
 
         <p className="mt-6 text-center text-sm text-[hsl(var(--jungle-600))]">
-          Already have an account?{' '}
+          {t('alreadyHaveAccount')}{' '}
           <Link href="/auth/login" className="font-medium text-[hsl(var(--jungle-500))] hover:text-[hsl(var(--jungle-700))] transition-colors">
-            Sign in
+            {t('signIn')}
           </Link>
         </p>
       </div>
@@ -202,7 +204,7 @@ export function SignUpForm() {
         className="flex items-center gap-1.5 text-sm text-[hsl(var(--jungle-600))] hover:text-[hsl(var(--jungle-800))] mb-4 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Change account type
+        {t('changeAccountType')}
       </button>
 
       <div className="flex items-center gap-2 mb-5 px-3 py-2 bg-[hsl(var(--jungle-50))] rounded-lg border border-[hsl(var(--jungle-200))]">
@@ -212,7 +214,7 @@ export function SignUpForm() {
           <Building2 className="w-4 h-4 text-[hsl(var(--jungle-600))] shrink-0" />
         )}
         <span className="text-sm font-medium text-[hsl(var(--jungle-700))]">
-          {accountType === 'personal' ? 'Personal' : 'Business'} Account
+          {accountType === 'personal' ? t('personalAccountLabel') : t('businessAccountLabel')}
         </span>
       </div>
 
@@ -222,45 +224,45 @@ export function SignUpForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <TextInput
-          label="Full name"
+          label={t('fullName')}
           name="name"
           value={formData.name}
           onChange={updateField('name')}
           required
           error={errors.name}
-          placeholder="Enter your name"
+          placeholder={t('fullNamePlaceholder')}
         />
 
         <TextInput
-          label="Email"
+          label={t('emailLabel')}
           name="email"
           type="email"
           value={formData.email}
           onChange={updateField('email')}
           required
           error={errors.email}
-          placeholder="you@example.com"
+          placeholder={t('emailPlaceholder')}
         />
 
         <PasswordInput
-          label="Password"
+          label={t('passwordLabel')}
           name="password"
           value={formData.password}
           onChange={updateField('password')}
           required
           error={errors.password}
-          placeholder="Create a password"
+          placeholder={t('createPasswordPlaceholder')}
           showStrengthIndicator
         />
 
         <PasswordInput
-          label="Confirm password"
+          label={t('confirmPassword')}
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={updateField('confirmPassword')}
           required
           error={errors.confirmPassword}
-          placeholder="Confirm your password"
+          placeholder={t('confirmPasswordPlaceholder')}
         />
 
         <Button
@@ -271,15 +273,15 @@ export function SignUpForm() {
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
           ) : (
-            'Create account'
+            t('createAccountButton')
           )}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-[hsl(var(--jungle-600))]">
-        Already have an account?{' '}
+        {t('alreadyHaveAccount')}{' '}
         <Link href="/auth/login" className="font-medium text-[hsl(var(--jungle-500))] hover:text-[hsl(var(--jungle-700))] transition-colors">
-          Sign in
+          {t('signIn')}
         </Link>
       </p>
     </div>

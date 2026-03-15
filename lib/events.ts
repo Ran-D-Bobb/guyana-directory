@@ -82,7 +82,7 @@ export function applyEventFilters(query: any, filters: EventFilters, now: string
 
   // Search filter
   if (filters.q && filters.q.trim()) {
-    const safeQ = filters.q.replace(/[%_(),.*]/g, ' ').trim()
+    const safeQ = filters.q.replace(/[^a-zA-Z0-9\s\-']/g, ' ').trim()
     if (safeQ) {
       query = query.or(`title.plfts.${safeQ},description.ilike.%${safeQ}%,location.ilike.%${safeQ}%`)
     }

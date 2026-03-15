@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Waypoint - Discover Guyana',
     short_name: 'Waypoint',
-    description: 'Explore local businesses, experiences, stays, and events across Guyana.',
+    description: 'Find the best businesses, experiences, events, and stays across Guyana. Your guide to the Land of Many Waters.',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

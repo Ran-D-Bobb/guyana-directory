@@ -12,6 +12,7 @@ A Progressive Web App for discovering local businesses in Guyana. Business listi
 - shadcn/ui components
 - Tailwind CSS v4
 - TypeScript
+- next-intl (i18n — English + Spanish)
 
 ## Development Commands
 
@@ -130,13 +131,14 @@ supabase db push
 
 ### Key Application Patterns
 
-**URL Structure:**
-- Home: `/`
+**URL Structure (all under `app/[locale]/`):**
+- Home: `/` (English, default), `/es/` (Spanish)
 - Category: `/businesses/category/[slug]`
 - Business Detail: `/businesses/[slug]`
 - Search: `/search?q=<query>`
 - Dashboard: `/dashboard/my-business`
 - Admin: `/admin`
+- API routes remain at `app/api/` (NOT under `[locale]`)
 
 **Contact Methods:**
 - Phone: Primary contact method via `tel:` links
@@ -179,6 +181,26 @@ supabase db push
 - Admin components in /components/admin
 - Shared layout components in /components/layout
 
+**Internationalization (i18n):**
+- Library: `next-intl` with App Router
+- Locales: `en` (default), `es` (South American Spanish)
+- URL strategy: `localePrefix: 'as-needed'` — English has no prefix, Spanish gets `/es/`
+- Config files: `i18n/routing.ts`, `i18n/request.ts`, `i18n/navigation.ts`
+- Translation files: `messages/en.json`, `messages/es.json` (21 namespaces)
+- Language switcher: `components/LanguageSwitcher.tsx` (in Header)
+
+**i18n Rules — ALWAYS follow when creating or modifying components:**
+1. **Never hardcode user-facing strings.** All visible text (labels, headings, buttons, placeholders, errors, toasts, metadata) must come from translation files.
+2. **Server components:** `import { getTranslations } from 'next-intl/server'` → `const t = await getTranslations('namespace')`
+3. **Client components:** `import { useTranslations } from 'next-intl'` → `const t = useTranslations('namespace')`
+4. **Both JSON files:** When adding strings, add to BOTH `messages/en.json` AND `messages/es.json`.
+5. **Dynamic values:** Use ICU MessageFormat — `t('greeting', { name })`, `t('count', { count })` with `{count, plural, one {# item} other {# items}}`
+6. **New pages:** Place under `app/[locale]/`, not `app/`
+7. **Navigation:** Regular `next/link` Link works for simple hrefs. For programmatic navigation (router.push, usePathname), import from `@/i18n/navigation` instead of `next/navigation` — this strips locale prefixes automatically.
+8. **Metadata:** Use `export async function generateMetadata()` with `getTranslations()` instead of static `export const metadata`
+9. **Namespace convention:** Use existing namespaces when possible (nav, hero, home, search, business, tourism, events, rentals, discover, review, auth, dashboard, footer, region, offline, filters, kiosk, about, privacy, terms, common, metadata). Create new namespaces only for genuinely new feature domains.
+10. **DB content stays untranslated:** Business names, category names, descriptions, reviews, and other user-generated/scraped content remain in their original language.
+
 **Database Access:**
 - Use Supabase client-side SDK for client components
 - Use Supabase server-side SDK for server components and API routes
@@ -213,16 +235,12 @@ supabase db push
 - PWA functionality (installable, basic offline support)
 
 **OUT OF SCOPE (Future Phases):**
-- Events calendar
-- Marketplace listings
-- Tourism guides
 - In-app messaging
 - Payment processing
 - Email notifications
-- Maps integration
 - Review responses from business owners
 - Advanced analytics
-- Multi-language support
+- Additional languages beyond English and Spanish
 
 ## Design Context
 

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { MapPin, ChevronDown, Check } from 'lucide-react'
 import { REGION_COOKIE, getRegionDisplayName } from '@/lib/regions'
+import { useTranslations } from 'next-intl'
 
 interface RegionOption {
   slug: string
@@ -20,9 +21,10 @@ export function RegionSelector({ currentSlug, regions }: RegionSelectorProps) {
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const router = useRouter()
+  const t = useTranslations('region')
 
   const currentDisplay = currentSlug === 'all'
-    ? 'All Guyana'
+    ? t('allGuyana')
     : getRegionDisplayName(currentSlug)
 
   useEffect(() => {
@@ -38,7 +40,13 @@ export function RegionSelector({ currentSlug, regions }: RegionSelectorProps) {
   const handleSelect = (slug: string) => {
     document.cookie = `${REGION_COOKIE}=${slug}; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax`
     setIsOpen(false)
-    router.refresh()
+    const url = new URL(window.location.href)
+    if (slug === 'all') {
+      url.searchParams.delete('region')
+    } else {
+      url.searchParams.set('region', slug)
+    }
+    router.push(url.pathname + url.search)
   }
 
   return (
@@ -55,7 +63,7 @@ export function RegionSelector({ currentSlug, regions }: RegionSelectorProps) {
       {isOpen && (
         <div className="absolute top-full left-0 md:left-auto md:right-0 lg:left-0 lg:right-auto mt-2 w-56 bg-white dark:bg-[hsl(0,0%,14%)] rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 py-2 z-[200] animate-in fade-in slide-in-from-top-2 duration-150 max-h-[70vh] overflow-y-auto">
           <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-            Select Region
+            {t('selectRegion')}
           </div>
 
           {regions.map((region) => {

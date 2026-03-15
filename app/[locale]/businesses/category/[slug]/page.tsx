@@ -1,0 +1,405 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import Image from 'next/image'
+import { Suspense } from 'react'
+import { createStaticClient } from '@/lib/supabase/static'
+import { getTranslations, getLocale } from 'next-intl/server'
+import { notFound } from 'next/navigation'
+import { CategorySidebar } from '@/components/CategorySidebar'
+import { CategoryPageClient } from '@/components/CategoryPageClient'
+import { MobileCategoryFilterBar } from '@/components/MobileCategoryFilterBar'
+import { FollowCategoryButton } from '@/components/FollowCategoryButton'
+import { BusinessFilterPanel } from '@/components/BusinessFilterPanel'
+import { getBusinessCategoriesWithCounts } from '@/lib/category-counts'
+import { getCategoryImage } from '@/lib/category-images'
+import { getLocalizedName, getLocalizedDescription } from '@/lib/i18n-helpers'
+
+// ISR: cache each URL variant for 5 minutes — eliminates 7-10 DB queries per request
+export const revalidate = 300
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const t = await getTranslations('category')
+  const supabase = createStaticClient()
+  const { data: category } = await supabase.from('categories').select('name, description').eq('slug', slug).single()
+  if (!category) return { title: t('notFound') }
+  const description = category.description || t('businessesDesc', { name: category.name })
+  return {
+    title: t('businessesInGuyana', { name: category.name }),
+    description: description.slice(0, 160),
+    alternates: { canonical: `/businesses/category/${slug}` },
+    openGraph: {
+      title: `${t('businessesInGuyana', { name: category.name })} | Waypoint`,
+      description: description.slice(0, 160),
+    },
+  }
+}
+
+const ITEMS_PER_PAGE = 24
+
+interface CategoryPageProps {
+  params: Promise<{
+    slug: string
+  }>
+  searchParams: Promise<{
+    region?: string
+    sort?: string
+    rating?: string
+    verified?: string
+    featured?: string
+    tags?: string  // comma-separated tag slugs
+    page?: string
+  }>
+}
+
+export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
+  const { slug } = await params
+  const { region, sort = 'featured', rating, verified, featured, tags: tagsParam, page: pageParam } = await searchParams
+  const currentPage = Math.max(1, parseInt(pageParam || '1', 10) || 1)
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
+  const selectedTags = tagsParam ? tagsParam.split(',') : []
+  const locale = await getLocale()
+  // Use static client (no cookies) — enables ISR caching for this page.
+  // Auth-dependent features (follow button) resolve client-side.
+  const supabase = createStaticClient()
+
+  // Fetch the category
+  const { data: category } = await supabase
+    .from('categories')
+    .select('*, name_es, description_es')
+    .eq('slug', slug)
+    .single()
+
+  if (!category) {
+    notFound()
+  }
+
+  // Fetch all categories with business counts
+  const categoriesWithCount = await getBusinessCategoriesWithCounts()
+
+  // Fetch all regions for filters
+  const { data: regions } = await supabase
+    .from('regions')
+    .select('id, name, slug')
+    .order('name')
+
+  // Fetch category tags for filter UI
+  const { data: categoryTags } = await supabase
+    .from('category_tags')
+    .select('id, name, slug')
+    .eq('category_id', category.id)
+    .order('display_order', { ascending: true })
+
+  // Resolve tag filter once (used by both data and count queries)
+  let businessIdFilter: string[] | null = null
+  if (selectedTags.length > 0) {
+    const { data: tagRows } = await supabase
+      .from('category_tags')
+      .select('id')
+      .eq('category_id', category.id)
+      .in('slug', selectedTags)
+
+    const tagIds = tagRows?.map(t => t.id) || []
+    if (tagIds.length > 0) {
+      const { data: matchingBT } = await supabase
+        .from('business_tags')
+        .select('business_id')
+        .in('tag_id', tagIds)
+
+      businessIdFilter = [...new Set(matchingBT?.map(bt => bt.business_id) || [])]
+    } else {
+      businessIdFilter = []
+    }
+  }
+
+  // Build the query for businesses
+  let query = supabase
+    .from('businesses')
+    .select(`
+      *,
+      categories:category_id (name, slug),
+      regions:region_id (name),
+      business_photos (
+        image_url,
+        is_primary
+      ),
+      business_tags (
+        tag_id,
+        category_tags:tag_id (name, slug)
+      )
+    `)
+    .eq('category_id', category.id)
+    .eq('is_active', true)
+
+  // Apply filters
+  if (region && region !== 'all') {
+    query = query.eq('region_id', region)
+  }
+
+  if (rating && rating !== 'all') {
+    query = query.gte('rating', parseFloat(rating))
+  }
+
+  if (verified === 'true') {
+    query = query.eq('is_verified', true)
+  }
+
+  if (featured === 'true') {
+    query = query.eq('is_featured', true)
+  }
+
+  // Apply tag filter
+  if (businessIdFilter !== null) {
+    if (businessIdFilter.length > 0) {
+      query = query.in('id', businessIdFilter)
+    } else {
+      query = query.in('id', ['00000000-0000-0000-0000-000000000000'])
+    }
+  }
+
+  // Apply sorting
+  switch (sort) {
+    case 'featured':
+      query = query.order('is_featured', { ascending: false })
+      query = query.order('rating', { ascending: false })
+      break
+    case 'rating':
+      query = query.order('rating', { ascending: false })
+      break
+    case 'newest':
+      query = query.order('created_at', { ascending: false })
+      break
+    case 'popular':
+      query = query.order('view_count', { ascending: false })
+      break
+  }
+
+  // Build count query with same filters
+  let countQuery = supabase
+    .from('businesses')
+    .select('id', { count: 'exact', head: true })
+    .eq('category_id', category.id)
+    .eq('is_active', true)
+
+  if (region && region !== 'all') {
+    countQuery = countQuery.eq('region_id', region)
+  }
+  if (rating && rating !== 'all') {
+    countQuery = countQuery.gte('rating', parseFloat(rating))
+  }
+  if (verified === 'true') {
+    countQuery = countQuery.eq('is_verified', true)
+  }
+  if (featured === 'true') {
+    countQuery = countQuery.eq('is_featured', true)
+  }
+  if (businessIdFilter !== null) {
+    if (businessIdFilter.length > 0) {
+      countQuery = countQuery.in('id', businessIdFilter)
+    } else {
+      countQuery = countQuery.in('id', ['00000000-0000-0000-0000-000000000000'])
+    }
+  }
+
+  // Apply pagination to data query
+  query = query.range(offset, offset + ITEMS_PER_PAGE - 1)
+
+  const [{ data: businesses }, { count: totalCount }] = await Promise.all([
+    query,
+    countQuery,
+  ])
+
+  const totalPages = Math.ceil((totalCount || 0) / ITEMS_PER_PAGE)
+
+  // Process businesses to extract primary photo
+  const businessesWithPhotos = (businesses || []).map(b => ({
+    ...b,
+    primary_photo: Array.isArray(b.business_photos)
+      ? b.business_photos.find(p => p.is_primary)?.image_url || b.business_photos[0]?.image_url || null
+      : null
+  }))
+
+  const localizedName = getLocalizedName(category, locale)
+  const localizedDescription = getLocalizedDescription(category, locale)
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://waypointgy.com' },
+      { '@type': 'ListItem', position: 2, name: 'Businesses', item: 'https://waypointgy.com/businesses' },
+      { '@type': 'ListItem', position: 3, name: localizedName },
+    ],
+  }
+
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${localizedName} Businesses in Guyana`,
+    description: localizedDescription || `Find the best ${localizedName} businesses in Guyana.`,
+    numberOfItems: totalCount || 0,
+    itemListElement: (businessesWithPhotos || []).map((biz, index) => ({
+      '@type': 'ListItem',
+      position: offset + index + 1,
+      url: `https://waypointgy.com/businesses/${biz.slug}`,
+      name: biz.name,
+    })),
+  }
+
+  return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
+    />
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }}
+    />
+    <div className="min-h-screen bg-gray-50 flex pb-0 lg:pb-0">
+      {/* Desktop Category Sidebar */}
+      <CategorySidebar categories={categoriesWithCount} currentCategorySlug={slug} />
+
+      {/* Main Content Area - scrollable on desktop */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen pb-20 lg:pb-0 lg:h-[calc(100vh-81px)] lg:overflow-y-auto">
+        {/* Mobile Header - Sticky */}
+        <div className="lg:hidden sticky top-0 z-40 bg-white border-b-0 px-4 py-4 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-extrabold text-gray-900 mb-1">
+                {localizedName}
+              </h1>
+              {localizedDescription && (
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {localizedDescription}
+                </p>
+              )}
+              <p className="text-sm text-gray-600 mt-2">
+                <span className="font-semibold text-gray-900">{totalCount || 0}</span> results
+              </p>
+            </div>
+            <FollowCategoryButton
+              categoryId={category.id}
+              categoryName={localizedName}
+              initialIsFollowing={false}
+              userId={null}
+              variant="pill"
+              size="sm"
+            />
+          </div>
+        </div>
+
+        {/* Mobile Category & Filter Bar */}
+        <Suspense fallback={null}>
+          <MobileCategoryFilterBar
+            categories={categoriesWithCount}
+            currentCategorySlug={slug}
+            regions={regions || []}
+            currentFilters={{ region, sort, rating, verified, featured }}
+            basePath="/businesses"
+            categoryPath="/businesses/category"
+            categoryTags={categoryTags || []}
+            selectedTags={selectedTags}
+          />
+        </Suspense>
+
+        {/* Category Hero Banner - Desktop Only */}
+        <div className="hidden lg:block relative h-48 overflow-hidden">
+          <Image
+            src={getCategoryImage(slug)}
+            alt={localizedName}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8">
+            <div className="flex items-end justify-between gap-4 max-w-screen-2xl mx-auto">
+              <div>
+                <h1 className="text-3xl lg:text-4xl font-extrabold text-white mb-1 drop-shadow-lg">
+                  {localizedName}
+                </h1>
+                {localizedDescription && (
+                  <p className="text-base text-white/80 max-w-2xl drop-shadow">
+                    {localizedDescription}
+                  </p>
+                )}
+              </div>
+              <FollowCategoryButton
+                categoryId={category.id}
+                categoryName={localizedName}
+                initialIsFollowing={false}
+                userId={null}
+                variant="icon-label"
+                size="md"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Content Container */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-screen-2xl mx-auto w-full">
+
+          {/* Desktop Filter Panel with Tags */}
+          <div className="hidden lg:block mb-6">
+            <Suspense fallback={null}>
+              <BusinessFilterPanel
+                regions={regions || []}
+                currentFilters={{ region, sort, rating, verified, featured }}
+                categoryTags={categoryTags || []}
+                selectedTags={selectedTags}
+              />
+            </Suspense>
+          </div>
+
+          {/* Business Grid with View Controls */}
+          <CategoryPageClient businesses={businessesWithPhotos} />
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav className="flex items-center justify-center gap-2 mt-8" aria-label="Pagination">
+              {currentPage > 1 && (
+                <Link
+                  href={`/businesses/category/${slug}?${new URLSearchParams({
+                    ...(region && region !== 'all' ? { region } : {}),
+                    ...(sort !== 'featured' ? { sort } : {}),
+                    ...(rating && rating !== 'all' ? { rating } : {}),
+                    ...(verified === 'true' ? { verified } : {}),
+                    ...(featured === 'true' ? { featured } : {}),
+                    ...(tagsParam ? { tags: tagsParam } : {}),
+                    page: String(currentPage - 1),
+                  }).toString()}`}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Previous
+                </Link>
+              )}
+              <span className="px-4 py-2 text-sm text-gray-600">
+                Page {currentPage} of {totalPages}
+              </span>
+              {currentPage < totalPages && (
+                <Link
+                  href={`/businesses/category/${slug}?${new URLSearchParams({
+                    ...(region && region !== 'all' ? { region } : {}),
+                    ...(sort !== 'featured' ? { sort } : {}),
+                    ...(rating && rating !== 'all' ? { rating } : {}),
+                    ...(verified === 'true' ? { verified } : {}),
+                    ...(featured === 'true' ? { featured } : {}),
+                    ...(tagsParam ? { tags: tagsParam } : {}),
+                    page: String(currentPage + 1),
+                  }).toString()}`}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Next
+                </Link>
+              )}
+            </nav>
+          )}
+        </main>
+      </div>
+
+    </div>
+    </>
+  )
+}

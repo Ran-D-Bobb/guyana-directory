@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import type { KioskEvent } from '@/app/kiosk/KioskHomePage'
+import type { KioskEvent } from '@/app/[locale]/kiosk/KioskHomePage'
 
 interface KioskEventsTimelineProps {
   events: KioskEvent[]

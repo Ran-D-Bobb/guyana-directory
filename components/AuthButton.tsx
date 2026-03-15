@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { User } from '@supabase/supabase-js'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { getAuthRedirectUrl } from '@/lib/utils'
 import {
@@ -19,6 +20,7 @@ interface AuthButtonProps {
 }
 
 export function AuthButton({ user }: AuthButtonProps) {
+  const t = useTranslations('auth')
   const supabase = createClient()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -49,7 +51,7 @@ export function AuthButton({ user }: AuthButtonProps) {
           variant="outline"
           className="text-sm md:text-base px-4 py-2 md:px-5 md:py-2.5 h-9 md:h-10 font-medium border-primary text-primary hover:bg-primary/5"
         >
-          Sign Up
+          {t('signUp')}
         </Button>
       </Link>
       <DropdownMenu>
@@ -58,7 +60,7 @@ export function AuthButton({ user }: AuthButtonProps) {
             disabled={isLoading}
             className="bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-[background-color,box-shadow] duration-200 active:scale-95 text-sm md:text-base px-4 py-2 md:px-5 md:py-2.5 h-9 md:h-10 border-0 font-semibold"
           >
-            <span className="font-semibold">Sign In</span>
+            <span className="font-semibold">{t('signIn')}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-64 p-3 bg-white border border-gray-200 shadow-xl">
@@ -88,8 +90,8 @@ export function AuthButton({ user }: AuthButtonProps) {
               </svg>
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold text-sm text-gray-900">Continue with Google</span>
-              <span className="text-xs text-gray-600">Fast & secure</span>
+              <span className="font-semibold text-sm text-gray-900">{t('continueWithGoogle')}</span>
+              <span className="text-xs text-gray-600">{t('fastAndSecure')}</span>
             </div>
           </DropdownMenuItem>
 
@@ -97,7 +99,7 @@ export function AuthButton({ user }: AuthButtonProps) {
 
           <Link href="/auth/login" className="block">
             <Button variant="outline" size="sm" className="w-full text-sm">
-              Log In with Email
+              {t('logInWithEmail')}
             </Button>
           </Link>
         </DropdownMenuContent>

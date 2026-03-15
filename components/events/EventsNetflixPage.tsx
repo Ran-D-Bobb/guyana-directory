@@ -12,9 +12,11 @@ import {
   Dumbbell, BookOpen, Briefcase, Gift, Drama, GraduationCap,
   type LucideIcon,
 } from 'lucide-react'
+import { useLocale } from 'next-intl'
 import type { MappedEvent } from '@/lib/events'
 import { ScrollReveal } from '@/components/ScrollReveal'
 import { getFallbackImage } from '@/lib/category-images'
+import { getLocalizedName } from '@/lib/i18n-helpers'
 
 // ─── Types ──────────────────────────────────────────────────────────
 export interface EventRowData {
@@ -26,6 +28,7 @@ export interface EventRowData {
 
 export interface EventCategory {
   name: string
+  name_es?: string | null
   slug: string
   icon: string | null
 }
@@ -691,6 +694,7 @@ function TopBar({ searchQuery, basePath = '/events', pageTitle = 'Events', categ
   const [searchValue, setSearchValue] = useState(searchQuery || '')
   const router = useRouter()
   const searchParams = useSearchParams()
+  const locale = useLocale()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 80)
@@ -850,7 +854,7 @@ function TopBar({ searchQuery, basePath = '/events', pageTitle = 'Events', categ
                 }`}
               >
                 {IconComp && <IconComp className="w-3 h-3 md:w-3.5 md:h-3.5" />}
-                {cat.name}
+                {getLocalizedName(cat, locale)}
               </Link>
             )
           })}

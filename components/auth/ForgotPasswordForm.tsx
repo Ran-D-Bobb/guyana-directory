@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { forgotPasswordSchema, type ForgotPasswordFormData } from '@/lib/validations/auth'
 import { TextInput } from '@/components/forms/inputs/TextInput'
@@ -12,6 +13,7 @@ import { getAuthRedirectUrl } from '@/lib/utils'
 
 export function ForgotPasswordForm() {
   const supabase = createClient()
+  const t = useTranslations('auth')
   const [isLoading, setIsLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
   const [sentToEmail, setSentToEmail] = useState('')
@@ -51,7 +53,7 @@ export function ForgotPasswordForm() {
       })
 
       if (error) {
-        toast.error('Failed to send reset email', {
+        toast.error(t('failedToSendResetEmail'), {
           description: error.message,
         })
         return
@@ -60,11 +62,11 @@ export function ForgotPasswordForm() {
       // Always show success even if email doesn't exist (security best practice)
       setEmailSent(true)
       setSentToEmail(formData.email)
-      toast.success('Reset email sent', {
-        description: 'Check your inbox for the password reset link.',
+      toast.success(t('resetEmailSent'), {
+        description: t('resetEmailSentDesc'),
       })
     } catch (error) {
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpectedError'))
       console.error('Forgot password error:', error)
     } finally {
       setIsLoading(false)
@@ -79,16 +81,16 @@ export function ForgotPasswordForm() {
       })
 
       if (error) {
-        toast.error('Failed to resend email', {
+        toast.error(t('failedToResendEmail'), {
           description: error.message,
         })
       } else {
-        toast.success('Email sent', {
-          description: 'We sent another password reset email.',
+        toast.success(t('emailSentToast'), {
+          description: t('emailSentToastDesc'),
         })
       }
     } catch {
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpectedError'))
     } finally {
       setIsLoading(false)
     }
@@ -101,13 +103,13 @@ export function ForgotPasswordForm() {
         <div className="mx-auto w-16 h-16 bg-[hsl(var(--jungle-100))] rounded-full flex items-center justify-center mb-4">
           <Mail className="w-8 h-8 text-[hsl(var(--jungle-500))]" />
         </div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Check your email</h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t('checkEmailTitle')}</h2>
         <p className="text-gray-600 mb-6">
-          We sent a password reset link to<br />
+          {t('checkEmailBody')}<br />
           <span className="font-medium text-gray-900">{sentToEmail}</span>
         </p>
         <p className="text-sm text-gray-500 mb-6">
-          Click the link in the email to reset your password.
+          {t('clickLinkToReset')}
         </p>
         <div className="space-y-3">
           <Button
@@ -119,12 +121,12 @@ export function ForgotPasswordForm() {
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
             ) : null}
-            Resend reset email
+            {t('resendResetEmail')}
           </Button>
           <Link href="/auth/login">
             <Button variant="ghost" className="w-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to sign in
+              {t('backToSignIn')}
             </Button>
           </Link>
         </div>
@@ -136,15 +138,15 @@ export function ForgotPasswordForm() {
     <div className="w-full">
       <form onSubmit={handleSubmit} className="space-y-4">
         <TextInput
-          label="Email"
+          label={t('emailLabel')}
           name="email"
           type="email"
           value={formData.email}
           onChange={updateField('email')}
           required
           error={errors.email}
-          placeholder="you@example.com"
-          helperText="Enter the email address associated with your account."
+          placeholder={t('emailPlaceholder')}
+          helperText={t('emailHelperText')}
         />
 
         <Button
@@ -155,7 +157,7 @@ export function ForgotPasswordForm() {
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
           ) : (
-            'Send reset link'
+            t('sendResetLink')
           )}
         </Button>
       </form>
@@ -163,7 +165,7 @@ export function ForgotPasswordForm() {
       <p className="mt-6 text-center text-sm text-gray-600">
         <Link href="/auth/login" className="font-medium text-[hsl(var(--jungle-500))] hover:text-[hsl(var(--jungle-700))] inline-flex items-center gap-1 transition-colors">
           <ArrowLeft className="w-4 h-4" />
-          Back to sign in
+          {t('backToSignIn')}
         </Link>
       </p>
     </div>

@@ -1,5 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 
+/** Escape a value for safe CSV output (prevents formula injection). */
+function escapeCSV(value: string | number | null | undefined): string {
+  const str = String(value ?? '')
+  // Prefix formula characters to prevent injection
+  const needsPrefix = /^[=+\-@\t\r]/.test(str)
+  const escaped = needsPrefix ? `'${str}` : str
+  // Wrap in quotes if contains comma, quote, or newline
+  if (/[",\n\r]/.test(escaped)) {
+    return `"${escaped.replace(/"/g, '""')}"`
+  }
+  return escaped
+}
+
 // Types for analytics data
 export type TimePeriod = '7d' | '30d' | '90d' | 'custom'
 
@@ -473,7 +486,7 @@ export async function exportAnalyticsCSV(period: TimePeriod, customRange?: DateR
   csv += `Top Categories\n`
   csv += `Category,Businesses,Total Views,Total Reviews,Avg Rating\n`
   categories.forEach(c => {
-    csv += `${c.name},${c.businessCount},${c.totalViews},${c.totalReviews},${c.avgRating || 'N/A'}\n`
+    csv += `${escapeCSV(c.name)},${c.businessCount},${c.totalViews},${c.totalReviews},${c.avgRating || 'N/A'}\n`
   })
   csv += `\n`
 
@@ -481,7 +494,7 @@ export async function exportAnalyticsCSV(period: TimePeriod, customRange?: DateR
   csv += `Top Regions\n`
   csv += `Region,Type,Businesses,Total Views,Total Reviews\n`
   regions.forEach(r => {
-    csv += `${r.name},${r.type},${r.businessCount},${r.totalViews},${r.totalReviews}\n`
+    csv += `${escapeCSV(r.name)},${escapeCSV(r.type)},${r.businessCount},${r.totalViews},${r.totalReviews}\n`
   })
   csv += `\n`
 
