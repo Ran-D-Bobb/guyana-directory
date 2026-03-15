@@ -6,6 +6,7 @@ import type { FeedItem } from '@/components/home'
 import { getCategoryImage, getFallbackImage } from '@/lib/category-images'
 import { resolveRegionFilter, getRegionDisplayName } from '@/lib/regions'
 import { RegionRedirect } from '@/components/RegionRedirect'
+import { FooterMinimal } from '@/components/FooterMinimal'
 
 export const revalidate = 300
 
@@ -248,6 +249,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
       />
       <Suspense fallback={null}><RegionRedirect /></Suspense>
       <HomeFeedClient items={feedItems} />
+      <FooterMinimal />
     </>
   )
 }

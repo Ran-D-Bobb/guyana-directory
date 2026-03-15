@@ -7,7 +7,6 @@ import { WelcomeHero } from './WelcomeHero';
 import { CategoryFilterPills, type FilterType, type SortOption } from './CategoryFilterPills';
 import { UnifiedFeed } from './UnifiedFeed';
 import { type FeedItem } from './FeedCard';
-import { FooterMinimal } from '@/components/FooterMinimal';
 import { ScrollReveal } from '@/components/ScrollReveal';
 
 // Dynamic imports for below-fold sections — reduces initial JS bundle
@@ -122,8 +121,6 @@ export function HomeFeedClient({ items }: HomeFeedClientProps) {
         <UnifiedFeed items={sortedItems} />
       </main>
 
-      {/* Footer */}
-      <FooterMinimal />
     </div>
   );
 }
